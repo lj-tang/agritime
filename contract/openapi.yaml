@@ -1,0 +1,123 @@
+openapi: 3.0.3
+info:
+  title: 知农时 · 时间线 API
+  version: v1
+  description: 输入作物品种、播种日期与所在地，返回一条会看天、懂节气、知行情的时间线。
+servers:
+  - url: http://localhost:3000
+paths:
+  /api/timeline:
+    post:
+      summary: 生成时间线
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TimelineRequest'
+      responses:
+        '200':
+          description: 时间线响应
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TimelineResponse'
+        '400':
+          description: INVALID_INPUT
+        '422':
+          description: UNSUPPORTED_CROP
+        '503':
+          description: WEATHER_UNAVAILABLE
+  /api/recognition:
+    post:
+      summary: 拍照识别作物（返回候选，须人工确认）
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                image:
+                  type: string
+                  description: 照片（base64 或引用）
+      responses:
+        '200':
+          description: 候选列表
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RecognitionResponse'
+components:
+  schemas:
+    TimelineRequest:
+      type: object
+      required: [crop, sowingDate, location]
+      properties:
+        crop:
+          type: string
+        sowingDate:
+          type: string
+          format: date
+        location:
+          type: object
+          required: [latitude, longitude]
+          properties:
+            province: { type: string }
+            city: { type: string }
+            county: { type: string }
+            latitude: { type: number }
+            longitude: { type: number }
+        windowDays:
+          type: integer
+          default: 7
+    Node:
+      type: object
+      properties:
+        nodeId: { type: string }
+        nodeSeq: { type: integer }
+        daysAfterSowing: { type: integer }
+        date: { type: string, format: date }
+        operationType: { type: string }
+        name: { type: string }
+        description: { type: string }
+        status: { type: string, enum: [green, yellow, red] }
+        copy: { type: string }
+        reasons:
+          type: array
+          items: { type: string }
+        rescheduleAdvice: { type: string, nullable: true }
+        certainty: { type: string, enum: [certain, predicted] }
+    TimelineResponse:
+      type: object
+      properties:
+        apiVersion: { type: string }
+        dataSource: { type: string, enum: [realtime, cache, unavailable] }
+        dataTime: { type: string, nullable: true }
+        todayConclusion:
+          type: object
+          properties:
+            nodeId: { type: string, nullable: true }
+            status: { type: string }
+            copy: { type: string }
+            certainty: { type: string }
+        nodes:
+          type: array
+          items:
+            $ref: '#/components/schemas/Node'
+        reminders:
+          type: array
+          items: { type: object }
+    RecognitionResponse:
+      type: object
+      properties:
+        needConfirm: { type: boolean }
+        fallback: { type: string, enum: [search, none] }
+        candidates:
+          type: array
+          maxItems: 3
+          items:
+            type: object
+            properties:
+              crop: { type: string }
+              confidence: { type: number }

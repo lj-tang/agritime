@@ -1,0 +1,3772 @@
+[
+  {
+    "crop": "山东金乡大蒜",
+    "nodeSeq": 1,
+    "daysAfterSowing": 0,
+    "operationType": "sowing",
+    "name": "播种",
+    "description": "适期播种，深度一致，覆土镇压",
+    "source": "金乡大蒜栽培技术推广资料",
+    "category": "vegetable"
+  },
+  {
+    "crop": "山东金乡大蒜",
+    "nodeSeq": 2,
+    "daysAfterSowing": 7,
+    "operationType": "emergence",
+    "name": "出苗",
+    "description": "检查出苗情况，缺苗补种",
+    "source": "金乡大蒜栽培技术推广资料",
+    "category": "vegetable"
+  },
+  {
+    "crop": "山东金乡大蒜",
+    "nodeSeq": 3,
+    "daysAfterSowing": 60,
+    "operationType": "irrigation",
+    "name": "越冬前灌溉",
+    "description": "浇越冬水，保苗安全越冬",
+    "source": "山东省大蒜地方种植标准",
+    "category": "vegetable"
+  },
+  {
+    "crop": "山东金乡大蒜",
+    "nodeSeq": 4,
+    "daysAfterSowing": 120,
+    "operationType": "irrigation",
+    "name": "返青水",
+    "description": "返青期浇水，促进恢复生长",
+    "source": "山东省大蒜地方种植标准",
+    "category": "vegetable"
+  },
+  {
+    "crop": "山东金乡大蒜",
+    "nodeSeq": 5,
+    "daysAfterSowing": 140,
+    "operationType": "fertilizer",
+    "name": "返青追肥",
+    "description": "返青期追施氮肥，规避降雨与低温",
+    "source": "金乡大蒜施肥技术资料",
+    "category": "vegetable"
+  },
+  {
+    "crop": "山东金乡大蒜",
+    "nodeSeq": 6,
+    "daysAfterSowing": 170,
+    "operationType": "pesticide",
+    "name": "抽薹期打药",
+    "description": "防治叶枯病与蒜蛆，避雨避风",
+    "source": "大蒜病虫害防治手册",
+    "category": "vegetable"
+  },
+  {
+    "crop": "山东金乡大蒜",
+    "nodeSeq": 7,
+    "daysAfterSowing": 190,
+    "operationType": "irrigation",
+    "name": "抽薹期灌溉",
+    "description": "保持土壤湿润，利于抽薹",
+    "source": "山东省大蒜地方种植标准",
+    "category": "vegetable"
+  },
+  {
+    "crop": "山东金乡大蒜",
+    "nodeSeq": 8,
+    "daysAfterSowing": 205,
+    "operationType": "harvest",
+    "name": "蒜薹采收",
+    "description": "蒜薹适时采收，遇雨提前抢收",
+    "source": "金乡大蒜采收技术资料",
+    "category": "vegetable"
+  },
+  {
+    "crop": "山东金乡大蒜",
+    "nodeSeq": 9,
+    "daysAfterSowing": 235,
+    "operationType": "fertilizer",
+    "name": "鳞茎膨大追肥",
+    "description": "追施磷钾肥，促进鳞茎膨大",
+    "source": "金乡大蒜施肥技术资料",
+    "category": "vegetable"
+  },
+  {
+    "crop": "山东金乡大蒜",
+    "nodeSeq": 10,
+    "daysAfterSowing": 260,
+    "operationType": "harvest",
+    "name": "蒜头采收",
+    "description": "叶片转黄时采收，晾晒入储",
+    "source": "金乡大蒜采收技术资料",
+    "category": "vegetable"
+  },
+  {
+    "crop": "山东金乡大蒜",
+    "nodeSeq": 11,
+    "daysAfterSowing": 155,
+    "operationType": "pesticide",
+    "name": "返青后防蒜蛆",
+    "description": "返青后防治蒜蛆，避雨避风",
+    "source": "大蒜病虫害防治手册",
+    "category": "vegetable"
+  },
+  {
+    "crop": "山东金乡大蒜",
+    "nodeSeq": 12,
+    "daysAfterSowing": 178,
+    "operationType": "irrigation",
+    "name": "抽薹前灌溉",
+    "description": "抽薹前补水，保障抽薹整齐",
+    "source": "山东省大蒜地方种植标准",
+    "category": "vegetable"
+  },
+  {
+    "crop": "山东金乡大蒜",
+    "nodeSeq": 13,
+    "daysAfterSowing": 285,
+    "operationType": "other",
+    "name": "蒜头晾晒入储",
+    "description": "蒜头晾晒分级后入仓储藏",
+    "source": "金乡大蒜采收技术资料",
+    "category": "vegetable"
+  },
+  {
+    "crop": "河南新乡小麦",
+    "nodeSeq": 1,
+    "daysAfterSowing": 0,
+    "operationType": "sowing",
+    "name": "播种",
+    "description": "适墒适期播种，控制播量",
+    "source": "河南小麦栽培技术推广资料",
+    "category": "grain"
+  },
+  {
+    "crop": "河南新乡小麦",
+    "nodeSeq": 2,
+    "daysAfterSowing": 7,
+    "operationType": "emergence",
+    "name": "出苗",
+    "description": "查苗补种，确保基本苗",
+    "source": "河南小麦栽培技术推广资料",
+    "category": "grain"
+  },
+  {
+    "crop": "河南新乡小麦",
+    "nodeSeq": 3,
+    "daysAfterSowing": 60,
+    "operationType": "irrigation",
+    "name": "分蘖水",
+    "description": "分蘖期补水，促根增蘖",
+    "source": "河南省小麦地方种植标准",
+    "category": "grain"
+  },
+  {
+    "crop": "河南新乡小麦",
+    "nodeSeq": 4,
+    "daysAfterSowing": 120,
+    "operationType": "irrigation",
+    "name": "越冬水",
+    "description": "浇越冬水，防冻保苗",
+    "source": "河南省小麦地方种植标准",
+    "category": "grain"
+  },
+  {
+    "crop": "河南新乡小麦",
+    "nodeSeq": 5,
+    "daysAfterSowing": 150,
+    "operationType": "fertilizer",
+    "name": "返青追肥",
+    "description": "返青期追施氮肥，避开低温降雨",
+    "source": "小麦施肥技术资料",
+    "category": "grain"
+  },
+  {
+    "crop": "河南新乡小麦",
+    "nodeSeq": 6,
+    "daysAfterSowing": 170,
+    "operationType": "pesticide",
+    "name": "返青期打药",
+    "description": "防治纹枯病，避雨避风",
+    "source": "小麦病虫害防治手册",
+    "category": "grain"
+  },
+  {
+    "crop": "河南新乡小麦",
+    "nodeSeq": 7,
+    "daysAfterSowing": 200,
+    "operationType": "fertilizer",
+    "name": "拔节肥",
+    "description": "拔节期追肥，看苗调控",
+    "source": "小麦施肥技术资料",
+    "category": "grain"
+  },
+  {
+    "crop": "河南新乡小麦",
+    "nodeSeq": 8,
+    "daysAfterSowing": 220,
+    "operationType": "irrigation",
+    "name": "抽穗灌溉",
+    "description": "抽穗扬花期保证水分供应",
+    "source": "河南省小麦地方种植标准",
+    "category": "grain"
+  },
+  {
+    "crop": "河南新乡小麦",
+    "nodeSeq": 9,
+    "daysAfterSowing": 240,
+    "operationType": "pesticide",
+    "name": "灌浆期打药",
+    "description": "防治赤霉病与蚜虫，避雨",
+    "source": "小麦病虫害防治手册",
+    "category": "grain"
+  },
+  {
+    "crop": "河南新乡小麦",
+    "nodeSeq": 10,
+    "daysAfterSowing": 260,
+    "operationType": "harvest",
+    "name": "成熟采收",
+    "description": "蜡熟末期收获，遇雨抢收",
+    "source": "小麦收获技术资料",
+    "category": "grain"
+  },
+  {
+    "crop": "河南新乡小麦",
+    "nodeSeq": 11,
+    "daysAfterSowing": 90,
+    "operationType": "other",
+    "name": "冬前化学除草",
+    "description": "冬前化除，避风避雨",
+    "source": "小麦田间管理资料",
+    "category": "grain"
+  },
+  {
+    "crop": "河南新乡小麦",
+    "nodeSeq": 12,
+    "daysAfterSowing": 130,
+    "operationType": "pesticide",
+    "name": "越冬期防病",
+    "description": "越冬期防治纹枯病，避低温",
+    "source": "小麦病虫害防治手册",
+    "category": "grain"
+  },
+  {
+    "crop": "河南新乡小麦",
+    "nodeSeq": 13,
+    "daysAfterSowing": 280,
+    "operationType": "other",
+    "name": "晾晒入储",
+    "description": "籽粒晾晒至安全水分后入储",
+    "source": "小麦收获技术资料",
+    "category": "grain"
+  },
+  {
+    "crop": "黑龙江绥化玉米",
+    "nodeSeq": 1,
+    "daysAfterSowing": 0,
+    "operationType": "sowing",
+    "name": "播种",
+    "description": "地温稳定后播种，镇压保墒",
+    "source": "黑龙江玉米栽培技术推广资料",
+    "category": "grain"
+  },
+  {
+    "crop": "黑龙江绥化玉米",
+    "nodeSeq": 2,
+    "daysAfterSowing": 6,
+    "operationType": "emergence",
+    "name": "出苗",
+    "description": "查苗补苗，破除板结",
+    "source": "黑龙江玉米栽培技术推广资料",
+    "category": "grain"
+  },
+  {
+    "crop": "黑龙江绥化玉米",
+    "nodeSeq": 3,
+    "daysAfterSowing": 25,
+    "operationType": "other",
+    "name": "苗期除草",
+    "description": "苗期化学除草，避风避雨",
+    "source": "玉米田间管理资料",
+    "category": "grain"
+  },
+  {
+    "crop": "黑龙江绥化玉米",
+    "nodeSeq": 4,
+    "daysAfterSowing": 40,
+    "operationType": "fertilizer",
+    "name": "苗期追肥",
+    "description": "苗期追施氮肥，促进生长",
+    "source": "玉米施肥技术资料",
+    "category": "grain"
+  },
+  {
+    "crop": "黑龙江绥化玉米",
+    "nodeSeq": 5,
+    "daysAfterSowing": 55,
+    "operationType": "fertilizer",
+    "name": "大喇叭口追肥",
+    "description": "大喇叭口期重施穗肥",
+    "source": "玉米施肥技术资料",
+    "category": "grain"
+  },
+  {
+    "crop": "黑龙江绥化玉米",
+    "nodeSeq": 6,
+    "daysAfterSowing": 65,
+    "operationType": "irrigation",
+    "name": "抽雄前灌溉",
+    "description": "抽雄前补水，防卡脖旱",
+    "source": "玉米灌溉技术资料",
+    "category": "grain"
+  },
+  {
+    "crop": "黑龙江绥化玉米",
+    "nodeSeq": 7,
+    "daysAfterSowing": 70,
+    "operationType": "pesticide",
+    "name": "抽雄期打药",
+    "description": "防治玉米螟，避雨避风",
+    "source": "玉米病虫害防治手册",
+    "category": "grain"
+  },
+  {
+    "crop": "黑龙江绥化玉米",
+    "nodeSeq": 8,
+    "daysAfterSowing": 90,
+    "operationType": "fertilizer",
+    "name": "灌浆追肥",
+    "description": "灌浆期补肥防早衰",
+    "source": "玉米施肥技术资料",
+    "category": "grain"
+  },
+  {
+    "crop": "黑龙江绥化玉米",
+    "nodeSeq": 9,
+    "daysAfterSowing": 110,
+    "operationType": "irrigation",
+    "name": "灌浆灌溉",
+    "description": "灌浆期保水，促进粒重",
+    "source": "玉米灌溉技术资料",
+    "category": "grain"
+  },
+  {
+    "crop": "黑龙江绥化玉米",
+    "nodeSeq": 10,
+    "daysAfterSowing": 125,
+    "operationType": "harvest",
+    "name": "成熟采收",
+    "description": "完熟期收获，遇雨抢收",
+    "source": "玉米收获技术资料",
+    "category": "grain"
+  },
+  {
+    "crop": "黑龙江绥化玉米",
+    "nodeSeq": 11,
+    "daysAfterSowing": 15,
+    "operationType": "other",
+    "name": "间苗定苗",
+    "description": "间苗定苗，去弱留壮",
+    "source": "玉米田间管理资料",
+    "category": "grain"
+  },
+  {
+    "crop": "黑龙江绥化玉米",
+    "nodeSeq": 12,
+    "daysAfterSowing": 100,
+    "operationType": "pesticide",
+    "name": "灌浆期防虫",
+    "description": "灌浆期防治玉米螟与蚜虫",
+    "source": "玉米病虫害防治手册",
+    "category": "grain"
+  },
+  {
+    "crop": "黑龙江绥化玉米",
+    "nodeSeq": 13,
+    "daysAfterSowing": 140,
+    "operationType": "other",
+    "name": "秸秆处理",
+    "description": "秸秆还田或清运处理",
+    "source": "玉米收获技术资料",
+    "category": "grain"
+  },
+  {
+    "crop": "湖北荆州水稻",
+    "nodeSeq": 1,
+    "daysAfterSowing": 0,
+    "operationType": "sowing",
+    "name": "育秧播种",
+    "description": "适期育秧，控温控水",
+    "source": "湖北水稻栽培技术推广资料",
+    "category": "grain"
+  },
+  {
+    "crop": "湖北荆州水稻",
+    "nodeSeq": 2,
+    "daysAfterSowing": 12,
+    "operationType": "emergence",
+    "name": "出苗",
+    "description": "秧苗管理，防止徒长",
+    "source": "湖北水稻栽培技术推广资料",
+    "category": "grain"
+  },
+  {
+    "crop": "湖北荆州水稻",
+    "nodeSeq": 3,
+    "daysAfterSowing": 25,
+    "operationType": "other",
+    "name": "移栽",
+    "description": "适龄移栽，合理密植",
+    "source": "水稻栽培技术资料",
+    "category": "grain"
+  },
+  {
+    "crop": "湖北荆州水稻",
+    "nodeSeq": 4,
+    "daysAfterSowing": 35,
+    "operationType": "fertilizer",
+    "name": "返青肥",
+    "description": "返青期追肥，促进分蘖",
+    "source": "水稻施肥技术资料",
+    "category": "grain"
+  },
+  {
+    "crop": "湖北荆州水稻",
+    "nodeSeq": 5,
+    "daysAfterSowing": 45,
+    "operationType": "fertilizer",
+    "name": "分蘖肥",
+    "description": "分蘖期追肥，看苗施用",
+    "source": "水稻施肥技术资料",
+    "category": "grain"
+  },
+  {
+    "crop": "湖北荆州水稻",
+    "nodeSeq": 6,
+    "daysAfterSowing": 55,
+    "operationType": "pesticide",
+    "name": "分蘖期打药",
+    "description": "防治二化螟，避雨避风",
+    "source": "水稻病虫害防治手册",
+    "category": "grain"
+  },
+  {
+    "crop": "湖北荆州水稻",
+    "nodeSeq": 7,
+    "daysAfterSowing": 70,
+    "operationType": "irrigation",
+    "name": "晒田灌溉",
+    "description": "适时晒田，控制无效分蘖",
+    "source": "水稻水分管理资料",
+    "category": "grain"
+  },
+  {
+    "crop": "湖北荆州水稻",
+    "nodeSeq": 8,
+    "daysAfterSowing": 85,
+    "operationType": "fertilizer",
+    "name": "穗肥",
+    "description": "穗期追肥，保花增粒",
+    "source": "水稻施肥技术资料",
+    "category": "grain"
+  },
+  {
+    "crop": "湖北荆州水稻",
+    "nodeSeq": 9,
+    "daysAfterSowing": 95,
+    "operationType": "pesticide",
+    "name": "破口期打药",
+    "description": "防治稻瘟病，避雨避风",
+    "source": "水稻病虫害防治手册",
+    "category": "grain"
+  },
+  {
+    "crop": "湖北荆州水稻",
+    "nodeSeq": 10,
+    "daysAfterSowing": 115,
+    "operationType": "harvest",
+    "name": "成熟采收",
+    "description": "黄熟期收获，遇雨抢收",
+    "source": "水稻收获技术资料",
+    "category": "grain"
+  },
+  {
+    "crop": "湖北荆州水稻",
+    "nodeSeq": 11,
+    "daysAfterSowing": 30,
+    "operationType": "other",
+    "name": "分蘖初期管理",
+    "description": "浅水勤灌，促早分蘖",
+    "source": "水稻水分管理资料",
+    "category": "grain"
+  },
+  {
+    "crop": "湖北荆州水稻",
+    "nodeSeq": 12,
+    "daysAfterSowing": 105,
+    "operationType": "irrigation",
+    "name": "灌浆期水分管理",
+    "description": "干湿交替，养根保叶",
+    "source": "水稻水分管理资料",
+    "category": "grain"
+  },
+  {
+    "crop": "湖北荆州水稻",
+    "nodeSeq": 13,
+    "daysAfterSowing": 130,
+    "operationType": "other",
+    "name": "晾晒入储",
+    "description": "稻谷晾晒至安全水分入储",
+    "source": "水稻收获技术资料",
+    "category": "grain"
+  },
+  {
+    "crop": "山东寿光番茄",
+    "nodeSeq": 1,
+    "daysAfterSowing": 0,
+    "operationType": "sowing",
+    "name": "播种育苗",
+    "description": "基质育苗，控温保湿",
+    "source": "寿光番茄栽培技术推广资料",
+    "category": "vegetable"
+  },
+  {
+    "crop": "山东寿光番茄",
+    "nodeSeq": 2,
+    "daysAfterSowing": 10,
+    "operationType": "emergence",
+    "name": "出苗",
+    "description": "出苗后降温防徒长",
+    "source": "寿光番茄栽培技术推广资料",
+    "category": "vegetable"
+  },
+  {
+    "crop": "山东寿光番茄",
+    "nodeSeq": 3,
+    "daysAfterSowing": 30,
+    "operationType": "other",
+    "name": "移栽定植",
+    "description": "适龄定植，合理密植",
+    "source": "番茄栽培技术资料",
+    "category": "vegetable"
+  },
+  {
+    "crop": "山东寿光番茄",
+    "nodeSeq": 4,
+    "daysAfterSowing": 45,
+    "operationType": "irrigation",
+    "name": "缓苗水",
+    "description": "定植后浇缓苗水，促缓苗",
+    "source": "番茄水分管理资料",
+    "category": "vegetable"
+  },
+  {
+    "crop": "山东寿光番茄",
+    "nodeSeq": 5,
+    "daysAfterSowing": 60,
+    "operationType": "fertilizer",
+    "name": "花期追肥",
+    "description": "花期追施平衡肥，避低温",
+    "source": "番茄施肥技术资料",
+    "category": "vegetable"
+  },
+  {
+    "crop": "山东寿光番茄",
+    "nodeSeq": 6,
+    "daysAfterSowing": 70,
+    "operationType": "pesticide",
+    "name": "花期打药",
+    "description": "防治灰霉病，避雨避风",
+    "source": "番茄病虫害防治手册",
+    "category": "vegetable"
+  },
+  {
+    "crop": "山东寿光番茄",
+    "nodeSeq": 7,
+    "daysAfterSowing": 85,
+    "operationType": "fertilizer",
+    "name": "坐果肥",
+    "description": "坐果期追施钾肥，促果实",
+    "source": "番茄施肥技术资料",
+    "category": "vegetable"
+  },
+  {
+    "crop": "山东寿光番茄",
+    "nodeSeq": 8,
+    "daysAfterSowing": 100,
+    "operationType": "irrigation",
+    "name": "膨果灌溉",
+    "description": "膨果期均匀供水，防裂果",
+    "source": "番茄水分管理资料",
+    "category": "vegetable"
+  },
+  {
+    "crop": "山东寿光番茄",
+    "nodeSeq": 9,
+    "daysAfterSowing": 115,
+    "operationType": "pesticide",
+    "name": "膨果期打药",
+    "description": "防治晚疫病，避雨避风",
+    "source": "番茄病虫害防治手册",
+    "category": "vegetable"
+  },
+  {
+    "crop": "山东寿光番茄",
+    "nodeSeq": 10,
+    "daysAfterSowing": 130,
+    "operationType": "harvest",
+    "name": "采收",
+    "description": "果实转色后分批采收",
+    "source": "番茄采收技术资料",
+    "category": "vegetable"
+  },
+  {
+    "crop": "山东寿光番茄",
+    "nodeSeq": 11,
+    "daysAfterSowing": 20,
+    "operationType": "other",
+    "name": "分苗",
+    "description": "分苗炼苗，培育壮苗",
+    "source": "番茄栽培技术资料",
+    "category": "vegetable"
+  },
+  {
+    "crop": "山东寿光番茄",
+    "nodeSeq": 12,
+    "daysAfterSowing": 110,
+    "operationType": "fertilizer",
+    "name": "膨果期钾肥",
+    "description": "膨果期补钾，提升品质",
+    "source": "番茄施肥技术资料",
+    "category": "vegetable"
+  },
+  {
+    "crop": "山东寿光番茄",
+    "nodeSeq": 13,
+    "daysAfterSowing": 140,
+    "operationType": "other",
+    "name": "拉秧清园",
+    "description": "采收结束后拉秧清园消毒",
+    "source": "番茄栽培技术资料",
+    "category": "vegetable"
+  },
+  {
+    "crop": "黑龙江绥化大豆",
+    "nodeSeq": 1,
+    "daysAfterSowing": 0,
+    "operationType": "sowing",
+    "name": "播种",
+    "description": "适墒播种，控制密度",
+    "source": "东北大豆栽培技术资料",
+    "category": "grain"
+  },
+  {
+    "crop": "黑龙江绥化大豆",
+    "nodeSeq": 2,
+    "daysAfterSowing": 7,
+    "operationType": "emergence",
+    "name": "出苗",
+    "description": "查苗补苗，破除板结",
+    "source": "东北大豆栽培技术资料",
+    "category": "grain"
+  },
+  {
+    "crop": "黑龙江绥化大豆",
+    "nodeSeq": 3,
+    "daysAfterSowing": 20,
+    "operationType": "other",
+    "name": "间苗定苗",
+    "description": "间苗定苗，去弱留壮",
+    "source": "大豆田间管理资料",
+    "category": "grain"
+  },
+  {
+    "crop": "黑龙江绥化大豆",
+    "nodeSeq": 4,
+    "daysAfterSowing": 30,
+    "operationType": "pesticide",
+    "name": "苗期防蚜",
+    "description": "防治蚜虫，避雨避风",
+    "source": "大豆病虫害防治手册",
+    "category": "grain"
+  },
+  {
+    "crop": "黑龙江绥化大豆",
+    "nodeSeq": 5,
+    "daysAfterSowing": 40,
+    "operationType": "fertilizer",
+    "name": "苗期追肥",
+    "description": "苗期追施氮肥，促根壮苗",
+    "source": "大豆施肥技术资料",
+    "category": "grain"
+  },
+  {
+    "crop": "黑龙江绥化大豆",
+    "nodeSeq": 6,
+    "daysAfterSowing": 55,
+    "operationType": "other",
+    "name": "中耕培土",
+    "description": "中耕培土，防倒防旱",
+    "source": "大豆田间管理资料",
+    "category": "grain"
+  },
+  {
+    "crop": "黑龙江绥化大豆",
+    "nodeSeq": 7,
+    "daysAfterSowing": 65,
+    "operationType": "irrigation",
+    "name": "开花前灌溉",
+    "description": "开花前补水，防落花",
+    "source": "大豆灌溉技术资料",
+    "category": "grain"
+  },
+  {
+    "crop": "黑龙江绥化大豆",
+    "nodeSeq": 8,
+    "daysAfterSowing": 75,
+    "operationType": "pesticide",
+    "name": "防食心虫",
+    "description": "防治大豆食心虫，避雨避风",
+    "source": "大豆病虫害防治手册",
+    "category": "grain"
+  },
+  {
+    "crop": "黑龙江绥化大豆",
+    "nodeSeq": 9,
+    "daysAfterSowing": 85,
+    "operationType": "fertilizer",
+    "name": "鼓粒肥",
+    "description": "鼓粒期补肥，增粒重",
+    "source": "大豆施肥技术资料",
+    "category": "grain"
+  },
+  {
+    "crop": "黑龙江绥化大豆",
+    "nodeSeq": 10,
+    "daysAfterSowing": 95,
+    "operationType": "irrigation",
+    "name": "鼓粒灌溉",
+    "description": "鼓粒期保水，防早衰",
+    "source": "大豆灌溉技术资料",
+    "category": "grain"
+  },
+  {
+    "crop": "黑龙江绥化大豆",
+    "nodeSeq": 11,
+    "daysAfterSowing": 110,
+    "operationType": "harvest",
+    "name": "收获",
+    "description": "完熟期收获，遇雨抢收",
+    "source": "大豆收获技术资料",
+    "category": "grain"
+  },
+  {
+    "crop": "黑龙江绥化大豆",
+    "nodeSeq": 12,
+    "daysAfterSowing": 118,
+    "operationType": "other",
+    "name": "晾晒入储",
+    "description": "籽粒晾晒至安全水分入储",
+    "source": "大豆收获技术资料",
+    "category": "grain"
+  },
+  {
+    "crop": "河北张家口大白菜",
+    "nodeSeq": 1,
+    "daysAfterSowing": 0,
+    "operationType": "sowing",
+    "name": "播种",
+    "description": "适期直播或育苗，控制密度",
+    "source": "河北大白菜栽培技术资料",
+    "category": "vegetable"
+  },
+  {
+    "crop": "河北张家口大白菜",
+    "nodeSeq": 2,
+    "daysAfterSowing": 5,
+    "operationType": "emergence",
+    "name": "出苗",
+    "description": "出苗后及时间苗",
+    "source": "河北大白菜栽培技术资料",
+    "category": "vegetable"
+  },
+  {
+    "crop": "河北张家口大白菜",
+    "nodeSeq": 3,
+    "daysAfterSowing": 20,
+    "operationType": "other",
+    "name": "间苗定苗",
+    "description": "两次间苗后定苗",
+    "source": "大白菜田间管理资料",
+    "category": "vegetable"
+  },
+  {
+    "crop": "河北张家口大白菜",
+    "nodeSeq": 4,
+    "daysAfterSowing": 30,
+    "operationType": "fertilizer",
+    "name": "莲座期追肥",
+    "description": "莲座期追肥，促外叶生长",
+    "source": "大白菜施肥技术资料",
+    "category": "vegetable"
+  },
+  {
+    "crop": "河北张家口大白菜",
+    "nodeSeq": 5,
+    "daysAfterSowing": 40,
+    "operationType": "pesticide",
+    "name": "防菜青虫",
+    "description": "防治菜青虫，避雨避风",
+    "source": "大白菜病虫害防治手册",
+    "category": "vegetable"
+  },
+  {
+    "crop": "河北张家口大白菜",
+    "nodeSeq": 6,
+    "daysAfterSowing": 45,
+    "operationType": "irrigation",
+    "name": "莲座期浇水",
+    "description": "莲座期均匀供水",
+    "source": "大白菜水分管理资料",
+    "category": "vegetable"
+  },
+  {
+    "crop": "河北张家口大白菜",
+    "nodeSeq": 7,
+    "daysAfterSowing": 55,
+    "operationType": "fertilizer",
+    "name": "结球肥",
+    "description": "结球初期追施速效肥",
+    "source": "大白菜施肥技术资料",
+    "category": "vegetable"
+  },
+  {
+    "crop": "河北张家口大白菜",
+    "nodeSeq": 8,
+    "daysAfterSowing": 60,
+    "operationType": "irrigation",
+    "name": "结球灌溉",
+    "description": "结球期保持土壤湿润",
+    "source": "大白菜水分管理资料",
+    "category": "vegetable"
+  },
+  {
+    "crop": "河北张家口大白菜",
+    "nodeSeq": 9,
+    "daysAfterSowing": 70,
+    "operationType": "pesticide",
+    "name": "防软腐病",
+    "description": "防治软腐病，避雨避涝",
+    "source": "大白菜病虫害防治手册",
+    "category": "vegetable"
+  },
+  {
+    "crop": "河北张家口大白菜",
+    "nodeSeq": 10,
+    "daysAfterSowing": 80,
+    "operationType": "harvest",
+    "name": "采收",
+    "description": "叶球紧实时采收",
+    "source": "大白菜采收技术资料",
+    "category": "vegetable"
+  },
+  {
+    "crop": "河北张家口大白菜",
+    "nodeSeq": 11,
+    "daysAfterSowing": 85,
+    "operationType": "other",
+    "name": "晾晒储运",
+    "description": "采收后晾晒修整储运",
+    "source": "大白菜采收技术资料",
+    "category": "vegetable"
+  },
+  {
+    "crop": "河北张家口大白菜",
+    "nodeSeq": 12,
+    "daysAfterSowing": 88,
+    "operationType": "other",
+    "name": "窖藏",
+    "description": "入窖储藏，控温控湿",
+    "source": "大白菜储藏技术资料",
+    "category": "vegetable"
+  },
+  {
+    "crop": "山东寿光黄瓜",
+    "nodeSeq": 1,
+    "daysAfterSowing": 0,
+    "operationType": "sowing",
+    "name": "播种育苗",
+    "description": "穴盘育苗，控温保湿",
+    "source": "寿光黄瓜设施栽培技术资料",
+    "category": "vegetable"
+  },
+  {
+    "crop": "山东寿光黄瓜",
+    "nodeSeq": 2,
+    "daysAfterSowing": 5,
+    "operationType": "emergence",
+    "name": "出苗",
+    "description": "出苗后降温防徒长",
+    "source": "寿光黄瓜设施栽培技术资料",
+    "category": "vegetable"
+  },
+  {
+    "crop": "山东寿光黄瓜",
+    "nodeSeq": 3,
+    "daysAfterSowing": 20,
+    "operationType": "other",
+    "name": "定植",
+    "description": "适龄定植，合理密植",
+    "source": "黄瓜栽培技术资料",
+    "category": "vegetable"
+  },
+  {
+    "crop": "山东寿光黄瓜",
+    "nodeSeq": 4,
+    "daysAfterSowing": 30,
+    "operationType": "irrigation",
+    "name": "缓苗水",
+    "description": "定植后浇缓苗水",
+    "source": "黄瓜水分管理资料",
+    "category": "vegetable"
+  },
+  {
+    "crop": "山东寿光黄瓜",
+    "nodeSeq": 5,
+    "daysAfterSowing": 35,
+    "operationType": "fertilizer",
+    "name": "提苗肥",
+    "description": "缓苗后追提苗肥",
+    "source": "黄瓜施肥技术资料",
+    "category": "vegetable"
+  },
+  {
+    "crop": "山东寿光黄瓜",
+    "nodeSeq": 6,
+    "daysAfterSowing": 45,
+    "operationType": "pesticide",
+    "name": "防霜霉病",
+    "description": "防治霜霉病，注意通风",
+    "source": "黄瓜病虫害防治手册",
+    "category": "vegetable"
+  },
+  {
+    "crop": "山东寿光黄瓜",
+    "nodeSeq": 7,
+    "daysAfterSowing": 50,
+    "operationType": "other",
+    "name": "吊蔓",
+    "description": "及时吊蔓绑蔓",
+    "source": "黄瓜栽培技术资料",
+    "category": "vegetable"
+  },
+  {
+    "crop": "山东寿光黄瓜",
+    "nodeSeq": 8,
+    "daysAfterSowing": 60,
+    "operationType": "fertilizer",
+    "name": "坐果肥",
+    "description": "坐果期追施平衡肥",
+    "source": "黄瓜施肥技术资料",
+    "category": "vegetable"
+  },
+  {
+    "crop": "山东寿光黄瓜",
+    "nodeSeq": 9,
+    "daysAfterSowing": 70,
+    "operationType": "irrigation",
+    "name": "盛果灌溉",
+    "description": "盛果期均匀供水",
+    "source": "黄瓜水分管理资料",
+    "category": "vegetable"
+  },
+  {
+    "crop": "山东寿光黄瓜",
+    "nodeSeq": 10,
+    "daysAfterSowing": 80,
+    "operationType": "pesticide",
+    "name": "防白粉虱",
+    "description": "防治白粉虱，避雨避风",
+    "source": "黄瓜病虫害防治手册",
+    "category": "vegetable"
+  },
+  {
+    "crop": "山东寿光黄瓜",
+    "nodeSeq": 11,
+    "daysAfterSowing": 90,
+    "operationType": "harvest",
+    "name": "采收",
+    "description": "嫩瓜及时分批采收",
+    "source": "黄瓜采收技术资料",
+    "category": "vegetable"
+  },
+  {
+    "crop": "山东寿光黄瓜",
+    "nodeSeq": 12,
+    "daysAfterSowing": 100,
+    "operationType": "other",
+    "name": "拉秧清园",
+    "description": "拉秧清园，消毒棚室",
+    "source": "黄瓜栽培技术资料",
+    "category": "vegetable"
+  },
+  {
+    "crop": "广东湛江辣椒",
+    "nodeSeq": 1,
+    "daysAfterSowing": 0,
+    "operationType": "sowing",
+    "name": "播种育苗",
+    "description": "育苗移栽，控温保湿",
+    "source": "广东辣椒栽培技术资料",
+    "category": "vegetable"
+  },
+  {
+    "crop": "广东湛江辣椒",
+    "nodeSeq": 2,
+    "daysAfterSowing": 8,
+    "operationType": "emergence",
+    "name": "出苗",
+    "description": "出苗后及时间苗",
+    "source": "广东辣椒栽培技术资料",
+    "category": "vegetable"
+  },
+  {
+    "crop": "广东湛江辣椒",
+    "nodeSeq": 3,
+    "daysAfterSowing": 25,
+    "operationType": "other",
+    "name": "定植",
+    "description": "适龄定植，合理密植",
+    "source": "辣椒栽培技术资料",
+    "category": "vegetable"
+  },
+  {
+    "crop": "广东湛江辣椒",
+    "nodeSeq": 4,
+    "daysAfterSowing": 35,
+    "operationType": "irrigation",
+    "name": "缓苗水",
+    "description": "定植后浇缓苗水",
+    "source": "辣椒水分管理资料",
+    "category": "vegetable"
+  },
+  {
+    "crop": "广东湛江辣椒",
+    "nodeSeq": 5,
+    "daysAfterSowing": 45,
+    "operationType": "fertilizer",
+    "name": "提苗肥",
+    "description": "缓苗后追提苗肥",
+    "source": "辣椒施肥技术资料",
+    "category": "vegetable"
+  },
+  {
+    "crop": "广东湛江辣椒",
+    "nodeSeq": 6,
+    "daysAfterSowing": 55,
+    "operationType": "pesticide",
+    "name": "防蓟马",
+    "description": "防治蓟马，避雨避风",
+    "source": "辣椒病虫害防治手册",
+    "category": "vegetable"
+  },
+  {
+    "crop": "广东湛江辣椒",
+    "nodeSeq": 7,
+    "daysAfterSowing": 65,
+    "operationType": "fertilizer",
+    "name": "开花肥",
+    "description": "开花期追施平衡肥",
+    "source": "辣椒施肥技术资料",
+    "category": "vegetable"
+  },
+  {
+    "crop": "广东湛江辣椒",
+    "nodeSeq": 8,
+    "daysAfterSowing": 75,
+    "operationType": "irrigation",
+    "name": "坐果灌溉",
+    "description": "坐果期均匀供水",
+    "source": "辣椒水分管理资料",
+    "category": "vegetable"
+  },
+  {
+    "crop": "广东湛江辣椒",
+    "nodeSeq": 9,
+    "daysAfterSowing": 85,
+    "operationType": "pesticide",
+    "name": "防疫病",
+    "description": "防治疫病，防积水",
+    "source": "辣椒病虫害防治手册",
+    "category": "vegetable"
+  },
+  {
+    "crop": "广东湛江辣椒",
+    "nodeSeq": 10,
+    "daysAfterSowing": 100,
+    "operationType": "harvest",
+    "name": "青椒采收",
+    "description": "青果及时分批采收",
+    "source": "辣椒采收技术资料",
+    "category": "vegetable"
+  },
+  {
+    "crop": "广东湛江辣椒",
+    "nodeSeq": 11,
+    "daysAfterSowing": 115,
+    "operationType": "harvest",
+    "name": "红椒采收",
+    "description": "红果成熟后采收",
+    "source": "辣椒采收技术资料",
+    "category": "vegetable"
+  },
+  {
+    "crop": "广东湛江辣椒",
+    "nodeSeq": 12,
+    "daysAfterSowing": 120,
+    "operationType": "other",
+    "name": "清园",
+    "description": "拔秧清园，处理残株",
+    "source": "辣椒栽培技术资料",
+    "category": "vegetable"
+  },
+  {
+    "crop": "新疆石河子棉花",
+    "nodeSeq": 1,
+    "daysAfterSowing": 0,
+    "operationType": "sowing",
+    "name": "播种",
+    "description": "地膜覆盖适期播种",
+    "source": "新疆棉花栽培技术规程",
+    "category": "cashCrop"
+  },
+  {
+    "crop": "新疆石河子棉花",
+    "nodeSeq": 2,
+    "daysAfterSowing": 8,
+    "operationType": "emergence",
+    "name": "出苗",
+    "description": "放苗定苗，封堵膜孔",
+    "source": "新疆棉花栽培技术规程",
+    "category": "cashCrop"
+  },
+  {
+    "crop": "新疆石河子棉花",
+    "nodeSeq": 3,
+    "daysAfterSowing": 35,
+    "operationType": "other",
+    "name": "定苗",
+    "description": "定苗去弱留壮",
+    "source": "棉花田间管理资料",
+    "category": "cashCrop"
+  },
+  {
+    "crop": "新疆石河子棉花",
+    "nodeSeq": 4,
+    "daysAfterSowing": 45,
+    "operationType": "fertilizer",
+    "name": "蕾期追肥",
+    "description": "蕾期追肥，稳长控旺",
+    "source": "棉花施肥技术资料",
+    "category": "cashCrop"
+  },
+  {
+    "crop": "新疆石河子棉花",
+    "nodeSeq": 5,
+    "daysAfterSowing": 55,
+    "operationType": "irrigation",
+    "name": "蕾期灌溉",
+    "description": "蕾期适时滴水",
+    "source": "棉花灌溉技术资料",
+    "category": "cashCrop"
+  },
+  {
+    "crop": "新疆石河子棉花",
+    "nodeSeq": 6,
+    "daysAfterSowing": 65,
+    "operationType": "pesticide",
+    "name": "防棉铃虫",
+    "description": "防治棉铃虫，避雨避风",
+    "source": "棉花病虫害防治手册",
+    "category": "cashCrop"
+  },
+  {
+    "crop": "新疆石河子棉花",
+    "nodeSeq": 7,
+    "daysAfterSowing": 80,
+    "operationType": "fertilizer",
+    "name": "花铃肥",
+    "description": "花铃期重施追肥",
+    "source": "棉花施肥技术资料",
+    "category": "cashCrop"
+  },
+  {
+    "crop": "新疆石河子棉花",
+    "nodeSeq": 8,
+    "daysAfterSowing": 90,
+    "operationType": "irrigation",
+    "name": "花铃灌溉",
+    "description": "花铃期保证水分",
+    "source": "棉花灌溉技术资料",
+    "category": "cashCrop"
+  },
+  {
+    "crop": "新疆石河子棉花",
+    "nodeSeq": 9,
+    "daysAfterSowing": 100,
+    "operationType": "other",
+    "name": "打顶",
+    "description": "适时打顶，控制株型",
+    "source": "棉花田间管理资料",
+    "category": "cashCrop"
+  },
+  {
+    "crop": "新疆石河子棉花",
+    "nodeSeq": 10,
+    "daysAfterSowing": 110,
+    "operationType": "pesticide",
+    "name": "防红蜘蛛",
+    "description": "防治红蜘蛛，避雨避风",
+    "source": "棉花病虫害防治手册",
+    "category": "cashCrop"
+  },
+  {
+    "crop": "新疆石河子棉花",
+    "nodeSeq": 11,
+    "daysAfterSowing": 140,
+    "operationType": "harvest",
+    "name": "采收",
+    "description": "吐絮期分批采收",
+    "source": "棉花采收技术资料",
+    "category": "cashCrop"
+  },
+  {
+    "crop": "新疆石河子棉花",
+    "nodeSeq": 12,
+    "daysAfterSowing": 150,
+    "operationType": "other",
+    "name": "交售",
+    "description": "籽棉分级交售",
+    "source": "棉花采收技术资料",
+    "category": "cashCrop"
+  },
+  {
+    "crop": "云南曲靖烤烟",
+    "nodeSeq": 1,
+    "daysAfterSowing": 0,
+    "operationType": "sowing",
+    "name": "育苗播种",
+    "description": "漂浮育苗，控温控湿",
+    "source": "云南烤烟栽培技术规程",
+    "category": "cashCrop"
+  },
+  {
+    "crop": "云南曲靖烤烟",
+    "nodeSeq": 2,
+    "daysAfterSowing": 10,
+    "operationType": "emergence",
+    "name": "出苗",
+    "description": "苗期管理，间苗定苗",
+    "source": "云南烤烟栽培技术规程",
+    "category": "cashCrop"
+  },
+  {
+    "crop": "云南曲靖烤烟",
+    "nodeSeq": 3,
+    "daysAfterSowing": 30,
+    "operationType": "other",
+    "name": "移栽",
+    "description": "适龄移栽，合理密植",
+    "source": "烤烟栽培技术资料",
+    "category": "cashCrop"
+  },
+  {
+    "crop": "云南曲靖烤烟",
+    "nodeSeq": 4,
+    "daysAfterSowing": 40,
+    "operationType": "irrigation",
+    "name": "还苗水",
+    "description": "移栽后浇还苗水",
+    "source": "烤烟水分管理资料",
+    "category": "cashCrop"
+  },
+  {
+    "crop": "云南曲靖烤烟",
+    "nodeSeq": 5,
+    "daysAfterSowing": 50,
+    "operationType": "fertilizer",
+    "name": "伸根肥",
+    "description": "伸根期追肥，促根生长",
+    "source": "烤烟施肥技术资料",
+    "category": "cashCrop"
+  },
+  {
+    "crop": "云南曲靖烤烟",
+    "nodeSeq": 6,
+    "daysAfterSowing": 60,
+    "operationType": "other",
+    "name": "中耕培土",
+    "description": "中耕培土，促根防涝",
+    "source": "烤烟田间管理资料",
+    "category": "cashCrop"
+  },
+  {
+    "crop": "云南曲靖烤烟",
+    "nodeSeq": 7,
+    "daysAfterSowing": 70,
+    "operationType": "fertilizer",
+    "name": "旺长肥",
+    "description": "旺长期追施钾肥",
+    "source": "烤烟施肥技术资料",
+    "category": "cashCrop"
+  },
+  {
+    "crop": "云南曲靖烤烟",
+    "nodeSeq": 8,
+    "daysAfterSowing": 85,
+    "operationType": "pesticide",
+    "name": "防烟蚜",
+    "description": "防治烟蚜，避雨避风",
+    "source": "烤烟病虫害防治手册",
+    "category": "cashCrop"
+  },
+  {
+    "crop": "云南曲靖烤烟",
+    "nodeSeq": 9,
+    "daysAfterSowing": 100,
+    "operationType": "other",
+    "name": "打顶抑芽",
+    "description": "适时打顶，抹杈抑芽",
+    "source": "烤烟田间管理资料",
+    "category": "cashCrop"
+  },
+  {
+    "crop": "云南曲靖烤烟",
+    "nodeSeq": 10,
+    "daysAfterSowing": 115,
+    "operationType": "harvest",
+    "name": "采烤下部叶",
+    "description": "成熟后采收下部叶烘烤",
+    "source": "烤烟采收烘烤技术资料",
+    "category": "cashCrop"
+  },
+  {
+    "crop": "云南曲靖烤烟",
+    "nodeSeq": 11,
+    "daysAfterSowing": 125,
+    "operationType": "harvest",
+    "name": "采烤上部叶",
+    "description": "成熟后采收上部叶烘烤",
+    "source": "烤烟采收烘烤技术资料",
+    "category": "cashCrop"
+  },
+  {
+    "crop": "云南曲靖烤烟",
+    "nodeSeq": 12,
+    "daysAfterSowing": 130,
+    "operationType": "other",
+    "name": "分级交售",
+    "description": "烟叶分级初检交售",
+    "source": "烤烟采收烘烤技术资料",
+    "category": "cashCrop"
+  },
+  {
+    "crop": "广西崇左甘蔗",
+    "nodeSeq": 1,
+    "daysAfterSowing": 0,
+    "operationType": "sowing",
+    "name": "下种",
+    "description": "种茎消毒后下种，覆盖地膜",
+    "source": "广西甘蔗栽培技术资料",
+    "category": "cashCrop"
+  },
+  {
+    "crop": "广西崇左甘蔗",
+    "nodeSeq": 2,
+    "daysAfterSowing": 15,
+    "operationType": "emergence",
+    "name": "萌芽",
+    "description": "检查萌芽，及时破膜",
+    "source": "广西甘蔗栽培技术资料",
+    "category": "cashCrop"
+  },
+  {
+    "crop": "广西崇左甘蔗",
+    "nodeSeq": 3,
+    "daysAfterSowing": 40,
+    "operationType": "other",
+    "name": "补苗",
+    "description": "缺苗断垄及时补植",
+    "source": "甘蔗田间管理资料",
+    "category": "cashCrop"
+  },
+  {
+    "crop": "广西崇左甘蔗",
+    "nodeSeq": 4,
+    "daysAfterSowing": 60,
+    "operationType": "fertilizer",
+    "name": "分蘖肥",
+    "description": "分蘖期追施氮肥",
+    "source": "甘蔗施肥技术资料",
+    "category": "cashCrop"
+  },
+  {
+    "crop": "广西崇左甘蔗",
+    "nodeSeq": 5,
+    "daysAfterSowing": 80,
+    "operationType": "irrigation",
+    "name": "分蘖灌溉",
+    "description": "分蘖期适时灌溉",
+    "source": "甘蔗灌溉技术资料",
+    "category": "cashCrop"
+  },
+  {
+    "crop": "广西崇左甘蔗",
+    "nodeSeq": 6,
+    "daysAfterSowing": 110,
+    "operationType": "pesticide",
+    "name": "防螟虫",
+    "description": "防治蔗螟，避雨避风",
+    "source": "甘蔗病虫害防治手册",
+    "category": "cashCrop"
+  },
+  {
+    "crop": "广西崇左甘蔗",
+    "nodeSeq": 7,
+    "daysAfterSowing": 140,
+    "operationType": "fertilizer",
+    "name": "攻茎肥",
+    "description": "伸长期重施攻茎肥",
+    "source": "甘蔗施肥技术资料",
+    "category": "cashCrop"
+  },
+  {
+    "crop": "广西崇左甘蔗",
+    "nodeSeq": 8,
+    "daysAfterSowing": 170,
+    "operationType": "irrigation",
+    "name": "伸长期灌溉",
+    "description": "伸长期保证水分供给",
+    "source": "甘蔗灌溉技术资料",
+    "category": "cashCrop"
+  },
+  {
+    "crop": "广西崇左甘蔗",
+    "nodeSeq": 9,
+    "daysAfterSowing": 200,
+    "operationType": "other",
+    "name": "培土",
+    "description": "大培土防倒防涝",
+    "source": "甘蔗田间管理资料",
+    "category": "cashCrop"
+  },
+  {
+    "crop": "广西崇左甘蔗",
+    "nodeSeq": 10,
+    "daysAfterSowing": 240,
+    "operationType": "fertilizer",
+    "name": "壮尾肥",
+    "description": "后期追施壮尾肥",
+    "source": "甘蔗施肥技术资料",
+    "category": "cashCrop"
+  },
+  {
+    "crop": "广西崇左甘蔗",
+    "nodeSeq": 11,
+    "daysAfterSowing": 290,
+    "operationType": "harvest",
+    "name": "收获",
+    "description": "糖分成熟后适时砍收",
+    "source": "甘蔗收获技术资料",
+    "category": "cashCrop"
+  },
+  {
+    "crop": "广西崇左甘蔗",
+    "nodeSeq": 12,
+    "daysAfterSowing": 300,
+    "operationType": "other",
+    "name": "宿根管理",
+    "description": "宿根蔗破垄松蔸管理",
+    "source": "甘蔗田间管理资料",
+    "category": "cashCrop"
+  },
+  {
+    "crop": "河南南阳花生",
+    "nodeSeq": 1,
+    "daysAfterSowing": 0,
+    "operationType": "sowing",
+    "name": "播种",
+    "description": "适墒播种，控制密度",
+    "source": "河南花生栽培技术资料",
+    "category": "oilCrop"
+  },
+  {
+    "crop": "河南南阳花生",
+    "nodeSeq": 2,
+    "daysAfterSowing": 7,
+    "operationType": "emergence",
+    "name": "出苗",
+    "description": "查苗补种，破土引苗",
+    "source": "河南花生栽培技术资料",
+    "category": "oilCrop"
+  },
+  {
+    "crop": "河南南阳花生",
+    "nodeSeq": 3,
+    "daysAfterSowing": 25,
+    "operationType": "other",
+    "name": "清棵",
+    "description": "清棵蹲苗，促根下扎",
+    "source": "花生田间管理资料",
+    "category": "oilCrop"
+  },
+  {
+    "crop": "河南南阳花生",
+    "nodeSeq": 4,
+    "daysAfterSowing": 35,
+    "operationType": "fertilizer",
+    "name": "苗期追肥",
+    "description": "苗期追肥，促苗健壮",
+    "source": "花生施肥技术资料",
+    "category": "oilCrop"
+  },
+  {
+    "crop": "河南南阳花生",
+    "nodeSeq": 5,
+    "daysAfterSowing": 45,
+    "operationType": "irrigation",
+    "name": "花针灌溉",
+    "description": "花针期补水，防旱",
+    "source": "花生灌溉技术资料",
+    "category": "oilCrop"
+  },
+  {
+    "crop": "河南南阳花生",
+    "nodeSeq": 6,
+    "daysAfterSowing": 55,
+    "operationType": "other",
+    "name": "培土迎针",
+    "description": "培土迎针，利于下针",
+    "source": "花生田间管理资料",
+    "category": "oilCrop"
+  },
+  {
+    "crop": "河南南阳花生",
+    "nodeSeq": 7,
+    "daysAfterSowing": 70,
+    "operationType": "pesticide",
+    "name": "防叶斑病",
+    "description": "防治叶斑病，避雨避风",
+    "source": "花生病虫害防治手册",
+    "category": "oilCrop"
+  },
+  {
+    "crop": "河南南阳花生",
+    "nodeSeq": 8,
+    "daysAfterSowing": 80,
+    "operationType": "fertilizer",
+    "name": "结荚肥",
+    "description": "结荚期补肥，防早衰",
+    "source": "花生施肥技术资料",
+    "category": "oilCrop"
+  },
+  {
+    "crop": "河南南阳花生",
+    "nodeSeq": 9,
+    "daysAfterSowing": 90,
+    "operationType": "irrigation",
+    "name": "结荚灌溉",
+    "description": "结荚期保水，促荚果饱满",
+    "source": "花生灌溉技术资料",
+    "category": "oilCrop"
+  },
+  {
+    "crop": "河南南阳花生",
+    "nodeSeq": 10,
+    "daysAfterSowing": 110,
+    "operationType": "harvest",
+    "name": "收获",
+    "description": "荚果成熟后及时收获",
+    "source": "花生收获技术资料",
+    "category": "oilCrop"
+  },
+  {
+    "crop": "河南南阳花生",
+    "nodeSeq": 11,
+    "daysAfterSowing": 125,
+    "operationType": "other",
+    "name": "晾晒",
+    "description": "荚果晾晒至安全水分",
+    "source": "花生收获技术资料",
+    "category": "oilCrop"
+  },
+  {
+    "crop": "河南南阳花生",
+    "nodeSeq": 12,
+    "daysAfterSowing": 130,
+    "operationType": "other",
+    "name": "荚果入库",
+    "description": "精选后荚果入库储藏",
+    "source": "花生储藏技术资料",
+    "category": "oilCrop"
+  },
+  {
+    "crop": "湖北天门油菜",
+    "nodeSeq": 1,
+    "daysAfterSowing": 0,
+    "operationType": "sowing",
+    "name": "育苗播种",
+    "description": "育苗移栽，适期播种",
+    "source": "湖北油菜栽培技术资料",
+    "category": "oilCrop"
+  },
+  {
+    "crop": "湖北天门油菜",
+    "nodeSeq": 2,
+    "daysAfterSowing": 10,
+    "operationType": "emergence",
+    "name": "出苗",
+    "description": "苗床管理，间苗定苗",
+    "source": "湖北油菜栽培技术资料",
+    "category": "oilCrop"
+  },
+  {
+    "crop": "湖北天门油菜",
+    "nodeSeq": 3,
+    "daysAfterSowing": 30,
+    "operationType": "other",
+    "name": "移栽",
+    "description": "适龄移栽，合理密植",
+    "source": "油菜栽培技术资料",
+    "category": "oilCrop"
+  },
+  {
+    "crop": "湖北天门油菜",
+    "nodeSeq": 4,
+    "daysAfterSowing": 45,
+    "operationType": "fertilizer",
+    "name": "提苗肥",
+    "description": "移栽后追提苗肥",
+    "source": "油菜施肥技术资料",
+    "category": "oilCrop"
+  },
+  {
+    "crop": "湖北天门油菜",
+    "nodeSeq": 5,
+    "daysAfterSowing": 60,
+    "operationType": "irrigation",
+    "name": "越冬水",
+    "description": "冬前浇越冬水，防冻保苗",
+    "source": "油菜水分管理资料",
+    "category": "oilCrop"
+  },
+  {
+    "crop": "湖北天门油菜",
+    "nodeSeq": 6,
+    "daysAfterSowing": 90,
+    "operationType": "fertilizer",
+    "name": "腊肥",
+    "description": "越冬期施腊肥，防冻增温",
+    "source": "油菜施肥技术资料",
+    "category": "oilCrop"
+  },
+  {
+    "crop": "湖北天门油菜",
+    "nodeSeq": 7,
+    "daysAfterSowing": 120,
+    "operationType": "pesticide",
+    "name": "防蚜虫",
+    "description": "防治蚜虫，避雨避风",
+    "source": "油菜病虫害防治手册",
+    "category": "oilCrop"
+  },
+  {
+    "crop": "湖北天门油菜",
+    "nodeSeq": 8,
+    "daysAfterSowing": 150,
+    "operationType": "fertilizer",
+    "name": "薹肥",
+    "description": "抽薹期追施薹肥",
+    "source": "油菜施肥技术资料",
+    "category": "oilCrop"
+  },
+  {
+    "crop": "湖北天门油菜",
+    "nodeSeq": 9,
+    "daysAfterSowing": 165,
+    "operationType": "irrigation",
+    "name": "薹期灌溉",
+    "description": "薹期适时补水",
+    "source": "油菜水分管理资料",
+    "category": "oilCrop"
+  },
+  {
+    "crop": "湖北天门油菜",
+    "nodeSeq": 10,
+    "daysAfterSowing": 180,
+    "operationType": "pesticide",
+    "name": "防菌核病",
+    "description": "防治菌核病，防渍害",
+    "source": "油菜病虫害防治手册",
+    "category": "oilCrop"
+  },
+  {
+    "crop": "湖北天门油菜",
+    "nodeSeq": 11,
+    "daysAfterSowing": 200,
+    "operationType": "harvest",
+    "name": "收获",
+    "description": "角果黄熟期适时收获",
+    "source": "油菜收获技术资料",
+    "category": "oilCrop"
+  },
+  {
+    "crop": "湖北天门油菜",
+    "nodeSeq": 12,
+    "daysAfterSowing": 210,
+    "operationType": "other",
+    "name": "晾晒入库",
+    "description": "脱粒晾晒后入库",
+    "source": "油菜收获技术资料",
+    "category": "oilCrop"
+  },
+  {
+    "crop": "陕西洛川苹果",
+    "nodeSeq": 1,
+    "daysAfterSowing": 0,
+    "operationType": "sowing",
+    "name": "定植",
+    "description": "春季定植，栽后灌水",
+    "source": "陕西苹果栽培技术规程",
+    "category": "fruit"
+  },
+  {
+    "crop": "陕西洛川苹果",
+    "nodeSeq": 2,
+    "daysAfterSowing": 20,
+    "operationType": "emergence",
+    "name": "缓苗",
+    "description": "缓苗期管理，保成活",
+    "source": "陕西苹果栽培技术规程",
+    "category": "fruit"
+  },
+  {
+    "crop": "陕西洛川苹果",
+    "nodeSeq": 3,
+    "daysAfterSowing": 45,
+    "operationType": "fertilizer",
+    "name": "春季追肥",
+    "description": "萌芽前追施速效氮肥",
+    "source": "苹果施肥技术资料",
+    "category": "fruit"
+  },
+  {
+    "crop": "陕西洛川苹果",
+    "nodeSeq": 4,
+    "daysAfterSowing": 60,
+    "operationType": "pesticide",
+    "name": "防蚜虫",
+    "description": "防治蚜虫与螨类，避雨避风",
+    "source": "苹果病虫害防治手册",
+    "category": "fruit"
+  },
+  {
+    "crop": "陕西洛川苹果",
+    "nodeSeq": 5,
+    "daysAfterSowing": 80,
+    "operationType": "fertilizer",
+    "name": "花后肥",
+    "description": "花后追肥，促果膨大",
+    "source": "苹果施肥技术资料",
+    "category": "fruit"
+  },
+  {
+    "crop": "陕西洛川苹果",
+    "nodeSeq": 6,
+    "daysAfterSowing": 100,
+    "operationType": "irrigation",
+    "name": "膨果灌溉",
+    "description": "膨果期适时灌溉",
+    "source": "苹果水分管理资料",
+    "category": "fruit"
+  },
+  {
+    "crop": "陕西洛川苹果",
+    "nodeSeq": 7,
+    "daysAfterSowing": 120,
+    "operationType": "pesticide",
+    "name": "防红蜘蛛",
+    "description": "防治红蜘蛛，避高温施药",
+    "source": "苹果病虫害防治手册",
+    "category": "fruit"
+  },
+  {
+    "crop": "陕西洛川苹果",
+    "nodeSeq": 8,
+    "daysAfterSowing": 140,
+    "operationType": "fertilizer",
+    "name": "膨果肥",
+    "description": "追施磷钾肥，促果实着色",
+    "source": "苹果施肥技术资料",
+    "category": "fruit"
+  },
+  {
+    "crop": "陕西洛川苹果",
+    "nodeSeq": 9,
+    "daysAfterSowing": 160,
+    "operationType": "other",
+    "name": "套袋",
+    "description": "疏果后及时套袋",
+    "source": "苹果栽培技术资料",
+    "category": "fruit"
+  },
+  {
+    "crop": "陕西洛川苹果",
+    "nodeSeq": 10,
+    "daysAfterSowing": 200,
+    "operationType": "pesticide",
+    "name": "防轮纹病",
+    "description": "防治轮纹病，避雨避风",
+    "source": "苹果病虫害防治手册",
+    "category": "fruit"
+  },
+  {
+    "crop": "陕西洛川苹果",
+    "nodeSeq": 11,
+    "daysAfterSowing": 230,
+    "operationType": "harvest",
+    "name": "采收",
+    "description": "果实成熟后分批采收",
+    "source": "苹果采收技术资料",
+    "category": "fruit"
+  },
+  {
+    "crop": "陕西洛川苹果",
+    "nodeSeq": 12,
+    "daysAfterSowing": 240,
+    "operationType": "other",
+    "name": "秋施基肥",
+    "description": "采后施基肥，恢复树势",
+    "source": "苹果施肥技术资料",
+    "category": "fruit"
+  },
+  {
+    "crop": "山东烟台大樱桃",
+    "nodeSeq": 1,
+    "daysAfterSowing": 0,
+    "operationType": "sowing",
+    "name": "定植",
+    "description": "春季定植，栽后灌水",
+    "source": "烟台大樱桃栽培技术资料",
+    "category": "fruit"
+  },
+  {
+    "crop": "山东烟台大樱桃",
+    "nodeSeq": 2,
+    "daysAfterSowing": 20,
+    "operationType": "emergence",
+    "name": "缓苗",
+    "description": "缓苗期管理，保成活",
+    "source": "烟台大樱桃栽培技术资料",
+    "category": "fruit"
+  },
+  {
+    "crop": "山东烟台大樱桃",
+    "nodeSeq": 3,
+    "daysAfterSowing": 35,
+    "operationType": "fertilizer",
+    "name": "萌芽肥",
+    "description": "萌芽前追施速效肥",
+    "source": "大樱桃施肥技术资料",
+    "category": "fruit"
+  },
+  {
+    "crop": "山东烟台大樱桃",
+    "nodeSeq": 4,
+    "daysAfterSowing": 50,
+    "operationType": "irrigation",
+    "name": "花前水",
+    "description": "花前适量灌水",
+    "source": "大樱桃水分管理资料",
+    "category": "fruit"
+  },
+  {
+    "crop": "山东烟台大樱桃",
+    "nodeSeq": 5,
+    "daysAfterSowing": 60,
+    "operationType": "other",
+    "name": "授粉",
+    "description": "花期辅助授粉，提高坐果",
+    "source": "大樱桃栽培技术资料",
+    "category": "fruit"
+  },
+  {
+    "crop": "山东烟台大樱桃",
+    "nodeSeq": 6,
+    "daysAfterSowing": 70,
+    "operationType": "fertilizer",
+    "name": "膨果肥",
+    "description": "膨果期追施钾肥",
+    "source": "大樱桃施肥技术资料",
+    "category": "fruit"
+  },
+  {
+    "crop": "山东烟台大樱桃",
+    "nodeSeq": 7,
+    "daysAfterSowing": 80,
+    "operationType": "irrigation",
+    "name": "膨果灌溉",
+    "description": "膨果期均匀供水，防裂果",
+    "source": "大樱桃水分管理资料",
+    "category": "fruit"
+  },
+  {
+    "crop": "山东烟台大樱桃",
+    "nodeSeq": 8,
+    "daysAfterSowing": 85,
+    "operationType": "pesticide",
+    "name": "防果蝇",
+    "description": "防治果蝇，避雨避风",
+    "source": "大樱桃病虫害防治手册",
+    "category": "fruit"
+  },
+  {
+    "crop": "山东烟台大樱桃",
+    "nodeSeq": 9,
+    "daysAfterSowing": 95,
+    "operationType": "harvest",
+    "name": "采收",
+    "description": "果实成熟后分批采收",
+    "source": "大樱桃采收技术资料",
+    "category": "fruit"
+  },
+  {
+    "crop": "山东烟台大樱桃",
+    "nodeSeq": 10,
+    "daysAfterSowing": 105,
+    "operationType": "fertilizer",
+    "name": "采后肥",
+    "description": "采后追肥，恢复树势",
+    "source": "大樱桃施肥技术资料",
+    "category": "fruit"
+  },
+  {
+    "crop": "山东烟台大樱桃",
+    "nodeSeq": 11,
+    "daysAfterSowing": 115,
+    "operationType": "other",
+    "name": "秋施基肥",
+    "description": "秋季施基肥，深翻改土",
+    "source": "大樱桃施肥技术资料",
+    "category": "fruit"
+  },
+  {
+    "crop": "山东烟台大樱桃",
+    "nodeSeq": 12,
+    "daysAfterSowing": 120,
+    "operationType": "other",
+    "name": "清园",
+    "description": "落叶后清园，防治越冬病虫",
+    "source": "大樱桃栽培技术资料",
+    "category": "fruit"
+  },
+  {
+    "crop": "浙江仙居杨梅",
+    "nodeSeq": 1,
+    "daysAfterSowing": 0,
+    "operationType": "sowing",
+    "name": "定植",
+    "description": "春季定植，栽后灌水",
+    "source": "仙居杨梅栽培技术资料",
+    "category": "fruit"
+  },
+  {
+    "crop": "浙江仙居杨梅",
+    "nodeSeq": 2,
+    "daysAfterSowing": 20,
+    "operationType": "emergence",
+    "name": "缓苗",
+    "description": "缓苗期管理，保成活",
+    "source": "仙居杨梅栽培技术资料",
+    "category": "fruit"
+  },
+  {
+    "crop": "浙江仙居杨梅",
+    "nodeSeq": 3,
+    "daysAfterSowing": 40,
+    "operationType": "fertilizer",
+    "name": "萌芽肥",
+    "description": "春梢萌发前追肥",
+    "source": "杨梅施肥技术资料",
+    "category": "fruit"
+  },
+  {
+    "crop": "浙江仙居杨梅",
+    "nodeSeq": 4,
+    "daysAfterSowing": 55,
+    "operationType": "other",
+    "name": "疏花",
+    "description": "疏花控产，提高品质",
+    "source": "杨梅栽培技术资料",
+    "category": "fruit"
+  },
+  {
+    "crop": "浙江仙居杨梅",
+    "nodeSeq": 5,
+    "daysAfterSowing": 65,
+    "operationType": "pesticide",
+    "name": "防卷叶蛾",
+    "description": "防治卷叶蛾，避雨避风",
+    "source": "杨梅病虫害防治手册",
+    "category": "fruit"
+  },
+  {
+    "crop": "浙江仙居杨梅",
+    "nodeSeq": 6,
+    "daysAfterSowing": 75,
+    "operationType": "fertilizer",
+    "name": "壮果肥",
+    "description": "壮果期追施钾肥",
+    "source": "杨梅施肥技术资料",
+    "category": "fruit"
+  },
+  {
+    "crop": "浙江仙居杨梅",
+    "nodeSeq": 7,
+    "daysAfterSowing": 90,
+    "operationType": "other",
+    "name": "疏果",
+    "description": "疏果定果，控制负载",
+    "source": "杨梅栽培技术资料",
+    "category": "fruit"
+  },
+  {
+    "crop": "浙江仙居杨梅",
+    "nodeSeq": 8,
+    "daysAfterSowing": 100,
+    "operationType": "irrigation",
+    "name": "膨果灌溉",
+    "description": "膨果期适时灌溉，防旱",
+    "source": "杨梅水分管理资料",
+    "category": "fruit"
+  },
+  {
+    "crop": "浙江仙居杨梅",
+    "nodeSeq": 9,
+    "daysAfterSowing": 110,
+    "operationType": "pesticide",
+    "name": "防枯枝病",
+    "description": "防治枯枝病，避雨避风",
+    "source": "杨梅病虫害防治手册",
+    "category": "fruit"
+  },
+  {
+    "crop": "浙江仙居杨梅",
+    "nodeSeq": 10,
+    "daysAfterSowing": 130,
+    "operationType": "harvest",
+    "name": "采收",
+    "description": "果实成熟后分批采收",
+    "source": "杨梅采收技术资料",
+    "category": "fruit"
+  },
+  {
+    "crop": "浙江仙居杨梅",
+    "nodeSeq": 11,
+    "daysAfterSowing": 145,
+    "operationType": "fertilizer",
+    "name": "采后肥",
+    "description": "采后追肥，恢复树势",
+    "source": "杨梅施肥技术资料",
+    "category": "fruit"
+  },
+  {
+    "crop": "浙江仙居杨梅",
+    "nodeSeq": 12,
+    "daysAfterSowing": 150,
+    "operationType": "other",
+    "name": "清园",
+    "description": "清园修剪，防治越冬病虫",
+    "source": "杨梅栽培技术资料",
+    "category": "fruit"
+  },
+  {
+    "crop": "福建平和蜜柚",
+    "nodeSeq": 1,
+    "daysAfterSowing": 0,
+    "operationType": "sowing",
+    "name": "定植",
+    "description": "春季定植，栽后灌水",
+    "source": "平和蜜柚栽培技术资料",
+    "category": "fruit"
+  },
+  {
+    "crop": "福建平和蜜柚",
+    "nodeSeq": 2,
+    "daysAfterSowing": 25,
+    "operationType": "emergence",
+    "name": "缓苗",
+    "description": "缓苗期管理，保成活",
+    "source": "平和蜜柚栽培技术资料",
+    "category": "fruit"
+  },
+  {
+    "crop": "福建平和蜜柚",
+    "nodeSeq": 3,
+    "daysAfterSowing": 45,
+    "operationType": "fertilizer",
+    "name": "春梢肥",
+    "description": "春梢萌发前追肥",
+    "source": "蜜柚施肥技术资料",
+    "category": "fruit"
+  },
+  {
+    "crop": "福建平和蜜柚",
+    "nodeSeq": 4,
+    "daysAfterSowing": 60,
+    "operationType": "pesticide",
+    "name": "防潜叶蛾",
+    "description": "防治潜叶蛾，避雨避风",
+    "source": "蜜柚病虫害防治手册",
+    "category": "fruit"
+  },
+  {
+    "crop": "福建平和蜜柚",
+    "nodeSeq": 5,
+    "daysAfterSowing": 80,
+    "operationType": "fertilizer",
+    "name": "稳果肥",
+    "description": "稳果期追肥，减少落果",
+    "source": "蜜柚施肥技术资料",
+    "category": "fruit"
+  },
+  {
+    "crop": "福建平和蜜柚",
+    "nodeSeq": 6,
+    "daysAfterSowing": 95,
+    "operationType": "irrigation",
+    "name": "膨果灌溉",
+    "description": "膨果期适时灌溉",
+    "source": "蜜柚水分管理资料",
+    "category": "fruit"
+  },
+  {
+    "crop": "福建平和蜜柚",
+    "nodeSeq": 7,
+    "daysAfterSowing": 110,
+    "operationType": "other",
+    "name": "疏果套袋",
+    "description": "疏果后套袋，防虫防裂",
+    "source": "蜜柚栽培技术资料",
+    "category": "fruit"
+  },
+  {
+    "crop": "福建平和蜜柚",
+    "nodeSeq": 8,
+    "daysAfterSowing": 130,
+    "operationType": "fertilizer",
+    "name": "壮果肥",
+    "description": "壮果期追施磷钾肥",
+    "source": "蜜柚施肥技术资料",
+    "category": "fruit"
+  },
+  {
+    "crop": "福建平和蜜柚",
+    "nodeSeq": 9,
+    "daysAfterSowing": 150,
+    "operationType": "pesticide",
+    "name": "防锈蜘蛛",
+    "description": "防治锈蜘蛛，避雨避风",
+    "source": "蜜柚病虫害防治手册",
+    "category": "fruit"
+  },
+  {
+    "crop": "福建平和蜜柚",
+    "nodeSeq": 10,
+    "daysAfterSowing": 165,
+    "operationType": "harvest",
+    "name": "采收",
+    "description": "果实成熟后采收",
+    "source": "蜜柚采收技术资料",
+    "category": "fruit"
+  },
+  {
+    "crop": "福建平和蜜柚",
+    "nodeSeq": 11,
+    "daysAfterSowing": 175,
+    "operationType": "fertilizer",
+    "name": "采后肥",
+    "description": "采后追肥，恢复树势",
+    "source": "蜜柚施肥技术资料",
+    "category": "fruit"
+  },
+  {
+    "crop": "福建平和蜜柚",
+    "nodeSeq": 12,
+    "daysAfterSowing": 180,
+    "operationType": "other",
+    "name": "清园",
+    "description": "清园修剪，防治越冬病虫",
+    "source": "蜜柚栽培技术资料",
+    "category": "fruit"
+  },
+  {
+    "crop": "内蒙古赤峰马铃薯",
+    "nodeSeq": 1,
+    "daysAfterSowing": 0,
+    "operationType": "sowing",
+    "name": "播种",
+    "description": "种薯切块消毒后播种",
+    "source": "内蒙古马铃薯栽培技术资料",
+    "category": "vegetable"
+  },
+  {
+    "crop": "内蒙古赤峰马铃薯",
+    "nodeSeq": 2,
+    "daysAfterSowing": 15,
+    "operationType": "emergence",
+    "name": "出苗",
+    "description": "查苗补苗，破除板结",
+    "source": "内蒙古马铃薯栽培技术资料",
+    "category": "vegetable"
+  },
+  {
+    "crop": "内蒙古赤峰马铃薯",
+    "nodeSeq": 3,
+    "daysAfterSowing": 30,
+    "operationType": "other",
+    "name": "中耕",
+    "description": "中耕除草，促根生长",
+    "source": "马铃薯田间管理资料",
+    "category": "vegetable"
+  },
+  {
+    "crop": "内蒙古赤峰马铃薯",
+    "nodeSeq": 4,
+    "daysAfterSowing": 40,
+    "operationType": "fertilizer",
+    "name": "苗期追肥",
+    "description": "苗期追施氮肥，促苗壮",
+    "source": "马铃薯施肥技术资料",
+    "category": "vegetable"
+  },
+  {
+    "crop": "内蒙古赤峰马铃薯",
+    "nodeSeq": 5,
+    "daysAfterSowing": 50,
+    "operationType": "irrigation",
+    "name": "现蕾浇水",
+    "description": "现蕾期适时浇水",
+    "source": "马铃薯灌溉技术资料",
+    "category": "vegetable"
+  },
+  {
+    "crop": "内蒙古赤峰马铃薯",
+    "nodeSeq": 6,
+    "daysAfterSowing": 60,
+    "operationType": "pesticide",
+    "name": "防早疫病",
+    "description": "防治早疫病，避雨避风",
+    "source": "马铃薯病虫害防治手册",
+    "category": "vegetable"
+  },
+  {
+    "crop": "内蒙古赤峰马铃薯",
+    "nodeSeq": 7,
+    "daysAfterSowing": 70,
+    "operationType": "fertilizer",
+    "name": "块茎膨大肥",
+    "description": "块茎膨大期追施钾肥",
+    "source": "马铃薯施肥技术资料",
+    "category": "vegetable"
+  },
+  {
+    "crop": "内蒙古赤峰马铃薯",
+    "nodeSeq": 8,
+    "daysAfterSowing": 80,
+    "operationType": "irrigation",
+    "name": "膨大灌溉",
+    "description": "块茎膨大期均匀供水",
+    "source": "马铃薯灌溉技术资料",
+    "category": "vegetable"
+  },
+  {
+    "crop": "内蒙古赤峰马铃薯",
+    "nodeSeq": 9,
+    "daysAfterSowing": 90,
+    "operationType": "other",
+    "name": "培土",
+    "description": "培土防绿薯与渍涝",
+    "source": "马铃薯田间管理资料",
+    "category": "vegetable"
+  },
+  {
+    "crop": "内蒙古赤峰马铃薯",
+    "nodeSeq": 10,
+    "daysAfterSowing": 105,
+    "operationType": "pesticide",
+    "name": "防晚疫病",
+    "description": "防治晚疫病，遇雨前后施药",
+    "source": "马铃薯病虫害防治手册",
+    "category": "vegetable"
+  },
+  {
+    "crop": "内蒙古赤峰马铃薯",
+    "nodeSeq": 11,
+    "daysAfterSowing": 115,
+    "operationType": "harvest",
+    "name": "收获",
+    "description": "茎叶枯黄后适时收获",
+    "source": "马铃薯收获技术资料",
+    "category": "vegetable"
+  },
+  {
+    "crop": "内蒙古赤峰马铃薯",
+    "nodeSeq": 12,
+    "daysAfterSowing": 120,
+    "operationType": "other",
+    "name": "窖藏",
+    "description": "预储后入窖储藏",
+    "source": "马铃薯储藏技术资料",
+    "category": "vegetable"
+  },
+  {
+    "crop": "河北石家庄谷子",
+    "nodeSeq": 1,
+    "daysAfterSowing": 0,
+    "operationType": "sowing",
+    "name": "播种",
+    "description": "适墒播种，控制播量",
+    "source": "河北谷子栽培技术资料",
+    "category": "grain"
+  },
+  {
+    "crop": "河北石家庄谷子",
+    "nodeSeq": 2,
+    "daysAfterSowing": 6,
+    "operationType": "emergence",
+    "name": "出苗",
+    "description": "查苗补种，破除板结",
+    "source": "河北谷子栽培技术资料",
+    "category": "grain"
+  },
+  {
+    "crop": "河北石家庄谷子",
+    "nodeSeq": 3,
+    "daysAfterSowing": 20,
+    "operationType": "other",
+    "name": "间苗",
+    "description": "及时间苗，去弱留壮",
+    "source": "谷子田间管理资料",
+    "category": "grain"
+  },
+  {
+    "crop": "河北石家庄谷子",
+    "nodeSeq": 4,
+    "daysAfterSowing": 30,
+    "operationType": "fertilizer",
+    "name": "苗期追肥",
+    "description": "苗期追肥，促苗生长",
+    "source": "谷子施肥技术资料",
+    "category": "grain"
+  },
+  {
+    "crop": "河北石家庄谷子",
+    "nodeSeq": 5,
+    "daysAfterSowing": 40,
+    "operationType": "other",
+    "name": "中耕",
+    "description": "中耕除草，蹲苗壮根",
+    "source": "谷子田间管理资料",
+    "category": "grain"
+  },
+  {
+    "crop": "河北石家庄谷子",
+    "nodeSeq": 6,
+    "daysAfterSowing": 50,
+    "operationType": "pesticide",
+    "name": "防粟灰螟",
+    "description": "防治粟灰螟，避雨避风",
+    "source": "谷子病虫害防治手册",
+    "category": "grain"
+  },
+  {
+    "crop": "河北石家庄谷子",
+    "nodeSeq": 7,
+    "daysAfterSowing": 60,
+    "operationType": "fertilizer",
+    "name": "穗肥",
+    "description": "孕穗期追施穗肥",
+    "source": "谷子施肥技术资料",
+    "category": "grain"
+  },
+  {
+    "crop": "河北石家庄谷子",
+    "nodeSeq": 8,
+    "daysAfterSowing": 70,
+    "operationType": "irrigation",
+    "name": "抽穗灌溉",
+    "description": "抽穗期补水，防卡脖旱",
+    "source": "谷子灌溉技术资料",
+    "category": "grain"
+  },
+  {
+    "crop": "河北石家庄谷子",
+    "nodeSeq": 9,
+    "daysAfterSowing": 85,
+    "operationType": "pesticide",
+    "name": "防锈病",
+    "description": "防治锈病，避雨避风",
+    "source": "谷子病虫害防治手册",
+    "category": "grain"
+  },
+  {
+    "crop": "河北石家庄谷子",
+    "nodeSeq": 10,
+    "daysAfterSowing": 100,
+    "operationType": "harvest",
+    "name": "收获",
+    "description": "籽粒蜡熟末期收获",
+    "source": "谷子收获技术资料",
+    "category": "grain"
+  },
+  {
+    "crop": "河北石家庄谷子",
+    "nodeSeq": 11,
+    "daysAfterSowing": 105,
+    "operationType": "other",
+    "name": "晾晒",
+    "description": "谷穗晾晒后脱粒",
+    "source": "谷子收获技术资料",
+    "category": "grain"
+  },
+  {
+    "crop": "河北石家庄谷子",
+    "nodeSeq": 12,
+    "daysAfterSowing": 110,
+    "operationType": "other",
+    "name": "脱粒入库",
+    "description": "脱粒清选后入库储藏",
+    "source": "谷子储藏技术资料",
+    "category": "grain"
+  },
+  {
+    "crop": "四川成都莴笋",
+    "nodeSeq": 1,
+    "daysAfterSowing": 0,
+    "operationType": "sowing",
+    "name": "育苗播种",
+    "description": "育苗移栽，控温保湿",
+    "source": "四川莴笋栽培技术资料",
+    "category": "vegetable"
+  },
+  {
+    "crop": "四川成都莴笋",
+    "nodeSeq": 2,
+    "daysAfterSowing": 6,
+    "operationType": "emergence",
+    "name": "出苗",
+    "description": "出苗后及时间苗",
+    "source": "四川莴笋栽培技术资料",
+    "category": "vegetable"
+  },
+  {
+    "crop": "四川成都莴笋",
+    "nodeSeq": 3,
+    "daysAfterSowing": 20,
+    "operationType": "other",
+    "name": "定植",
+    "description": "适龄定植，合理密植",
+    "source": "莴笋栽培技术资料",
+    "category": "vegetable"
+  },
+  {
+    "crop": "四川成都莴笋",
+    "nodeSeq": 4,
+    "daysAfterSowing": 30,
+    "operationType": "irrigation",
+    "name": "缓苗水",
+    "description": "定植后浇缓苗水",
+    "source": "莴笋水分管理资料",
+    "category": "vegetable"
+  },
+  {
+    "crop": "四川成都莴笋",
+    "nodeSeq": 5,
+    "daysAfterSowing": 40,
+    "operationType": "fertilizer",
+    "name": "莲座肥",
+    "description": "莲座期追肥，促叶生长",
+    "source": "莴笋施肥技术资料",
+    "category": "vegetable"
+  },
+  {
+    "crop": "四川成都莴笋",
+    "nodeSeq": 6,
+    "daysAfterSowing": 50,
+    "operationType": "pesticide",
+    "name": "防蚜虫",
+    "description": "防治蚜虫，避雨避风",
+    "source": "莴笋病虫害防治手册",
+    "category": "vegetable"
+  },
+  {
+    "crop": "四川成都莴笋",
+    "nodeSeq": 7,
+    "daysAfterSowing": 60,
+    "operationType": "fertilizer",
+    "name": "茎膨大肥",
+    "description": "肉质茎膨大期追施钾肥",
+    "source": "莴笋施肥技术资料",
+    "category": "vegetable"
+  },
+  {
+    "crop": "四川成都莴笋",
+    "nodeSeq": 8,
+    "daysAfterSowing": 70,
+    "operationType": "irrigation",
+    "name": "茎膨大灌溉",
+    "description": "膨大期均匀供水，防裂茎",
+    "source": "莴笋水分管理资料",
+    "category": "vegetable"
+  },
+  {
+    "crop": "四川成都莴笋",
+    "nodeSeq": 9,
+    "daysAfterSowing": 80,
+    "operationType": "pesticide",
+    "name": "防霜霉病",
+    "description": "防治霜霉病，避雨避涝",
+    "source": "莴笋病虫害防治手册",
+    "category": "vegetable"
+  },
+  {
+    "crop": "四川成都莴笋",
+    "nodeSeq": 10,
+    "daysAfterSowing": 85,
+    "operationType": "harvest",
+    "name": "采收",
+    "description": "肉质茎充分膨大后采收",
+    "source": "莴笋采收技术资料",
+    "category": "vegetable"
+  },
+  {
+    "crop": "四川成都莴笋",
+    "nodeSeq": 11,
+    "daysAfterSowing": 88,
+    "operationType": "other",
+    "name": "储运",
+    "description": "采收后预冷储运",
+    "source": "莴笋采收技术资料",
+    "category": "vegetable"
+  },
+  {
+    "crop": "四川成都莴笋",
+    "nodeSeq": 12,
+    "daysAfterSowing": 90,
+    "operationType": "other",
+    "name": "清园",
+    "description": "清园消毒，处理残株",
+    "source": "莴笋栽培技术资料",
+    "category": "vegetable"
+  },
+  {
+    "crop": "内蒙古呼伦贝尔苜蓿",
+    "nodeSeq": 1,
+    "daysAfterSowing": 0,
+    "operationType": "sowing",
+    "name": "播种",
+    "description": "",
+    "source": "国家农业科学数据中心",
+    "category": "forage"
+  },
+  {
+    "crop": "内蒙古呼伦贝尔苜蓿",
+    "nodeSeq": 2,
+    "daysAfterSowing": 10,
+    "operationType": "emergence",
+    "name": "出苗",
+    "description": "",
+    "source": "国家农业科学数据中心",
+    "category": "forage"
+  },
+  {
+    "crop": "内蒙古呼伦贝尔苜蓿",
+    "nodeSeq": 3,
+    "daysAfterSowing": 20,
+    "operationType": "other",
+    "name": "分枝期",
+    "description": "",
+    "source": "国家农业科学数据中心",
+    "category": "forage"
+  },
+  {
+    "crop": "内蒙古呼伦贝尔苜蓿",
+    "nodeSeq": 4,
+    "daysAfterSowing": 35,
+    "operationType": "other",
+    "name": "现蕾期",
+    "description": "",
+    "source": "国家农业科学数据中心",
+    "category": "forage"
+  },
+  {
+    "crop": "内蒙古呼伦贝尔苜蓿",
+    "nodeSeq": 5,
+    "daysAfterSowing": 45,
+    "operationType": "fertilizer",
+    "name": "追肥",
+    "description": "",
+    "source": "国家农业科学数据中心",
+    "category": "forage"
+  },
+  {
+    "crop": "内蒙古呼伦贝尔苜蓿",
+    "nodeSeq": 6,
+    "daysAfterSowing": 50,
+    "operationType": "other",
+    "name": "初花期",
+    "description": "",
+    "source": "国家农业科学数据中心",
+    "category": "forage"
+  },
+  {
+    "crop": "内蒙古呼伦贝尔苜蓿",
+    "nodeSeq": 7,
+    "daysAfterSowing": 55,
+    "operationType": "irrigation",
+    "name": "花期灌溉",
+    "description": "",
+    "source": "国家农业科学数据中心",
+    "category": "forage"
+  },
+  {
+    "crop": "内蒙古呼伦贝尔苜蓿",
+    "nodeSeq": 8,
+    "daysAfterSowing": 65,
+    "operationType": "other",
+    "name": "盛花期",
+    "description": "",
+    "source": "国家农业科学数据中心",
+    "category": "forage"
+  },
+  {
+    "crop": "内蒙古呼伦贝尔苜蓿",
+    "nodeSeq": 9,
+    "daysAfterSowing": 75,
+    "operationType": "pesticide",
+    "name": "病虫害防治",
+    "description": "",
+    "source": "国家农业科学数据中心",
+    "category": "forage"
+  },
+  {
+    "crop": "内蒙古呼伦贝尔苜蓿",
+    "nodeSeq": 10,
+    "daysAfterSowing": 80,
+    "operationType": "other",
+    "name": "结荚期",
+    "description": "",
+    "source": "国家农业科学数据中心",
+    "category": "forage"
+  },
+  {
+    "crop": "内蒙古呼伦贝尔苜蓿",
+    "nodeSeq": 11,
+    "daysAfterSowing": 85,
+    "operationType": "fertilizer",
+    "name": "后期追肥",
+    "description": "",
+    "source": "国家农业科学数据中心",
+    "category": "forage"
+  },
+  {
+    "crop": "内蒙古呼伦贝尔苜蓿",
+    "nodeSeq": 12,
+    "daysAfterSowing": 90,
+    "operationType": "harvest",
+    "name": "刈割采收",
+    "description": "",
+    "source": "国家农业科学数据中心",
+    "category": "forage"
+  },
+  {
+    "crop": "甘肃定西党参",
+    "nodeSeq": 1,
+    "daysAfterSowing": 0,
+    "operationType": "sowing",
+    "name": "播种",
+    "description": "",
+    "source": "中国中药材种植信息网",
+    "category": "medicinal"
+  },
+  {
+    "crop": "甘肃定西党参",
+    "nodeSeq": 2,
+    "daysAfterSowing": 15,
+    "operationType": "emergence",
+    "name": "出苗",
+    "description": "",
+    "source": "中国中药材种植信息网",
+    "category": "medicinal"
+  },
+  {
+    "crop": "甘肃定西党参",
+    "nodeSeq": 3,
+    "daysAfterSowing": 30,
+    "operationType": "other",
+    "name": "间苗定苗",
+    "description": "",
+    "source": "中国中药材种植信息网",
+    "category": "medicinal"
+  },
+  {
+    "crop": "甘肃定西党参",
+    "nodeSeq": 4,
+    "daysAfterSowing": 45,
+    "operationType": "fertilizer",
+    "name": "追肥",
+    "description": "",
+    "source": "中国中药材种植信息网",
+    "category": "medicinal"
+  },
+  {
+    "crop": "甘肃定西党参",
+    "nodeSeq": 5,
+    "daysAfterSowing": 60,
+    "operationType": "irrigation",
+    "name": "中耕灌溉",
+    "description": "",
+    "source": "中国中药材种植信息网",
+    "category": "medicinal"
+  },
+  {
+    "crop": "甘肃定西党参",
+    "nodeSeq": 6,
+    "daysAfterSowing": 75,
+    "operationType": "pesticide",
+    "name": "病虫害防治",
+    "description": "",
+    "source": "中国中药材种植信息网",
+    "category": "medicinal"
+  },
+  {
+    "crop": "甘肃定西党参",
+    "nodeSeq": 7,
+    "daysAfterSowing": 90,
+    "operationType": "other",
+    "name": "抽薹期",
+    "description": "",
+    "source": "中国中药材种植信息网",
+    "category": "medicinal"
+  },
+  {
+    "crop": "甘肃定西党参",
+    "nodeSeq": 8,
+    "daysAfterSowing": 105,
+    "operationType": "fertilizer",
+    "name": "二次追肥",
+    "description": "",
+    "source": "中国中药材种植信息网",
+    "category": "medicinal"
+  },
+  {
+    "crop": "甘肃定西党参",
+    "nodeSeq": 9,
+    "daysAfterSowing": 120,
+    "operationType": "irrigation",
+    "name": "旱季灌溉",
+    "description": "",
+    "source": "中国中药材种植信息网",
+    "category": "medicinal"
+  },
+  {
+    "crop": "甘肃定西党参",
+    "nodeSeq": 10,
+    "daysAfterSowing": 140,
+    "operationType": "other",
+    "name": "根部膨大",
+    "description": "",
+    "source": "中国中药材种植信息网",
+    "category": "medicinal"
+  },
+  {
+    "crop": "甘肃定西党参",
+    "nodeSeq": 11,
+    "daysAfterSowing": 160,
+    "operationType": "pesticide",
+    "name": "后期防病",
+    "description": "",
+    "source": "中国中药材种植信息网",
+    "category": "medicinal"
+  },
+  {
+    "crop": "甘肃定西党参",
+    "nodeSeq": 12,
+    "daysAfterSowing": 180,
+    "operationType": "harvest",
+    "name": "挖根采收",
+    "description": "",
+    "source": "中国中药材种植信息网",
+    "category": "medicinal"
+  },
+  {
+    "crop": "福建安溪铁观音",
+    "nodeSeq": 1,
+    "daysAfterSowing": 0,
+    "operationType": "sowing",
+    "name": "扦插育苗",
+    "description": "",
+    "source": "中国茶叶流通协会",
+    "category": "tea"
+  },
+  {
+    "crop": "福建安溪铁观音",
+    "nodeSeq": 2,
+    "daysAfterSowing": 30,
+    "operationType": "emergence",
+    "name": "插穗生根",
+    "description": "",
+    "source": "中国茶叶流通协会",
+    "category": "tea"
+  },
+  {
+    "crop": "福建安溪铁观音",
+    "nodeSeq": 3,
+    "daysAfterSowing": 60,
+    "operationType": "other",
+    "name": "幼苗移栽",
+    "description": "",
+    "source": "中国茶叶流通协会",
+    "category": "tea"
+  },
+  {
+    "crop": "福建安溪铁观音",
+    "nodeSeq": 4,
+    "daysAfterSowing": 90,
+    "operationType": "fertilizer",
+    "name": "春前基肥",
+    "description": "",
+    "source": "中国茶叶流通协会",
+    "category": "tea"
+  },
+  {
+    "crop": "福建安溪铁观音",
+    "nodeSeq": 5,
+    "daysAfterSowing": 120,
+    "operationType": "other",
+    "name": "春茶萌发",
+    "description": "",
+    "source": "中国茶叶流通协会",
+    "category": "tea"
+  },
+  {
+    "crop": "福建安溪铁观音",
+    "nodeSeq": 6,
+    "daysAfterSowing": 135,
+    "operationType": "harvest",
+    "name": "春茶采摘",
+    "description": "",
+    "source": "中国茶叶流通协会",
+    "category": "tea"
+  },
+  {
+    "crop": "福建安溪铁观音",
+    "nodeSeq": 7,
+    "daysAfterSowing": 150,
+    "operationType": "fertilizer",
+    "name": "春后追肥",
+    "description": "",
+    "source": "中国茶叶流通协会",
+    "category": "tea"
+  },
+  {
+    "crop": "福建安溪铁观音",
+    "nodeSeq": 8,
+    "daysAfterSowing": 180,
+    "operationType": "pesticide",
+    "name": "夏茶防虫",
+    "description": "",
+    "source": "中国茶叶流通协会",
+    "category": "tea"
+  },
+  {
+    "crop": "福建安溪铁观音",
+    "nodeSeq": 9,
+    "daysAfterSowing": 210,
+    "operationType": "harvest",
+    "name": "夏茶采摘",
+    "description": "",
+    "source": "中国茶叶流通协会",
+    "category": "tea"
+  },
+  {
+    "crop": "福建安溪铁观音",
+    "nodeSeq": 10,
+    "daysAfterSowing": 240,
+    "operationType": "fertilizer",
+    "name": "秋前追肥",
+    "description": "",
+    "source": "中国茶叶流通协会",
+    "category": "tea"
+  },
+  {
+    "crop": "福建安溪铁观音",
+    "nodeSeq": 11,
+    "daysAfterSowing": 270,
+    "operationType": "harvest",
+    "name": "秋茶采摘",
+    "description": "",
+    "source": "中国茶叶流通协会",
+    "category": "tea"
+  },
+  {
+    "crop": "福建安溪铁观音",
+    "nodeSeq": 12,
+    "daysAfterSowing": 330,
+    "operationType": "fertilizer",
+    "name": "冬前基肥",
+    "description": "",
+    "source": "中国茶叶流通协会",
+    "category": "tea"
+  },
+  {
+    "crop": "云南普洱大叶种茶",
+    "nodeSeq": 1,
+    "daysAfterSowing": 0,
+    "operationType": "sowing",
+    "name": "茶籽播种",
+    "description": "",
+    "source": "中国茶叶流通协会",
+    "category": "tea"
+  },
+  {
+    "crop": "云南普洱大叶种茶",
+    "nodeSeq": 2,
+    "daysAfterSowing": 20,
+    "operationType": "emergence",
+    "name": "出苗",
+    "description": "",
+    "source": "中国茶叶流通协会",
+    "category": "tea"
+  },
+  {
+    "crop": "云南普洱大叶种茶",
+    "nodeSeq": 3,
+    "daysAfterSowing": 50,
+    "operationType": "other",
+    "name": "幼苗定植",
+    "description": "",
+    "source": "中国茶叶流通协会",
+    "category": "tea"
+  },
+  {
+    "crop": "云南普洱大叶种茶",
+    "nodeSeq": 4,
+    "daysAfterSowing": 80,
+    "operationType": "fertilizer",
+    "name": "春前施肥",
+    "description": "",
+    "source": "中国茶叶流通协会",
+    "category": "tea"
+  },
+  {
+    "crop": "云南普洱大叶种茶",
+    "nodeSeq": 5,
+    "daysAfterSowing": 110,
+    "operationType": "other",
+    "name": "春芽萌发",
+    "description": "",
+    "source": "中国茶叶流通协会",
+    "category": "tea"
+  },
+  {
+    "crop": "云南普洱大叶种茶",
+    "nodeSeq": 6,
+    "daysAfterSowing": 125,
+    "operationType": "harvest",
+    "name": "春茶采",
+    "description": "",
+    "source": "中国茶叶流通协会",
+    "category": "tea"
+  },
+  {
+    "crop": "云南普洱大叶种茶",
+    "nodeSeq": 7,
+    "daysAfterSowing": 145,
+    "operationType": "fertilizer",
+    "name": "春后施肥",
+    "description": "",
+    "source": "中国茶叶流通协会",
+    "category": "tea"
+  },
+  {
+    "crop": "云南普洱大叶种茶",
+    "nodeSeq": 8,
+    "daysAfterSowing": 175,
+    "operationType": "pesticide",
+    "name": "夏季防虫",
+    "description": "",
+    "source": "中国茶叶流通协会",
+    "category": "tea"
+  },
+  {
+    "crop": "云南普洱大叶种茶",
+    "nodeSeq": 9,
+    "daysAfterSowing": 200,
+    "operationType": "harvest",
+    "name": "夏茶采",
+    "description": "",
+    "source": "中国茶叶流通协会",
+    "category": "tea"
+  },
+  {
+    "crop": "云南普洱大叶种茶",
+    "nodeSeq": 10,
+    "daysAfterSowing": 235,
+    "operationType": "fertilizer",
+    "name": "秋前施肥",
+    "description": "",
+    "source": "中国茶叶流通协会",
+    "category": "tea"
+  },
+  {
+    "crop": "云南普洱大叶种茶",
+    "nodeSeq": 11,
+    "daysAfterSowing": 260,
+    "operationType": "harvest",
+    "name": "秋茶采",
+    "description": "",
+    "source": "中国茶叶流通协会",
+    "category": "tea"
+  },
+  {
+    "crop": "云南普洱大叶种茶",
+    "nodeSeq": 12,
+    "daysAfterSowing": 320,
+    "operationType": "irrigation",
+    "name": "冬前灌溉",
+    "description": "",
+    "source": "中国茶叶流通协会",
+    "category": "tea"
+  },
+  {
+    "crop": "吉林长白山人参",
+    "nodeSeq": 1,
+    "daysAfterSowing": 0,
+    "operationType": "sowing",
+    "name": "催芽播种",
+    "description": "",
+    "source": "中国中药材种植信息网",
+    "category": "medicinal"
+  },
+  {
+    "crop": "吉林长白山人参",
+    "nodeSeq": 2,
+    "daysAfterSowing": 30,
+    "operationType": "emergence",
+    "name": "出苗",
+    "description": "",
+    "source": "中国中药材种植信息网",
+    "category": "medicinal"
+  },
+  {
+    "crop": "吉林长白山人参",
+    "nodeSeq": 3,
+    "daysAfterSowing": 60,
+    "operationType": "other",
+    "name": "参棚遮阴",
+    "description": "",
+    "source": "中国中药材种植信息网",
+    "category": "medicinal"
+  },
+  {
+    "crop": "吉林长白山人参",
+    "nodeSeq": 4,
+    "daysAfterSowing": 90,
+    "operationType": "fertilizer",
+    "name": "追肥",
+    "description": "",
+    "source": "中国中药材种植信息网",
+    "category": "medicinal"
+  },
+  {
+    "crop": "吉林长白山人参",
+    "nodeSeq": 5,
+    "daysAfterSowing": 120,
+    "operationType": "pesticide",
+    "name": "病害防治",
+    "description": "",
+    "source": "中国中药材种植信息网",
+    "category": "medicinal"
+  },
+  {
+    "crop": "吉林长白山人参",
+    "nodeSeq": 6,
+    "daysAfterSowing": 150,
+    "operationType": "irrigation",
+    "name": "夏季灌溉",
+    "description": "",
+    "source": "中国中药材种植信息网",
+    "category": "medicinal"
+  },
+  {
+    "crop": "吉林长白山人参",
+    "nodeSeq": 7,
+    "daysAfterSowing": 180,
+    "operationType": "other",
+    "name": "开花期",
+    "description": "",
+    "source": "中国中药材种植信息网",
+    "category": "medicinal"
+  },
+  {
+    "crop": "吉林长白山人参",
+    "nodeSeq": 8,
+    "daysAfterSowing": 210,
+    "operationType": "fertilizer",
+    "name": "二次追肥",
+    "description": "",
+    "source": "中国中药材种植信息网",
+    "category": "medicinal"
+  },
+  {
+    "crop": "吉林长白山人参",
+    "nodeSeq": 9,
+    "daysAfterSowing": 270,
+    "operationType": "pesticide",
+    "name": "秋季防病",
+    "description": "",
+    "source": "中国中药材种植信息网",
+    "category": "medicinal"
+  },
+  {
+    "crop": "吉林长白山人参",
+    "nodeSeq": 10,
+    "daysAfterSowing": 330,
+    "operationType": "other",
+    "name": "红果期",
+    "description": "",
+    "source": "中国中药材种植信息网",
+    "category": "medicinal"
+  },
+  {
+    "crop": "吉林长白山人参",
+    "nodeSeq": 11,
+    "daysAfterSowing": 420,
+    "operationType": "fertilizer",
+    "name": "三年追肥",
+    "description": "",
+    "source": "中国中药材种植信息网",
+    "category": "medicinal"
+  },
+  {
+    "crop": "吉林长白山人参",
+    "nodeSeq": 12,
+    "daysAfterSowing": 540,
+    "operationType": "harvest",
+    "name": "起参采收",
+    "description": "",
+    "source": "中国中药材种植信息网",
+    "category": "medicinal"
+  },
+  {
+    "crop": "黑龙江齐齐哈尔燕麦草",
+    "nodeSeq": 1,
+    "daysAfterSowing": 0,
+    "operationType": "sowing",
+    "name": "播种",
+    "description": "",
+    "source": "国家农业科学数据中心",
+    "category": "forage"
+  },
+  {
+    "crop": "黑龙江齐齐哈尔燕麦草",
+    "nodeSeq": 2,
+    "daysAfterSowing": 8,
+    "operationType": "emergence",
+    "name": "出苗",
+    "description": "",
+    "source": "国家农业科学数据中心",
+    "category": "forage"
+  },
+  {
+    "crop": "黑龙江齐齐哈尔燕麦草",
+    "nodeSeq": 3,
+    "daysAfterSowing": 18,
+    "operationType": "other",
+    "name": "分蘖期",
+    "description": "",
+    "source": "国家农业科学数据中心",
+    "category": "forage"
+  },
+  {
+    "crop": "黑龙江齐齐哈尔燕麦草",
+    "nodeSeq": 4,
+    "daysAfterSowing": 30,
+    "operationType": "fertilizer",
+    "name": "追肥",
+    "description": "",
+    "source": "国家农业科学数据中心",
+    "category": "forage"
+  },
+  {
+    "crop": "黑龙江齐齐哈尔燕麦草",
+    "nodeSeq": 5,
+    "daysAfterSowing": 40,
+    "operationType": "irrigation",
+    "name": "拔节灌溉",
+    "description": "",
+    "source": "国家农业科学数据中心",
+    "category": "forage"
+  },
+  {
+    "crop": "黑龙江齐齐哈尔燕麦草",
+    "nodeSeq": 6,
+    "daysAfterSowing": 50,
+    "operationType": "other",
+    "name": "拔节期",
+    "description": "",
+    "source": "国家农业科学数据中心",
+    "category": "forage"
+  },
+  {
+    "crop": "黑龙江齐齐哈尔燕麦草",
+    "nodeSeq": 7,
+    "daysAfterSowing": 60,
+    "operationType": "pesticide",
+    "name": "防虫",
+    "description": "",
+    "source": "国家农业科学数据中心",
+    "category": "forage"
+  },
+  {
+    "crop": "黑龙江齐齐哈尔燕麦草",
+    "nodeSeq": 8,
+    "daysAfterSowing": 70,
+    "operationType": "other",
+    "name": "抽穗期",
+    "description": "",
+    "source": "国家农业科学数据中心",
+    "category": "forage"
+  },
+  {
+    "crop": "黑龙江齐齐哈尔燕麦草",
+    "nodeSeq": 9,
+    "daysAfterSowing": 80,
+    "operationType": "fertilizer",
+    "name": "穗期追肥",
+    "description": "",
+    "source": "国家农业科学数据中心",
+    "category": "forage"
+  },
+  {
+    "crop": "黑龙江齐齐哈尔燕麦草",
+    "nodeSeq": 10,
+    "daysAfterSowing": 85,
+    "operationType": "other",
+    "name": "灌浆期",
+    "description": "",
+    "source": "国家农业科学数据中心",
+    "category": "forage"
+  },
+  {
+    "crop": "黑龙江齐齐哈尔燕麦草",
+    "nodeSeq": 11,
+    "daysAfterSowing": 90,
+    "operationType": "irrigation",
+    "name": "灌浆灌溉",
+    "description": "",
+    "source": "国家农业科学数据中心",
+    "category": "forage"
+  },
+  {
+    "crop": "黑龙江齐齐哈尔燕麦草",
+    "nodeSeq": 12,
+    "daysAfterSowing": 100,
+    "operationType": "harvest",
+    "name": "刈割采收",
+    "description": "",
+    "source": "国家农业科学数据中心",
+    "category": "forage"
+  },
+  {
+    "crop": "河南驻马店芝麻",
+    "nodeSeq": 1,
+    "daysAfterSowing": 0,
+    "operationType": "sowing",
+    "name": "播种",
+    "description": "",
+    "source": "国家农业科学数据中心",
+    "category": "oilCrop"
+  },
+  {
+    "crop": "河南驻马店芝麻",
+    "nodeSeq": 2,
+    "daysAfterSowing": 7,
+    "operationType": "emergence",
+    "name": "出苗",
+    "description": "",
+    "source": "国家农业科学数据中心",
+    "category": "oilCrop"
+  },
+  {
+    "crop": "河南驻马店芝麻",
+    "nodeSeq": 3,
+    "daysAfterSowing": 15,
+    "operationType": "other",
+    "name": "间苗",
+    "description": "",
+    "source": "国家农业科学数据中心",
+    "category": "oilCrop"
+  },
+  {
+    "crop": "河南驻马店芝麻",
+    "nodeSeq": 4,
+    "daysAfterSowing": 25,
+    "operationType": "fertilizer",
+    "name": "追肥",
+    "description": "",
+    "source": "国家农业科学数据中心",
+    "category": "oilCrop"
+  },
+  {
+    "crop": "河南驻马店芝麻",
+    "nodeSeq": 5,
+    "daysAfterSowing": 35,
+    "operationType": "other",
+    "name": "分枝期",
+    "description": "",
+    "source": "国家农业科学数据中心",
+    "category": "oilCrop"
+  },
+  {
+    "crop": "河南驻马店芝麻",
+    "nodeSeq": 6,
+    "daysAfterSowing": 45,
+    "operationType": "irrigation",
+    "name": "灌溉",
+    "description": "",
+    "source": "国家农业科学数据中心",
+    "category": "oilCrop"
+  },
+  {
+    "crop": "河南驻马店芝麻",
+    "nodeSeq": 7,
+    "daysAfterSowing": 55,
+    "operationType": "other",
+    "name": "初花期",
+    "description": "",
+    "source": "国家农业科学数据中心",
+    "category": "oilCrop"
+  },
+  {
+    "crop": "河南驻马店芝麻",
+    "nodeSeq": 8,
+    "daysAfterSowing": 65,
+    "operationType": "pesticide",
+    "name": "防虫",
+    "description": "",
+    "source": "国家农业科学数据中心",
+    "category": "oilCrop"
+  },
+  {
+    "crop": "河南驻马店芝麻",
+    "nodeSeq": 9,
+    "daysAfterSowing": 75,
+    "operationType": "other",
+    "name": "盛花期",
+    "description": "",
+    "source": "国家农业科学数据中心",
+    "category": "oilCrop"
+  },
+  {
+    "crop": "河南驻马店芝麻",
+    "nodeSeq": 10,
+    "daysAfterSowing": 85,
+    "operationType": "fertilizer",
+    "name": "后期追肥",
+    "description": "",
+    "source": "国家农业科学数据中心",
+    "category": "oilCrop"
+  },
+  {
+    "crop": "河南驻马店芝麻",
+    "nodeSeq": 11,
+    "daysAfterSowing": 95,
+    "operationType": "other",
+    "name": "蒴果成熟",
+    "description": "",
+    "source": "国家农业科学数据中心",
+    "category": "oilCrop"
+  },
+  {
+    "crop": "河南驻马店芝麻",
+    "nodeSeq": 12,
+    "daysAfterSowing": 110,
+    "operationType": "harvest",
+    "name": "收割",
+    "description": "",
+    "source": "国家农业科学数据中心",
+    "category": "oilCrop"
+  },
+  {
+    "crop": "四川宜宾早春茶",
+    "nodeSeq": 1,
+    "daysAfterSowing": 0,
+    "operationType": "sowing",
+    "name": "扦插",
+    "description": "",
+    "source": "中国茶叶流通协会",
+    "category": "tea"
+  },
+  {
+    "crop": "四川宜宾早春茶",
+    "nodeSeq": 2,
+    "daysAfterSowing": 25,
+    "operationType": "emergence",
+    "name": "生根",
+    "description": "",
+    "source": "中国茶叶流通协会",
+    "category": "tea"
+  },
+  {
+    "crop": "四川宜宾早春茶",
+    "nodeSeq": 3,
+    "daysAfterSowing": 55,
+    "operationType": "other",
+    "name": "定植",
+    "description": "",
+    "source": "中国茶叶流通协会",
+    "category": "tea"
+  },
+  {
+    "crop": "四川宜宾早春茶",
+    "nodeSeq": 4,
+    "daysAfterSowing": 85,
+    "operationType": "fertilizer",
+    "name": "春前肥",
+    "description": "",
+    "source": "中国茶叶流通协会",
+    "category": "tea"
+  },
+  {
+    "crop": "四川宜宾早春茶",
+    "nodeSeq": 5,
+    "daysAfterSowing": 100,
+    "operationType": "other",
+    "name": "早春萌发",
+    "description": "",
+    "source": "中国茶叶流通协会",
+    "category": "tea"
+  },
+  {
+    "crop": "四川宜宾早春茶",
+    "nodeSeq": 6,
+    "daysAfterSowing": 110,
+    "operationType": "harvest",
+    "name": "早春茶采",
+    "description": "",
+    "source": "中国茶叶流通协会",
+    "category": "tea"
+  },
+  {
+    "crop": "四川宜宾早春茶",
+    "nodeSeq": 7,
+    "daysAfterSowing": 130,
+    "operationType": "fertilizer",
+    "name": "春后肥",
+    "description": "",
+    "source": "中国茶叶流通协会",
+    "category": "tea"
+  },
+  {
+    "crop": "四川宜宾早春茶",
+    "nodeSeq": 8,
+    "daysAfterSowing": 160,
+    "operationType": "pesticide",
+    "name": "防虫",
+    "description": "",
+    "source": "中国茶叶流通协会",
+    "category": "tea"
+  },
+  {
+    "crop": "四川宜宾早春茶",
+    "nodeSeq": 9,
+    "daysAfterSowing": 190,
+    "operationType": "harvest",
+    "name": "夏茶采",
+    "description": "",
+    "source": "中国茶叶流通协会",
+    "category": "tea"
+  },
+  {
+    "crop": "四川宜宾早春茶",
+    "nodeSeq": 10,
+    "daysAfterSowing": 220,
+    "operationType": "fertilizer",
+    "name": "秋前肥",
+    "description": "",
+    "source": "中国茶叶流通协会",
+    "category": "tea"
+  },
+  {
+    "crop": "四川宜宾早春茶",
+    "nodeSeq": 11,
+    "daysAfterSowing": 245,
+    "operationType": "harvest",
+    "name": "秋茶采",
+    "description": "",
+    "source": "中国茶叶流通协会",
+    "category": "tea"
+  },
+  {
+    "crop": "四川宜宾早春茶",
+    "nodeSeq": 12,
+    "daysAfterSowing": 310,
+    "operationType": "irrigation",
+    "name": "冬灌",
+    "description": "",
+    "source": "中国茶叶流通协会",
+    "category": "tea"
+  },
+  {
+    "crop": "甘肃岷县当归",
+    "nodeSeq": 1,
+    "daysAfterSowing": 0,
+    "operationType": "sowing",
+    "name": "播种",
+    "description": "",
+    "source": "中国中药材种植信息网",
+    "category": "medicinal"
+  },
+  {
+    "crop": "甘肃岷县当归",
+    "nodeSeq": 2,
+    "daysAfterSowing": 20,
+    "operationType": "emergence",
+    "name": "出苗",
+    "description": "",
+    "source": "中国中药材种植信息网",
+    "category": "medicinal"
+  },
+  {
+    "crop": "甘肃岷县当归",
+    "nodeSeq": 3,
+    "daysAfterSowing": 35,
+    "operationType": "other",
+    "name": "间苗",
+    "description": "",
+    "source": "中国中药材种植信息网",
+    "category": "medicinal"
+  },
+  {
+    "crop": "甘肃岷县当归",
+    "nodeSeq": 4,
+    "daysAfterSowing": 50,
+    "operationType": "fertilizer",
+    "name": "追肥",
+    "description": "",
+    "source": "中国中药材种植信息网",
+    "category": "medicinal"
+  },
+  {
+    "crop": "甘肃岷县当归",
+    "nodeSeq": 5,
+    "daysAfterSowing": 65,
+    "operationType": "irrigation",
+    "name": "灌溉",
+    "description": "",
+    "source": "中国中药材种植信息网",
+    "category": "medicinal"
+  },
+  {
+    "crop": "甘肃岷县当归",
+    "nodeSeq": 6,
+    "daysAfterSowing": 80,
+    "operationType": "pesticide",
+    "name": "防病",
+    "description": "",
+    "source": "中国中药材种植信息网",
+    "category": "medicinal"
+  },
+  {
+    "crop": "甘肃岷县当归",
+    "nodeSeq": 7,
+    "daysAfterSowing": 95,
+    "operationType": "other",
+    "name": "抽薹期",
+    "description": "",
+    "source": "中国中药材种植信息网",
+    "category": "medicinal"
+  },
+  {
+    "crop": "甘肃岷县当归",
+    "nodeSeq": 8,
+    "daysAfterSowing": 110,
+    "operationType": "fertilizer",
+    "name": "二次追肥",
+    "description": "",
+    "source": "中国中药材种植信息网",
+    "category": "medicinal"
+  },
+  {
+    "crop": "甘肃岷县当归",
+    "nodeSeq": 9,
+    "daysAfterSowing": 130,
+    "operationType": "irrigation",
+    "name": "旱季灌溉",
+    "description": "",
+    "source": "中国中药材种植信息网",
+    "category": "medicinal"
+  },
+  {
+    "crop": "甘肃岷县当归",
+    "nodeSeq": 10,
+    "daysAfterSowing": 150,
+    "operationType": "other",
+    "name": "根部膨大",
+    "description": "",
+    "source": "中国中药材种植信息网",
+    "category": "medicinal"
+  },
+  {
+    "crop": "甘肃岷县当归",
+    "nodeSeq": 11,
+    "daysAfterSowing": 175,
+    "operationType": "pesticide",
+    "name": "后期防病",
+    "description": "",
+    "source": "中国中药材种植信息网",
+    "category": "medicinal"
+  },
+  {
+    "crop": "甘肃岷县当归",
+    "nodeSeq": 12,
+    "daysAfterSowing": 200,
+    "operationType": "harvest",
+    "name": "挖根采收",
+    "description": "",
+    "source": "中国中药材种植信息网",
+    "category": "medicinal"
+  },
+  {
+    "crop": "新疆阿勒泰饲用甜菜",
+    "nodeSeq": 1,
+    "daysAfterSowing": 0,
+    "operationType": "sowing",
+    "name": "播种",
+    "description": "",
+    "source": "国家农业科学数据中心",
+    "category": "forage"
+  },
+  {
+    "crop": "新疆阿勒泰饲用甜菜",
+    "nodeSeq": 2,
+    "daysAfterSowing": 10,
+    "operationType": "emergence",
+    "name": "出苗",
+    "description": "",
+    "source": "国家农业科学数据中心",
+    "category": "forage"
+  },
+  {
+    "crop": "新疆阿勒泰饲用甜菜",
+    "nodeSeq": 3,
+    "daysAfterSowing": 20,
+    "operationType": "other",
+    "name": "间苗",
+    "description": "",
+    "source": "国家农业科学数据中心",
+    "category": "forage"
+  },
+  {
+    "crop": "新疆阿勒泰饲用甜菜",
+    "nodeSeq": 4,
+    "daysAfterSowing": 30,
+    "operationType": "fertilizer",
+    "name": "追肥",
+    "description": "",
+    "source": "国家农业科学数据中心",
+    "category": "forage"
+  },
+  {
+    "crop": "新疆阿勒泰饲用甜菜",
+    "nodeSeq": 5,
+    "daysAfterSowing": 40,
+    "operationType": "irrigation",
+    "name": "灌溉",
+    "description": "",
+    "source": "国家农业科学数据中心",
+    "category": "forage"
+  },
+  {
+    "crop": "新疆阿勒泰饲用甜菜",
+    "nodeSeq": 6,
+    "daysAfterSowing": 55,
+    "operationType": "other",
+    "name": "叶丛繁茂",
+    "description": "",
+    "source": "国家农业科学数据中心",
+    "category": "forage"
+  },
+  {
+    "crop": "新疆阿勒泰饲用甜菜",
+    "nodeSeq": 7,
+    "daysAfterSowing": 70,
+    "operationType": "fertilizer",
+    "name": "二次追肥",
+    "description": "",
+    "source": "国家农业科学数据中心",
+    "category": "forage"
+  },
+  {
+    "crop": "新疆阿勒泰饲用甜菜",
+    "nodeSeq": 8,
+    "daysAfterSowing": 85,
+    "operationType": "pesticide",
+    "name": "防虫",
+    "description": "",
+    "source": "国家农业科学数据中心",
+    "category": "forage"
+  },
+  {
+    "crop": "新疆阿勒泰饲用甜菜",
+    "nodeSeq": 9,
+    "daysAfterSowing": 100,
+    "operationType": "irrigation",
+    "name": "块根膨大灌溉",
+    "description": "",
+    "source": "国家农业科学数据中心",
+    "category": "forage"
+  },
+  {
+    "crop": "新疆阿勒泰饲用甜菜",
+    "nodeSeq": 10,
+    "daysAfterSowing": 120,
+    "operationType": "other",
+    "name": "糖分积累",
+    "description": "",
+    "source": "国家农业科学数据中心",
+    "category": "forage"
+  },
+  {
+    "crop": "新疆阿勒泰饲用甜菜",
+    "nodeSeq": 11,
+    "daysAfterSowing": 140,
+    "operationType": "fertilizer",
+    "name": "后期追肥",
+    "description": "",
+    "source": "国家农业科学数据中心",
+    "category": "forage"
+  },
+  {
+    "crop": "新疆阿勒泰饲用甜菜",
+    "nodeSeq": 12,
+    "daysAfterSowing": 160,
+    "operationType": "harvest",
+    "name": "挖掘采收",
+    "description": "",
+    "source": "国家农业科学数据中心",
+    "category": "forage"
+  }
+]

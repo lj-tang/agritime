@@ -1,0 +1,18 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "phenology-stage",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "required": ["stageName", "crop", "startDaysAfterSowing", "endDaysAfterSowing", "source"],
+    "additionalProperties": false,
+    "properties": {
+      "stageName": { "type": "string", "minLength": 1 },
+      "crop": { "type": "string", "minLength": 1 },
+      "startDaysAfterSowing": { "type": "integer", "minimum": 0 },
+      "endDaysAfterSowing": { "type": "integer", "minimum": 0 },
+      "description": { "type": "string" },
+      "source": { "type": "string", "minLength": 1 }
+    }
+  }
+}

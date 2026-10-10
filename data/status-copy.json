@@ -1,0 +1,5 @@
+[
+  { "status": "green", "copy": "今天适宜作业，按计划进行", "tone": "positive", "color": "#2e9e5b" },
+  { "status": "yellow", "copy": "条件一般，建议谨慎并关注天气变化", "tone": "caution", "color": "#d9a12a" },
+  { "status": "red", "copy": "不建议今天作业，请参考改期建议", "tone": "danger", "color": "#d94f4f" }
+]

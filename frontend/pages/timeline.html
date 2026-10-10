@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#f4efe3" />
+  <title>知农时 · 农事时间线</title>
+  <link rel="stylesheet" href="../assets/css/common.css" />
+  <link rel="stylesheet" href="../assets/css/timeline.css" />
+</head>
+<body>
+  <main class="page">
+    <header class="brand">
+      <div class="brand-row">
+        <span class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="12" cy="8.4" r="3.6" fill="#ffd97a" />
+            <path d="M12 12.2c0 3.4-1.9 6.2-5.2 8.1.7-2.9 1.9-4.9 3.6-6.1" stroke="#eaf6e8" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />
+            <path d="M12 12.2c0 3.4 1.9 6.2 5.2 8.1-.7-2.9-1.9-4.9-3.6-6.1" stroke="#c9e6c3" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />
+          </svg>
+        </span>
+        <div>
+          <div class="brand-name">知农时</div>
+          <div class="brand-sub" id="brand-sub">正在读取农时…</div>
+        </div>
+      </div>
+    </header>
+
+    <section class="timeline-header" id="conclusion-card" hidden>
+      <div class="conclusion-label">今天该不该干</div>
+      <div class="conclusion" id="conclusion"></div>
+      <div class="data-meta" id="data-meta"></div>
+    </section>
+
+    <div class="loading" id="loading">
+      <div class="skeleton"></div>
+      <div class="skeleton"></div>
+      <div class="skeleton"></div>
+    </div>
+
+    <section class="timeline" id="timeline" hidden></section>
+
+    <section class="empty-state" id="empty-state" hidden>
+      <p>未生成节点，请检查作物或日期</p>
+      <button type="button" class="btn btn-primary" onclick="window.location.href='index.html'">返回修改</button>
+    </section>
+
+    <div class="timeline-footer" id="footer" hidden>
+      <button type="button" class="btn btn-ghost" onclick="window.location.href='index.html'">返回修改作物或日期</button>
+    </div>
+  </main>
+
+  <script src="../assets/mock/mock-data.js"></script>
+  <script>
+    (function () {
+      var STATUS_LABEL = { green: '适宜', yellow: '谨慎', red: '不宜' };
+      var WEATHER_WORD = {
+        clear: '晴', cloudy: '多云', overcast: '阴', lightRain: '小雨',
+        heavyRain: '大雨', storm: '暴雨', windy: '大风', hot: '高温', cold: '低温'
+      };
+      var ICONS = {
+        weather: '<svg viewBox="0 0 24 24" fill="none"><circle cx="9" cy="9" r="3.2" stroke="#d99b2b" stroke-width="1.7"/><path d="M3 15h11M14.5 15a3 3 0 1 1 .6 2" stroke="#3d6f96" stroke-width="1.7" stroke-linecap="round"/></svg>',
+        term: '<svg viewBox="0 0 24 24" fill="none"><path d="M12 3v18M5 8c3 0 5-1.6 7-5 2 3.4 4 5 7 5" stroke="#2f6b40" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+        festival: '<svg viewBox="0 0 24 24" fill="none"><path d="M4 9h16v11H4zM4 9l2-4h12l2 4M12 9v11M9 5c-1.6 0-2.4-1-2.4-2S7 1 8 1s2 1.4 4 4c2-2.6 3-4 4-4s1.4.8 1.4 2S16.6 5 15 5" stroke="#c65547" stroke-width="1.6" stroke-linejoin="round"/></svg>'
+      };
+      var params = new URLSearchParams(window.location.search);
+      var payload = {
+        crop: params.get('crop') || '山东金乡大蒜',
+        sowingDate: params.get('sowingDate') || '2025-03-15',
+        location: {
+          latitude: Number(params.get('latitude')) || 35.07,
+          longitude: Number(params.get('longitude')) || 116.31,
+          county: params.get('location') || '山东省济宁市金乡县'
+        }
+      };
+
+      function getData() {
+        return fetch('/api/timeline', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        })
+          .then(function (res) { if (!res.ok) throw new Error('接口返回 ' + res.status); return res.json(); })
+          .catch(function () { return window.MOCK_TIMELINE; });
+      }
+
+      function badge(status) {
+        var span = document.createElement('span');
+        span.className = 'badge ' + status;
+        span.textContent = STATUS_LABEL[status] || '';
+        return span;
+      }
+
+      function svgIcon(kind) {
+        var span = document.createElement('span');
+        span.className = 'icon';
+        span.innerHTML = ICONS[kind] || ICONS.weather;
+        return span;
+      }
+
+      function renderConclusion(data) {
+        var card = document.getElementById('conclusion-card');
+        var box = document.getElementById('conclusion');
+        var meta = document.getElementById('data-meta');
+        var status = data.todayConclusion.status || 'green';
+        box.innerHTML = '';
+        box.appendChild(badge(status));
+        var text = document.createElement('span');
+        text.textContent = data.todayConclusion.copy || '';
+        box.appendChild(text);
+        card.className = 'timeline-header status-' + status;
+        card.hidden = false;
+
+        document.getElementById('brand-sub').textContent = (payload.crop || '') + ' · ' + (payload.sowingDate || '');
+        var sourceText = { realtime: '实时天气', cache: '缓存天气', unavailable: '天气数据暂不可用' }[data.dataSource] || '';
+        meta.textContent = '数据来源：' + sourceText + (data.dataTime ? ' · 数据时间 ' + new Date(data.dataTime).toLocaleString() : '');
+        meta.className = 'data-meta' + (data.dataSource === 'realtime' ? '' : ' warn');
+      }
+
+      function renderNode(node) {
+        var wrap = document.createElement('div');
+        wrap.className = 'tl-node ' + (node.certainty === 'predicted' ? 'predicted' : 'certain') + ' status-' + (node.status || 'green');
+
+        var dot = document.createElement('span');
+        dot.className = 'tl-dot';
+        wrap.appendChild(dot);
+
+        var card = document.createElement('div');
+        card.className = 'tl-card';
+        card.addEventListener('click', function () { card.classList.toggle('open'); });
+
+        var action = document.createElement('div');
+        action.className = 'tl-action';
+        var name = document.createElement('span');
+        name.className = 'name';
+        name.textContent = node.name;
+        var date = document.createElement('span');
+        date.className = 'date';
+        date.textContent = node.date;
+        action.appendChild(name);
+        action.appendChild(date);
+        card.appendChild(action);
+
+        var decision = document.createElement('div');
+        decision.className = 'tl-decision';
+        decision.textContent = node.copy || '';
+        card.appendChild(decision);
+
+        if (node.rescheduleAdvice) {
+          var advice = document.createElement('div');
+          advice.className = 'tl-advice';
+          advice.textContent = '↳ ' + node.rescheduleAdvice;
+          card.appendChild(advice);
+        }
+
+        if (node.solarTerm) {
+          var termNote = document.createElement('div');
+          termNote.className = 'tl-note';
+          termNote.appendChild(svgIcon('term'));
+          var tt = document.createElement('span');
+          tt.textContent = '节气 · ' + node.solarTerm + (node.solarTermTip ? '：' + node.solarTermTip : '');
+          termNote.appendChild(tt);
+          card.appendChild(termNote);
+        } else if (node.weatherIcon) {
+          var wNote = document.createElement('div');
+          wNote.className = 'tl-note';
+          wNote.appendChild(svgIcon('weather'));
+          var wt = document.createElement('span');
+          wt.textContent = '天气 · ' + (WEATHER_WORD[node.weatherIcon] || node.weatherIcon);
+          wNote.appendChild(wt);
+          card.appendChild(wNote);
+        }
+
+        var detail = document.createElement('div');
+        detail.className = 'tl-detail';
+        var desc = document.createElement('p');
+        desc.textContent = node.description || '';
+        detail.appendChild(desc);
+        if (node.reasons && node.reasons.length) {
+          var ul = document.createElement('ul');
+          node.reasons.forEach(function (r) { var li = document.createElement('li'); li.textContent = r; ul.appendChild(li); });
+          detail.appendChild(ul);
+        }
+        card.appendChild(detail);
+
+        wrap.appendChild(card);
+        return wrap;
+      }
+
+      function renderReminder(r) {
+        var wrap = document.createElement('div');
+        wrap.className = 'tl-node certain';
+        var dot = document.createElement('span');
+        dot.className = 'tl-dot';
+        wrap.appendChild(dot);
+        var card = document.createElement('div');
+        card.className = 'tl-card';
+        var action = document.createElement('div');
+        action.className = 'tl-action';
+        var name = document.createElement('span');
+        name.className = 'name';
+        name.textContent = r.festivalName + ' · 销售窗口';
+        var date = document.createElement('span');
+        date.className = 'date';
+        date.textContent = r.festivalDate;
+        action.appendChild(name); action.appendChild(date);
+        card.appendChild(action);
+        var note = document.createElement('div');
+        note.className = 'tl-note';
+        note.appendChild(svgIcon('festival'));
+        var t = document.createElement('span');
+        t.textContent = r.reminderCopy;
+        note.appendChild(t);
+        card.appendChild(note);
+        wrap.appendChild(card);
+        return wrap;
+      }
+
+      function render(data) {
+        document.getElementById('loading').hidden = true;
+        if (!data || !data.nodes || data.nodes.length === 0) {
+          document.getElementById('empty-state').hidden = false;
+          return;
+        }
+        renderConclusion(data);
+        var timeline = document.getElementById('timeline');
+        timeline.innerHTML = '';
+        data.nodes.forEach(function (n) { timeline.appendChild(renderNode(n)); });
+        if (data.reminders && data.reminders.length) {
+          data.reminders.forEach(function (r) { timeline.appendChild(renderReminder(r)); });
+        }
+        timeline.hidden = false;
+        document.getElementById('footer').hidden = false;
+      }
+
+      getData().then(render);
+    })();
+  </script>
+</body>
+</html>

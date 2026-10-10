@@ -1,0 +1,14 @@
+[
+  { "festivalName": "元旦", "type": "fixed", "dateRule": { "month": 1, "day": 1 }, "saleWindowDays": 7, "reminderCopy": "元旦备货窗口，建议提前确认采收与出货" },
+  { "festivalName": "年货节", "type": "fixed", "dateRule": { "month": 1, "day": 20 }, "saleWindowDays": 15, "reminderCopy": "年货节集中备货，建议提前安排采收与物流" },
+  { "festivalName": "春节", "type": "lunar", "dateRule": { "lunarMonth": 1, "lunarDay": 1 }, "saleWindowDays": 15, "reminderCopy": "春节是全年最大销售窗口，建议提前 15 天安排采收" },
+  { "festivalName": "妇女节", "type": "fixed", "dateRule": { "month": 3, "day": 8 }, "saleWindowDays": 5, "reminderCopy": "妇女节时令果蔬需求上升，建议按需备货" },
+  { "festivalName": "清明", "type": "computed", "dateRule": { "solarTerm": "清明" }, "saleWindowDays": 5, "reminderCopy": "清明时令菜需求上升，建议按需出货" },
+  { "festivalName": "劳动节", "type": "fixed", "dateRule": { "month": 5, "day": 1 }, "saleWindowDays": 7, "reminderCopy": "五一假期消费旺，建议提前安排采收" },
+  { "festivalName": "端午节", "type": "lunar", "dateRule": { "lunarMonth": 5, "lunarDay": 5 }, "saleWindowDays": 7, "reminderCopy": "端午备货窗口，关注行情与出货节奏" },
+  { "festivalName": "儿童节", "type": "fixed", "dateRule": { "month": 6, "day": 1 }, "saleWindowDays": 5, "reminderCopy": "儿童节果蔬零食需求增加，建议提前备货" },
+  { "festivalName": "中秋节", "type": "lunar", "dateRule": { "lunarMonth": 8, "lunarDay": 15 }, "saleWindowDays": 15, "reminderCopy": "中秋备货窗口，建议提前 15 天锁定采收与出货" },
+  { "festivalName": "国庆节", "type": "fixed", "dateRule": { "month": 10, "day": 1 }, "saleWindowDays": 7, "reminderCopy": "国庆假期消费高峰，建议提前备货" },
+  { "festivalName": "双十一", "type": "fixed", "dateRule": { "month": 11, "day": 11 }, "saleWindowDays": 10, "reminderCopy": "双十一电商促销窗口，建议提前对接渠道" },
+  { "festivalName": "双十二", "type": "fixed", "dateRule": { "month": 12, "day": 12 }, "saleWindowDays": 7, "reminderCopy": "双十二电商续促窗口，建议按需补货" }
+]

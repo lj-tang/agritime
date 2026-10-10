@@ -1,0 +1,122 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "contractName": "api-contract",
+  "contractVersion": "v3",
+  "frozenAt": "D2",
+  "apiVersion": "v1",
+  "title": "知农时 · 时间线对外 HTTP API 契约",
+  "description": "接入层与编排层之间唯一的 HTTP 契约。冻结后只追加版本，禁止就地破坏性修改。",
+  "endpoints": {
+    "POST /api/timeline": {
+      "summary": "生成一条会看天、懂节气、知行情的时间线",
+      "request": {
+        "contentType": "application/json",
+        "required": ["crop", "sowingDate", "location"],
+        "properties": {
+          "crop": { "type": "string", "description": "作物品种，如 山东金乡大蒜", "minLength": 1 },
+          "sowingDate": { "type": "string", "format": "date", "description": "播种日期 YYYY-MM-DD，不得晚于今天" },
+          "location": {
+            "type": "object",
+            "required": ["latitude", "longitude"],
+            "properties": {
+              "province": { "type": "string" },
+              "city": { "type": "string" },
+              "county": { "type": "string", "description": "县级精度即可" },
+              "latitude": { "type": "number", "minimum": -90, "maximum": 90 },
+              "longitude": { "type": "number", "minimum": -180, "maximum": 180 }
+            }
+          },
+          "windowDays": { "type": "integer", "minimum": 1, "maximum": 15, "default": 7 }
+        }
+      },
+      "response": {
+        "required": ["apiVersion", "dataSource", "dataTime", "todayConclusion", "nodes"],
+        "properties": {
+          "apiVersion": { "type": "string", "const": "v1" },
+          "dataSource": { "enum": ["realtime", "cache", "unavailable", "predicted"], "description": "数据来源，降级时标注" },
+          "dataTime": { "type": "string", "format": "date-time", "description": "数据实际时间，降级时尤为关键" },
+          "todayConclusion": {
+            "type": "object",
+            "required": ["status", "copy"],
+            "properties": {
+              "nodeId": { "type": "string" },
+              "operationType": { "type": "string" },
+              "status": { "enum": ["green", "yellow", "red"] },
+              "copy": { "type": "string", "description": "来自 status-copy 表，不硬编码" },
+              "certainty": { "enum": ["certain", "predicted"] }
+            }
+          },
+          "nodes": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["nodeId", "nodeSeq", "date", "operationType", "name", "certainty"],
+              "properties": {
+                "nodeId": { "type": "string" },
+                "nodeSeq": { "type": "integer" },
+                "daysAfterSowing": { "type": "integer" },
+                "date": { "type": "string", "format": "date" },
+                "operationType": { "type": "string" },
+                "name": { "type": "string" },
+                "description": { "type": "string" },
+                "status": { "enum": ["green", "yellow", "red"] },
+                "copy": { "type": "string" },
+                "reasons": { "type": "array", "items": { "type": "string" } },
+                "rescheduleAdvice": { "type": ["string", "null"] },
+                "certainty": { "enum": ["certain", "predicted"] },
+                "weatherIcon": { "type": ["string", "null"] },
+                "festivalIcon": { "type": ["string", "null"] },
+                "phenologyStage": { "type": "string", "description": "v2 追加（可选）：命中物候期名称，无匹配时不返回" },
+                "keyFarmingPeriod": { "type": "string", "description": "v2 追加（可选）：命中节气关键农事期，无匹配时不返回" },
+                "predictSource": { "type": "string", "description": "v3 追加（可选）：预测来源名称" },
+                "predictWindow": { "type": "object", "description": "v3 追加（可选）：预测窗口 { start, end, days }" },
+                "confidence": { "type": ["number", "string"], "description": "v3 追加（可选）：预测置信度或 'unknown'" },
+                "dataSourceType": { "enum": ["realtime", "predicted", "cache", "unavailable"], "description": "v3 追加（可选）：数据源类型" }
+              }
+            }
+          },
+          "reminders": { "type": "array", "items": { "type": "object" } }
+        }
+      },
+      "errors": ["INVALID_INPUT", "UNSUPPORTED_CROP", "WEATHER_UNAVAILABLE", "INTERNAL_ERROR"]
+    },
+    "POST /api/recognition": {
+      "summary": "拍照识别作物，返回候选与置信度（须人工确认）",
+      "request": {
+        "contentType": "multipart/form-data",
+        "properties": {
+          "image": { "type": "string", "format": "binary", "description": "作物照片" },
+          "maxCandidates": { "type": "integer", "default": 3, "maximum": 3 }
+        }
+      },
+      "response": {
+        "required": ["needConfirm", "candidates", "fallback"],
+        "properties": {
+          "needConfirm": { "type": "boolean", "const": true, "description": "恒为 true，识别不替人做决定" },
+          "candidates": {
+            "type": "array",
+            "maxItems": 3,
+            "items": {
+              "type": "object",
+              "required": ["crop", "confidence"],
+              "properties": {
+                "crop": { "type": "string" },
+                "confidence": { "type": "number", "minimum": 0, "maximum": 1 }
+              }
+            }
+          },
+          "fallback": { "enum": ["search", "none"], "description": "失败回落搜索框" }
+        }
+      },
+      "errors": ["RECOGNITION_EMPTY", "RECOGNITION_TIMEOUT", "INVALID_INPUT", "INTERNAL_ERROR"]
+    }
+  },
+  "errorCodes": {
+    "INVALID_INPUT": { "httpStatus": 400, "message": "入参缺失或非法" },
+    "UNSUPPORTED_CROP": { "httpStatus": 422, "message": "暂不支持该作物品种" },
+    "WEATHER_UNAVAILABLE": { "httpStatus": 503, "message": "天气数据暂不可用，请稍后重试" },
+    "RECOGNITION_EMPTY": { "httpStatus": 200, "message": "未识别出品种，请手动搜索" },
+    "RECOGNITION_TIMEOUT": { "httpStatus": 200, "message": "识别超时，请手动搜索或输入品种" },
+    "INTERNAL_ERROR": { "httpStatus": 500, "message": "服务内部错误" }
+  }
+}

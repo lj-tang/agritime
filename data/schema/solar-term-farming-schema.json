@@ -1,0 +1,24 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "solar-term-farming",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "required": ["termName", "dateRule", "farmingTip", "keyFarmingPeriod"],
+    "additionalProperties": false,
+    "properties": {
+      "termName": { "type": "string", "minLength": 1 },
+      "dateRule": {
+        "type": "object",
+        "required": ["month", "cConstant"],
+        "properties": {
+          "month": { "type": "integer", "minimum": 1, "maximum": 12 },
+          "cConstant": { "type": "number" }
+        }
+      },
+      "farmingTip": { "type": "string" },
+      "keyFarmingPeriod": { "type": "string", "minLength": 1 },
+      "applicableCrops": { "type": "array", "items": { "type": "string" } }
+    }
+  }
+}

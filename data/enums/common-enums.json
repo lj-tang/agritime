@@ -1,0 +1,73 @@
+{
+  "enums": {
+    "operationType": {
+      "pesticide": "打药",
+      "fertilizer": "施肥",
+      "irrigation": "灌溉",
+      "harvest": "采收",
+      "sowing": "播种",
+      "emergence": "出苗",
+      "other": "其他"
+    },
+    "factorType": {
+      "rainfall": "降雨",
+      "windSpeed": "风力",
+      "temperature": "气温",
+      "humidity": "湿度",
+      "soilMoisture": "土壤墒情",
+      "light": "光照",
+      "airQuality": "空气质量指数",
+      "uvIndex": "紫外线指数",
+      "evapotranspiration": "蒸散量",
+      "soilTemperature": "土壤温度",
+      "soilEC": "土壤电导率"
+    },
+    "status": {
+      "green": "适宜",
+      "yellow": "谨慎",
+      "red": "不宜"
+    },
+    "dataSource": {
+      "realtime": "实时数据",
+      "cache": "缓存数据",
+      "unavailable": "数据不可用",
+      "predicted": "预测数据"
+    },
+    "dataSourceType": {
+      "realtime": "实时观测",
+      "predicted": "模型预测",
+      "cache": "缓存数据",
+      "unavailable": "数据不可用"
+    },
+    "cropCategory": {
+      "grain": "粮食",
+      "vegetable": "蔬菜",
+      "cashCrop": "经济作物",
+      "fruit": "果树",
+      "oilCrop": "油料",
+      "forage": "饲料",
+      "medicinal": "药用",
+      "tea": "茶叶",
+      "other": "其他"
+    },
+    "certainty": {
+      "certain": "确定信息",
+      "predicted": "预测信息"
+    },
+    "weatherLevel": {
+      "clear": "晴",
+      "cloudy": "多云",
+      "overcast": "阴",
+      "lightRain": "小雨",
+      "heavyRain": "大雨",
+      "storm": "暴雨",
+      "windy": "大风",
+      "hot": "高温",
+      "cold": "低温"
+    },
+    "fallback": {
+      "search": "回落搜索框",
+      "none": "无需回落"
+    }
+  }
+}

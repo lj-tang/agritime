@@ -1,0 +1,45 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "dataset-provenance",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "required": ["sourceName", "publisher", "sourceUrl", "version", "license", "acquiredDate", "relatedTable", "status", "dataSourceType"],
+    "additionalProperties": false,
+    "properties": {
+      "sourceName": { "type": "string", "minLength": 1 },
+      "publisher": { "type": "string", "minLength": 1 },
+      "sourceUrl": { "type": "string", "minLength": 1 },
+      "version": { "type": "string", "minLength": 1 },
+      "license": { "type": "string", "minLength": 1 },
+      "acquiredDate": { "type": "string", "minLength": 1 },
+      "relatedTable": { "type": "string", "minLength": 1 },
+      "status": { "enum": ["registered", "rejected"] },
+      "rejectionReason": { "type": "string" },
+      "dataSourceType": { "enum": ["realtime", "predicted", "cache", "unavailable"] }
+    },
+    "allOf": [
+      {
+        "if": { "properties": { "status": { "const": "registered" } } },
+        "then": {
+          "properties": {
+            "license": {
+              "enum": [
+                "CC BY 4.0",
+                "CC BY-SA 4.0",
+                "CC0 1.0",
+                "政府公开数据",
+                "Open Government Licence",
+                "FAO Open Data Licence"
+              ]
+            }
+          }
+        }
+      },
+      {
+        "if": { "properties": { "status": { "const": "rejected" } } },
+        "then": { "required": ["rejectionReason"] }
+      }
+    ]
+  }
+}

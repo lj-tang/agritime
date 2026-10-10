@@ -1,0 +1,32 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "operation-threshold",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "required": ["operationType", "factorType", "unit", "greenRange", "yellowRange", "redCondition"],
+    "additionalProperties": false,
+    "properties": {
+      "operationType": { "enum": ["pesticide", "fertilizer", "irrigation", "harvest"] },
+      "factorType": { "enum": ["rainfall", "windSpeed", "temperature", "humidity", "soilMoisture", "light", "airQuality", "uvIndex", "evapotranspiration", "soilTemperature", "soilEC"] },
+      "unit": { "type": "string" },
+      "variable": { "type": "string" },
+      "greenRange": { "$ref": "#/definitions/range" },
+      "yellowRange": { "$ref": "#/definitions/range" },
+      "redCondition": { "type": "string" },
+      "meaning": { "type": "string" },
+      "rescheduleCopy": { "type": "string" },
+      "source": { "type": "string", "minLength": 1 }
+    }
+  },
+  "definitions": {
+    "range": {
+      "type": "object",
+      "required": ["min", "max"],
+      "properties": {
+        "min": { "type": "number" },
+        "max": { "type": "number" }
+      }
+    }
+  }
+}

@@ -1,0 +1,147 @@
+{
+  "contractName": "compute-contract",
+  "contractVersion": "v3",
+  "frozenAt": "D3",
+  "title": "知农时 · 计算层模块契约",
+  "description": "编排层只按本契约调用计算层纯函数模块；模块间互不依赖、可测试、可被 mock 顶替。v2 相对 v1 仅追加第 7 个模块 resolvePhenologyStage，既有 6 个模块签名逐字不变。",
+  "modules": [
+    {
+      "file": "compute/node-generator.js",
+      "owner": "backend-A",
+      "export": "generateNodes",
+      "signature": "generateNodes(crop, sowingDate, schedule) => Node[]",
+      "params": {
+        "crop": "string",
+        "sowingDate": "string(YYYY-MM-DD)",
+        "schedule": "CropScheduleRow[]"
+      },
+      "returns": "农事节点数组，按 daysAfterSowing 升序，含 nodeId/nodeSeq/daysAfterSowing/date/operationType/name/description/certainty",
+      "throws": ["UNSUPPORTED_CROP"],
+      "notes": "非法条目跳过并记录日志；无规程抛 UNSUPPORTED_CROP"
+    },
+    {
+      "file": "compute/threshold-score.js",
+      "owner": "backend-A",
+      "export": "scoreNodes",
+      "signature": "scoreNodes(nodes, weatherWindow, thresholds) => ScoredNode[]",
+      "params": {
+        "nodes": "Node[]",
+        "weatherWindow": "DailyWeather[] | null",
+        "thresholds": "OperationThresholdRow[]"
+      },
+      "returns": "为每个节点补充 status/reasons/rescheduleAdvice；天气缺失时保守处理并标注数据不全",
+      "notes": "四规则包：打药/施肥/灌溉/采收；取窗口内最差一天；多规则冲突取最严重并聚合原因；v2 起按数据行 variable 优先取因子求值变量，缺省回退既有映射，既有判定语义不变；v3 起 buildVars 追加 5 新变量，签名不变"
+    },
+    {
+      "file": "compute/solar-term.js",
+      "owner": "backend-A",
+      "export": "resolveSolarTerm",
+      "signature": "resolveSolarTerm(date, solarTermTable) => SolarTermResult | null",
+      "params": {
+        "date": "string(YYYY-MM-DD)",
+        "solarTermTable": "SolarTermRow[]"
+      },
+      "returns": "命中节气信息 termName/date/farmingTip，v2 追加返回 keyFarmingPeriod/applicableCrops；无匹配返回 null",
+      "notes": "本地天文算法（寿星公式）推算，断网可用、零依赖；v2 起返回字段只追加，既有三字段语义与类型不变"
+    },
+    {
+      "file": "compute/weather-adapter.js",
+      "owner": "backend-B",
+      "export": "fetchWeatherWindow",
+      "signature": "fetchWeatherWindow(location, windowDays, timeoutMs) => Promise<DailyWeather[]>",
+      "params": {
+        "location": "{ latitude, longitude }",
+        "windowDays": "number",
+        "timeoutMs": "number"
+      },
+      "returns": "归一化逐日天气因子数组 { date, rainfall, windSpeed, temperature, humidity }",
+      "notes": "全队唯一有网络 IO 的函数；超时/失败交由上层 CacheGuard 降级，本模块不伪造数据；v3 起归一化追加可选新因子 airQuality/uvIndex/evapotranspiration/soilTemperature/soilEC"
+    },
+    {
+      "file": "compute/crop-recognition.js",
+      "owner": "backend-B",
+      "export": "recognize",
+      "signature": "recognize(image, maxCandidates) => Promise<{ candidates: Candidate[], fallback: 'search' | 'none' }>",
+      "params": {
+        "image": "Buffer | string",
+        "maxCandidates": "number(默认3，上限3)"
+      },
+      "returns": "按置信度降序、长度 ≤ maxCandidates 的候选；失败返回 fallback='search'",
+      "notes": "识别异常不抛阻塞错误"
+    },
+    {
+      "file": "compute/festival-engine.js",
+      "owner": "backend-B",
+      "export": "buildFestivalReminders",
+      "signature": "buildFestivalReminders(nodes, festivalRules, year) => Reminder[]",
+      "params": {
+        "nodes": "Node[]",
+        "festivalRules": "FestivalRuleRow[]",
+        "year": "number"
+      },
+      "returns": "命中销售窗口的提醒节点数组；无命中返回空数组",
+      "notes": "规则数据驱动，新增销售节点无需改码"
+    },
+    {
+      "file": "compute/phenology-resolver.js",
+      "owner": "backend-A",
+      "export": "resolvePhenologyStage",
+      "signature": "resolvePhenologyStage(crop, daysAfterSowing, phenologyTable) => PhenologyStageRow | null",
+      "params": {
+        "crop": "string",
+        "daysAfterSowing": "number",
+        "phenologyTable": "PhenologyStageRow[]"
+      },
+      "returns": "命中物候期记录 stageName/crop/startDaysAfterSowing/endDaysAfterSowing/description/source；无匹配返回 null",
+      "notes": "v2 追加模块；按区间 [startDaysAfterSowing, endDaysAfterSowing] 只读匹配，边界值可命中，无副作用"
+    },
+    {
+      "file": "compute/cma-adapter.js",
+      "owner": "backend-B",
+      "export": "fetchRealtimeWeather",
+      "signature": "fetchRealtimeWeather(location, windowDays?, timeoutMs?) => Promise<RealtimeWeather[]>",
+      "params": {
+        "location": "{ latitude, longitude }",
+        "windowDays": "number(默认7)",
+        "timeoutMs": "number(默认1500)"
+      },
+      "returns": "归一化实时观测天气因子数组，附带 dataSourceType=realtime/fetchedAt/sourceName/certainty=certain",
+      "throws": ["CMA_UNAVAILABLE", "INVALID_INPUT"],
+      "notes": "v3 追加模块；调用中国气象局或各地气象局公开接口；超时/失败抛 CMA_UNAVAILABLE 由上层降级；凭据经环境变量注入"
+    },
+    {
+      "file": "compute/pangu-adapter.js",
+      "owner": "backend-B",
+      "export": "fetchPredictedWeather",
+      "signature": "fetchPredictedWeather(location, windowDays?, timeoutMs?) => Promise<PredictedWeather[]>",
+      "params": {
+        "location": "{ latitude, longitude }",
+        "windowDays": "number(默认7)",
+        "timeoutMs": "number(默认3000)"
+      },
+      "returns": "归一化预测天气因子数组，附带 certainty=predicted/dataSourceType=predicted/predictSource/predictWindow/confidence",
+      "throws": ["PANGU_UNAVAILABLE", "INVALID_INPUT"],
+      "notes": "v3 追加模块；调用盘古气象大模型预测服务；超时/失败抛 PANGU_UNAVAILABLE 由上层降级；预测结果禁止标注为观测数据"
+    },
+    {
+      "file": "compute/weather-orchestrator.js",
+      "owner": "backend-B",
+      "export": "orchestrateWeather",
+      "signature": "orchestrateWeather(location, windowDays, config?) => Promise<WeatherOrchResult>",
+      "params": {
+        "location": "{ latitude, longitude }",
+        "windowDays": "number",
+        "config": "object(可选，注入适配器 mock)"
+      },
+      "returns": "{ weather, dataSource, dataTime, certainty, sourceName, degradationPath }；按优先级链路 cma→pangu→openmeteo→conservative 串行尝试",
+      "notes": "v3 追加模块；多源编排与降级链路；全部不可用时保守兜底返回 weather=null；禁止编造数据；优先级可经 WEATHER_SOURCE_PRIORITY 环境变量配置"
+    }
+  ],
+  "invariants": [
+    "模块文件名 = 导出函数名（连字符文件，驼峰导出）",
+    "模块间互不依赖，编排层通过 scheduler 依赖注入调用",
+    "所有模块必须可被 compute/mock/all-modules.mock.js 顶替",
+    "v2 起新增模块只追加，既有 6 个模块签名逐字不变",
+    "v3 起新增 3 个模块（fetchRealtimeWeather/fetchPredictedWeather/orchestrateWeather），既有 7 个模块签名逐字不变"
+  ]
+}

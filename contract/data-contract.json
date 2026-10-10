@@ -1,0 +1,134 @@
+{
+  "contractName": "data-contract",
+  "contractVersion": "v3",
+  "frozenAt": "D5",
+  "title": "知农时 · 数据表契约",
+  "description": "数据层八张表的表名、字段、主键与类型。文件名 = 契约表名，禁止不一致。v2 相对 v1 仅追加：新增 3 张表与若干字段，保留 v1 全部表与字段。",
+  "tables": {
+    "crop-schedule": {
+      "file": "data/crop-schedule.json",
+      "schema": "data/schema/crop-schedule-schema.json",
+      "primaryKey": ["crop", "nodeSeq"],
+      "type": "array",
+      "fields": {
+        "crop": { "type": "string", "description": "作物品种" },
+        "nodeSeq": { "type": "integer", "minimum": 1, "description": "节点序号（同作物内唯一）" },
+        "daysAfterSowing": { "type": "integer", "minimum": 0, "description": "播种后第 N 天" },
+        "operationType": { "enum": ["pesticide", "fertilizer", "irrigation", "harvest", "sowing", "emergence", "other"] },
+        "name": { "type": "string" },
+        "description": { "type": "string" },
+        "source": { "type": "string", "description": "可溯源出处（v2 起必填）" },
+        "category": { "type": "string", "enum": ["grain", "vegetable", "cashCrop", "fruit", "oilCrop", "forage", "medicinal", "tea", "other"], "description": "v3 追加：作物类别（必填）" }
+      },
+      "constraints": "≥30 种作物，每种 ≥ 12 个节点，且含播种与采收节点；≥5 类别"
+    },
+    "operation-threshold": {
+      "file": "data/operation-threshold.json",
+      "schema": "data/schema/operation-threshold-schema.json",
+      "primaryKey": ["operationType", "factorType"],
+      "type": "array",
+      "fields": {
+        "operationType": { "enum": ["pesticide", "fertilizer", "irrigation", "harvest"] },
+        "factorType": { "enum": ["rainfall", "windSpeed", "temperature", "humidity", "soilMoisture", "light", "airQuality", "uvIndex", "evapotranspiration", "soilTemperature", "soilEC"] },
+        "unit": { "type": "string" },
+        "variable": { "type": "string", "description": "v2 追加：表达式求值变量名（缺省回退既有因子映射）" },
+        "greenRange": { "type": "object", "description": "适宜区间 { min, max }" },
+        "yellowRange": { "type": "object", "description": "谨慎区间 { min, max }" },
+        "redCondition": { "type": "string", "description": "不可作业条件（可量化表达式）" },
+        "meaning": { "type": "string", "description": "规则含义（怕什么）" },
+        "rescheduleCopy": { "type": "string" }
+      },
+      "constraints": "4 类作业 × ≥11 类因子，组合完整无缺项"
+    },
+    "solar-term-farming": {
+      "file": "data/solar-term-farming.json",
+      "schema": "data/schema/solar-term-farming-schema.json",
+      "primaryKey": ["termName"],
+      "type": "array",
+      "fields": {
+        "termName": { "type": "string" },
+        "dateRule": { "type": "object", "description": "可据年份推算日期的规则 { month, cConstant }" },
+        "farmingTip": { "type": "string" },
+        "keyFarmingPeriod": { "type": "string", "description": "v2 追加：关键农事期（必填）" },
+        "applicableCrops": { "type": "array", "description": "v2 追加：适用作物（选填）" }
+      },
+      "constraints": "24 节气零缺漏，标注关键农事期与适用作物"
+    },
+    "festival-rule": {
+      "file": "data/festival-rule.json",
+      "schema": "data/schema/festival-rule-schema.json",
+      "primaryKey": ["festivalName"],
+      "type": "array",
+      "fields": {
+        "festivalName": { "type": "string" },
+        "type": { "enum": ["fixed", "lunar", "computed"] },
+        "dateRule": { "type": "object", "description": "固定日期或计算规则" },
+        "saleWindowDays": { "type": "integer", "minimum": 0 },
+        "reminderCopy": { "type": "string" }
+      },
+      "constraints": "≥ 12 条销售节日规则，写成数据不是代码"
+    },
+    "status-copy": {
+      "file": "data/status-copy.json",
+      "schema": "data/schema/status-copy-schema.json",
+      "primaryKey": ["status"],
+      "type": "array",
+      "fields": {
+        "status": { "enum": ["green", "yellow", "red"] },
+        "copy": { "type": "string" },
+        "tone": { "type": "string" },
+        "color": { "type": "string" }
+      },
+      "constraints": "每态有且仅有一条记录；前端文案唯一来源"
+    },
+    "phenology-stage": {
+      "file": "data/phenology-stage.json",
+      "schema": "data/schema/phenology-stage-schema.json",
+      "primaryKey": ["stageName", "crop"],
+      "type": "array",
+      "fields": {
+        "stageName": { "type": "string", "description": "物候期名称" },
+        "crop": { "type": "string", "description": "作物品种" },
+        "startDaysAfterSowing": { "type": "integer", "minimum": 0, "description": "起始播种后天数" },
+        "endDaysAfterSowing": { "type": "integer", "minimum": 0, "description": "结束播种后天数（≥起始）" },
+        "description": { "type": "string", "description": "阶段说明（选填）" },
+        "source": { "type": "string", "description": "可溯源出处（必填）" }
+      },
+      "constraints": "每作物物候期区间首尾衔接，endDaysAfterSowing ≥ startDaysAfterSowing"
+    },
+    "dataset-provenance": {
+      "file": "data/dataset-provenance.json",
+      "schema": "data/schema/dataset-provenance-schema.json",
+      "primaryKey": ["sourceName"],
+      "type": "array",
+      "fields": {
+        "sourceName": { "type": "string", "description": "数据集来源名称" },
+        "publisher": { "type": "string", "description": "发布机构" },
+        "sourceUrl": { "type": "string", "description": "可公开访问的来源地址" },
+        "version": { "type": "string", "description": "数据集版本" },
+        "license": { "type": "string", "description": "允许再利用的开放许可或政府公开数据" },
+        "acquiredDate": { "type": "string", "description": "获取日期 YYYY-MM-DD" },
+        "relatedTable": { "type": "string", "description": "被覆盖的数据表名" },
+        "status": { "enum": ["registered", "rejected"], "description": "登记状态" },
+        "dataSourceType": { "enum": ["realtime", "predicted", "cache", "unavailable"], "description": "v3 追加：数据源类型（必填）" }
+      },
+      "constraints": "七要素必填；许可需为开放许可或政府公开数据；拒绝记录保留原因；v3 起含 dataSourceType"
+    },
+    "data-quality-report": {
+      "file": "data/data-quality-report.json",
+      "schema": "data/schema/data-quality-report-schema.json",
+      "primaryKey": ["tableName", "checkType"],
+      "type": "array",
+      "fields": {
+        "tableName": { "type": "string", "description": "被校验的数据表名" },
+        "checkType": { "enum": ["schema", "contract"], "description": "校验类型" },
+        "result": { "enum": ["pass", "fail"], "description": "校验结果" },
+        "failureDetails": { "type": "array", "description": "失败明细（result=fail 时必填）" },
+        "sourceCoverage": { "type": "number", "minimum": 0, "maximum": 100, "description": "来源覆盖率百分比" },
+        "generatedAt": { "type": "string", "description": "生成时间" }
+      },
+      "constraints": "覆盖 8 张表 × 2 类校验；失败时输出明细"
+    }
+  },
+  "fileNameEqualsTableName": true
+}

@@ -1,0 +1,76 @@
+[
+  { "stageName": "出苗期", "crop": "河南新乡小麦", "startDaysAfterSowing": 0, "endDaysAfterSowing": 15, "description": "种子萌发至出苗", "source": "国家农业科学数据中心" },
+  { "stageName": "分蘖期", "crop": "河南新乡小麦", "startDaysAfterSowing": 16, "endDaysAfterSowing": 60, "description": "分蘖发生与生长", "source": "国家农业科学数据中心" },
+  { "stageName": "越冬期", "crop": "河南新乡小麦", "startDaysAfterSowing": 61, "endDaysAfterSowing": 120, "description": "停止生长越冬", "source": "国家农业科学数据中心" },
+  { "stageName": "返青拔节期", "crop": "河南新乡小麦", "startDaysAfterSowing": 121, "endDaysAfterSowing": 170, "description": "返青后拔节生长", "source": "国家农业科学数据中心" },
+  { "stageName": "抽穗开花期", "crop": "河南新乡小麦", "startDaysAfterSowing": 171, "endDaysAfterSowing": 190, "description": "抽穗与开花", "source": "国家农业科学数据中心" },
+  { "stageName": "灌浆期", "crop": "河南新乡小麦", "startDaysAfterSowing": 191, "endDaysAfterSowing": 220, "description": "籽粒灌浆", "source": "国家农业科学数据中心" },
+  { "stageName": "成熟期", "crop": "河南新乡小麦", "startDaysAfterSowing": 221, "endDaysAfterSowing": 240, "description": "籽粒成熟", "source": "国家农业科学数据中心" },
+
+  { "stageName": "出苗期", "crop": "黑龙江绥化玉米", "startDaysAfterSowing": 0, "endDaysAfterSowing": 10, "description": "种子萌发至出苗", "source": "国家农业科学数据中心" },
+  { "stageName": "拔节期", "crop": "黑龙江绥化玉米", "startDaysAfterSowing": 11, "endDaysAfterSowing": 40, "description": "拔节生长", "source": "国家农业科学数据中心" },
+  { "stageName": "抽雄吐丝期", "crop": "黑龙江绥化玉米", "startDaysAfterSowing": 41, "endDaysAfterSowing": 60, "description": "抽雄与吐丝", "source": "国家农业科学数据中心" },
+  { "stageName": "灌浆期", "crop": "黑龙江绥化玉米", "startDaysAfterSowing": 61, "endDaysAfterSowing": 100, "description": "籽粒灌浆", "source": "国家农业科学数据中心" },
+  { "stageName": "成熟期", "crop": "黑龙江绥化玉米", "startDaysAfterSowing": 101, "endDaysAfterSowing": 120, "description": "籽粒成熟", "source": "国家农业科学数据中心" },
+
+  { "stageName": "出苗期", "crop": "湖北荆州水稻", "startDaysAfterSowing": 0, "endDaysAfterSowing": 10, "description": "种子萌发至出苗", "source": "国家农业科学数据中心" },
+  { "stageName": "分蘖期", "crop": "湖北荆州水稻", "startDaysAfterSowing": 11, "endDaysAfterSowing": 40, "description": "分蘖发生与生长", "source": "国家农业科学数据中心" },
+  { "stageName": "抽穗期", "crop": "湖北荆州水稻", "startDaysAfterSowing": 41, "endDaysAfterSowing": 60, "description": "抽穗", "source": "国家农业科学数据中心" },
+  { "stageName": "灌浆期", "crop": "湖北荆州水稻", "startDaysAfterSowing": 61, "endDaysAfterSowing": 100, "description": "籽粒灌浆", "source": "国家农业科学数据中心" },
+  { "stageName": "成熟期", "crop": "湖北荆州水稻", "startDaysAfterSowing": 101, "endDaysAfterSowing": 120, "description": "籽粒成熟", "source": "国家农业科学数据中心" },
+
+  { "stageName": "出苗期", "crop": "黑龙江绥化大豆", "startDaysAfterSowing": 0, "endDaysAfterSowing": 10, "description": "种子萌发至出苗", "source": "国家农业科学数据中心" },
+  { "stageName": "分枝期", "crop": "黑龙江绥化大豆", "startDaysAfterSowing": 11, "endDaysAfterSowing": 35, "description": "分枝生长", "source": "国家农业科学数据中心" },
+  { "stageName": "开花期", "crop": "黑龙江绥化大豆", "startDaysAfterSowing": 36, "endDaysAfterSowing": 55, "description": "开花", "source": "国家农业科学数据中心" },
+  { "stageName": "结荚期", "crop": "黑龙江绥化大豆", "startDaysAfterSowing": 56, "endDaysAfterSowing": 80, "description": "结荚", "source": "国家农业科学数据中心" },
+  { "stageName": "鼓粒期", "crop": "黑龙江绥化大豆", "startDaysAfterSowing": 81, "endDaysAfterSowing": 100, "description": "鼓粒", "source": "国家农业科学数据中心" },
+  { "stageName": "成熟期", "crop": "黑龙江绥化大豆", "startDaysAfterSowing": 101, "endDaysAfterSowing": 110, "description": "籽粒成熟", "source": "国家农业科学数据中心" },
+
+  { "stageName": "出苗期", "crop": "新疆石河子棉花", "startDaysAfterSowing": 0, "endDaysAfterSowing": 10, "description": "种子萌发至出苗", "source": "国家农业科学数据中心" },
+  { "stageName": "现蕾期", "crop": "新疆石河子棉花", "startDaysAfterSowing": 11, "endDaysAfterSowing": 50, "description": "现蕾", "source": "国家农业科学数据中心" },
+  { "stageName": "开花期", "crop": "新疆石河子棉花", "startDaysAfterSowing": 51, "endDaysAfterSowing": 80, "description": "开花", "source": "国家农业科学数据中心" },
+  { "stageName": "吐絮期", "crop": "新疆石河子棉花", "startDaysAfterSowing": 81, "endDaysAfterSowing": 130, "description": "吐絮", "source": "国家农业科学数据中心" },
+  { "stageName": "成熟期", "crop": "新疆石河子棉花", "startDaysAfterSowing": 131, "endDaysAfterSowing": 150, "description": "裂铃成熟", "source": "国家农业科学数据中心" },
+
+  { "stageName": "出苗期", "crop": "山东寿光番茄", "startDaysAfterSowing": 0, "endDaysAfterSowing": 10, "description": "种子萌发至出苗", "source": "全国农业技术推广服务中心" },
+  { "stageName": "营养生长期", "crop": "山东寿光番茄", "startDaysAfterSowing": 11, "endDaysAfterSowing": 40, "description": "营养生长", "source": "全国农业技术推广服务中心" },
+  { "stageName": "开花期", "crop": "山东寿光番茄", "startDaysAfterSowing": 41, "endDaysAfterSowing": 60, "description": "开花", "source": "全国农业技术推广服务中心" },
+  { "stageName": "结果膨大期", "crop": "山东寿光番茄", "startDaysAfterSowing": 61, "endDaysAfterSowing": 100, "description": "结果与膨大", "source": "全国农业技术推广服务中心" },
+  { "stageName": "成熟期", "crop": "山东寿光番茄", "startDaysAfterSowing": 101, "endDaysAfterSowing": 120, "description": "果实成熟", "source": "全国农业技术推广服务中心" },
+
+  { "stageName": "萌芽期", "crop": "陕西洛川苹果", "startDaysAfterSowing": 0, "endDaysAfterSowing": 15, "description": "萌芽", "source": "国家农业科学数据中心" },
+  { "stageName": "开花期", "crop": "陕西洛川苹果", "startDaysAfterSowing": 16, "endDaysAfterSowing": 30, "description": "开花", "source": "国家农业科学数据中心" },
+  { "stageName": "坐果期", "crop": "陕西洛川苹果", "startDaysAfterSowing": 31, "endDaysAfterSowing": 60, "description": "坐果", "source": "国家农业科学数据中心" },
+  { "stageName": "果实膨大期", "crop": "陕西洛川苹果", "startDaysAfterSowing": 61, "endDaysAfterSowing": 140, "description": "果实膨大", "source": "国家农业科学数据中心" },
+  { "stageName": "成熟期", "crop": "陕西洛川苹果", "startDaysAfterSowing": 141, "endDaysAfterSowing": 180, "description": "果实成熟", "source": "国家农业科学数据中心" },
+
+  { "stageName": "出苗期", "crop": "山东金乡大蒜", "startDaysAfterSowing": 0, "endDaysAfterSowing": 20, "description": "蒜瓣萌发至出苗", "source": "国家农业科学数据中心" },
+  { "stageName": "营养生长期", "crop": "山东金乡大蒜", "startDaysAfterSowing": 21, "endDaysAfterSowing": 120, "description": "叶片生长", "source": "国家农业科学数据中心" },
+  { "stageName": "抽薹期", "crop": "山东金乡大蒜", "startDaysAfterSowing": 121, "endDaysAfterSowing": 160, "description": "抽薹", "source": "国家农业科学数据中心" },
+  { "stageName": "鳞茎膨大期", "crop": "山东金乡大蒜", "startDaysAfterSowing": 161, "endDaysAfterSowing": 220, "description": "鳞茎膨大", "source": "国家农业科学数据中心" },
+  { "stageName": "成熟期", "crop": "山东金乡大蒜", "startDaysAfterSowing": 221, "endDaysAfterSowing": 240, "description": "蒜头成熟", "source": "国家农业科学数据中心" },
+
+  { "stageName": "出苗期", "crop": "湖北天门油菜", "startDaysAfterSowing": 0, "endDaysAfterSowing": 15, "description": "种子萌发至出苗", "source": "国家农业科学数据中心" },
+  { "stageName": "营养生长期", "crop": "湖北天门油菜", "startDaysAfterSowing": 16, "endDaysAfterSowing": 100, "description": "叶片生长", "source": "国家农业科学数据中心" },
+  { "stageName": "现蕾抽薹期", "crop": "湖北天门油菜", "startDaysAfterSowing": 101, "endDaysAfterSowing": 140, "description": "现蕾抽薹", "source": "国家农业科学数据中心" },
+  { "stageName": "开花期", "crop": "湖北天门油菜", "startDaysAfterSowing": 141, "endDaysAfterSowing": 170, "description": "开花", "source": "国家农业科学数据中心" },
+  { "stageName": "成熟期", "crop": "湖北天门油菜", "startDaysAfterSowing": 171, "endDaysAfterSowing": 220, "description": "角果成熟", "source": "国家农业科学数据中心" },
+
+  { "stageName": "出苗期", "crop": "内蒙古赤峰马铃薯", "startDaysAfterSowing": 0, "endDaysAfterSowing": 15, "description": "种薯萌发至出苗", "source": "国家农业科学数据中心" },
+  { "stageName": "现蕾期", "crop": "内蒙古赤峰马铃薯", "startDaysAfterSowing": 16, "endDaysAfterSowing": 40, "description": "现蕾", "source": "国家农业科学数据中心" },
+  { "stageName": "开花期", "crop": "内蒙古赤峰马铃薯", "startDaysAfterSowing": 41, "endDaysAfterSowing": 60, "description": "开花", "source": "国家农业科学数据中心" },
+  { "stageName": "块茎膨大期", "crop": "内蒙古赤峰马铃薯", "startDaysAfterSowing": 61, "endDaysAfterSowing": 85, "description": "块茎膨大", "source": "国家农业科学数据中心" },
+  { "stageName": "成熟期", "crop": "内蒙古赤峰马铃薯", "startDaysAfterSowing": 86, "endDaysAfterSowing": 100, "description": "块茎成熟", "source": "国家农业科学数据中心" },
+
+  { "stageName": "出苗期", "crop": "河南南阳花生", "startDaysAfterSowing": 0, "endDaysAfterSowing": 10, "description": "种子萌发至出苗", "source": "国家农业科学数据中心" },
+  { "stageName": "分枝期", "crop": "河南南阳花生", "startDaysAfterSowing": 11, "endDaysAfterSowing": 30, "description": "分枝生长", "source": "国家农业科学数据中心" },
+  { "stageName": "开花下针期", "crop": "河南南阳花生", "startDaysAfterSowing": 31, "endDaysAfterSowing": 60, "description": "开花与下针", "source": "国家农业科学数据中心" },
+  { "stageName": "结荚期", "crop": "河南南阳花生", "startDaysAfterSowing": 61, "endDaysAfterSowing": 90, "description": "结荚", "source": "国家农业科学数据中心" },
+  { "stageName": "成熟期", "crop": "河南南阳花生", "startDaysAfterSowing": 91, "endDaysAfterSowing": 120, "description": "荚果成熟", "source": "国家农业科学数据中心" },
+
+  { "stageName": "出苗期", "crop": "广西崇左甘蔗", "startDaysAfterSowing": 0, "endDaysAfterSowing": 30, "description": "种茎萌发至出苗", "source": "国家农业科学数据中心" },
+  { "stageName": "分蘖期", "crop": "广西崇左甘蔗", "startDaysAfterSowing": 31, "endDaysAfterSowing": 90, "description": "分蘖发生", "source": "国家农业科学数据中心" },
+  { "stageName": "拔节期", "crop": "广西崇左甘蔗", "startDaysAfterSowing": 91, "endDaysAfterSowing": 200, "description": "拔节伸长", "source": "国家农业科学数据中心" },
+  { "stageName": "糖分积累期", "crop": "广西崇左甘蔗", "startDaysAfterSowing": 201, "endDaysAfterSowing": 300, "description": "糖分积累", "source": "国家农业科学数据中心" },
+  { "stageName": "成熟期", "crop": "广西崇左甘蔗", "startDaysAfterSowing": 301, "endDaysAfterSowing": 365, "description": "工艺成熟", "source": "国家农业科学数据中心" }
+]

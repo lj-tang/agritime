@@ -1,0 +1,31 @@
+# 华为云 FunctionGraph 部署配置（知农时 · 时间线 API）
+# 说明：本地开发可用 `npm start`；上云后由 FunctionGraph 承载编排层与静态页面。
+service: agritime-timeline
+provider: huawei
+region: cn-north-4
+runtime: Node.js 18
+handler: orchestration/server.js
+memorySize: 256
+timeout: 10
+environment:
+  EXTERNAL_TIMEOUT_MS: "800"
+  CACHE_TTL_SECONDS: "1800"
+  API_VERSION: v1
+  WEATHER_BASE_URL: https://api.open-meteo.com/v1/forecast
+  RECOGNITION_BASE_URL: ""
+triggers:
+  - type: APIG
+    name: agritime-http
+    protocol: HTTPS
+    routes:
+      - path: /api/timeline
+        method: POST
+      - path: /api/recognition
+        method: POST
+staticHosting:
+  enabled: true
+  root: frontend
+  entry: pages/index.html
+notes:
+  - 真实密钥/令牌通过 FunctionGraph 环境变量注入，绝不写入仓库。
+  - 演示期间可先用 ECS 或本地端口 + 内网穿透保底，再切换公网。

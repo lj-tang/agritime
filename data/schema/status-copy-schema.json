@@ -1,0 +1,18 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "status-copy",
+  "type": "array",
+  "minItems": 3,
+  "maxItems": 3,
+  "items": {
+    "type": "object",
+    "required": ["status", "copy", "tone", "color"],
+    "additionalProperties": false,
+    "properties": {
+      "status": { "enum": ["green", "yellow", "red"] },
+      "copy": { "type": "string", "minLength": 1 },
+      "tone": { "type": "string" },
+      "color": { "type": "string" }
+    }
+  }
+}

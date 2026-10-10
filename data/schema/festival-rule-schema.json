@@ -1,0 +1,27 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "festival-rule",
+  "type": "array",
+  "minItems": 12,
+  "items": {
+    "type": "object",
+    "required": ["festivalName", "type", "dateRule", "saleWindowDays", "reminderCopy"],
+    "additionalProperties": false,
+    "properties": {
+      "festivalName": { "type": "string", "minLength": 1 },
+      "type": { "enum": ["fixed", "lunar", "computed"] },
+      "dateRule": {
+        "type": "object",
+        "properties": {
+          "month": { "type": "integer", "minimum": 1, "maximum": 12 },
+          "day": { "type": "integer", "minimum": 1, "maximum": 31 },
+          "lunarMonth": { "type": "integer", "minimum": 1, "maximum": 12 },
+          "lunarDay": { "type": "integer", "minimum": 1, "maximum": 30 },
+          "solarTerm": { "type": "string" }
+        }
+      },
+      "saleWindowDays": { "type": "integer", "minimum": 0 },
+      "reminderCopy": { "type": "string" }
+    }
+  }
+}

@@ -1,0 +1,128 @@
+[
+  {
+    "tableName": "crop-schedule",
+    "checkType": "schema",
+    "result": "pass",
+    "sourceCoverage": 100,
+    "generatedAt": "2026-10-09T11:13:32.506Z"
+  },
+  {
+    "tableName": "crop-schedule",
+    "checkType": "contract",
+    "result": "pass",
+    "sourceCoverage": 100,
+    "generatedAt": "2026-10-09T11:13:32.514Z"
+  },
+  {
+    "tableName": "operation-threshold",
+    "checkType": "schema",
+    "result": "pass",
+    "sourceCoverage": 100,
+    "generatedAt": "2026-10-09T11:13:32.519Z"
+  },
+  {
+    "tableName": "operation-threshold",
+    "checkType": "contract",
+    "result": "pass",
+    "sourceCoverage": 100,
+    "generatedAt": "2026-10-09T11:13:32.519Z"
+  },
+  {
+    "tableName": "solar-term-farming",
+    "checkType": "schema",
+    "result": "pass",
+    "sourceCoverage": 100,
+    "generatedAt": "2026-10-09T11:13:32.523Z"
+  },
+  {
+    "tableName": "solar-term-farming",
+    "checkType": "contract",
+    "result": "pass",
+    "sourceCoverage": 100,
+    "generatedAt": "2026-10-09T11:13:32.523Z"
+  },
+  {
+    "tableName": "festival-rule",
+    "checkType": "schema",
+    "result": "pass",
+    "sourceCoverage": 100,
+    "generatedAt": "2026-10-09T11:13:32.527Z"
+  },
+  {
+    "tableName": "festival-rule",
+    "checkType": "contract",
+    "result": "pass",
+    "sourceCoverage": 100,
+    "generatedAt": "2026-10-09T11:13:32.527Z"
+  },
+  {
+    "tableName": "status-copy",
+    "checkType": "schema",
+    "result": "pass",
+    "sourceCoverage": 100,
+    "generatedAt": "2026-10-09T11:13:32.530Z"
+  },
+  {
+    "tableName": "status-copy",
+    "checkType": "contract",
+    "result": "pass",
+    "sourceCoverage": 100,
+    "generatedAt": "2026-10-09T11:13:32.530Z"
+  },
+  {
+    "tableName": "phenology-stage",
+    "checkType": "schema",
+    "result": "pass",
+    "sourceCoverage": 100,
+    "generatedAt": "2026-10-09T11:13:32.534Z"
+  },
+  {
+    "tableName": "phenology-stage",
+    "checkType": "contract",
+    "result": "pass",
+    "sourceCoverage": 100,
+    "generatedAt": "2026-10-09T11:13:32.534Z"
+  },
+  {
+    "tableName": "dataset-provenance",
+    "checkType": "schema",
+    "result": "pass",
+    "sourceCoverage": 100,
+    "generatedAt": "2026-10-09T11:13:32.538Z"
+  },
+  {
+    "tableName": "dataset-provenance",
+    "checkType": "contract",
+    "result": "pass",
+    "sourceCoverage": 100,
+    "generatedAt": "2026-10-09T11:13:32.538Z"
+  },
+  {
+    "tableName": "data-quality-report",
+    "checkType": "schema",
+    "result": "pass",
+    "sourceCoverage": 100,
+    "generatedAt": "2026-10-09T11:13:32.543Z"
+  },
+  {
+    "tableName": "data-quality-report",
+    "checkType": "contract",
+    "result": "pass",
+    "sourceCoverage": 100,
+    "generatedAt": "2026-10-09T11:13:32.543Z"
+  },
+  {
+    "tableName": "dataset-provenance",
+    "checkType": "prediction",
+    "result": "pass",
+    "sourceCoverage": 100,
+    "generatedAt": "2026-10-09T11:13:32.545Z"
+  },
+  {
+    "tableName": "cross-table",
+    "checkType": "increment",
+    "result": "pass",
+    "sourceCoverage": 100,
+    "generatedAt": "2026-10-09T11:13:32.549Z"
+  }
+]
