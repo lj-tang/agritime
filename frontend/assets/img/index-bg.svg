@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="720" height="1280" viewBox="0 0 720 1280" fill="none">
+  <defs>
+    <radialGradient id="sunGlow" cx="600" cy="-40" r="560" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#d99b2b" stop-opacity="0.16"/>
+      <stop offset="1" stop-color="#d99b2b" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="leafGlow" cx="-80" cy="80" r="560" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#3f8f56" stop-opacity="0.16"/>
+      <stop offset="1" stop-color="#3f8f56" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="720" height="1280" fill="#f4efe3"/>
+  <rect width="720" height="1280" fill="url(#sunGlow)"/>
+  <rect width="720" height="1280" fill="url(#leafGlow)"/>
+  <g stroke="#e4ddcb" stroke-width="3" fill="none" stroke-linecap="round" opacity="0.6">
+    <path d="M-20 1010c180-64 360-64 560 0"/>
+    <path d="M-20 1090c180-64 360-64 560 0"/>
+    <path d="M-20 1170c180-64 360-64 560 0"/>
+  </g>
+  <path d="M70 1252c30-96 96-128 176-116-40 84-104 130-176 116z" fill="#e6f0e3" opacity="0.7"/>
+  <path d="M544 1272c20-70 66-94 120-86-28 60-72 94-120 86z" fill="#e6f0e3" opacity="0.55"/>
+</svg>

@@ -13,11 +13,7 @@
     <header class="brand">
       <div class="brand-row">
         <span class="brand-mark" aria-hidden="true">
-          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <circle cx="12" cy="8.4" r="3.6" fill="#ffd97a" />
-            <path d="M12 12.2c0 3.4-1.9 6.2-5.2 8.1.7-2.9 1.9-4.9 3.6-6.1" stroke="#eaf6e8" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />
-            <path d="M12 12.2c0 3.4 1.9 6.2 5.2 8.1-.7-2.9-1.9-4.9-3.6-6.1" stroke="#c9e6c3" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />
-          </svg>
+          <img class="brand-logo" src="../assets/img/common-logo.svg" width="24" height="24" alt="" aria-hidden="true" />
         </span>
         <div>
           <div class="brand-name">知农时</div>
@@ -98,6 +94,20 @@
         return span;
       }
 
+      var IMG_ICONS = {
+        weather: '../assets/img/timeline-weather-icon.svg',
+        festival: '../assets/img/timeline-holiday-icon.svg'
+      };
+
+      function nodeIcon(kind) {
+        if (kind === 'term') return svgIcon('term');
+        var img = document.createElement('img');
+        img.className = 'icon';
+        img.src = IMG_ICONS[kind] || IMG_ICONS.weather;
+        img.alt = kind === 'festival' ? '节日' : '天气';
+        return img;
+      }
+
       function renderConclusion(data) {
         var card = document.getElementById('conclusion-card');
         var box = document.getElementById('conclusion');
@@ -164,7 +174,7 @@
         } else if (node.weatherIcon) {
           var wNote = document.createElement('div');
           wNote.className = 'tl-note';
-          wNote.appendChild(svgIcon('weather'));
+          wNote.appendChild(nodeIcon('weather'));
           var wt = document.createElement('span');
           wt.textContent = '天气 · ' + (WEATHER_WORD[node.weatherIcon] || node.weatherIcon);
           wNote.appendChild(wt);
@@ -207,7 +217,7 @@
         card.appendChild(action);
         var note = document.createElement('div');
         note.className = 'tl-note';
-        note.appendChild(svgIcon('festival'));
+        note.appendChild(nodeIcon('festival'));
         var t = document.createElement('span');
         t.textContent = r.reminderCopy;
         note.appendChild(t);

@@ -8,43 +8,39 @@
   <link rel="stylesheet" href="../assets/css/common.css" />
 </head>
 <body>
-  <main class="page">
+  <main class="page page--home">
     <header class="brand">
       <div class="brand-row">
         <span class="brand-mark" aria-hidden="true">
-          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <circle cx="12" cy="8.4" r="3.6" fill="#ffd97a" />
-            <path d="M12 12.2c0 3.4-1.9 6.2-5.2 8.1.7-2.9 1.9-4.9 3.6-6.1" stroke="#eaf6e8" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />
-            <path d="M12 12.2c0 3.4 1.9 6.2 5.2 8.1-.7-2.9-1.9-4.9-3.6-6.1" stroke="#c9e6c3" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />
-          </svg>
+          <img class="brand-logo" src="../assets/img/common-logo.svg" width="24" height="24" alt="" aria-hidden="true" />
         </span>
         <div>
           <div class="brand-name">知农时</div>
-          <div class="brand-sub">SWEET · WEATHER · SEASON</div>
+
         </div>
       </div>
     </header>
 
-    <p class="tagline">输入三个字段，得到一条会看天、懂节气、知行情的时间线——只回答一个问题：<strong>今天该不该干</strong>。</p>
+    <p class="tagline">输入三个字段，得到一条会看天、懂节气、知行情的时间线。</p>
 
     <div class="term-ruler" id="term-ruler" aria-hidden="true"></div>
 
     <form class="card" id="timeline-form" novalidate>
       <div class="field" id="field-crop">
-        <label for="crop">作物品种<span class="hint">说一句“大蒜”也能定位</span></label>
+        <label for="crop">作物品种</label>
         <input id="crop" name="crop" type="text" autocomplete="off" placeholder="例如：山东金乡大蒜" />
         <div class="suggestions" id="crop-suggestions"></div>
         <div class="error" id="error-crop">请输入作物品种</div>
       </div>
 
       <div class="field" id="field-sowing-date">
-        <label for="sowingDate">播种日期<span class="hint">整条时间线的锚点</span></label>
+        <label for="sowingDate">播种日期</label>
         <input id="sowingDate" name="sowingDate" type="date" />
         <div class="error" id="error-sowingDate">播种日期不能晚于今天</div>
       </div>
 
       <div class="field" id="field-location">
-        <label for="location">所在地<span class="hint">取到县级就够</span></label>
+        <label for="location">所在地</label>
         <input id="location" name="location" type="text" autocomplete="off" placeholder="例如：山东省济宁市金乡县" />
         <div class="error" id="error-location">请输入所在地</div>
       </div>

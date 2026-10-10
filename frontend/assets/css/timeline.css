@@ -178,6 +178,7 @@
 
 .tl-note .icon { width: 15px; height: 15px; }
 .tl-note svg { width: 15px; height: 15px; flex: none; }
+.tl-note img.icon { flex: none; display: block; }
 
 .tl-detail {
   display: none;

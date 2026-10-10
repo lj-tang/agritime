@@ -1,0 +1,14 @@
+{
+  "name": "agritime-image-gen",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "知农时前端图片资产生成工具（SVG 源 + PNG 导出）",
+  "scripts": {
+    "generate": "node generate-images.mjs",
+    "verify": "node verify-images.mjs"
+  },
+  "dependencies": {
+    "@resvg/resvg-js": "^2.6.2"
+  }
+}
