@@ -21,27 +21,31 @@
       </div>
     </header>
 
-    <p class="tagline">输入三个字段，得到一条会看天、懂节气、知行情的时间线。</p>
 
     <div class="term-ruler" id="term-ruler" aria-hidden="true"></div>
 
     <form class="card" id="timeline-form" novalidate>
       <div class="field" id="field-crop">
         <label for="crop">作物品种</label>
-        <input id="crop" name="crop" type="text" autocomplete="off" placeholder="例如：山东金乡大蒜" />
+        <input id="crop" name="crop" type="text" autocomplete="off" />
         <div class="suggestions" id="crop-suggestions"></div>
         <div class="error" id="error-crop">请输入作物品种</div>
       </div>
 
       <div class="field" id="field-sowing-date">
-        <label for="sowingDate">播种日期</label>
-        <input id="sowingDate" name="sowingDate" type="date" />
+        <label>播种日期</label>
+        <div class="date-picker" id="date-picker">
+          <select id="date-year" aria-label="年"></select>
+          <select id="date-month" aria-label="月"></select>
+          <select id="date-day" aria-label="日"></select>
+          <input id="sowingDate" name="sowingDate" type="hidden" />
+        </div>
         <div class="error" id="error-sowingDate">播种日期不能晚于今天</div>
       </div>
 
       <div class="field" id="field-location">
         <label for="location">所在地</label>
-        <input id="location" name="location" type="text" autocomplete="off" placeholder="例如：山东省济宁市金乡县" />
+        <input id="location" name="location" type="text" autocomplete="off" placeholder="" />
         <div class="error" id="error-location">请输入所在地</div>
       </div>
 
@@ -77,6 +81,77 @@
       var suggestions = document.getElementById('crop-suggestions');
       var toast = document.getElementById('toast');
 
+      var RANGE_BACK_DAYS = 730;
+      var DEFAULT_BACK_DAYS = 150;
+      var yearSel = document.getElementById('date-year');
+      var monthSel = document.getElementById('date-month');
+      var daySel = document.getElementById('date-day');
+
+      function pad2(n) { return String(n).padStart(2, '0'); }
+      function dateToStr(d) { return d.getFullYear() + '-' + pad2(d.getMonth() + 1) + '-' + pad2(d.getDate()); }
+      function getMinDate() { var d = new Date(); d.setDate(d.getDate() - RANGE_BACK_DAYS); return d; }
+      function daysInMonth(y, m) { return new Date(y, m + 1, 0).getDate(); }
+
+      function fillYears() {
+        var minD = getMinDate(), maxD = new Date();
+        yearSel.innerHTML = '<option value="">年</option>';
+        for (var y = minD.getFullYear(); y <= maxD.getFullYear(); y += 1) {
+          var o = document.createElement('option');
+          o.value = y; o.textContent = y + '年';
+          yearSel.appendChild(o);
+        }
+      }
+
+      function fillMonths() {
+        var minD = getMinDate(), maxD = new Date();
+        var y = Number(yearSel.value);
+        monthSel.innerHTML = '<option value="">月</option>';
+        if (!y) return;
+        for (var m = 1; m <= 12; m += 1) {
+          var o = document.createElement('option');
+          o.value = m; o.textContent = m + '月';
+          o.disabled = (y === minD.getFullYear() && m < minD.getMonth() + 1) || (y === maxD.getFullYear() && m > maxD.getMonth() + 1);
+          monthSel.appendChild(o);
+        }
+      }
+
+      function fillDays() {
+        var minD = getMinDate(), maxD = new Date();
+        var y = Number(yearSel.value), m = Number(monthSel.value);
+        daySel.innerHTML = '<option value="">日</option>';
+        if (!y || !m) return;
+        var days = daysInMonth(y, m - 1);
+        for (var d = 1; d <= days; d += 1) {
+          var o = document.createElement('option');
+          o.value = d; o.textContent = d + '日';
+          o.disabled = (y === minD.getFullYear() && m === minD.getMonth() + 1 && d < minD.getDate()) || (y === maxD.getFullYear() && m === maxD.getMonth() + 1 && d > maxD.getDate());
+          daySel.appendChild(o);
+        }
+      }
+
+      function clampDay() {
+        var y = Number(yearSel.value), m = Number(monthSel.value), d = Number(daySel.value);
+        if (!y || !m || !d) return;
+        var days = daysInMonth(y, m - 1);
+        if (d > days) daySel.value = days;
+      }
+
+      function composeDate() {
+        var y = yearSel.value, m = monthSel.value, d = daySel.value;
+        sowingInput.value = (y && m && d) ? y + '-' + pad2(m) + '-' + pad2(d) : '';
+      }
+
+      function syncSelectsFromDate(s) {
+        if (!s) { yearSel.value = ''; fillMonths(); fillDays(); return; }
+        var p = s.split('-');
+        yearSel.value = p[0];
+        fillMonths();
+        monthSel.value = Number(p[1]);
+        fillDays();
+        daySel.value = Number(p[2]);
+        clampDay();
+      }
+
       function todayStr() {
         var d = new Date();
         return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
@@ -92,13 +167,9 @@
       }
 
       function setDefaultValues() {
-        locationInput.value = locationInput.value || '山东省济宁市金乡县';
-        if (!sowingInput.value) {
-          var d = new Date();
-          d.setDate(d.getDate() - 150);
-          sowingInput.value = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
-        }
-        sowingInput.max = todayStr();
+
+
+        syncSelectsFromDate(sowingInput.value);
       }
 
       function renderSuggestions(keyword) {
@@ -137,12 +208,27 @@
       function validate() {
         var ok = true;
         if (!cropInput.value.trim()) { setInvalid('field-crop', true); ok = false; } else { setInvalid('field-crop', false); }
-        var invalidDate = !sowingInput.value || sowingInput.value > todayStr();
+        var dateErr = document.getElementById('error-sowingDate');
+        var invalidDate = false;
+        if (!sowingInput.value) {
+          dateErr.textContent = '请选择播种日期';
+          invalidDate = true;
+        } else if (sowingInput.value > todayStr()) {
+          dateErr.textContent = '播种日期不能晚于今天';
+          invalidDate = true;
+        } else if (sowingInput.value < dateToStr(getMinDate())) {
+          dateErr.textContent = '播种日期不能早于两年前';
+          invalidDate = true;
+        }
         setInvalid('field-sowing-date', invalidDate);
         if (invalidDate) ok = false;
         if (!locationInput.value.trim()) { setInvalid('field-location', true); ok = false; } else { setInvalid('field-location', false); }
         return ok;
       }
+
+      yearSel.addEventListener('change', function () { fillMonths(); clampDay(); fillDays(); composeDate(); setInvalid('field-sowing-date', false); });
+      monthSel.addEventListener('change', function () { clampDay(); fillDays(); composeDate(); setInvalid('field-sowing-date', false); });
+      daySel.addEventListener('change', function () { composeDate(); setInvalid('field-sowing-date', false); });
 
       cropInput.addEventListener('input', function () { renderSuggestions(cropInput.value); setInvalid('field-crop', false); });
       cropInput.addEventListener('blur', function () { setTimeout(function () { suggestions.classList.remove('show'); }, 150); });
@@ -172,6 +258,7 @@
         window.location.href = 'timeline.html?' + params.toString();
       });
 
+      fillYears();
       renderRuler();
       setDefaultValues();
     })();

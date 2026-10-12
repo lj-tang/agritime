@@ -62,3 +62,13 @@ test('拍照识别组件：须人工确认、失败回落搜索、可取消', ()
   assert.match(photoJs, /AbortController/);
   assert.ok(photoJs.includes('/api/recognition'));
 });
+test('自定义日期选择器：三联动下拉与范围校验', () => {
+  assert.match(indexHtml, /class="date-picker"/);
+  assert.match(indexHtml, /id="date-year"/);
+  assert.match(indexHtml, /id="date-month"/);
+  assert.match(indexHtml, /id="date-day"/);
+  assert.ok(indexHtml.includes('RANGE_BACK_DAYS'));
+  assert.ok(indexHtml.includes('播种日期不能早于两年前'));
+  assert.ok(!indexHtml.includes('type="date"'));
+  assert.ok(indexHtml.includes('id="sowingDate"'));
+});

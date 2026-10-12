@@ -23,7 +23,7 @@
     </header>
 
     <section class="timeline-header" id="conclusion-card" hidden>
-      <div class="conclusion-label">今天该不该干</div>
+
       <div class="conclusion" id="conclusion"></div>
       <div class="data-meta" id="data-meta"></div>
     </section>
@@ -143,10 +143,10 @@
         action.className = 'tl-action';
         var name = document.createElement('span');
         name.className = 'name';
-        name.textContent = node.name;
+        name.textContent = node.name || '';
         var date = document.createElement('span');
         date.className = 'date';
-        date.textContent = node.date;
+        date.textContent = node.date || '';
         action.appendChild(name);
         action.appendChild(date);
         card.appendChild(action);
@@ -209,10 +209,10 @@
         action.className = 'tl-action';
         var name = document.createElement('span');
         name.className = 'name';
-        name.textContent = r.festivalName + ' · 销售窗口';
+        name.textContent = r.festivalName ? r.festivalName + ' · 销售窗口' : '销售窗口';
         var date = document.createElement('span');
         date.className = 'date';
-        date.textContent = r.festivalDate;
+        date.textContent = r.festivalDate || '';
         action.appendChild(name); action.appendChild(date);
         card.appendChild(action);
         var note = document.createElement('div');

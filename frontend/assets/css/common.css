@@ -297,3 +297,47 @@ body {
   background-repeat: no-repeat;
   background-color: var(--paper);
 }
+/* 自定义日期选择器 */
+.date-picker {
+  display: flex;
+  gap: 8px;
+  width: 100%;
+}
+
+.date-picker select {
+  flex: 1 1 0;
+  min-width: 0;
+  font-family: inherit;
+  font-size: 18px;
+  padding: 15px 14px;
+  color: var(--ink);
+  background-color: #fbf8f0;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%238b9382' stroke-width='1.6' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  border: 1.5px solid var(--line);
+  border-radius: var(--radius-sm);
+  transition: border-color 0.18s, box-shadow 0.18s, background-color 0.18s;
+  appearance: none;
+  -webkit-appearance: none;
+  padding-right: 34px;
+}
+
+#date-year { flex: 1.3 1 0; }
+
+.date-picker select:focus {
+  outline: none;
+  border-color: var(--leaf-2);
+  background-color: #fff;
+  box-shadow: 0 0 0 4px rgba(63, 143, 86, 0.14);
+}
+
+.date-picker option:disabled {
+  color: var(--muted);
+  opacity: 0.5;
+}
+
+.field.invalid .date-picker select {
+  border-color: var(--red);
+  background-color: var(--red-soft);
+}
