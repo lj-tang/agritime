@@ -63,16 +63,11 @@
   </main>
 
   <script src="../assets/mock/mock-data.js"></script>
+  <script src="../assets/js/crop-map.js"></script>
   <script src="photo-capture.js"></script>
   <script>
     (function () {
-      var CROPS = [
-        { name: '山东金乡大蒜', lat: 35.07, lng: 116.31, city: '山东省济宁市金乡县' },
-        { name: '河南新乡小麦', lat: 35.30, lng: 113.93, city: '河南省新乡市' },
-        { name: '黑龙江绥化玉米', lat: 46.65, lng: 126.99, city: '黑龙江省绥化市' },
-        { name: '湖北荆州水稻', lat: 30.33, lng: 112.24, city: '湖北省荆州市' },
-        { name: '山东寿光番茄', lat: 36.86, lng: 118.79, city: '山东省潍坊市寿光市' }
-      ];
+      var CROPS = window.CropMap.CROPS;
 
       var form = document.getElementById('timeline-form');
       var cropInput = document.getElementById('crop');
@@ -244,18 +239,28 @@
         }
       });
 
+      function buildTimelineQuery(opts) {
+        var params = new URLSearchParams();
+        params.set('crop', window.CropMap.buildCropParam(opts.cropName));
+        params.set('sowDate', opts.sowDate);
+        params.set('lat', String(opts.lat));
+        params.set('lon', String(opts.lon));
+        params.set('location', opts.location || '');
+        return params.toString();
+      }
+
       form.addEventListener('submit', function (e) {
         e.preventDefault();
         if (!validate()) { showToast('请先补全并检查表单', 'error'); return; }
-        var crop = findCrop(cropInput.value.trim());
-        var params = new URLSearchParams({
-          crop: cropInput.value.trim(),
-          sowingDate: sowingInput.value,
-          location: locationInput.value.trim(),
-          latitude: crop ? String(crop.lat) : '35.07',
-          longitude: crop ? String(crop.lng) : '116.31'
+        var cropName = cropInput.value.trim();
+        var hit = findCrop(cropName);
+        window.location.href = 'timeline.html?' + buildTimelineQuery({
+          cropName: cropName,
+          sowDate: sowingInput.value,
+          lat: hit ? hit.lat : 35.07,
+          lon: hit ? hit.lng : 116.31,
+          location: locationInput.value.trim()
         });
-        window.location.href = 'timeline.html?' + params.toString();
       });
 
       fillYears();

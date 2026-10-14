@@ -20,7 +20,7 @@ window.MOCK_TIMELINE = {
     { nodeId: null, nodeSeq: 4, daysAfterSowing: 120, date: null, operationType: null, name: null, description: null, status: null, copy: null, reasons: [], rescheduleAdvice: null, certainty: null, weatherIcon: null },
     { nodeId: null, nodeSeq: 5, daysAfterSowing: 140, date: null, operationType: null, name: null, description: null, status: null, copy: null, reasons: [], rescheduleAdvice: null, certainty: null, weatherIcon: null },
     { nodeId: null, nodeSeq: 6, daysAfterSowing: 170, date: null, operationType: null, name: null, description: null, status: null, copy: null, reasons: [], rescheduleAdvice: null, certainty: null, weatherIcon: null },
-    { nodeId: null, nodeSeq: 8, daysAfterSowing: 205, date: null, operationType: null, name: null, description: null, status: null, copy: null, reasons: [], rescheduleAdvice: null, certainty: null, weatherIcon: null, festivalIcon: null },
+    { nodeId: null, nodeSeq: 8, daysAfterSowing: 205, date: null, operationType: null, name: null, description: null, status: null, copy: null, reasons: [], rescheduleAdvice: null, certainty: null, weatherIcon: null },
   ],
   reminders: [
     { festivalName: null, festivalDate: null, windowStart: null, saleWindowDays: null, reminderCopy: null },

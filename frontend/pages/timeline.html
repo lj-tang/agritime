@@ -34,7 +34,14 @@
       <div class="skeleton"></div>
     </div>
 
+    <div class="mode-switch" id="mode-switch" hidden>
+      <button type="button" class="mode-tab active" data-mode="node">时间节点</button>
+      <button type="button" class="mode-tab" data-mode="chart">函数图像</button>
+    </div>
+
     <section class="timeline" id="timeline" hidden></section>
+
+    <section class="chart-wrap" id="chart" hidden></section>
 
     <section class="empty-state" id="empty-state" hidden>
       <p>未生成节点，请检查作物或日期</p>
@@ -47,6 +54,7 @@
   </main>
 
   <script src="../assets/mock/mock-data.js"></script>
+  <script src="../assets/js/crop-map.js"></script>
   <script>
     (function () {
       var STATUS_LABEL = { green: '适宜', yellow: '谨慎', red: '不宜' };
@@ -55,29 +63,80 @@
         heavyRain: '大雨', storm: '暴雨', windy: '大风', hot: '高温', cold: '低温'
       };
       var ICONS = {
-        weather: '<svg viewBox="0 0 24 24" fill="none"><circle cx="9" cy="9" r="3.2" stroke="#d99b2b" stroke-width="1.7"/><path d="M3 15h11M14.5 15a3 3 0 1 1 .6 2" stroke="#3d6f96" stroke-width="1.7" stroke-linecap="round"/></svg>',
-        term: '<svg viewBox="0 0 24 24" fill="none"><path d="M12 3v18M5 8c3 0 5-1.6 7-5 2 3.4 4 5 7 5" stroke="#2f6b40" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>',
-        festival: '<svg viewBox="0 0 24 24" fill="none"><path d="M4 9h16v11H4zM4 9l2-4h12l2 4M12 9v11M9 5c-1.6 0-2.4-1-2.4-2S7 1 8 1s2 1.4 4 4c2-2.6 3-4 4-4s1.4.8 1.4 2S16.6 5 15 5" stroke="#c65547" stroke-width="1.6" stroke-linejoin="round"/></svg>'
+        term: '<svg viewBox="0 0 24 24" fill="none"><path d="M12 3v18M5 8c3 0 5-1.6 7-5 2 3.4 4 5 7 5" stroke="#2f6b40" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>'
       };
-      var params = new URLSearchParams(window.location.search);
-      var payload = {
-        crop: params.get('crop') || '山东金乡大蒜',
-        sowingDate: params.get('sowingDate') || '2025-03-15',
-        location: {
-          latitude: Number(params.get('latitude')) || 35.07,
-          longitude: Number(params.get('longitude')) || 116.31,
-          county: params.get('location') || '山东省济宁市金乡县'
+      var CONFIG = {
+        API_PATH: '/api/timeline',
+        TIMELINE_TIMEOUT_MS: 20000,
+        DEFAULTS: {
+          cropId: 'dry_garlic',
+          sowDate: '',
+          lat: 35.07,
+          lon: 116.31
         }
       };
 
+      function pad2(n) { return String(n).padStart(2, '0'); }
+      function dateToStr(d) { return d.getFullYear() + '-' + pad2(d.getMonth() + 1) + '-' + pad2(d.getDate()); }
+      (function () {
+        var d = new Date();
+        d.setDate(d.getDate() - 150);
+        CONFIG.DEFAULTS.sowDate = dateToStr(d);
+      })();
+
+      function parseQuery(search) {
+        var p = new URLSearchParams(search);
+        var cropName = (p.get('crop') || '').trim();
+        var sowDate = p.get('sowDate') || CONFIG.DEFAULTS.sowDate;
+        var lat = Number(p.get('lat'));
+        var lon = Number(p.get('lon'));
+        if (!isFinite(lat) || lat < -90 || lat > 90) lat = CONFIG.DEFAULTS.lat;
+        if (!isFinite(lon) || lon < -180 || lon > 180) lon = CONFIG.DEFAULTS.lon;
+        return {
+          crop: window.CropMap.buildCropParam(cropName),
+          cropName: cropName,
+          sowDate: sowDate,
+          lat: lat,
+          lon: lon,
+          county: p.get('location') || ''
+        };
+      }
+
+      function buildTimelineUrl(query) {
+        var params = new URLSearchParams();
+        params.set('crop', query.crop);
+        params.set('sowDate', query.sowDate);
+        params.set('lat', String(query.lat));
+        params.set('lon', String(query.lon));
+        return CONFIG.API_PATH + '?' + params.toString();
+      }
+
+      var query = parseQuery(window.location.search);
+      var degradedSource = '';
+
       function getData() {
-        return fetch('/api/timeline', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload)
-        })
-          .then(function (res) { if (!res.ok) throw new Error('接口返回 ' + res.status); return res.json(); })
-          .catch(function () { return window.MOCK_TIMELINE; });
+        var controller = new AbortController();
+        var timer = setTimeout(function () { controller.abort(); }, CONFIG.TIMELINE_TIMEOUT_MS);
+        return fetch(buildTimelineUrl(query), { method: 'GET', signal: controller.signal })
+          .then(function (res) {
+            if (!res.ok) { degradedSource = 'http'; throw new Error('接口返回 ' + res.status); }
+            return res.json();
+          })
+          .then(function (data) {
+            clearTimeout(timer);
+            if (!data || typeof data !== 'object' || !Array.isArray(data.nodes)) {
+              degradedSource = 'invalid';
+              return window.MOCK_TIMELINE;
+            }
+            return data;
+          })
+          .catch(function (err) {
+            clearTimeout(timer);
+            if (!degradedSource) {
+              degradedSource = (err && err.name === 'AbortError') ? 'timeout' : 'offline';
+            }
+            return window.MOCK_TIMELINE;
+          });
       }
 
       function badge(status) {
@@ -90,7 +149,7 @@
       function svgIcon(kind) {
         var span = document.createElement('span');
         span.className = 'icon';
-        span.innerHTML = ICONS[kind] || ICONS.weather;
+        span.innerHTML = ICONS[kind] || '';
         return span;
       }
 
@@ -112,19 +171,24 @@
         var card = document.getElementById('conclusion-card');
         var box = document.getElementById('conclusion');
         var meta = document.getElementById('data-meta');
-        var status = data.todayConclusion.status || 'green';
+        var tc = data.todayConclusion || {};
+        var status = tc.status || 'green';
         box.innerHTML = '';
         box.appendChild(badge(status));
         var text = document.createElement('span');
-        text.textContent = data.todayConclusion.copy || '';
+        text.textContent = tc.copy || '';
         box.appendChild(text);
         card.className = 'timeline-header status-' + status;
         card.hidden = false;
 
-        document.getElementById('brand-sub').textContent = (payload.crop || '') + ' · ' + (payload.sowingDate || '');
+        var hit = window.CropMap.getCropByName(query.cropName);
+        var displayCropName = hit ? hit.name : query.cropName;
+        document.getElementById('brand-sub').textContent = (displayCropName || '') + ' · ' + (query.sowDate || '');
         var sourceText = { realtime: '实时天气', cache: '缓存天气', unavailable: '天气数据暂不可用' }[data.dataSource] || '';
-        meta.textContent = '数据来源：' + sourceText + (data.dataTime ? ' · 数据时间 ' + new Date(data.dataTime).toLocaleString() : '');
-        meta.className = 'data-meta' + (data.dataSource === 'realtime' ? '' : ' warn');
+        var degradedText = { timeout: '接口超时', http: '接口异常', invalid: '数据异常', offline: '网络异常' }[degradedSource] || '';
+        var extra = degradedSource ? ' · 本地兜底数据（' + degradedText + '）' : '';
+        meta.textContent = '数据来源：' + sourceText + (data.dataTime ? ' · 数据时间 ' + new Date(data.dataTime).toLocaleString() : '') + extra;
+        meta.className = 'data-meta' + ((data.dataSource === 'realtime' && !degradedSource) ? '' : ' warn');
       }
 
       function renderNode(node) {
@@ -226,19 +290,168 @@
         return wrap;
       }
 
+      var CHART_CONFIG = {
+        VIEWBOX_W: 360, VIEWBOX_H: 200,
+        PADDING_LEFT: 40, PADDING_BOTTOM: 30, PADDING_TOP: 10, PADDING_RIGHT: 10,
+        SIGMA: 15, SAMPLE_STEP: 2, PEAK_LEVEL: 1,
+        PLACEHOLDER_TEXT: '数据待接入'
+      };
+      var SVG_NS = 'http://www.w3.org/2000/svg';
+      var currentMode = 'node';
+      var chartRendered = false;
+      var cachedData = null;
+
+      function gaussianPath(cx, sigma, xStart, xEnd, yBase, yPeak) {
+        var d = '';
+        for (var px = xStart; px <= xEnd; px += CHART_CONFIG.SAMPLE_STEP) {
+          var gauss = Math.exp(-Math.pow(px - cx, 2) / (2 * sigma * sigma));
+          var py = yBase - gauss * (yBase - yPeak);
+          d += (d ? 'L' : 'M') + px.toFixed(1) + ',' + py.toFixed(1) + ' ';
+        }
+        return d;
+      }
+
+      function buildEmptyChartSVG() {
+        var ns = SVG_NS;
+        var svg = document.createElementNS(ns, 'svg');
+        svg.setAttribute('viewBox', '0 0 ' + CHART_CONFIG.VIEWBOX_W + ' ' + CHART_CONFIG.VIEWBOX_H);
+        svg.setAttribute('class', 'chart-svg');
+        var yBase = CHART_CONFIG.VIEWBOX_H - CHART_CONFIG.PADDING_BOTTOM;
+        var yPeak = CHART_CONFIG.PADDING_TOP;
+        var xStart = CHART_CONFIG.PADDING_LEFT;
+        var xEnd = CHART_CONFIG.VIEWBOX_W - CHART_CONFIG.PADDING_RIGHT;
+        var axisY = document.createElementNS(ns, 'line');
+        axisY.setAttribute('x1', xStart); axisY.setAttribute('y1', yPeak);
+        axisY.setAttribute('x2', xStart); axisY.setAttribute('y2', yBase);
+        axisY.setAttribute('class', 'chart-axis');
+        svg.appendChild(axisY);
+        var axisX = document.createElementNS(ns, 'line');
+        axisX.setAttribute('x1', xStart); axisX.setAttribute('y1', yBase);
+        axisX.setAttribute('x2', xEnd); axisX.setAttribute('y2', yBase);
+        axisX.setAttribute('class', 'chart-axis');
+        svg.appendChild(axisX);
+        var labelHigh = document.createElementNS(ns, 'text');
+        labelHigh.setAttribute('x', xStart - 6); labelHigh.setAttribute('y', yPeak + 8);
+        labelHigh.setAttribute('text-anchor', 'end'); labelHigh.setAttribute('class', 'chart-placeholder');
+        labelHigh.textContent = '高';
+        svg.appendChild(labelHigh);
+        var labelLow = document.createElementNS(ns, 'text');
+        labelLow.setAttribute('x', xStart - 6); labelLow.setAttribute('y', yBase + 4);
+        labelLow.setAttribute('text-anchor', 'end'); labelLow.setAttribute('class', 'chart-placeholder');
+        labelLow.textContent = '低';
+        svg.appendChild(labelLow);
+        var placeholder = document.createElementNS(ns, 'text');
+        placeholder.setAttribute('x', CHART_CONFIG.VIEWBOX_W / 2);
+        placeholder.setAttribute('y', CHART_CONFIG.VIEWBOX_H / 2);
+        placeholder.setAttribute('text-anchor', 'middle'); placeholder.setAttribute('class', 'chart-placeholder');
+        placeholder.textContent = CHART_CONFIG.PLACEHOLDER_TEXT;
+        svg.appendChild(placeholder);
+        return svg;
+      }
+
+      function buildChartSVG(nodes) {
+        var ns = SVG_NS;
+        var svg = document.createElementNS(ns, 'svg');
+        svg.setAttribute('viewBox', '0 0 ' + CHART_CONFIG.VIEWBOX_W + ' ' + CHART_CONFIG.VIEWBOX_H);
+        svg.setAttribute('class', 'chart-svg');
+        var yBase = CHART_CONFIG.VIEWBOX_H - CHART_CONFIG.PADDING_BOTTOM;
+        var yPeak = CHART_CONFIG.PADDING_TOP;
+        var xStart = CHART_CONFIG.PADDING_LEFT;
+        var xEnd = CHART_CONFIG.VIEWBOX_W - CHART_CONFIG.PADDING_RIGHT;
+        var plotW = xEnd - xStart;
+        var days = nodes.map(function (n) { return n.daysAfterSowing; }).filter(function (d) { return d != null; });
+        if (days.length === 0) return buildEmptyChartSVG();
+        var minDay = Math.min.apply(null, days);
+        var maxDay = Math.max.apply(null, days);
+        if (maxDay === minDay) maxDay = minDay + 1;
+        var axisY = document.createElementNS(ns, 'line');
+        axisY.setAttribute('x1', xStart); axisY.setAttribute('y1', yPeak);
+        axisY.setAttribute('x2', xStart); axisY.setAttribute('y2', yBase);
+        axisY.setAttribute('class', 'chart-axis');
+        svg.appendChild(axisY);
+        var axisX = document.createElementNS(ns, 'line');
+        axisX.setAttribute('x1', xStart); axisX.setAttribute('y1', yBase);
+        axisX.setAttribute('x2', xEnd); axisX.setAttribute('y2', yBase);
+        axisX.setAttribute('class', 'chart-axis');
+        svg.appendChild(axisX);
+        var sigma = CHART_CONFIG.SIGMA;
+        var d = '';
+        nodes.forEach(function (n) {
+          if (n.daysAfterSowing == null) return;
+          var cx = xStart + (n.daysAfterSowing - minDay) / (maxDay - minDay) * plotW;
+          d += gaussianPath(cx, sigma, xStart, xEnd, yBase, yPeak);
+        });
+        if (d) {
+          var path = document.createElementNS(ns, 'path');
+          path.setAttribute('d', d);
+          path.setAttribute('class', 'chart-curve');
+          svg.appendChild(path);
+        }
+        var labelHigh = document.createElementNS(ns, 'text');
+        labelHigh.setAttribute('x', xStart - 6); labelHigh.setAttribute('y', yPeak + 8);
+        labelHigh.setAttribute('text-anchor', 'end'); labelHigh.setAttribute('class', 'chart-placeholder');
+        labelHigh.textContent = '高';
+        svg.appendChild(labelHigh);
+        var labelLow = document.createElementNS(ns, 'text');
+        labelLow.setAttribute('x', xStart - 6); labelLow.setAttribute('y', yBase + 4);
+        labelLow.setAttribute('text-anchor', 'end'); labelLow.setAttribute('class', 'chart-placeholder');
+        labelLow.textContent = '低';
+        svg.appendChild(labelLow);
+        return svg;
+      }
+
+      function renderChart(data) {
+        var chart = document.getElementById('chart');
+        chart.innerHTML = '';
+        var nodes = (data && Array.isArray(data.nodes)) ? data.nodes : [];
+        var hasRealData = nodes.some(function (n) { return n.date != null || n.name != null; });
+        var hasValidDays = nodes.some(function (n) { return n.daysAfterSowing != null; });
+        var svg = (hasRealData && hasValidDays) ? buildChartSVG(nodes) : buildEmptyChartSVG();
+        chart.appendChild(svg);
+        chartRendered = true;
+      }
+
+      function renderModeSwitch() {
+        var sw = document.getElementById('mode-switch');
+        sw.hidden = false;
+        sw.querySelectorAll('.mode-tab').forEach(function (tab) {
+          tab.addEventListener('click', function () { switchMode(this.getAttribute('data-mode')); });
+        });
+      }
+
+      function switchMode(mode) {
+        if (mode !== 'node' && mode !== 'chart') return;
+        currentMode = mode;
+        var sw = document.getElementById('mode-switch');
+        sw.querySelectorAll('.mode-tab').forEach(function (tab) {
+          if (tab.getAttribute('data-mode') === mode) tab.classList.add('active');
+          else tab.classList.remove('active');
+        });
+        document.getElementById('timeline').hidden = (mode !== 'node');
+        document.getElementById('chart').hidden = (mode !== 'chart');
+        if (mode === 'chart' && !chartRendered) renderChart(cachedData);
+      }
+
       function render(data) {
         document.getElementById('loading').hidden = true;
-        if (!data || !data.nodes || data.nodes.length === 0) {
+        if (!data || typeof data !== 'object') data = { todayConclusion: {}, nodes: [] };
+        if (!Array.isArray(data.nodes)) data = { todayConclusion: data.todayConclusion || {}, nodes: [] };
+        if (data.nodes.length === 0) {
           document.getElementById('empty-state').hidden = false;
           return;
         }
         renderConclusion(data);
+        cachedData = data;
+        renderModeSwitch();
         var timeline = document.getElementById('timeline');
         timeline.innerHTML = '';
         data.nodes.forEach(function (n) { timeline.appendChild(renderNode(n)); });
-        if (data.reminders && data.reminders.length) {
-          data.reminders.forEach(function (r) { timeline.appendChild(renderReminder(r)); });
-        }
+        var reminders = Array.isArray(data.reminders) ? data.reminders : [];
+        reminders.forEach(function (r) {
+          if (r && (r.festivalName || r.festivalDate || r.reminderCopy)) {
+            timeline.appendChild(renderReminder(r));
+          }
+        });
         timeline.hidden = false;
         document.getElementById('footer').hidden = false;
       }
