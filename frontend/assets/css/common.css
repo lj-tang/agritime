@@ -335,9 +335,93 @@ body {
 .date-picker option:disabled {
   color: var(--muted);
   opacity: 0.5;
+  cursor: not-allowed;
 }
+
+.date-range-hint { font-size: 13px; color: var(--muted); margin-top: 6px; line-height: 1.4; }
 
 .field.invalid .date-picker select {
   border-color: var(--red);
   background-color: var(--red-soft);
+}
+/* 搜索联想增强：匹配高亮与键盘选中 */
+.suggestions button .hl { color: var(--leaf); font-weight: 800; }
+.suggestions button.active { background: var(--leaf-soft); }
+
+/* 历史记录区块 */
+.history {
+  margin-top: 18px;
+  background: var(--card);
+  border: 1px solid rgba(228, 221, 203, 0.9);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-soft);
+  padding: 14px 16px;
+}
+
+.history.hidden { display: none; }
+
+.history-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.history-title {
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: var(--ink-soft);
+}
+
+.history-clear {
+  font-family: inherit;
+  font-size: 13px;
+  color: var(--muted);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px 6px;
+}
+
+.history-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.history-item {
+  font-family: inherit;
+  font-size: 13.5px;
+  color: var(--ink-soft);
+  background: var(--paper-2);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 6px 12px;
+  cursor: pointer;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.history-item:active { background: var(--leaf-soft); border-color: var(--leaf-2); }
+
+/* 拍照 / 上传双通道按钮组 */
+.photo-channels {
+  display: flex;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.photo-channels .btn { margin-top: 0; }
+
+/* 响应式适配 */
+@media (min-width: 768px) {
+  .page { max-width: 680px; padding-left: 24px; padding-right: 24px; }
+  .suggestions { max-width: 100%; }
+}
+
+@media (min-width: 1024px) {
+  .page { max-width: 860px; }
 }

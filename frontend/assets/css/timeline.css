@@ -296,3 +296,107 @@
   fill: var(--muted);
   font-size: 13px;
 }
+.chart-loading {
+  margin: 0;
+  padding: 40px 0;
+  text-align: center;
+  color: var(--muted);
+  font-size: 14px;
+  letter-spacing: 1px;
+}
+
+/* 加载进度条（不确定态，纯 CSS） */
+.loading-bar {
+  height: 4px;
+  border-radius: 999px;
+  background: var(--paper-2);
+  overflow: hidden;
+  margin-bottom: 12px;
+}
+
+.loading-bar i {
+  display: block;
+  width: 40%;
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--leaf-2), var(--sun));
+  animation: loading-slide 1.4s ease-in-out infinite;
+}
+
+.loading-text {
+  margin: 0 0 16px;
+  font-size: 13.5px;
+  letter-spacing: 1px;
+  color: var(--muted);
+}
+
+@keyframes loading-slide {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(250%); }
+}
+
+/* 天气可视化各行（独立成行，不绝对定位，避免遮挡核心文案） */
+.tl-term,
+.tl-weather,
+.tl-weather-neutral,
+.tl-suitability,
+.tl-alert,
+.tl-alert-tip,
+.tl-factors,
+.tl-countdown,
+.tl-anchor,
+.tl-festival-copy,
+.tl-crops {
+  display: flex;
+  margin-top: 8px;
+  width: fit-content;
+  max-width: 100%;
+}
+
+.tl-weather-neutral { color: var(--muted); }
+
+.tl-suitability { border-style: solid; font-weight: 700; }
+.tl-suit-green { border-color: var(--leaf-2); background: var(--leaf-soft); color: var(--leaf); }
+.tl-suit-yellow { border-color: var(--sun); background: var(--sun-soft); color: #9a6a12; }
+.tl-suit-red { border-color: var(--red); background: var(--red-soft); color: var(--red); }
+
+.tl-alert {
+  border-color: var(--red);
+  background: var(--red-soft);
+  color: var(--red);
+  font-weight: 700;
+}
+
+.tl-alert-tip {
+  border-color: var(--sun);
+  background: var(--sun-soft);
+  color: #9a6a12;
+}
+
+.tl-factors { color: var(--rain); border-color: rgba(61, 111, 150, 0.4); }
+
+.tl-countdown {
+  border-style: solid;
+  border-color: var(--leaf-2);
+  background: var(--leaf-soft);
+  color: var(--leaf);
+  font-weight: 700;
+}
+
+.tl-anchor { color: var(--muted); }
+.tl-crops { color: var(--ink-soft); }
+
+.tl-festival { border-left: 4px solid var(--sun); }
+
+/* 宽屏分栏（时间线页） */
+@media (min-width: 768px) {
+  .timeline { padding-left: 10px; }
+  .tl-card { padding: 18px 20px 17px; }
+  .chart-wrap { padding: 24px 28px; }
+}
+
+@media (min-width: 1024px) {
+  .timeline { padding-left: 14px; }
+  .tl-action .name { font-size: 19px; }
+  .conclusion { font-size: 24px; }
+}

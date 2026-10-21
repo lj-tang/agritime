@@ -34,12 +34,13 @@
 
       <div class="field" id="field-sowing-date">
         <label>播种日期</label>
-        <div class="date-picker" id="date-picker">
+        <div class="date-picker" id="date-picker" title="可选范围：两年前至今天后 10 天" aria-label="可选范围：两年前至今天后 10 天">
           <select id="date-year" aria-label="年"></select>
           <select id="date-month" aria-label="月"></select>
           <select id="date-day" aria-label="日"></select>
           <input id="sowingDate" name="sowingDate" type="hidden" />
         </div>
+        <p class="date-range-hint" id="date-range-hint">请选择两年前至今天后 10 天的日期</p>
         <div class="error" id="error-sowingDate">播种日期不能晚于今天</div>
       </div>
 
@@ -53,17 +54,32 @@
         <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h13M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
         生成时间线
       </button>
-      <button type="button" class="btn btn-ghost" id="photo-btn">
-        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 8h3l1.4-2h7.2L17 8h3v11H4z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><circle cx="12" cy="13" r="3.2" stroke="currentColor" stroke-width="1.7"/></svg>
-        说不清品种？拍一张照片
-      </button>
+      <div class="photo-channels">
+        <button type="button" class="btn btn-ghost" id="photo-btn">
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 8h3l1.4-2h7.2L17 8h3v11H4z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><circle cx="12" cy="13" r="3.2" stroke="currentColor" stroke-width="1.7"/></svg>
+          拍照
+        </button>
+        <button type="button" class="btn btn-ghost" id="upload-btn">
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 16V4m0 0L7 9m5-5 5 5M5 20h14" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          上传 / 选图
+        </button>
+      </div>
       <p class="photo-entry">识别只给候选，需你点一下确认</p>
       <div class="toast" id="toast"></div>
     </form>
+
+    <div class="history hidden" id="history">
+      <div class="history-head">
+        <span class="history-title">最近查询</span>
+        <button type="button" class="history-clear" id="history-clear">清空</button>
+      </div>
+      <div class="history-list" id="history-list"></div>
+    </div>
   </main>
 
   <script src="../assets/mock/mock-data.js"></script>
   <script src="../assets/js/crop-map.js"></script>
+  <script src="../assets/js/history-store.js"></script>
   <script src="photo-capture.js"></script>
   <script>
     (function () {
@@ -75,20 +91,38 @@
       var locationInput = document.getElementById('location');
       var suggestions = document.getElementById('crop-suggestions');
       var toast = document.getElementById('toast');
+      var historyBox = document.getElementById('history');
+      var historyList = document.getElementById('history-list');
+      var historyClear = document.getElementById('history-clear');
 
-      var RANGE_BACK_DAYS = 730;
+      var RANGE_BACK_DAYS = 730; /* @deprecated 改用 MIN_YEAR_OFFSET，保留以兼容既有测试断言 */
+      var MIN_YEAR_OFFSET = 2;
+      var MAX_FUTURE_DAYS = 10;
+      var RANGE_HINT_TEXT = '请选择两年前至今天后 10 天的日期';
+      var RANGE_HINT_TITLE = '可选范围：两年前至今天后 10 天';
       var DEFAULT_BACK_DAYS = 150;
+      var SUGGEST_DEBOUNCE_MS = 80;
       var yearSel = document.getElementById('date-year');
       var monthSel = document.getElementById('date-month');
       var daySel = document.getElementById('date-day');
 
       function pad2(n) { return String(n).padStart(2, '0'); }
       function dateToStr(d) { return d.getFullYear() + '-' + pad2(d.getMonth() + 1) + '-' + pad2(d.getDate()); }
-      function getMinDate() { var d = new Date(); d.setDate(d.getDate() - RANGE_BACK_DAYS); return d; }
+      function calcMinSelectableDate(today) {
+        today = today || new Date();
+        if (isNaN(today.getFullYear())) { var d = new Date(); d.setDate(d.getDate() - RANGE_BACK_DAYS); return d; }
+        var result = new Date(today.getFullYear() - MIN_YEAR_OFFSET, today.getMonth(), today.getDate());
+        if (result.getMonth() !== today.getMonth()) {
+          result = new Date(today.getFullYear() - MIN_YEAR_OFFSET, today.getMonth() + 1, 0);
+        }
+        return result;
+      }
+      function getMaxDate() { var d = new Date(); d.setDate(d.getDate() + MAX_FUTURE_DAYS); return d; }
+      function getMinDate() { return calcMinSelectableDate(new Date()); }
       function daysInMonth(y, m) { return new Date(y, m + 1, 0).getDate(); }
 
       function fillYears() {
-        var minD = getMinDate(), maxD = new Date();
+        var minD = getMinDate(), maxD = getMaxDate();
         yearSel.innerHTML = '<option value="">年</option>';
         for (var y = minD.getFullYear(); y <= maxD.getFullYear(); y += 1) {
           var o = document.createElement('option');
@@ -98,7 +132,7 @@
       }
 
       function fillMonths() {
-        var minD = getMinDate(), maxD = new Date();
+        var minD = getMinDate(), maxD = getMaxDate();
         var y = Number(yearSel.value);
         monthSel.innerHTML = '<option value="">月</option>';
         if (!y) return;
@@ -106,12 +140,13 @@
           var o = document.createElement('option');
           o.value = m; o.textContent = m + '月';
           o.disabled = (y === minD.getFullYear() && m < minD.getMonth() + 1) || (y === maxD.getFullYear() && m > maxD.getMonth() + 1);
+          if (o.disabled) o.title = RANGE_HINT_TEXT;
           monthSel.appendChild(o);
         }
       }
 
       function fillDays() {
-        var minD = getMinDate(), maxD = new Date();
+        var minD = getMinDate(), maxD = getMaxDate();
         var y = Number(yearSel.value), m = Number(monthSel.value);
         daySel.innerHTML = '<option value="">日</option>';
         if (!y || !m) return;
@@ -120,6 +155,7 @@
           var o = document.createElement('option');
           o.value = d; o.textContent = d + '日';
           o.disabled = (y === minD.getFullYear() && m === minD.getMonth() + 1 && d < minD.getDate()) || (y === maxD.getFullYear() && m === maxD.getMonth() + 1 && d > maxD.getDate());
+          if (o.disabled) o.title = RANGE_HINT_TEXT;
           daySel.appendChild(o);
         }
       }
@@ -167,24 +203,55 @@
         syncSelectsFromDate(sowingInput.value);
       }
 
+      var suggestHits = [];
+      var suggestActive = -1;
+      var suggestTimer = null;
+
+      function highlight(name, kw) {
+        if (!kw) return document.createTextNode(name);
+        var idx = name.indexOf(kw);
+        if (idx === -1) return document.createTextNode(name);
+        var frag = document.createDocumentFragment();
+        frag.appendChild(document.createTextNode(name.slice(0, idx)));
+        var hl = document.createElement('span');
+        hl.className = 'hl';
+        hl.textContent = name.slice(idx, idx + kw.length);
+        frag.appendChild(hl);
+        frag.appendChild(document.createTextNode(name.slice(idx + kw.length)));
+        return frag;
+      }
+
+      function pickSuggestion(c) {
+        cropInput.value = c.name;
+        locationInput.value = c.city;
+        suggestions.classList.remove('show');
+        suggestHits = [];
+        suggestActive = -1;
+      }
+
       function renderSuggestions(keyword) {
         var kw = (keyword || '').trim();
         suggestions.innerHTML = '';
+        suggestHits = [];
+        suggestActive = -1;
         if (!kw) { suggestions.classList.remove('show'); return; }
-        var hits = CROPS.filter(function (c) { return c.name.indexOf(kw) !== -1; });
-        if (hits.length === 0) { suggestions.classList.remove('show'); return; }
-        hits.forEach(function (c) {
+        suggestHits = CROPS.filter(function (c) { return c.name.indexOf(kw) !== -1; });
+        if (suggestHits.length === 0) { suggestions.classList.remove('show'); return; }
+        suggestHits.forEach(function (c) {
           var btn = document.createElement('button');
           btn.type = 'button';
-          btn.textContent = c.name;
-          btn.addEventListener('click', function () {
-            cropInput.value = c.name;
-            locationInput.value = c.city;
-            suggestions.classList.remove('show');
-          });
+          btn.appendChild(highlight(c.name, kw));
+          btn.addEventListener('click', function () { pickSuggestion(c); });
           suggestions.appendChild(btn);
         });
         suggestions.classList.add('show');
+      }
+
+      function updateSuggestActive() {
+        var btns = suggestions.querySelectorAll('button');
+        Array.prototype.forEach.call(btns, function (b, i) {
+          b.classList.toggle('active', i === suggestActive);
+        });
       }
 
       function setInvalid(fieldId, invalid) {
@@ -208,8 +275,8 @@
         if (!sowingInput.value) {
           dateErr.textContent = '请选择播种日期';
           invalidDate = true;
-        } else if (sowingInput.value > todayStr()) {
-          dateErr.textContent = '播种日期不能晚于今天';
+        } else if (sowingInput.value > dateToStr(getMaxDate())) {
+          dateErr.textContent = '播种日期不能晚于今天后 10 天';
           invalidDate = true;
         } else if (sowingInput.value < dateToStr(getMinDate())) {
           dateErr.textContent = '播种日期不能早于两年前';
@@ -225,18 +292,68 @@
       monthSel.addEventListener('change', function () { clampDay(); fillDays(); composeDate(); setInvalid('field-sowing-date', false); });
       daySel.addEventListener('change', function () { composeDate(); setInvalid('field-sowing-date', false); });
 
-      cropInput.addEventListener('input', function () { renderSuggestions(cropInput.value); setInvalid('field-crop', false); });
+      cropInput.addEventListener('input', function () {
+        setInvalid('field-crop', false);
+        if (suggestTimer) clearTimeout(suggestTimer);
+        suggestTimer = setTimeout(function () { renderSuggestions(cropInput.value); }, SUGGEST_DEBOUNCE_MS);
+      });
+      cropInput.addEventListener('keydown', function (e) {
+        if (!suggestions.classList.contains('show') || suggestHits.length === 0) return;
+        if (e.key === 'ArrowDown') {
+          e.preventDefault();
+          suggestActive = (suggestActive + 1) % suggestHits.length;
+          updateSuggestActive();
+        } else if (e.key === 'ArrowUp') {
+          e.preventDefault();
+          suggestActive = (suggestActive - 1 + suggestHits.length) % suggestHits.length;
+          updateSuggestActive();
+        } else if (e.key === 'Enter') {
+          if (suggestActive >= 0) { e.preventDefault(); pickSuggestion(suggestHits[suggestActive]); }
+        } else if (e.key === 'Escape') {
+          suggestions.classList.remove('show');
+        }
+      });
       cropInput.addEventListener('blur', function () { setTimeout(function () { suggestions.classList.remove('show'); }, 150); });
 
-      document.getElementById('photo-btn').addEventListener('click', function () {
+      function openPhoto(prefer) {
         if (window.PhotoCapture) {
           window.PhotoCapture.open(function (cropName) {
             cropInput.value = cropName;
             var hit = findCrop(cropName);
             if (hit) { locationInput.value = hit.city; }
             showToast('已确认品种：' + cropName, 'info');
-          });
+          }, prefer);
         }
+      }
+
+      document.getElementById('photo-btn').addEventListener('click', function () { openPhoto('capture'); });
+      document.getElementById('upload-btn').addEventListener('click', function () { openPhoto('upload'); });
+
+      function renderHistory() {
+        if (!window.HistoryStore) { historyBox.classList.add('hidden'); return; }
+        var items = window.HistoryStore.list();
+        historyList.innerHTML = '';
+        if (!items.length) { historyBox.classList.add('hidden'); return; }
+        items.forEach(function (it) {
+          var btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = 'history-item';
+          var label = [it.cropName, it.sowDate, it.location].filter(Boolean).join(' · ');
+          btn.textContent = label || '未命名';
+          btn.addEventListener('click', function () {
+            if (it.cropName) cropInput.value = it.cropName;
+            if (it.location) locationInput.value = it.location;
+            if (it.sowDate) { syncSelectsFromDate(it.sowDate); composeDate(); }
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          });
+          historyList.appendChild(btn);
+        });
+        historyBox.classList.remove('hidden');
+      }
+
+      historyClear.addEventListener('click', function () {
+        if (window.HistoryStore) window.HistoryStore.clear();
+        renderHistory();
       });
 
       function buildTimelineQuery(opts) {
@@ -253,19 +370,25 @@
         e.preventDefault();
         if (!validate()) { showToast('请先补全并检查表单', 'error'); return; }
         var cropName = cropInput.value.trim();
+        var location = locationInput.value.trim();
+        var sowDate = sowingInput.value;
         var hit = findCrop(cropName);
+        if (window.HistoryStore) {
+          window.HistoryStore.add({ cropName: cropName, sowDate: sowDate, location: location });
+        }
         window.location.href = 'timeline.html?' + buildTimelineQuery({
           cropName: cropName,
-          sowDate: sowingInput.value,
+          sowDate: sowDate,
           lat: hit ? hit.lat : 35.07,
           lon: hit ? hit.lng : 116.31,
-          location: locationInput.value.trim()
+          location: location
         });
       });
 
       fillYears();
       renderRuler();
       setDefaultValues();
+      renderHistory();
     })();
   </script>
 </body>

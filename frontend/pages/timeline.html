@@ -28,10 +28,12 @@
       <div class="data-meta" id="data-meta"></div>
     </section>
 
-    <div class="loading" id="loading">
-      <div class="skeleton"></div>
-      <div class="skeleton"></div>
-      <div class="skeleton"></div>
+    <div class="loading" id="loading" role="status" aria-live="polite">
+      <div class="loading-bar" aria-hidden="true"><i></i></div>
+      <p class="loading-text" id="loading-text">正在读取农时…</p>
+      <div class="skeleton" aria-hidden="true"></div>
+      <div class="skeleton" aria-hidden="true"></div>
+      <div class="skeleton" aria-hidden="true"></div>
     </div>
 
     <div class="mode-switch" id="mode-switch" hidden>
@@ -55,13 +57,12 @@
 
   <script src="../assets/mock/mock-data.js"></script>
   <script src="../assets/js/crop-map.js"></script>
+  <script src="../assets/js/timeline-logic.js"></script>
+  <script src="../assets/js/chart-client.js"></script>
   <script>
     (function () {
       var STATUS_LABEL = { green: '适宜', yellow: '谨慎', red: '不宜' };
-      var WEATHER_WORD = {
-        clear: '晴', cloudy: '多云', overcast: '阴', lightRain: '小雨',
-        heavyRain: '大雨', storm: '暴雨', windy: '大风', hot: '高温', cold: '低温'
-      };
+      var DATE_ANCHOR_LABEL = { fixed: '固定公历', lunar: '农历浮动', perYear: '按年指定' };
       var ICONS = {
         term: '<svg viewBox="0 0 24 24" fill="none"><path d="M12 3v18M5 8c3 0 5-1.6 7-5 2 3.4 4 5 7 5" stroke="#2f6b40" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>'
       };
@@ -167,6 +168,12 @@
         return img;
       }
 
+      function noteRow(cls) {
+        var div = document.createElement('div');
+        div.className = 'tl-note' + (cls ? ' ' + cls : '');
+        return div;
+      }
+
       function renderConclusion(data) {
         var card = document.getElementById('conclusion-card');
         var box = document.getElementById('conclusion');
@@ -189,6 +196,64 @@
         var extra = degradedSource ? ' · 本地兜底数据（' + degradedText + '）' : '';
         meta.textContent = '数据来源：' + sourceText + (data.dataTime ? ' · 数据时间 ' + new Date(data.dataTime).toLocaleString() : '') + extra;
         meta.className = 'data-meta' + ((data.dataSource === 'realtime' && !degradedSource) ? '' : ' warn');
+      }
+
+      function renderWeather(card, node) {
+        var logic = window.TimelineLogic;
+        var factors = logic.normalizeFactors(node.weatherFactors);
+        var hasWeather = node.weatherIcon != null || node.suitability != null ||
+          node.severeWeatherAlert != null || factors.length > 0;
+
+        if (!hasWeather) {
+          var neutral = noteRow('tl-weather-neutral');
+          neutral.appendChild(nodeIcon('weather'));
+          var nt = document.createElement('span');
+          nt.textContent = '天气数据暂不可用';
+          neutral.appendChild(nt);
+          card.appendChild(neutral);
+          return;
+        }
+
+        var alert = logic.getSevereAlert(node.severeWeatherAlert);
+        if (alert) {
+          var aNote = noteRow('tl-alert');
+          var at = document.createElement('span');
+          at.textContent = '⚠ 天气警示 · ' + alert.label + (alert.tip ? '：' + alert.tip : '');
+          aNote.appendChild(at);
+          card.appendChild(aNote);
+          if (node.suitability === 'green') {
+            var aTip = noteRow('tl-alert-tip');
+            aTip.textContent = '虽有适宜条件但存在极端天气，建议调整';
+            card.appendChild(aTip);
+          }
+        }
+
+        var wi = logic.getWeatherIcon(node.weatherIcon);
+        if (wi) {
+          var wNote = noteRow('tl-weather');
+          wNote.appendChild(nodeIcon('weather'));
+          var wt = document.createElement('span');
+          wt.textContent = '天气 · ' + wi.label;
+          wNote.appendChild(wt);
+          card.appendChild(wNote);
+        }
+
+        var suit = logic.getSuitability(node.suitability);
+        if (suit) {
+          var sNote = noteRow('tl-suitability ' + suit.class);
+          var st = document.createElement('span');
+          st.textContent = '适宜度 · ' + suit.label;
+          sNote.appendChild(st);
+          card.appendChild(sNote);
+        }
+
+        if (factors.length) {
+          var fNote = noteRow('tl-factors');
+          var ft = document.createElement('span');
+          ft.textContent = '天气因子 · ' + factors.join('；');
+          fNote.appendChild(ft);
+          card.appendChild(fNote);
+        }
       }
 
       function renderNode(node) {
@@ -228,22 +293,15 @@
         }
 
         if (node.solarTerm) {
-          var termNote = document.createElement('div');
-          termNote.className = 'tl-note';
+          var termNote = noteRow('tl-term');
           termNote.appendChild(svgIcon('term'));
           var tt = document.createElement('span');
           tt.textContent = '节气 · ' + node.solarTerm + (node.solarTermTip ? '：' + node.solarTermTip : '');
           termNote.appendChild(tt);
           card.appendChild(termNote);
-        } else if (node.weatherIcon) {
-          var wNote = document.createElement('div');
-          wNote.className = 'tl-note';
-          wNote.appendChild(nodeIcon('weather'));
-          var wt = document.createElement('span');
-          wt.textContent = '天气 · ' + (WEATHER_WORD[node.weatherIcon] || node.weatherIcon);
-          wNote.appendChild(wt);
-          card.appendChild(wNote);
         }
+
+        renderWeather(card, node);
 
         var detail = document.createElement('div');
         detail.className = 'tl-detail';
@@ -268,7 +326,7 @@
         dot.className = 'tl-dot';
         wrap.appendChild(dot);
         var card = document.createElement('div');
-        card.className = 'tl-card';
+        card.className = 'tl-card tl-festival';
         var action = document.createElement('div');
         action.className = 'tl-action';
         var name = document.createElement('span');
@@ -279,13 +337,40 @@
         date.textContent = r.festivalDate || '';
         action.appendChild(name); action.appendChild(date);
         card.appendChild(action);
-        var note = document.createElement('div');
-        note.className = 'tl-note';
-        note.appendChild(nodeIcon('festival'));
-        var t = document.createElement('span');
-        t.textContent = r.reminderCopy;
-        note.appendChild(t);
-        card.appendChild(note);
+
+        var cd = window.TimelineLogic.calcCountdown(r.festivalDate);
+        var cdText = '';
+        if (cd.state === 'future') cdText = '距 ' + (r.festivalName || '该节点') + ' 还有 ' + cd.days + ' 天';
+        else if (cd.state === 'today') cdText = (r.festivalName || '该节点') + ' 就是今天';
+        else if (cd.state === 'past') cdText = (r.festivalName || '该节点') + ' 已过';
+        if (cdText) {
+          var cdNote = noteRow('tl-countdown');
+          cdNote.textContent = cdText;
+          card.appendChild(cdNote);
+        }
+
+        if (r.dateAnchor) {
+          var anchorNote = noteRow('tl-anchor');
+          anchorNote.textContent = '日期锚点 · ' + (DATE_ANCHOR_LABEL[r.dateAnchor] || r.dateAnchor);
+          card.appendChild(anchorNote);
+        }
+
+        var copy = r.salesCopy || r.reminderCopy;
+        if (copy) {
+          var note = noteRow('tl-festival-copy');
+          note.appendChild(nodeIcon('festival'));
+          var t = document.createElement('span');
+          t.textContent = copy;
+          note.appendChild(t);
+          card.appendChild(note);
+        }
+
+        if (r.applicableCrops) {
+          var cropsNote = noteRow('tl-crops');
+          cropsNote.textContent = '适用作物 · ' + r.applicableCrops;
+          card.appendChild(cropsNote);
+        }
+
         wrap.appendChild(card);
         return wrap;
       }
@@ -411,6 +496,26 @@
         chartRendered = true;
       }
 
+      function requestChart() {
+        var chart = document.getElementById('chart');
+        if (!window.ChartClient) { renderChart(cachedData); return; }
+        chart.innerHTML = '';
+        var loading = document.createElement('p');
+        loading.className = 'chart-loading';
+        loading.textContent = '正在生成图像…';
+        chart.appendChild(loading);
+        window.ChartClient.request({
+          crop: query.crop,
+          sowDate: query.sowDate,
+          lat: query.lat,
+          lon: query.lon,
+          nodes: (cachedData && cachedData.nodes) || []
+        }).then(function (res) {
+          if (res && res.ok && res.data) renderChart(res.data);
+          else renderChart(cachedData);
+        });
+      }
+
       function renderModeSwitch() {
         var sw = document.getElementById('mode-switch');
         sw.hidden = false;
@@ -429,7 +534,7 @@
         });
         document.getElementById('timeline').hidden = (mode !== 'node');
         document.getElementById('chart').hidden = (mode !== 'chart');
-        if (mode === 'chart' && !chartRendered) renderChart(cachedData);
+        if (mode === 'chart' && !chartRendered) requestChart();
       }
 
       function render(data) {
@@ -448,7 +553,7 @@
         data.nodes.forEach(function (n) { timeline.appendChild(renderNode(n)); });
         var reminders = Array.isArray(data.reminders) ? data.reminders : [];
         reminders.forEach(function (r) {
-          if (r && (r.festivalName || r.festivalDate || r.reminderCopy)) {
+          if (r && (r.festivalName || r.festivalDate || r.reminderCopy || r.salesCopy)) {
             timeline.appendChild(renderReminder(r));
           }
         });

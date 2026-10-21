@@ -1,6 +1,7 @@
 /**
  * 拍照识别与人工确认组件（含确认弹层）
- * 流程：拍照/选图 → 识别请求（≤800ms）→ 3 个候选 + 置信度 → 人工确认 → 回填品种
+ * 流程：拍照/上传 → 识别请求（≤800ms）→ 候选 + 置信度 → 人工确认 → 回填品种
+ * 双通道：拍照（capture=environment）与上传/选图（无 capture）复用同一识别流程。
  * 识别只缩小范围不做决定：未点确认不进入时间线生成；失败/超时回落搜索框，流程不中断。
  */
 (function () {
@@ -39,6 +40,7 @@
       '.pc-btn{flex:1;display:flex;align-items:center;justify-content:center;gap:7px;font-family:inherit;font-size:16px;font-weight:700;letter-spacing:.5px;padding:14px;border-radius:13px;border:none}',
       '.pc-btn.primary{color:#fff;background:linear-gradient(155deg,var(--leaf-2,#3f8f56),var(--leaf,#2f6b40));box-shadow:0 12px 22px -12px rgba(47,107,64,.8)}',
       '.pc-btn.ghost{color:var(--ink-soft,#55634e);background:transparent;border:1.5px solid var(--line,#e4ddcb)}',
+      '.pc-btn:disabled{opacity:.55}',
       '.pc-hidden{display:none}',
       '.pc-spinner{width:16px;height:16px;flex:none;border:2.5px solid rgba(63,143,86,.25);border-top-color:var(--leaf-2,#3f8f56);border-radius:50%;animation:pc-spin .7s linear infinite}',
       '@keyframes pc-spin{to{transform:rotate(360deg)}}',
@@ -65,14 +67,22 @@
     panel.appendChild(el('div', 'pc-grip'));
     panel.appendChild(el('div', 'pc-title', '拍照识别作物'));
 
-    var fileInput = el('input');
-    fileInput.type = 'file';
-    fileInput.accept = 'image/*';
-    fileInput.setAttribute('capture', 'environment');
-    fileInput.className = 'pc-hidden';
-    panel.appendChild(fileInput);
+    // 通道一：拍照（含 capture）
+    var captureInput = el('input');
+    captureInput.type = 'file';
+    captureInput.accept = 'image/*';
+    captureInput.setAttribute('capture', 'environment');
+    captureInput.className = 'pc-hidden';
+    panel.appendChild(captureInput);
 
-    var status = el('div', 'pc-status', '拍一张作物照片，识别只给候选，需你点一下确认');
+    // 通道二：上传/选图（不含 capture）
+    var uploadInput = el('input');
+    uploadInput.type = 'file';
+    uploadInput.accept = 'image/*';
+    uploadInput.className = 'pc-hidden';
+    panel.appendChild(uploadInput);
+
+    var status = el('div', 'pc-status', '拍照或选图，识别只给候选，需你点一下确认');
     panel.appendChild(status);
 
     var candidatesBox = el('div');
@@ -82,25 +92,33 @@
     panel.appendChild(fallbackBox);
 
     var actions = el('div', 'pc-actions');
-    var shootBtn = el('button', 'pc-btn primary', '拍照 / 选图');
+    var captureBtn = el('button', 'pc-btn primary', '拍照');
+    var uploadBtn = el('button', 'pc-btn primary', '上传 / 选图');
     var cancelBtn = el('button', 'pc-btn ghost', '取消');
-    actions.appendChild(shootBtn);
+    actions.appendChild(captureBtn);
+    actions.appendChild(uploadBtn);
     actions.appendChild(cancelBtn);
     panel.appendChild(actions);
 
     mask.appendChild(panel);
     document.body.appendChild(mask);
+
+    var actionBtns = [captureBtn, uploadBtn];
     cancelBtn.addEventListener('click', close);
-    shootBtn.addEventListener('click', function () { fileInput.click(); });
-    fileInput.addEventListener('change', function () {
-      var file = fileInput.files && fileInput.files[0];
+    captureBtn.addEventListener('click', function () { captureInput.click(); });
+    uploadBtn.addEventListener('click', function () { uploadInput.click(); });
+
+    function handleFile(input) {
+      var file = input.files && input.files[0];
       if (!file) return;
       var reader = new FileReader();
-      reader.onload = function () { runRecognition(reader.result, status, candidatesBox, fallbackBox, shootBtn); };
+      reader.onload = function () { runRecognition(reader.result, status, candidatesBox, fallbackBox, actionBtns); };
       reader.readAsDataURL(file);
-    });
+    }
+    captureInput.addEventListener('change', function () { handleFile(captureInput); });
+    uploadInput.addEventListener('change', function () { handleFile(uploadInput); });
 
-    return { status: status, candidatesBox: candidatesBox, fallbackBox: fallbackBox, shootBtn: shootBtn };
+    return { status: status, candidatesBox: candidatesBox, fallbackBox: fallbackBox, captureInput: captureInput, uploadInput: uploadInput, actionBtns: actionBtns };
   }
 
   function renderCandidates(list, candidatesBox, onConfirm) {
@@ -152,11 +170,15 @@
     status.appendChild(el('span', null, text));
   }
 
-  function runRecognition(image, status, candidatesBox, fallbackBox, shootBtn) {
+  function setDisabled(btns, disabled) {
+    (btns || []).forEach(function (b) { b.disabled = disabled; });
+  }
+
+  function runRecognition(image, status, candidatesBox, fallbackBox, actionBtns) {
     candidatesBox.innerHTML = '';
     fallbackBox.className = 'pc-hidden';
     setStatusSpinner(status, '正在识别…');
-    shootBtn.disabled = true;
+    setDisabled(actionBtns, true);
 
     var controller = new AbortController();
     state.controller = controller;
@@ -171,7 +193,7 @@
       .then(function (res) { if (!res.ok) throw new Error('识别服务返回 ' + res.status); return res.json(); })
       .then(function (data) {
         clearTimeout(timer);
-        shootBtn.disabled = false;
+        setDisabled(actionBtns, false);
         if (!data.candidates || data.candidates.length === 0) {
           status.textContent = data.message || '未识别出品种，请手动搜索';
           showFallback('未识别出品种，请手动搜索', fallbackBox, state.onConfirm);
@@ -182,16 +204,17 @@
       })
       .catch(function () {
         clearTimeout(timer);
-        shootBtn.disabled = false;
+        setDisabled(actionBtns, false);
         status.textContent = '该功能需要后端服务支持，暂不可用';
         showFallback('也可手动搜索作物品种', fallbackBox, state.onConfirm);
       });
   }
 
-  function open(onConfirm) {
+  function open(onConfirm, prefer) {
     state.onConfirm = onConfirm;
     var refs = buildOverlay();
-    refs.shootBtn.click();
+    if (prefer === 'capture' && refs.captureInput) refs.captureInput.click();
+    else if (prefer === 'upload' && refs.uploadInput) refs.uploadInput.click();
   }
 
   window.PhotoCapture = { open: open };
