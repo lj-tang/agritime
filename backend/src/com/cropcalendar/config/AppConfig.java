@@ -1,0 +1,122 @@
+package com.cropcalendar.config;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Properties;
+
+/**
+ * 关键参数外置 —— 改配置不改代码。
+ *
+ * 优先级：环境变量 > application.properties > 内置默认值
+ *
+ * 为什么要做成三层？因为华为云 FunctionGraph 上不方便改文件，
+ * 用环境变量就能临时把超时阈值调大调小，不用重新打包。
+ * 这也是手册里「关键参数外置，别人也能调」那条要求的落地。
+ */
+public final class AppConfig {
+
+    private static final Properties FILE = new Properties();
+
+    static {
+        Path p = Paths.get("application.properties");
+        if (Files.exists(p)) {
+            try (InputStream in = Files.newInputStream(p)) {
+                FILE.load(in);
+                System.out.println("[config] 已加载 " + p.toAbsolutePath());
+            } catch (IOException e) {
+                System.err.println("[config] 读取 application.properties 失败，使用内置默认值：" + e.getMessage());
+            }
+        } else {
+            System.out.println("[config] 未找到 application.properties，使用内置默认值");
+        }
+    }
+
+    /** HTTP 监听端口 */
+    public static int port() {
+        return intOf("server.port", 8080);
+    }
+
+    /** 上游（天气/识别）超时阈值：超过这个时间就降级返回缓存 */
+    public static int upstreamTimeoutMs() {
+        return intOf("upstream.timeout.ms", 800);
+    }
+
+    /** 缓存有效期 */
+    public static int cacheTtlSeconds() {
+        return intOf("cache.ttl.seconds", 900);
+    }
+
+    /** 计算层是否还在用 mock（乙未交付时为 true） */
+    public static boolean mockMode() {
+        return boolOf("compute.mock", true);
+    }
+
+    /** 节点前后各取几天的天气窗口 —— 打分用 */
+    public static int weatherWindowDays() {
+        return intOf("weather.window.days", 3);
+    }
+
+    /**
+     * 【仅 mock 模式生效】人为制造上游延迟，单位毫秒。
+     * 存在的唯一目的：让降级分支可以被演练 —— 降级路径不能测，就等于没写。
+     * 乙交付真实实现后，这个参数自然失效。
+     */
+    public static int mockUpstreamDelayMs() {
+        return intOf("mock.upstream.delay.ms", 0);
+    }
+
+    /** 大模型 API 端点（华为云 MaaS） */
+    public static String llmApiUrl() {
+        String v = raw("llm.api.url");
+        return (v != null && !v.isBlank()) ? v.trim() : "";
+    }
+
+    /** 大模型 API 密钥 */
+    public static String llmApiKey() {
+        String v = raw("llm.api.key");
+        return (v != null && !v.isBlank()) ? v.trim() : "";
+    }
+
+    /** 大模型名称 */
+    public static String llmModel() {
+        String v = raw("llm.model");
+        return (v != null && !v.isBlank()) ? v.trim() : "openPangu-2.0-flash";
+    }
+
+    /** 大模型调用超时（毫秒） */
+    public static int llmTimeoutMs() {
+        return intOf("llm.timeout.ms", 10000);
+    }
+
+    private static String raw(String key) {
+        String envKey = key.toUpperCase().replace('.', '_').replace('-', '_');
+        String env = System.getenv(envKey);
+        if (env != null && !env.isBlank()) {
+            return env.trim();
+        }
+        return FILE.getProperty(key);
+    }
+
+    private static int intOf(String key, int fallback) {
+        String v = raw(key);
+        if (v == null || v.isBlank()) return fallback;
+        try {
+            return Integer.parseInt(v);
+        } catch (NumberFormatException e) {
+            System.err.println("[config] " + key + " = " + v + " 不是整数，回退到默认值 " + fallback);
+            return fallback;
+        }
+    }
+
+    private static boolean boolOf(String key, boolean fallback) {
+        String v = raw(key);
+        if (v == null || v.isBlank()) return fallback;
+        return Boolean.parseBoolean(v.trim());
+    }
+
+    private AppConfig() {
+    }
+}

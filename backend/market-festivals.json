@@ -1,0 +1,32 @@
+{
+  "version": "0.1.0",
+  "comment": "销售节日规则表（配置驱动）。新增一个销售节日只需在 festivals 数组里加一个对象，不改任何 Java 代码；改完后重启服务生效（进程启动时读取一次，与规程表同风格）。anchorType=fixed 表示每年固定公历日期（anchor 写 MM-dd）；perYear 表示农历节日每年公历日期浮动，用 dates 按年指定（未配置的年份不返回该节日）。crops 可选：缺省对全部作物生效，配置后只对列表内作物生效。返回查询日期当天及未来的节日，daysTo = 节日日期 - 查询日期；当年已过的节日不返回。",
+  "festivals": [
+    {
+      "name": "元旦",
+      "anchorType": "fixed",
+      "anchor": "01-01",
+      "tip": "节前蔬菜与礼品类农产品收购价通常上浮"
+    },
+    {
+      "name": "国庆",
+      "anchorType": "fixed",
+      "anchor": "10-01",
+      "tip": "节前收购价通常上浮，提前安排采收与出栏"
+    },
+    {
+      "name": "中秋",
+      "anchorType": "perYear",
+      "dates": { "2025": "10-06", "2026": "09-25" },
+      "tip": "中秋前礼品果蔬需求集中，可开始关注行情",
+      "reviewStatus": "pending_review"
+    },
+    {
+      "name": "春节",
+      "anchorType": "perYear",
+      "dates": { "2025": "01-29", "2026": "02-17" },
+      "tip": "春节前是全年最大销售窗口，提前锁定收购渠道",
+      "reviewStatus": "pending_review"
+    }
+  ]
+}
