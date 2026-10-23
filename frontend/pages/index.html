@@ -21,6 +21,14 @@
       </div>
     </header>
 
+    <div class="weather-bg-layer" id="weather-bg-layer" aria-hidden="true"></div>
+    <div class="weather-card" id="weather-card" data-weather="default" data-season="auto" hidden>
+      <span class="weather-loc" id="weather-loc">--</span>
+      <span class="weather-temp" id="weather-temp">--°</span>
+      <span class="weather-desc" id="weather-desc">--</span>
+      <span class="weather-extra" id="weather-extra">--</span>
+    </div>
+
 
     <div class="term-ruler" id="term-ruler" aria-hidden="true"></div>
 
@@ -81,6 +89,7 @@
   <script src="../assets/js/crop-map.js"></script>
   <script src="../assets/js/history-store.js"></script>
   <script src="photo-capture.js"></script>
+  <script src="../assets/js/weather-visual.js"></script>
   <script>
     (function () {
       var CROPS = window.CropMap.CROPS;

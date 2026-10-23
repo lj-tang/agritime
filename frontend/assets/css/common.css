@@ -425,3 +425,65 @@ body {
 @media (min-width: 1024px) {
   .page { max-width: 860px; }
 }
+/* === T01: 天气视觉动态适配 === */
+
+.weather-bg-layer {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  opacity: 0;
+  transition: opacity 0.6s ease;
+  pointer-events: none;
+}
+.weather-bg-layer:not([style*="background-image: url('"]) {
+  background-image: url('../assets/weather-bg/default.svg');
+  opacity: 0.3;
+}
+.page--home[data-weather] .weather-bg-layer { opacity: 0.35; }
+
+.weather-card {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  padding: 10px 16px;
+  margin-bottom: 12px;
+  border-radius: var(--radius-sm);
+  background: var(--card);
+  box-shadow: var(--shadow-soft);
+  font-size: 14px;
+  color: var(--ink-soft);
+}
+.weather-card[hidden] { display: none; }
+.weather-loc { font-weight: 600; color: var(--ink); }
+.weather-temp { font-size: 20px; font-weight: 700; color: var(--leaf); }
+.weather-desc { color: var(--ink-soft); }
+.weather-extra { color: var(--muted); font-size: 12px; }
+
+.page--home[data-weather="sunny"] { --leaf: #d99b2b; --leaf-soft: #fbf0d8; }
+.page--home[data-weather="rain"] { --leaf: #3d6f96; --leaf-soft: #d6e4f0; }
+.page--home[data-weather="cloudy"] { --leaf: #6b8aa5; --leaf-soft: #e0e8f0; }
+.page--home[data-weather="snow"] { --leaf: #7b9ab0; --leaf-soft: #e8eef5; }
+
+@keyframes weather-sunny { 0%,100% { opacity: 0.35; } 50% { opacity: 0.45; } }
+@keyframes weather-rain { 0% { background-position-y: 0; } 100% { background-position-y: 20px; } }
+@keyframes weather-cloudy { 0%,100% { transform: translateX(0); } 50% { transform: translateX(8px); } }
+@keyframes weather-snow { 0% { background-position-y: 0; } 100% { background-position-y: 15px; } }
+
+.page--home[data-weather="sunny"] .weather-bg-layer { animation: weather-sunny 4s ease-in-out infinite; }
+.page--home[data-weather="rain"] .weather-bg-layer { animation: weather-rain 1.5s linear infinite; }
+.page--home[data-weather="cloudy"] .weather-bg-layer { animation: weather-cloudy 6s ease-in-out infinite; }
+.page--home[data-weather="snow"] .weather-bg-layer { animation: weather-snow 3s linear infinite; }
+
+@media (prefers-reduced-motion: reduce) {
+  .weather-bg-layer { animation: none !important; transition: opacity 0.3s ease !important; }
+}
+
+@media (max-width: 375px) {
+  .weather-card { font-size: 12px; padding: 8px 12px; gap: 6px; }
+  .weather-temp { font-size: 16px; }
+  .weather-extra { display: none; }
+}

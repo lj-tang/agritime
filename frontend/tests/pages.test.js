@@ -17,6 +17,12 @@ const mockJs = read(path.resolve(__dirname, '..', 'assets', 'mock', 'mock-data.j
 const timelineLogicJs = read(path.resolve(__dirname, '..', 'assets', 'js', 'timeline-logic.js'));
 const historyStoreJs = read(path.resolve(__dirname, '..', 'assets', 'js', 'history-store.js'));
 const chartClientJs = read(path.resolve(__dirname, '..', 'assets', 'js', 'chart-client.js'));
+const weatherVisualJs = read(path.resolve(__dirname, '..', 'assets', 'js', 'weather-visual.js'));
+const sunnySvg = read(path.resolve(__dirname, '..', 'assets', 'weather-bg', 'sunny.svg'));
+const rainSvg = read(path.resolve(__dirname, '..', 'assets', 'weather-bg', 'rain.svg'));
+const cloudySvg = read(path.resolve(__dirname, '..', 'assets', 'weather-bg', 'cloudy.svg'));
+const snowSvg = read(path.resolve(__dirname, '..', 'assets', 'weather-bg', 'snow.svg'));
+const defaultSvg = read(path.resolve(__dirname, '..', 'assets', 'weather-bg', 'default.svg'));
 
 test('输入表单页：三字段 + 拍照入口 + 模糊联想', () => {
   assert.match(indexHtml, /id="crop"/);
@@ -366,4 +372,96 @@ test('日期范围：既有断言兼容性复核', () => {
   assert.ok(indexHtml.includes('id="date-day"'));
   assert.ok(indexHtml.includes('id="sowingDate"'));
   assert.ok(!indexHtml.includes('type="date"'));
+});
+test('T01 天气卡：DOM 结构与脚本引入', () => {
+  assert.ok(indexHtml.includes('id="weather-card"'));
+  assert.ok(indexHtml.includes('id="weather-bg-layer"'));
+  assert.ok(indexHtml.includes('id="weather-loc"'));
+  assert.ok(indexHtml.includes('id="weather-temp"'));
+  assert.ok(indexHtml.includes('id="weather-desc"'));
+  assert.ok(indexHtml.includes('id="weather-extra"'));
+  assert.ok(indexHtml.includes('weather-visual.js'));
+  assert.ok(indexHtml.includes('data-weather="default"'));
+});
+
+test('T01 weather-visual.js：关键函数与常量', () => {
+  assert.ok(weatherVisualJs.includes('normalizeWeather'));
+  assert.ok(weatherVisualJs.includes('inferSeason'));
+  assert.ok(weatherVisualJs.includes('getLocation'));
+  assert.ok(weatherVisualJs.includes('fetchWeather'));
+  assert.ok(weatherVisualJs.includes('buildWeatherInfo'));
+  assert.ok(weatherVisualJs.includes('renderCard'));
+  assert.ok(weatherVisualJs.includes('applyTheme'));
+  assert.ok(weatherVisualJs.includes('applyBackground'));
+  assert.ok(weatherVisualJs.includes('fallback'));
+  assert.ok(weatherVisualJs.includes('OPEN_METEO_URL'));
+  assert.ok(weatherVisualJs.includes('REQUEST_TIMEOUT_MS'));
+});
+
+test('T01 weathercode 归一化：WMO 映射', () => {
+  assert.ok(weatherVisualJs.includes('WMO_MAP'));
+  assert.ok(weatherVisualJs.includes('0: \'sunny\''));
+  assert.ok(weatherVisualJs.includes('3: \'cloudy\''));
+  assert.ok(weatherVisualJs.includes('61: \'rain\''));
+  assert.ok(weatherVisualJs.includes('71: \'snow\''));
+});
+
+test('T01 季节推断：四季映射', () => {
+  assert.ok(weatherVisualJs.includes('spring'));
+  assert.ok(weatherVisualJs.includes('summer'));
+  assert.ok(weatherVisualJs.includes('autumn'));
+  assert.ok(weatherVisualJs.includes('winter'));
+});
+
+test('T01 Open-Meteo API：URL 与超时', () => {
+  assert.ok(weatherVisualJs.includes('api.open-meteo.com'));
+  assert.ok(weatherVisualJs.includes('temperature_2m'));
+  assert.ok(weatherVisualJs.includes('relative_humidity_2m'));
+  assert.ok(weatherVisualJs.includes('weather_code'));
+  assert.ok(weatherVisualJs.includes('wind_speed_10m'));
+  assert.ok(weatherVisualJs.includes('AbortController'));
+  assert.ok(weatherVisualJs.includes('8000'));
+});
+
+test('T01 降级机制：fallback 不白屏', () => {
+  assert.ok(weatherVisualJs.includes('function fallback'));
+  assert.ok(weatherVisualJs.includes('hidden = true'));
+  assert.ok(weatherVisualJs.includes('\'default\''));
+});
+
+test('T01 SVG 背景资源：5 类天气', () => {
+  assert.ok(sunnySvg.includes('<svg'));
+  assert.ok(rainSvg.includes('<svg'));
+  assert.ok(cloudySvg.includes('<svg'));
+  assert.ok(snowSvg.includes('<svg'));
+  assert.ok(defaultSvg.includes('<svg'));
+});
+
+test('T01 CSS 天气样式：卡片区与背景层', () => {
+  assert.ok(commonCss.includes('.weather-card'));
+  assert.ok(commonCss.includes('.weather-bg-layer'));
+  assert.ok(commonCss.includes('.weather-loc'));
+  assert.ok(commonCss.includes('.weather-temp'));
+  assert.ok(commonCss.includes('.weather-desc'));
+  assert.ok(commonCss.includes('.weather-extra'));
+});
+
+test('T01 CSS 主题色切换：data-weather 属性选择器', () => {
+  assert.ok(commonCss.includes('[data-weather="sunny"]'));
+  assert.ok(commonCss.includes('[data-weather="rain"]'));
+  assert.ok(commonCss.includes('[data-weather="cloudy"]'));
+  assert.ok(commonCss.includes('[data-weather="snow"]'));
+});
+
+test('T01 CSS 动效：@keyframes 四类天气', () => {
+  assert.ok(commonCss.includes('@keyframes weather-sunny'));
+  assert.ok(commonCss.includes('@keyframes weather-rain'));
+  assert.ok(commonCss.includes('@keyframes weather-cloudy'));
+  assert.ok(commonCss.includes('@keyframes weather-snow'));
+});
+
+test('T01 CSS 响应式与无障碍：375 断点 + reduced-motion', () => {
+  assert.ok(commonCss.includes('max-width: 375px'));
+  assert.ok(commonCss.includes('prefers-reduced-motion'));
+  assert.ok(commonCss.includes('.weather-extra { display: none; }'));
 });
