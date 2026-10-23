@@ -3,13 +3,13 @@
  * 校验三份契约间字段交叉引用一致，且冻结后禁止破坏性修改。
  * v2 起：覆盖 8 张数据表、新增枚举、第 7 个计算模块与 api-contract 追加字段；
  *         v1 既有断言全部保留（只追加、不破坏）。
- * 用法：node contract/validate-contracts.js
+ * 用法：node shared/constants/validate-contracts.js
  */
 
 const fs = require('fs');
 const path = require('path');
 
-const ROOT = path.resolve(__dirname, '..');
+const ROOT = path.resolve(__dirname, '..', '..');
 
 const V1_TABLES = ['crop-schedule', 'operation-threshold', 'solar-term-farming', 'festival-rule', 'status-copy'];
 const V1_EXPORTS = ['generateNodes', 'scoreNodes', 'resolveSolarTerm', 'fetchWeatherWindow', 'recognize', 'buildFestivalReminders'];
@@ -29,9 +29,9 @@ function main() {
   const errors = [];
   const checks = [];
 
-  const api = readJson('contract/api-contract.json');
-  const compute = readJson('contract/compute-contract.json');
-  const data = readJson('contract/data-contract.json');
+  const api = readJson('shared/constants/api-contract.json');
+  const compute = readJson('shared/constants/compute-contract.json');
+  const data = readJson('shared/constants/data-contract.json');
   const enums = readJson('data/enums/common-enums.json');
 
   checks.push(['三份契约存在', true]);
@@ -127,7 +127,7 @@ function main() {
   });
   checks.push(['api-contract v2 追加可选字段且非必填', apiFieldErrors.length === 0]);
 
-  const changelog = fs.readFileSync(path.join(ROOT, 'contract/changelog.md'), 'utf8');
+  const changelog = fs.readFileSync(path.join(ROOT, 'shared/constants/changelog.md'), 'utf8');
   checks.push(['changelog 记录 v1 冻结', changelog.includes('v1')]);
   checks.push(['changelog 记录 v2 变更', changelog.includes('v2')]);
   checks.push(['changelog 记录 v3 变更', changelog.includes('v3')]);
@@ -146,7 +146,7 @@ function main() {
 
   const cropScheduleFields = tables['crop-schedule'] ? Object.keys(tables['crop-schedule'].fields) : [];
   if (!cropScheduleFields.includes('category')) errors.push('data-contract crop-schedule 缺少 v3 字段: category');
-  const cropData = readJson('data/crop-schedule.json');
+  const cropData = readJson('data/crop-base/crop-schedule.json');
   const cropCategories = new Set(cropData.map((r) => r.category));
   if (cropCategories.size < 5) errors.push(`crop-schedule 类别数 ${cropCategories.size} < 5`);
   checks.push([`crop-schedule 含 category 字段且枚举覆盖 ≥5 类（实际 ${cropCategories.size} 类）`, cropScheduleFields.includes('category') && cropCategories.size >= 5]);
@@ -180,7 +180,7 @@ function main() {
   if (errors.length > 0) {
     process.stderr.write('\n契约校验失败：\n');
     errors.forEach((e) => process.stderr.write(`  - ${e}\n`));
-    process.stderr.write('\n变更指引：契约冻结后只追加版本，请在 contract/changelog.md 登记变更并追加 v2，勿就地修改 v1 字段。\n');
+    process.stderr.write('\n变更指引：契约冻结后只追加版本，请在 shared/constants/changelog.md 登记变更并追加 v2，勿就地修改 v1 字段。\n');
     process.exit(1);
   }
   process.stdout.write('\n契约校验通过：三份契约交叉引用一致，冻结状态有效。\n');

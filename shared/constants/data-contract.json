@@ -6,7 +6,7 @@
   "description": "数据层八张表的表名、字段、主键与类型。文件名 = 契约表名，禁止不一致。v2 相对 v1 仅追加：新增 3 张表与若干字段，保留 v1 全部表与字段。",
   "tables": {
     "crop-schedule": {
-      "file": "data/crop-schedule.json",
+      "file": "data/crop-base/crop-schedule.json",
       "schema": "data/schema/crop-schedule-schema.json",
       "primaryKey": ["crop", "nodeSeq"],
       "type": "array",
@@ -23,7 +23,7 @@
       "constraints": "≥30 种作物，每种 ≥ 12 个节点，且含播种与采收节点；≥5 类别"
     },
     "operation-threshold": {
-      "file": "data/operation-threshold.json",
+      "file": "data/guidance/operation-threshold.json",
       "schema": "data/schema/operation-threshold-schema.json",
       "primaryKey": ["operationType", "factorType"],
       "type": "array",
@@ -41,7 +41,7 @@
       "constraints": "4 类作业 × ≥11 类因子，组合完整无缺项"
     },
     "solar-term-farming": {
-      "file": "data/solar-term-farming.json",
+      "file": "data/guidance/solar-term-farming.json",
       "schema": "data/schema/solar-term-farming-schema.json",
       "primaryKey": ["termName"],
       "type": "array",
@@ -55,7 +55,7 @@
       "constraints": "24 节气零缺漏，标注关键农事期与适用作物"
     },
     "festival-rule": {
-      "file": "data/festival-rule.json",
+      "file": "data/guidance/festival-rule.json",
       "schema": "data/schema/festival-rule-schema.json",
       "primaryKey": ["festivalName"],
       "type": "array",
@@ -69,7 +69,7 @@
       "constraints": "≥ 12 条销售节日规则，写成数据不是代码"
     },
     "status-copy": {
-      "file": "data/status-copy.json",
+      "file": "data/guidance/status-copy.json",
       "schema": "data/schema/status-copy-schema.json",
       "primaryKey": ["status"],
       "type": "array",
@@ -82,7 +82,7 @@
       "constraints": "每态有且仅有一条记录；前端文案唯一来源"
     },
     "phenology-stage": {
-      "file": "data/phenology-stage.json",
+      "file": "data/crop-base/phenology-stage.json",
       "schema": "data/schema/phenology-stage-schema.json",
       "primaryKey": ["stageName", "crop"],
       "type": "array",
@@ -97,7 +97,7 @@
       "constraints": "每作物物候期区间首尾衔接，endDaysAfterSowing ≥ startDaysAfterSowing"
     },
     "dataset-provenance": {
-      "file": "data/dataset-provenance.json",
+      "file": "data/region/dataset-provenance.json",
       "schema": "data/schema/dataset-provenance-schema.json",
       "primaryKey": ["sourceName"],
       "type": "array",
@@ -115,7 +115,7 @@
       "constraints": "七要素必填；许可需为开放许可或政府公开数据；拒绝记录保留原因；v3 起含 dataSourceType"
     },
     "data-quality-report": {
-      "file": "data/data-quality-report.json",
+      "file": "data/region/data-quality-report.json",
       "schema": "data/schema/data-quality-report-schema.json",
       "primaryKey": ["tableName", "checkType"],
       "type": "array",

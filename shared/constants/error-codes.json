@@ -1,0 +1,86 @@
+{
+  "success": [
+    {
+      "code": 0,
+      "name": "SUCCESS",
+      "message": "操作成功",
+      "httpStatus": 200
+    }
+  ],
+  "clientErrors": [
+    {
+      "code": 40001,
+      "name": "PARAM_INVALID",
+      "message": "请求参数无效",
+      "httpStatus": 400
+    },
+    {
+      "code": 40002,
+      "name": "UNAUTHORIZED",
+      "message": "未授权，请先登录",
+      "httpStatus": 401
+    },
+    {
+      "code": 40003,
+      "name": "FORBIDDEN",
+      "message": "禁止访问",
+      "httpStatus": 403
+    },
+    {
+      "code": 40004,
+      "name": "NOT_FOUND",
+      "message": "资源不存在",
+      "httpStatus": 404
+    },
+    {
+      "code": 40005,
+      "name": "METHOD_NOT_ALLOWED",
+      "message": "HTTP方法不允许",
+      "httpStatus": 405
+    },
+    {
+      "code": 40006,
+      "name": "UNSUPPORTED_CROP",
+      "message": "不支持的作物类型",
+      "httpStatus": 400
+    },
+    {
+      "code": 40007,
+      "name": "RECOGNITION_EMPTY",
+      "message": "识别结果为空",
+      "httpStatus": 400
+    },
+    {
+      "code": 40008,
+      "name": "RECOGNITION_TIMEOUT",
+      "message": "识别超时",
+      "httpStatus": 408
+    }
+  ],
+  "serverErrors": [
+    {
+      "code": 50001,
+      "name": "INTERNAL_ERROR",
+      "message": "服务器内部错误",
+      "httpStatus": 500
+    },
+    {
+      "code": 50002,
+      "name": "WEATHER_UNAVAILABLE",
+      "message": "天气服务不可用",
+      "httpStatus": 502
+    },
+    {
+      "code": 50003,
+      "name": "SERVICE_UNAVAILABLE",
+      "message": "服务暂不可用",
+      "httpStatus": 503
+    },
+    {
+      "code": 50004,
+      "name": "UPSTREAM_TIMEOUT",
+      "message": "上游服务超时",
+      "httpStatus": 504
+    }
+  ]
+}

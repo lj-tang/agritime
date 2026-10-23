@@ -1,0 +1,24 @@
+{
+  "dateFormat": "YYYY-MM-DD",
+  "dateTimeFormat": "YYYY-MM-DDTHH:mm:ssZ",
+  "latitudeRange": {
+    "min": -90,
+    "max": 90
+  },
+  "longitudeRange": {
+    "min": -180,
+    "max": 180
+  },
+  "cropIdEnum": [
+    "dry_garlic",
+    "wheat_winter",
+    "corn_summer",
+    "rice",
+    "soybean"
+  ],
+  "statusEnum": [
+    "green",
+    "yellow",
+    "red"
+  ]
+}
