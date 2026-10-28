@@ -71,7 +71,38 @@ LLM_MODEL=openPangu-2.0-flash
 变量名规则是「配置项转大写、点换下划线」，即 `llm.api.key` → `LLM_API_KEY`。
 仓库里的 `backend/application.properties` 该行故意留空。
 
-## 五、常见排查
+## 五、HTTPS（当前未启用）
+
+结论先说：**没有备案域名，就上不了可信 HTTPS**。
+
+实测过程：用 `115-175-44-27.nip.io`（免费解析到本机的域名）走 Let's Encrypt 签发，
+Let's Encrypt 从境外回访 `http://域名/.well-known/...` 时被重置；
+在本机带域名 Host 头访问也返回 **403** —— 这是华为云对未备案域名的拦截。
+证书签不下来，且就算签下来，域名访问也过不去。
+
+备案域名就位后，一条命令即可启用（脚本已备好，会自动校验备案/解析再签发）：
+
+```bash
+DOMAIN=agritime.example.com bash /agritime/deploy/enable-https.sh
+```
+
+脚本会在现有 server 块上直接追加 443 监听（不复制一份配置，避免两处漂移），
+自动改 ufw、重载、验证，并依赖 certbot 的 systemd timer 自动续期。
+**别忘了同时去华为云控制台安全组放行 443。**
+
+## 六、缓存与压缩
+
+| 资源 | 策略 | 说明 |
+|---|---|---|
+| `.html` | `Cache-Control: no-cache` | 页面始终回源校验，改完刷新就能看到 |
+| `/assets/`、`/components/` | `max-age=300` | 静态资源缓存 5 分钟，部署后最多 5 分钟内生效 |
+| gzip | 开启（`gzip_comp_level 5`） | js/css/json/svg 都压，实测 `crop-map.js` 21KB → 6.4KB |
+
+> 改缓存策略时注意：**不要用 `add_header Cache-Control`**，location 里一旦出现
+> `add_header`，nginx 就不再继承 server 级的 `add_header`，安全响应头会静默失效。
+> 用 `expires` 指令就没这个问题。
+
+## 七、常见排查
 
 ```bash
 systemctl status crop-calendar.service          # 服务状态
@@ -99,7 +130,7 @@ git config http.lowSpeedTime 999
 `server_name _` 的 server 块，会报 `conflicting server name "_"`，
 而且两个块谁生效取决于加载顺序。备份请放 `/root/backups/`。
 
-## 六、历史遗留（待清理）
+## 八、历史遗留（待清理）
 
 - `/root/keep-agritime.sh`：早期没有 systemd 时写的保活脚本，现已失效，且逻辑有误（探 80 端口拉起 python 静态服务会与 nginx 抢端口）。
 - `deploy/frontend_server.py`：同一时期的应急静态服务，与 nginx 重复，保留仅作查阅。
