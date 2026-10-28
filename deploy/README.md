@@ -71,7 +71,7 @@ LLM_MODEL=openPangu-2.0-flash
 变量名规则是「配置项转大写、点换下划线」，即 `llm.api.key` → `LLM_API_KEY`。
 仓库里的 `backend/application.properties` 该行故意留空。
 
-## 五、常用排查
+## 五、常见排查
 
 ```bash
 systemctl status crop-calendar.service          # 服务状态
@@ -81,6 +81,23 @@ tail -f /var/log/nginx/access.log               # 访问日志
 curl -s http://127.0.0.1:8080/api/health/detail # 后端自检
 nginx -t && systemctl reload nginx              # 改完 nginx 配置
 ```
+
+### 拉取代码报 GnuTLS / TLS 连接中断
+
+国内 ECS 访问 GitHub 时常见，`deploy.sh` 已内置三次重试。如果仍然频繁失败，
+在服务器仓库里放宽低速中断判定（已在本机设置过一次）：
+
+```bash
+cd /agritime
+git config http.lowSpeedLimit 0
+git config http.lowSpeedTime 999
+```
+
+### nginx 配置备份不要放在 sites-enabled/
+
+该目录下**所有文件**都会被 nginx 加载，放一个 `agritime.bak` 就等于多了一个
+`server_name _` 的 server 块，会报 `conflicting server name "_"`，
+而且两个块谁生效取决于加载顺序。备份请放 `/root/backups/`。
 
 ## 六、历史遗留（待清理）
 

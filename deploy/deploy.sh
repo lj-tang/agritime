@@ -29,7 +29,21 @@ log "当前版本 ${PREV:0:7}（$(git log -1 --format=%s "$PREV" | cut -c1-40)�
 
 # ---------- 1. 拉取 ----------
 if [ "${SKIP_PULL:-0}" != "1" ]; then
-  git fetch --prune origin || die "git fetch 失败，检查网络与凭据"
+  # 国内 ECS 到 GitHub 的 TLS 连接经常被掐断（GnuTLS recv error -110），
+  # 单次 fetch 失败率不低，所以重试三次；仍失败时若本地已有该分支就带警告继续。
+  fetch_ok=0
+  for i in 1 2 3; do
+    if git fetch --prune origin; then fetch_ok=1; break; fi
+    [ "$i" -lt 3 ] && { log "拉取失败（第 $i 次），3 秒后重试"; sleep 3; }
+  done
+  if [ "$fetch_ok" != "1" ]; then
+    if git rev-parse --verify -q "origin/$BRANCH" >/dev/null; then
+      log "警告：拉取持续失败，沿用本地已知的 origin/$BRANCH（可能不是最新）"
+    else
+      die "拉取失败，本地也没有 origin/$BRANCH 可回退"
+    fi
+  fi
+
   TARGET="$(git rev-parse "origin/$BRANCH")"
   if [ "$PREV" = "$TARGET" ]; then
     log "远端无新提交，仍继续重编译"
