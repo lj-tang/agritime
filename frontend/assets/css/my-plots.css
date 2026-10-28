@@ -1,0 +1,51 @@
+/* 我的地块样式（T06） */
+.my-plots-pane { padding: 20px 16px; }
+.my-plots-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+.my-plots-title { font-size: 20px; font-weight: 800; letter-spacing: 2px; color: var(--ink); }
+.my-plots-add { font-family: inherit; font-size: 15px; font-weight: 700; color: #fff; background: linear-gradient(155deg, var(--leaf-2), var(--leaf)); border: none; border-radius: 10px; padding: 8px 16px; cursor: pointer; }
+.my-plots-add:active { transform: translateY(1px); }
+.my-plots-empty { text-align: center; color: var(--muted); font-size: 15px; padding: 48px 16px; background: var(--card); border: 1px dashed var(--line); border-radius: var(--radius-sm); }
+.my-plots-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 14px; }
+.my-plots-card { background: var(--card); border: 1px solid rgba(228,221,203,0.9); border-radius: var(--radius-sm); box-shadow: var(--shadow-soft); padding: 16px; }
+.my-plots-card-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+.my-plots-card-name { font-size: 17px; font-weight: 700; color: var(--ink); }
+.my-plots-card-type { font-size: 12px; font-weight: 600; color: var(--leaf); background: var(--leaf-soft); border-radius: 999px; padding: 3px 10px; }
+.my-plots-card-meta { font-size: 13.5px; color: var(--ink-soft); line-height: 1.7; }
+.my-plots-card-meta span { display: inline-block; margin-right: 12px; }
+.my-plots-card-shape { font-size: 12.5px; color: var(--muted); margin-top: 6px; }
+.my-plots-card-actions { display: flex; gap: 8px; margin-top: 12px; }
+.my-plots-card-actions .btn { margin-top: 0; font-size: 14px; padding: 8px 12px; }
+.my-plots-form { display: none; background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); padding: 20px 18px; margin-bottom: 16px; }
+.my-plots-form.show { display: block; }
+.my-plots-form h3 { margin: 0 0 16px; font-size: 18px; font-weight: 800; }
+.my-plots-form .field { margin-bottom: 18px; }
+.my-plots-form .field label { font-size: 15px; }
+.my-plots-form .field input, .my-plots-form .field select, .my-plots-form .field textarea { width: 100%; font-family: inherit; font-size: 16px; padding: 12px 12px; color: var(--ink); background: #fbf8f0; border: 1.5px solid var(--line); border-radius: 10px; }
+.my-plots-form .field input:focus, .my-plots-form .field select:focus, .my-plots-form .field textarea:focus { outline: none; border-color: var(--leaf-2); background: #fff; box-shadow: 0 0 0 3px rgba(63,143,86,0.14); }
+.my-plots-form .field textarea { resize: vertical; min-height: 60px; }
+.my-plots-form-row { display: flex; gap: 12px; }
+.my-plots-form-row .field { flex: 1; }
+.my-plots-loc-row { display: flex; gap: 8px; align-items: flex-end; }
+.my-plots-loc-row .field { flex: 1; margin-bottom: 0; }
+.my-plots-loc-btns { display: flex; gap: 6px; }
+.my-plots-loc-btns button { font-family: inherit; font-size: 13px; font-weight: 600; border: 1.5px solid var(--leaf-2); background: var(--leaf-soft); color: var(--leaf); border-radius: 8px; padding: 10px 10px; cursor: pointer; white-space: nowrap; }
+.my-plots-loc-btns button:active { background: var(--leaf); color: #fff; }
+.my-plots-form-actions { display: flex; gap: 10px; margin-top: 8px; }
+.my-plots-form-actions .btn { margin-top: 0; }
+.my-plots-detail { display: none; background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); padding: 20px 18px; }
+.my-plots-detail.show { display: block; }
+.my-plots-detail h3 { margin: 0 0 4px; font-size: 20px; font-weight: 800; }
+.my-plots-detail-sub { font-size: 13px; color: var(--muted); margin-bottom: 16px; }
+.my-plots-env-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px; margin-bottom: 16px; }
+.my-plots-env-item { background: var(--paper-2); border: 1px solid var(--line); border-radius: 10px; padding: 12px; text-align: center; }
+.my-plots-env-label { font-size: 12px; color: var(--muted); margin-bottom: 4px; }
+.my-plots-env-value { font-size: 20px; font-weight: 700; color: var(--leaf); }
+.my-plots-env-unit { font-size: 12px; color: var(--muted); margin-left: 2px; }
+.my-plots-env-loading { text-align: center; color: var(--muted); padding: 24px; font-size: 14px; }
+.my-plots-env-section { margin-top: 14px; }
+.my-plots-env-section-title { font-size: 14px; font-weight: 700; color: var(--ink-soft); margin-bottom: 8px; border-left: 3px solid var(--leaf-2); padding-left: 8px; }
+.my-plots-env-factors { display: flex; flex-wrap: wrap; gap: 8px; }
+.my-plots-env-factor { font-size: 13px; background: var(--leaf-soft); color: var(--leaf); border-radius: 999px; padding: 4px 12px; }
+.my-plots-env-river { font-size: 13.5px; color: var(--ink-soft); line-height: 1.8; }
+.my-plots-back { font-family: inherit; font-size: 14px; color: var(--leaf); background: none; border: none; cursor: pointer; margin-bottom: 12px; padding: 0; }
+@media (max-width: 767px) { .my-plots-cards { grid-template-columns: 1fr; } .my-plots-form-row { flex-direction: column; gap: 0; } }

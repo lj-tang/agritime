@@ -1,0 +1,29 @@
+.voice-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--card);
+  cursor: pointer;
+  font-size: 16px;
+  line-height: 1;
+  vertical-align: middle;
+  margin-left: 6px;
+  transition: background 0.2s ease, border-color 0.2s ease;
+  flex-shrink: 0;
+}
+.voice-btn:hover { background: var(--leaf-soft); border-color: var(--leaf-2); }
+.voice-btn:active { background: var(--leaf); color: var(--paper); }
+.voice-btn--active { background: var(--red-soft); border-color: var(--red); animation: voice-pulse 1s ease-in-out infinite; }
+
+@keyframes voice-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .voice-btn--active { animation: none; }
+}

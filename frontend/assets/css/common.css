@@ -407,6 +407,10 @@ body {
 
 .history-item:active { background: var(--leaf-soft); border-color: var(--leaf-2); }
 
+.history-row { display: flex; align-items: center; gap: 8px; }
+.history-del { flex-shrink: 0; width: 24px; height: 24px; border: none; background: none; color: var(--muted); font-size: 18px; cursor: pointer; border-radius: 4px; line-height: 1; }
+.history-del:hover { background: var(--red-soft); color: var(--red); }
+
 /* 拍照 / 上传双通道按钮组 */
 .photo-channels {
   display: flex;
@@ -430,19 +434,19 @@ body {
 .weather-bg-layer {
   position: fixed;
   inset: 0;
-  z-index: -1;
+  z-index: 0;
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
-  opacity: 0;
+  background-image: none;
+  opacity: 0.1;
   transition: opacity 0.6s ease;
   pointer-events: none;
 }
-.weather-bg-layer:not([style*="background-image: url('"]) {
-  background-image: url('../assets/weather-bg/default.svg');
-  opacity: 0.3;
-}
-.page--home[data-weather] .weather-bg-layer { opacity: 0.35; }
+.page--home[data-weather="sunny"] .weather-bg-layer,
+.page--home[data-weather="rain"] .weather-bg-layer,
+.page--home[data-weather="cloudy"] .weather-bg-layer,
+.page--home[data-weather="snow"] .weather-bg-layer { opacity: 0.15; }
 
 .weather-card {
   display: flex;
@@ -478,6 +482,43 @@ body {
 .page--home[data-weather="cloudy"] .weather-bg-layer { animation: weather-cloudy 6s ease-in-out infinite; }
 .page--home[data-weather="snow"] .weather-bg-layer { animation: weather-snow 3s linear infinite; }
 
+.weather-bg-layer::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
+.page--home[data-weather="rain"] .weather-bg-layer::after {
+  opacity: 0.4;
+  background: repeating-linear-gradient(180deg, transparent 0, transparent 18px, rgba(160,180,210,0.3) 19px, rgba(160,180,210,0.3) 20px, transparent 21px);
+  animation: rain-fall 0.6s linear infinite;
+}
+@keyframes rain-fall { from { background-position-y: 0; } to { background-position-y: 40px; } }
+
+.page--home[data-weather="sunny"] .weather-bg-layer::after {
+  opacity: 0.15;
+  background: radial-gradient(circle at 80% 20%, rgba(255,220,100,0.4), transparent 40%);
+  animation: sun-glow 3s ease-in-out infinite;
+}
+@keyframes sun-glow { 0%,100% { transform: scale(1); opacity: 0.15; } 50% { transform: scale(1.1); opacity: 0.25; } }
+
+.page--home[data-weather="cloudy"] .weather-bg-layer::after {
+  opacity: 0.2;
+  background: radial-gradient(ellipse 200px 80px at 30% 30%, rgba(255,255,255,0.4), transparent 60%), radial-gradient(ellipse 250px 100px at 70% 50%, rgba(255,255,255,0.3), transparent 60%);
+  animation: cloud-drift 15s linear infinite;
+}
+@keyframes cloud-drift { from { transform: translateX(-50px); } to { transform: translateX(50px); } }
+
+.page--home[data-weather="snow"] .weather-bg-layer::after {
+  opacity: 0.3;
+  background-image: radial-gradient(circle, rgba(255,255,255,0.6) 1.5px, transparent 2px), radial-gradient(circle, rgba(255,255,255,0.4) 1px, transparent 1.5px);
+  background-size: 30px 30px, 50px 50px;
+  animation: snow-fall 4s linear infinite;
+}
+@keyframes snow-fall { from { background-position-y: 0, 0; } to { background-position-y: 30px, 50px; } }
+
 @media (prefers-reduced-motion: reduce) {
   .weather-bg-layer { animation: none !important; transition: opacity 0.3s ease !important; }
 }
@@ -486,4 +527,75 @@ body {
   .weather-card { font-size: 12px; padding: 8px 12px; gap: 6px; }
   .weather-temp { font-size: 16px; }
   .weather-extra { display: none; }
+}
+/* === T01 增强动画：左右分栏 + 时段差异化动画 === */
+
+body.split-active { display: flex; gap: 0; min-height: 100vh; }
+body.split-active .page--home { flex: 0 0 42%; overflow-y: auto; padding-right: 16px; border-right: 1px solid var(--line); transition: all 0.3s ease; }
+.timeline-pane { display: none; }
+body.split-active .timeline-pane { display: block; flex: 1 1 58%; overflow-y: auto; padding-left: 16px; }
+.timeline-iframe { width: 100%; height: calc(100vh - 20px); border: none; }
+.home-pane-back { display: none; margin-bottom: 12px; }
+body.split-active .home-pane-back { display: inline-block; }
+
+@keyframes tea-morning { 0%,100% { filter: brightness(1) hue-rotate(0deg); } 50% { filter: brightness(1.08) hue-rotate(5deg); } }
+@keyframes tea-forenoon { 0%,100% { filter: brightness(1.02) saturate(1); } 50% { filter: brightness(1.06) saturate(1.1); } }
+@keyframes tea-noon { 0%,100% { filter: brightness(1.1) saturate(1.05); } 50% { filter: brightness(1.15) saturate(1.15); } }
+@keyframes tea-afternoon { 0%,100% { filter: brightness(1) hue-rotate(0deg); } 50% { filter: brightness(0.97) hue-rotate(-5deg); } }
+@keyframes tea-evening { 0%,100% { filter: brightness(0.9) hue-rotate(-10deg) saturate(0.95); } 50% { filter: brightness(0.85) hue-rotate(-15deg) saturate(1.05); } }
+@keyframes tea-night { 0%,100% { filter: brightness(0.7) saturate(0.8); } 50% { filter: brightness(0.65) saturate(0.85); } }
+
+[data-timeperiod="morning"] .weather-bg-layer { animation: tea-morning 5s ease-in-out infinite; }
+[data-timeperiod="forenoon"] .weather-bg-layer { animation: tea-forenoon 6s ease-in-out infinite; }
+[data-timeperiod="noon"] .weather-bg-layer { animation: tea-noon 4s ease-in-out infinite; }
+[data-timeperiod="afternoon"] .weather-bg-layer { animation: tea-afternoon 6s ease-in-out infinite; }
+[data-timeperiod="evening"] .weather-bg-layer { animation: tea-evening 5s ease-in-out infinite; }
+[data-timeperiod="night"] .weather-bg-layer { animation: tea-night 8s ease-in-out infinite; }
+
+[data-timeperiod="morning"] { --time-accent: #f5b86a; }
+[data-timeperiod="forenoon"] { --time-accent: #e8a544; }
+[data-timeperiod="noon"] { --time-accent: #d99b2b; }
+[data-timeperiod="afternoon"] { --time-accent: #c47a3a; }
+[data-timeperiod="evening"] { --time-accent: #9a5a4a; }
+[data-timeperiod="night"] { --time-accent: #4a5a7a; }
+
+.weather-bg-layer { transition: filter 0.5s ease, opacity 0.5s ease; }
+
+@media (prefers-reduced-motion: reduce) {
+  [data-timeperiod] .weather-bg-layer { animation: none !important; }
+}
+
+@media (max-width: 767px) {
+  body.split-active { flex-direction: column; }
+  body.split-active .page--home { flex: none; border-right: none; border-bottom: 1px solid var(--line); padding-right: 0; padding-bottom: 16px; }
+  body.split-active .timeline-pane { flex: none; padding-left: 0; padding-top: 16px; }
+  .timeline-iframe { height: 70vh; }
+}
+/* === V4 T01: UI 改版 === */
+
+body[data-layout="app"] { display: flex; min-height: 100vh; background: linear-gradient(180deg, #ffffff 0%, #faf9f6 100%); }
+body[data-layout="app"] .sidebar { position: fixed; left: 0; top: 0; bottom: 0; z-index: 2; }
+body[data-layout="app"] .app-main { flex: 1; margin-left: 200px; min-height: 100vh; position: relative; z-index: 1; background: transparent; }
+body[data-layout="app"] .page--home { max-width: none; background-image: none; background-color: transparent; }
+
+.weather-fx-overlay { position: fixed; inset: 0; z-index: 1; pointer-events: none; }
+
+[data-daynight="night"][data-weather="sunny"] .weather-bg-layer { animation: tea-night 8s ease-in-out infinite; }
+[data-daynight="night"][data-weather="rain"] .weather-bg-layer { animation: tea-night 6s ease-in-out infinite; }
+[data-daynight="night"][data-weather="cloudy"] .weather-bg-layer { animation: tea-night 7s ease-in-out infinite; }
+[data-daynight="night"][data-weather="snow"] .weather-bg-layer { animation: tea-night 5s ease-in-out infinite; }
+
+#loading-gate {
+  position: fixed; inset: 0; z-index: 9999;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--paper);
+  transition: opacity 0.4s ease;
+}
+#loading-gate.hidden { opacity: 0; pointer-events: none; display: none; }
+.loading-gate-text { font-size: 18px; color: var(--leaf); font-weight: 600; }
+.loading-gate-spinner { width: 32px; height: 32px; border: 3px solid var(--leaf-soft); border-top-color: var(--leaf); border-radius: 50%; animation: spin 0.8s linear infinite; margin-right: 12px; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+@media (max-width: 767px) {
+  body[data-layout="app"] .app-main { margin-left: 0; }
 }

@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300" preserveAspectRatio="xMidYMid slice">
+  <defs>
+    <linearGradient id="rain-night-sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#1a1a2e"/>
+      <stop offset="50%" stop-color="#2a2a4e"/>
+      <stop offset="100%" stop-color="#3a3a5e"/>
+    </linearGradient>
+  </defs>
+  <rect width="400" height="300" fill="url(#rain-night-sky)"/>
+  <g opacity="0.5" stroke="#8a8aaa" stroke-width="2" stroke-linecap="round">
+    <line x1="40" y1="80" x2="30" y2="120"/>
+    <line x1="100" y1="60" x2="90" y2="100"/>
+    <line x1="160" y1="90" x2="150" y2="130"/>
+    <line x1="220" y1="70" x2="210" y2="110"/>
+    <line x1="280" y1="85" x2="270" y2="125"/>
+    <line x1="340" y1="65" x2="330" y2="105"/>
+    <line x1="70" y1="140" x2="60" y2="180"/>
+    <line x1="130" y1="150" x2="120" y2="190"/>
+    <line x1="190" y1="135" x2="180" y2="175"/>
+    <line x1="250" y1="145" x2="240" y2="185"/>
+    <line x1="310" y1="140" x2="300" y2="180"/>
+  </g>
+</svg>

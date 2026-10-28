@@ -5,7 +5,7 @@
  */
 (function () {
   var KEY = 'agritime.history.v1';
-  var MAX = 5;
+  var MAX = 20;
 
   function getStore() {
     try {
@@ -80,7 +80,20 @@
     try { s.removeItem(KEY); } catch (e) { /* 忽略 */ }
   }
 
-  var api = { KEY: KEY, MAX: MAX, list: list, add: add, clear: clear };
+  function remove(index, store) {
+    var s = store || getStore();
+    if (!s) return [];
+    try {
+      var arr = list(s);
+      if (index >= 0 && index < arr.length) arr.splice(index, 1);
+      s.setItem(KEY, JSON.stringify(arr));
+      return arr;
+    } catch (e) {
+      return list(s);
+    }
+  }
+
+  var api = { KEY: KEY, MAX: MAX, list: list, add: add, clear: clear, remove: remove };
 
   if (typeof window !== 'undefined') window.HistoryStore = api;
   if (typeof module !== 'undefined' && module.exports) module.exports = api;

@@ -7,6 +7,7 @@
   <title>知农时 · 农事时间线</title>
   <link rel="stylesheet" href="../assets/css/common.css" />
   <link rel="stylesheet" href="../assets/css/timeline.css" />
+  <link rel="stylesheet" href="../components/location-picker/location-picker.css" />
 </head>
 <body>
   <main class="page">
@@ -21,6 +22,8 @@
         </div>
       </div>
     </header>
+
+    <div class="timeline-map-container" id="timeline-map"></div>
 
     <section class="timeline-header" id="conclusion-card" hidden>
 
@@ -59,6 +62,7 @@
   <script src="../assets/js/crop-map.js"></script>
   <script src="../assets/js/timeline-logic.js"></script>
   <script src="../assets/js/chart-client.js"></script>
+  <script src="../components/location-picker/location-picker.js"></script>
   <script>
     (function () {
       var STATUS_LABEL = { green: '适宜', yellow: '谨慎', red: '不宜' };
@@ -114,6 +118,10 @@
 
       var query = parseQuery(window.location.search);
       var degradedSource = '';
+
+      if (window.LocationPicker) {
+        window.LocationPicker.initDisplay('timeline-map', query.lat, query.lon);
+      }
 
       function getData() {
         var controller = new AbortController();

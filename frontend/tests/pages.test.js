@@ -23,6 +23,21 @@ const rainSvg = read(path.resolve(__dirname, '..', 'assets', 'weather-bg', 'rain
 const cloudySvg = read(path.resolve(__dirname, '..', 'assets', 'weather-bg', 'cloudy.svg'));
 const snowSvg = read(path.resolve(__dirname, '..', 'assets', 'weather-bg', 'snow.svg'));
 const defaultSvg = read(path.resolve(__dirname, '..', 'assets', 'weather-bg', 'default.svg'));
+const voiceInputJs = read(path.resolve(__dirname, '..', 'components', 'voice-input', 'voice-input.js'));
+const voiceInputCss = read(path.resolve(__dirname, '..', 'components', 'voice-input', 'voice-input.css'));
+const timePeriodJs = read(path.resolve(__dirname, '..', 'assets', 'js', 'time-period.js'));
+const sidebarJs = read(path.resolve(__dirname, '..', 'components', 'sidebar', 'sidebar.js'));
+const sidebarCss = read(path.resolve(__dirname, '..', 'components', 'sidebar', 'sidebar.css'));
+const sunnyNightSvg = read(path.resolve(__dirname, '..', 'assets', 'weather-bg', 'sunny-night.svg'));
+const rainNightSvg = read(path.resolve(__dirname, '..', 'assets', 'weather-bg', 'rain-night.svg'));
+const cloudyNightSvg = read(path.resolve(__dirname, '..', 'assets', 'weather-bg', 'cloudy-night.svg'));
+const snowNightSvg = read(path.resolve(__dirname, '..', 'assets', 'weather-bg', 'snow-night.svg'));
+const myCropsStoreJs = read(path.resolve(__dirname, '..', 'assets', 'js', 'my-crops-store.js'));
+const myCropsJs = read(path.resolve(__dirname, '..', 'assets', 'js', 'my-crops.js'));
+const myCropsCss = read(path.resolve(__dirname, '..', 'assets', 'css', 'my-crops.css'));
+const cropPhotoJs = read(path.resolve(__dirname, '..', 'components', 'crop-photo', 'crop-photo.js'));
+const locationPickerJs = read(path.resolve(__dirname, '..', 'components', 'location-picker', 'location-picker.js'));
+const locationPickerCss = read(path.resolve(__dirname, '..', 'components', 'location-picker', 'location-picker.css'));
 
 test('输入表单页：三字段 + 拍照入口 + 模糊联想', () => {
   assert.match(indexHtml, /id="crop"/);
@@ -224,7 +239,7 @@ test('搜索联想：本地匹配 + 空输入隐藏 + 高亮', () => {
 
 test('历史记录：键名 / 上限 / 去重 / 回填', () => {
   assert.ok(historyStoreJs.includes('agritime.history.v1'));
-  assert.match(historyStoreJs, /MAX = 5/);
+  assert.match(historyStoreJs, /MAX = 20/);
   assert.match(historyStoreJs, /unshift/);
   assert.match(historyStoreJs, /try/);
   assert.match(indexHtml, /history-store\.js/);
@@ -277,7 +292,7 @@ test('纯函数与存储：倒计时四态 + 天气映射 + 因子归一化', ()
   assert.deepStrictEqual(TL.normalizeFactors(['a', '', 'b']), ['a', 'b']);
 });
 
-test('历史记录存储：上限 5 / 去重 / 容错', () => {
+test('历史记录存储：上限 20 / 去重 / 容错', () => {
   const HS = require('../assets/js/history-store.js');
   const m = {};
   const s = {
@@ -285,14 +300,14 @@ test('历史记录存储：上限 5 / 去重 / 容错', () => {
     setItem: (k, v) => { m[k] = String(v); },
     removeItem: (k) => { delete m[k]; }
   };
-  for (let i = 0; i < 7; i += 1) {
-    HS.add({ cropName: 'crop' + i, sowDate: '2026-01-0' + (i + 1), location: 'loc' + i }, s);
+  for (let i = 0; i < 22; i += 1) {
+    HS.add({ cropName: 'crop' + i, sowDate: '2026-01-0' + ((i % 9) + 1), location: 'loc' + i }, s);
   }
-  assert.strictEqual(HS.list(s).length, 5);
-  assert.strictEqual(HS.list(s)[0].cropName, 'crop6');
-  HS.add({ cropName: 'crop6', sowDate: '2026-01-07', location: 'loc6' }, s);
-  assert.strictEqual(HS.list(s).length, 5);
-  assert.strictEqual(HS.list(s)[0].cropName, 'crop6');
+  assert.strictEqual(HS.list(s).length, 20);
+  assert.strictEqual(HS.list(s)[0].cropName, 'crop21');
+  HS.add({ cropName: 'crop21', sowDate: '2026-01-01', location: 'loc21' }, s);
+  assert.strictEqual(HS.list(s).length, 20);
+  assert.strictEqual(HS.list(s)[0].cropName, 'crop21');
   HS.clear(s);
   assert.strictEqual(HS.list(s).length, 0);
   s.setItem(HS.KEY, '{bad json');
@@ -464,4 +479,248 @@ test('T01 CSS 响应式与无障碍：375 断点 + reduced-motion', () => {
   assert.ok(commonCss.includes('max-width: 375px'));
   assert.ok(commonCss.includes('prefers-reduced-motion'));
   assert.ok(commonCss.includes('.weather-extra { display: none; }'));
+});
+test('T08 语音组件：voice-input.js 关键函数与常量', () => {
+  assert.ok(voiceInputJs.includes('SpeechRecognition'));
+  assert.ok(voiceInputJs.includes('webkitSpeechRecognition'));
+  assert.ok(voiceInputJs.includes('createVoiceButton'));
+  assert.ok(voiceInputJs.includes('getDialect'));
+  assert.ok(voiceInputJs.includes('DIALECT_MAP'));
+  assert.ok(voiceInputJs.includes('zh-CN'));
+  assert.ok(voiceInputJs.includes('zh-HK'));
+  assert.ok(voiceInputJs.includes('zh-TW'));
+});
+
+test('T08 语音组件：降级机制', () => {
+  assert.ok(voiceInputJs.includes('style.display'));
+  assert.ok(voiceInputJs.includes('none'));
+  assert.ok(voiceInputJs.includes('getRecognition'));
+});
+
+test('T08 语音组件：识别结果填充与事件触发', () => {
+  assert.ok(voiceInputJs.includes('targetInput.value'));
+  assert.ok(voiceInputJs.includes('dispatchEvent'));
+  assert.ok(voiceInputJs.includes('new Event'));
+});
+
+test('T08 语音组件：CSS 样式', () => {
+  assert.ok(voiceInputCss.includes('.voice-btn'));
+  assert.ok(voiceInputCss.includes('.voice-btn--active'));
+  assert.ok(voiceInputCss.includes('@keyframes voice-pulse'));
+  assert.ok(voiceInputCss.includes('prefers-reduced-motion'));
+});
+
+test('T08 index.html：语音组件引入', () => {
+  assert.ok(indexHtml.includes('voice-input.css'));
+  assert.ok(indexHtml.includes('voice-input.js'));
+});
+test('T01增强 time-period.js：时段判定函数', () => {
+  assert.ok(timePeriodJs.includes('judgeTimePeriod'));
+  assert.ok(timePeriodJs.includes('parseSunTime'));
+  assert.ok(timePeriodJs.includes('applyTimePeriod'));
+  assert.ok(timePeriodJs.includes('applySunData'));
+  assert.ok(timePeriodJs.includes('fallbackPeriod'));
+  assert.ok(timePeriodJs.includes('morning'));
+  assert.ok(timePeriodJs.includes('forenoon'));
+  assert.ok(timePeriodJs.includes('noon'));
+  assert.ok(timePeriodJs.includes('afternoon'));
+  assert.ok(timePeriodJs.includes('evening'));
+  assert.ok(timePeriodJs.includes('night'));
+});
+
+test('T01增强 time-period.js：日出日落解析', () => {
+  const TP = require('../assets/js/time-period.js');
+  assert.strictEqual(TP.parseSunTime('2026-10-23T06:30+08:00'), 6 * 60 + 30);
+  assert.strictEqual(TP.parseSunTime('2026-10-23T18:45+08:00'), 18 * 60 + 45);
+  assert.strictEqual(TP.parseSunTime(null), null);
+  assert.strictEqual(TP.parseSunTime('invalid'), null);
+});
+
+test('T01增强 time-period.js：6时段判定', () => {
+  const TP = require('../assets/js/time-period.js');
+  var morning = new Date(2026, 9, 23, 7, 0);
+  var forenoon = new Date(2026, 9, 23, 9, 0);
+  var noon = new Date(2026, 9, 23, 12, 0);
+  var afternoon = new Date(2026, 9, 23, 15, 0);
+  var evening = new Date(2026, 9, 23, 19, 0);
+  var night = new Date(2026, 9, 23, 23, 0);
+  assert.strictEqual(TP.judgeTimePeriod(morning, 360, 1080), 'morning');
+  assert.strictEqual(TP.judgeTimePeriod(forenoon, 360, 1080), 'forenoon');
+  assert.strictEqual(TP.judgeTimePeriod(noon, 360, 1080), 'noon');
+  assert.strictEqual(TP.judgeTimePeriod(afternoon, 360, 1080), 'afternoon');
+  assert.strictEqual(TP.judgeTimePeriod(evening, 360, 1080), 'evening');
+  assert.strictEqual(TP.judgeTimePeriod(night, 360, 1080), 'night');
+});
+
+test('T01增强 CSS：分栏布局与时段动画', () => {
+  assert.ok(commonCss.includes('split-active'));
+  assert.ok(commonCss.includes('.page--home'));
+  assert.ok(commonCss.includes('.timeline-pane'));
+  assert.ok(commonCss.includes('.timeline-iframe'));
+  assert.ok(commonCss.includes('@keyframes tea-morning'));
+  assert.ok(commonCss.includes('@keyframes tea-forenoon'));
+  assert.ok(commonCss.includes('@keyframes tea-noon'));
+  assert.ok(commonCss.includes('@keyframes tea-afternoon'));
+  assert.ok(commonCss.includes('@keyframes tea-evening'));
+  assert.ok(commonCss.includes('@keyframes tea-night'));
+  assert.ok(commonCss.includes('[data-timeperiod="morning"]'));
+  assert.ok(commonCss.includes('[data-timeperiod="night"]'));
+});
+
+test('T01增强 index.html：分栏DOM与脚本引入', () => {
+  assert.ok(indexHtml.includes('id="timeline-pane"'));
+  assert.ok(indexHtml.includes('id="timeline-iframe"'));
+  assert.ok(indexHtml.includes('id="home-back"'));
+  assert.ok(indexHtml.includes('time-period.js'));
+  assert.ok(indexHtml.includes('split-active'));
+});
+
+test('T01增强 weather-visual.js：日出日落请求', () => {
+  assert.ok(weatherVisualJs.includes('daily=sunrise,sunset'));
+  assert.ok(weatherVisualJs.includes('TimePeriod'));
+  assert.ok(weatherVisualJs.includes('applySunData'));
+});
+test('V4 T01 左侧栏：sidebar.js 关键函数与常量', () => {
+  assert.ok(sidebarJs.includes('MODULE_ENTRIES'));
+  assert.ok(sidebarJs.includes('renderSidebar'));
+  assert.ok(sidebarJs.includes('switchModule'));
+  assert.ok(sidebarJs.includes('toggleDrawer'));
+  assert.ok(sidebarJs.includes('recommend'));
+  assert.ok(sidebarJs.includes('plots'));
+  assert.ok(sidebarJs.includes('calendar'));
+  assert.ok(sidebarJs.includes('disease'));
+  assert.ok(sidebarJs.includes('my-crops'));
+  assert.ok(sidebarJs.includes('service'));
+});
+
+test('V4 T01 左侧栏：sidebar.css 样式', () => {
+  assert.ok(sidebarCss.includes('.sidebar'));
+  assert.ok(sidebarCss.includes('.sidebar-item'));
+  assert.ok(sidebarCss.includes('.sidebar-item--active'));
+  assert.ok(sidebarCss.includes('.sidebar-burger'));
+  assert.ok(sidebarCss.includes('.content-pane'));
+});
+
+test('V4 T01 主页全屏化：data-layout + app-main', () => {
+  assert.ok(indexHtml.includes('data-layout="app"'));
+  assert.ok(indexHtml.includes('class="app-main"'));
+  assert.ok(commonCss.includes('body[data-layout="app"]'));
+  assert.ok(commonCss.includes('background-image: none'));
+});
+
+test('V4 T01 夜间动画：夜晚SVG + data-daynight', () => {
+  assert.ok(sunnyNightSvg.includes('<svg'));
+  assert.ok(rainNightSvg.includes('<svg'));
+  assert.ok(cloudyNightSvg.includes('<svg'));
+  assert.ok(snowNightSvg.includes('<svg'));
+  assert.ok(weatherVisualJs.includes('judgeDayNight'));
+  assert.ok(weatherVisualJs.includes('data-daynight'));
+  assert.ok(commonCss.includes('[data-daynight="night"]'));
+});
+
+test('V4 T01 加载门控：loading-gate + weather-ready', () => {
+  assert.ok(indexHtml.includes('id="loading-gate"'));
+  assert.ok(indexHtml.includes('loading-gate-spinner'));
+  assert.ok(indexHtml.includes('weather-ready'));
+  assert.ok(commonCss.includes('#loading-gate'));
+  assert.ok(commonCss.includes('@keyframes spin'));
+  assert.ok(weatherVisualJs.includes('notifyReady'));
+  assert.ok(weatherVisualJs.includes('CustomEvent'));
+});
+
+test('V4 T01 index.html：sidebar + content-pane 引入', () => {
+  assert.ok(indexHtml.includes('sidebar.css'));
+  assert.ok(indexHtml.includes('sidebar.js'));
+  assert.ok(indexHtml.includes('id="sidebar"'));
+  assert.ok(indexHtml.includes('id="sidebar-nav"'));
+  assert.ok(indexHtml.includes('data-module="calendar"'));
+  assert.ok(indexHtml.includes('id="module-placeholder"'));
+});
+test('V4 T12 my-crops-store.js：存储模块CRUD', () => {
+  assert.ok(myCropsStoreJs.includes('agritime.my-crops.v1'));
+  assert.ok(myCropsStoreJs.includes('MAX = 200'));
+  assert.ok(myCropsStoreJs.includes('function list'));
+  assert.ok(myCropsStoreJs.includes('function add'));
+  assert.ok(myCropsStoreJs.includes('function update'));
+  assert.ok(myCropsStoreJs.includes('function remove'));
+  assert.ok(myCropsStoreJs.includes('function clear'));
+  assert.ok(myCropsStoreJs.includes('function getById'));
+});
+
+test('V4 T12 my-crops.js：交互逻辑', () => {
+  assert.ok(myCropsJs.includes('GERMINATION_OPTIONS'));
+  assert.ok(myCropsJs.includes('VIGOR_OPTIONS'));
+  assert.ok(myCropsJs.includes('renderList'));
+  assert.ok(myCropsJs.includes('renderCard'));
+  assert.ok(myCropsJs.includes('showForm'));
+  assert.ok(myCropsJs.includes('agritime:sowing-confirmed'));
+});
+
+test('V4 T12 crop-photo.js：拍照复用层', () => {
+  assert.ok(cropPhotoJs.includes('PhotoCapture'));
+  assert.ok(cropPhotoJs.includes('analyze'));
+  assert.ok(cropPhotoJs.includes('confirmAndFill'));
+});
+
+test('V4 T12 my-crops.css：样式', () => {
+  assert.ok(myCropsCss.includes('.my-crops-pane'));
+  assert.ok(myCropsCss.includes('.my-crops-card'));
+  assert.ok(myCropsCss.includes('.my-crops-form'));
+  assert.ok(myCropsCss.includes('.my-crops-empty'));
+});
+
+test('V4 T12 index.html：我的作物引入与content-pane', () => {
+  assert.ok(indexHtml.includes('my-crops.css'));
+  assert.ok(indexHtml.includes('my-crops-store.js'));
+  assert.ok(indexHtml.includes('my-crops.js'));
+  assert.ok(indexHtml.includes('crop-photo.js'));
+  assert.ok(indexHtml.includes('data-module="my-crops"'));
+  assert.ok(indexHtml.includes('id="my-crops-pane"'));
+  assert.ok(indexHtml.includes('id="my-crops-list"'));
+});
+
+test('V4 T12 sidebar.js：我的作物板块已实现', () => {
+  assert.ok(sidebarJs.includes("'my-crops'"));
+  assert.ok(sidebarJs.includes('implemented: true'));
+});
+test('V4 地图标点：location-picker.js 关键函数', () => {
+  assert.ok(locationPickerJs.includes('loadLeaflet'));
+  assert.ok(locationPickerJs.includes('function open'));
+  assert.ok(locationPickerJs.includes('function close'));
+  assert.ok(locationPickerJs.includes('initDisplay'));
+  assert.ok(locationPickerJs.includes('validateLatLon'));
+  assert.ok(locationPickerJs.includes('reverseGeocode'));
+  assert.ok(locationPickerJs.includes('searchGeocode'));
+  assert.ok(locationPickerJs.includes('placeMarker'));
+  assert.ok(locationPickerJs.includes('degrade'));
+});
+
+test('V4 地图标点：Leaflet CDN + OSM 瓦片', () => {
+  assert.ok(locationPickerJs.includes('leaflet'));
+  assert.ok(locationPickerJs.includes('openstreetmap'));
+  assert.ok(locationPickerJs.includes('nominatim'));
+});
+
+test('V4 地图标点：location-picker.css 样式', () => {
+  assert.ok(locationPickerCss.includes('.map-overlay'));
+  assert.ok(locationPickerCss.includes('.map-panel'));
+  assert.ok(locationPickerCss.includes('.map-canvas'));
+  assert.ok(locationPickerCss.includes('.map-picker-btn'));
+  assert.ok(locationPickerCss.includes('.timeline-map-container'));
+});
+
+test('V4 地图标点：index.html 集成', () => {
+  assert.ok(indexHtml.includes('location-picker.css'));
+  assert.ok(indexHtml.includes('location-picker.js'));
+  assert.ok(indexHtml.includes('id="map-picker-btn"'));
+  assert.ok(indexHtml.includes('__markerLatLon'));
+});
+
+test('V4 地图标点：经纬度校验纯函数', () => {
+  const LP = require('../components/location-picker/location-picker.js');
+  assert.strictEqual(LP.validateLatLon(35.07, 116.31), true);
+  assert.strictEqual(LP.validateLatLon(-90, -180), true);
+  assert.strictEqual(LP.validateLatLon(91, 0), false);
+  assert.strictEqual(LP.validateLatLon(0, 181), false);
+  assert.strictEqual(LP.validateLatLon('abc', 'def'), false);
 });

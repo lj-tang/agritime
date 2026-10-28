@@ -1,0 +1,3606 @@
+{
+  "version": "2.0.0",
+  "comment": "作物别名映射库 V2.0 - 400+作物",
+  "mappings": [
+    {
+      "canonical": "C001",
+      "displayName": "水稻",
+      "aliases": [
+        "C001",
+        "水稻"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C002",
+      "displayName": "小麦",
+      "aliases": [
+        "C002",
+        "小麦"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C003",
+      "displayName": "玉米",
+      "aliases": [
+        "C003",
+        "玉米"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C004",
+      "displayName": "大豆",
+      "aliases": [
+        "C004",
+        "大豆"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C005",
+      "displayName": "棉花",
+      "aliases": [
+        "C005",
+        "棉花"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C006",
+      "displayName": "油菜",
+      "aliases": [
+        "C006",
+        "油菜"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C007",
+      "displayName": "花生",
+      "aliases": [
+        "C007",
+        "花生"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C008",
+      "displayName": "芝麻",
+      "aliases": [
+        "C008",
+        "芝麻"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C009",
+      "displayName": "向日葵",
+      "aliases": [
+        "C009",
+        "向日葵"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C010",
+      "displayName": "高粱",
+      "aliases": [
+        "C010",
+        "高粱"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C011",
+      "displayName": "谷子",
+      "aliases": [
+        "C011",
+        "谷子"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C012",
+      "displayName": "红薯",
+      "aliases": [
+        "C012",
+        "红薯"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C013",
+      "displayName": "马铃薯",
+      "aliases": [
+        "C013",
+        "马铃薯"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C014",
+      "displayName": "甘蔗",
+      "aliases": [
+        "C014",
+        "甘蔗"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C015",
+      "displayName": "甜菜",
+      "aliases": [
+        "C015",
+        "甜菜"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C016",
+      "displayName": "烟草",
+      "aliases": [
+        "C016",
+        "烟草"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C017",
+      "displayName": "茶",
+      "aliases": [
+        "C017",
+        "茶"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C018",
+      "displayName": "桑",
+      "aliases": [
+        "C018",
+        "桑"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C019",
+      "displayName": "苎麻",
+      "aliases": [
+        "C019",
+        "苎麻"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C020",
+      "displayName": "亚麻",
+      "aliases": [
+        "C020",
+        "亚麻"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C021",
+      "displayName": "大白菜",
+      "aliases": [
+        "C021",
+        "大白菜"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C022",
+      "displayName": "小白菜",
+      "aliases": [
+        "C022",
+        "小白菜"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C023",
+      "displayName": "菠菜",
+      "aliases": [
+        "C023",
+        "菠菜"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C024",
+      "displayName": "芹菜",
+      "aliases": [
+        "C024",
+        "芹菜"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C025",
+      "displayName": "生菜",
+      "aliases": [
+        "C025",
+        "生菜"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C026",
+      "displayName": "空心菜",
+      "aliases": [
+        "C026",
+        "空心菜"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C027",
+      "displayName": "韭菜",
+      "aliases": [
+        "C027",
+        "韭菜"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C028",
+      "displayName": "蒜苗",
+      "aliases": [
+        "C028",
+        "蒜苗"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C029",
+      "displayName": "花椰菜",
+      "aliases": [
+        "C029",
+        "花椰菜"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C030",
+      "displayName": "西兰花",
+      "aliases": [
+        "C030",
+        "西兰花"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C031",
+      "displayName": "番茄",
+      "aliases": [
+        "C031",
+        "番茄"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C032",
+      "displayName": "茄子",
+      "aliases": [
+        "C032",
+        "茄子"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C033",
+      "displayName": "辣椒",
+      "aliases": [
+        "C033",
+        "辣椒"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C034",
+      "displayName": "黄瓜",
+      "aliases": [
+        "C034",
+        "黄瓜"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C035",
+      "displayName": "冬瓜",
+      "aliases": [
+        "C035",
+        "冬瓜"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C036",
+      "displayName": "南瓜",
+      "aliases": [
+        "C036",
+        "南瓜"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C037",
+      "displayName": "丝瓜",
+      "aliases": [
+        "C037",
+        "丝瓜"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C038",
+      "displayName": "苦瓜",
+      "aliases": [
+        "C038",
+        "苦瓜"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C039",
+      "displayName": "西葫芦",
+      "aliases": [
+        "C039",
+        "西葫芦"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C040",
+      "displayName": "西瓜",
+      "aliases": [
+        "C040",
+        "西瓜"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C041",
+      "displayName": "豆角",
+      "aliases": [
+        "C041",
+        "豆角"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C042",
+      "displayName": "豇豆",
+      "aliases": [
+        "C042",
+        "豇豆"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C043",
+      "displayName": "豌豆",
+      "aliases": [
+        "C043",
+        "豌豆"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C044",
+      "displayName": "蚕豆",
+      "aliases": [
+        "C044",
+        "蚕豆"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C045",
+      "displayName": "葱",
+      "aliases": [
+        "C045",
+        "葱"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C046",
+      "displayName": "洋葱",
+      "aliases": [
+        "C046",
+        "洋葱"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C047",
+      "displayName": "大蒜",
+      "aliases": [
+        "C047",
+        "大蒜"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C048",
+      "displayName": "甘蓝",
+      "aliases": [
+        "C048",
+        "甘蓝"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C049",
+      "displayName": "苋菜",
+      "aliases": [
+        "C049",
+        "苋菜"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C050",
+      "displayName": "茼蒿",
+      "aliases": [
+        "C050",
+        "茼蒿"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C051",
+      "displayName": "萝卜",
+      "aliases": [
+        "C051",
+        "萝卜"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C052",
+      "displayName": "胡萝卜",
+      "aliases": [
+        "C052",
+        "胡萝卜"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C053",
+      "displayName": "莲藕",
+      "aliases": [
+        "C053",
+        "莲藕"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C054",
+      "displayName": "茭白",
+      "aliases": [
+        "C054",
+        "茭白"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C055",
+      "displayName": "芋头",
+      "aliases": [
+        "C055",
+        "芋头"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C056",
+      "displayName": "山药",
+      "aliases": [
+        "C056",
+        "山药"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C057",
+      "displayName": "生姜",
+      "aliases": [
+        "C057",
+        "生姜"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C058",
+      "displayName": "莴笋",
+      "aliases": [
+        "C058",
+        "莴笋"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C059",
+      "displayName": "苹果",
+      "aliases": [
+        "C059",
+        "苹果"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C060",
+      "displayName": "梨",
+      "aliases": [
+        "C060",
+        "梨"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C061",
+      "displayName": "桃",
+      "aliases": [
+        "C061",
+        "桃"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C062",
+      "displayName": "李子",
+      "aliases": [
+        "C062",
+        "李子"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C063",
+      "displayName": "杏",
+      "aliases": [
+        "C063",
+        "杏"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C064",
+      "displayName": "樱桃",
+      "aliases": [
+        "C064",
+        "樱桃"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C065",
+      "displayName": "草莓",
+      "aliases": [
+        "C065",
+        "草莓"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C066",
+      "displayName": "葡萄",
+      "aliases": [
+        "C066",
+        "葡萄"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C067",
+      "displayName": "柑橘",
+      "aliases": [
+        "C067",
+        "柑橘"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C068",
+      "displayName": "橙子",
+      "aliases": [
+        "C068",
+        "橙子"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C069",
+      "displayName": "柚子",
+      "aliases": [
+        "C069",
+        "柚子"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C070",
+      "displayName": "柠檬",
+      "aliases": [
+        "C070",
+        "柠檬"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C071",
+      "displayName": "甜瓜",
+      "aliases": [
+        "C071",
+        "甜瓜"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C072",
+      "displayName": "哈密瓜",
+      "aliases": [
+        "C072",
+        "哈密瓜"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C073",
+      "displayName": "猕猴桃",
+      "aliases": [
+        "C073",
+        "猕猴桃"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C074",
+      "displayName": "石榴",
+      "aliases": [
+        "C074",
+        "石榴"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C075",
+      "displayName": "柿子",
+      "aliases": [
+        "C075",
+        "柿子"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C076",
+      "displayName": "枣",
+      "aliases": [
+        "C076",
+        "枣"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C077",
+      "displayName": "芒果",
+      "aliases": [
+        "C077",
+        "芒果"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C078",
+      "displayName": "百香果",
+      "aliases": [
+        "C078",
+        "百香果"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C079",
+      "displayName": "橡胶",
+      "aliases": [
+        "C079",
+        "橡胶"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C080",
+      "displayName": "咖啡",
+      "aliases": [
+        "C080",
+        "咖啡"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C081",
+      "displayName": "可可",
+      "aliases": [
+        "C081",
+        "可可"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C082",
+      "displayName": "枸杞",
+      "aliases": [
+        "C082",
+        "枸杞"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C083",
+      "displayName": "金银花",
+      "aliases": [
+        "C083",
+        "金银花"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C084",
+      "displayName": "黄芪",
+      "aliases": [
+        "C084",
+        "黄芪"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C085",
+      "displayName": "人参",
+      "aliases": [
+        "C085",
+        "人参"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C086",
+      "displayName": "当归",
+      "aliases": [
+        "C086",
+        "当归"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C087",
+      "displayName": "三七",
+      "aliases": [
+        "C087",
+        "三七"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C088",
+      "displayName": "板蓝根",
+      "aliases": [
+        "C088",
+        "板蓝根"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C089",
+      "displayName": "薄荷",
+      "aliases": [
+        "C089",
+        "薄荷"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C090",
+      "displayName": "薰衣草",
+      "aliases": [
+        "C090",
+        "薰衣草"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C091",
+      "displayName": "荞麦",
+      "aliases": [
+        "C091",
+        "荞麦"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C092",
+      "displayName": "燕麦",
+      "aliases": [
+        "C092",
+        "燕麦"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C093",
+      "displayName": "大麦",
+      "aliases": [
+        "C093",
+        "大麦"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C094",
+      "displayName": "黑豆",
+      "aliases": [
+        "C094",
+        "黑豆"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C095",
+      "displayName": "绿豆",
+      "aliases": [
+        "C095",
+        "绿豆"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C096",
+      "displayName": "红小豆",
+      "aliases": [
+        "C096",
+        "红小豆"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C097",
+      "displayName": "薏米",
+      "aliases": [
+        "C097",
+        "薏米"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C098",
+      "displayName": "黍子",
+      "aliases": [
+        "C098",
+        "黍子"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C099",
+      "displayName": "糜子",
+      "aliases": [
+        "C099",
+        "糜子"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C100",
+      "displayName": "青稞",
+      "aliases": [
+        "C100",
+        "青稞"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C101",
+      "displayName": "大葱",
+      "aliases": [
+        "C101",
+        "大葱"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C102",
+      "displayName": "分葱",
+      "aliases": [
+        "C102",
+        "分葱"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C103",
+      "displayName": "香葱",
+      "aliases": [
+        "C103",
+        "香葱"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C104",
+      "displayName": "韭黄",
+      "aliases": [
+        "C104",
+        "韭黄"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C105",
+      "displayName": "蒜薹",
+      "aliases": [
+        "C105",
+        "蒜薹"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C106",
+      "displayName": "芥菜",
+      "aliases": [
+        "C106",
+        "芥菜"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C107",
+      "displayName": "雪里蕻",
+      "aliases": [
+        "C107",
+        "雪里蕻"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C108",
+      "displayName": "榨菜",
+      "aliases": [
+        "C108",
+        "榨菜"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C109",
+      "displayName": "大头菜",
+      "aliases": [
+        "C109",
+        "大头菜"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C110",
+      "displayName": "儿菜",
+      "aliases": [
+        "C110",
+        "儿菜"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C111",
+      "displayName": "抱子甘蓝",
+      "aliases": [
+        "C111",
+        "抱子甘蓝"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C112",
+      "displayName": "羽衣甘蓝",
+      "aliases": [
+        "C112",
+        "羽衣甘蓝"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C113",
+      "displayName": "紫甘蓝",
+      "aliases": [
+        "C113",
+        "紫甘蓝"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C114",
+      "displayName": "芥蓝",
+      "aliases": [
+        "C114",
+        "芥蓝"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C115",
+      "displayName": "菜心",
+      "aliases": [
+        "C115",
+        "菜心"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C116",
+      "displayName": "奶白菜",
+      "aliases": [
+        "C116",
+        "奶白菜"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C117",
+      "displayName": "乌塌菜",
+      "aliases": [
+        "C117",
+        "乌塌菜"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C118",
+      "displayName": "木耳菜",
+      "aliases": [
+        "C118",
+        "木耳菜"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C119",
+      "displayName": "秋葵",
+      "aliases": [
+        "C119",
+        "秋葵"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C120",
+      "displayName": "黄秋葵",
+      "aliases": [
+        "C120",
+        "黄秋葵"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C121",
+      "displayName": "红秋葵",
+      "aliases": [
+        "C121",
+        "红秋葵"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C122",
+      "displayName": "娃娃菜",
+      "aliases": [
+        "C122",
+        "娃娃菜"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C123",
+      "displayName": "快菜",
+      "aliases": [
+        "C123",
+        "快菜"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C124",
+      "displayName": "鸡毛菜",
+      "aliases": [
+        "C124",
+        "鸡毛菜"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C125",
+      "displayName": "油麦菜",
+      "aliases": [
+        "C125",
+        "油麦菜"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C126",
+      "displayName": "苦菊",
+      "aliases": [
+        "C126",
+        "苦菊"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C127",
+      "displayName": "芝麻菜",
+      "aliases": [
+        "C127",
+        "芝麻菜"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C128",
+      "displayName": "穿心莲",
+      "aliases": [
+        "C128",
+        "穿心莲"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C129",
+      "displayName": "紫苏",
+      "aliases": [
+        "C129",
+        "紫苏"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C130",
+      "displayName": "罗勒",
+      "aliases": [
+        "C130",
+        "罗勒"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C131",
+      "displayName": "香椿",
+      "aliases": [
+        "C131",
+        "香椿"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C132",
+      "displayName": "蕨菜",
+      "aliases": [
+        "C132",
+        "蕨菜"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C133",
+      "displayName": "马齿苋",
+      "aliases": [
+        "C133",
+        "马齿苋"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C134",
+      "displayName": "蒲公英",
+      "aliases": [
+        "C134",
+        "蒲公英"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C135",
+      "displayName": "鱼腥草",
+      "aliases": [
+        "C135",
+        "鱼腥草"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C136",
+      "displayName": "益母草",
+      "aliases": [
+        "C136",
+        "益母草"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C137",
+      "displayName": "车前草",
+      "aliases": [
+        "C137",
+        "车前草"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C138",
+      "displayName": "紫背天葵",
+      "aliases": [
+        "C138",
+        "紫背天葵"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C139",
+      "displayName": "雪莲果",
+      "aliases": [
+        "C139",
+        "雪莲果"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C140",
+      "displayName": "佛手瓜",
+      "aliases": [
+        "C140",
+        "佛手瓜"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C141",
+      "displayName": "红富士",
+      "aliases": [
+        "C141",
+        "红富士"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C142",
+      "displayName": "嘎啦果",
+      "aliases": [
+        "C142",
+        "嘎啦果"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C143",
+      "displayName": "国光苹果",
+      "aliases": [
+        "C143",
+        "国光苹果"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C144",
+      "displayName": "鸭梨",
+      "aliases": [
+        "C144",
+        "鸭梨"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C145",
+      "displayName": "雪花梨",
+      "aliases": [
+        "C145",
+        "雪花梨"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C146",
+      "displayName": "砀山梨",
+      "aliases": [
+        "C146",
+        "砀山梨"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C147",
+      "displayName": "库尔勒梨",
+      "aliases": [
+        "C147",
+        "库尔勒梨"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C148",
+      "displayName": "水蜜桃",
+      "aliases": [
+        "C148",
+        "水蜜桃"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C149",
+      "displayName": "油桃",
+      "aliases": [
+        "C149",
+        "油桃"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C150",
+      "displayName": "蟠桃",
+      "aliases": [
+        "C150",
+        "蟠桃"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C151",
+      "displayName": "黄桃",
+      "aliases": [
+        "C151",
+        "黄桃"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C152",
+      "displayName": "冬枣",
+      "aliases": [
+        "C152",
+        "冬枣"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C153",
+      "displayName": "灰枣",
+      "aliases": [
+        "C153",
+        "灰枣"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C154",
+      "displayName": "骏枣",
+      "aliases": [
+        "C154",
+        "骏枣"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C155",
+      "displayName": "板栗",
+      "aliases": [
+        "C155",
+        "板栗"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C156",
+      "displayName": "核桃",
+      "aliases": [
+        "C156",
+        "核桃"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C157",
+      "displayName": "巴旦木",
+      "aliases": [
+        "C157",
+        "巴旦木"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C158",
+      "displayName": "开心果",
+      "aliases": [
+        "C158",
+        "开心果"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C159",
+      "displayName": "碧根果",
+      "aliases": [
+        "C159",
+        "碧根果"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C160",
+      "displayName": "夏威夷果",
+      "aliases": [
+        "C160",
+        "夏威夷果"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C161",
+      "displayName": "腰果",
+      "aliases": [
+        "C161",
+        "腰果"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C162",
+      "displayName": "榛子",
+      "aliases": [
+        "C162",
+        "榛子"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C163",
+      "displayName": "松子",
+      "aliases": [
+        "C163",
+        "松子"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C164",
+      "displayName": "莲子",
+      "aliases": [
+        "C164",
+        "莲子"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C165",
+      "displayName": "桂圆",
+      "aliases": [
+        "C165",
+        "桂圆"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C166",
+      "displayName": "荔枝",
+      "aliases": [
+        "C166",
+        "荔枝"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C167",
+      "displayName": "龙眼",
+      "aliases": [
+        "C167",
+        "龙眼"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C168",
+      "displayName": "山竹",
+      "aliases": [
+        "C168",
+        "山竹"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C169",
+      "displayName": "榴莲",
+      "aliases": [
+        "C169",
+        "榴莲"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C170",
+      "displayName": "菠萝",
+      "aliases": [
+        "C170",
+        "菠萝"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C171",
+      "displayName": "凤梨",
+      "aliases": [
+        "C171",
+        "凤梨"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C172",
+      "displayName": "椰子",
+      "aliases": [
+        "C172",
+        "椰子"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C173",
+      "displayName": "芭乐",
+      "aliases": [
+        "C173",
+        "芭乐"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C174",
+      "displayName": "番石榴",
+      "aliases": [
+        "C174",
+        "番石榴"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C175",
+      "displayName": "莲雾",
+      "aliases": [
+        "C175",
+        "莲雾"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C176",
+      "displayName": "杨桃",
+      "aliases": [
+        "C176",
+        "杨桃"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C177",
+      "displayName": "释迦果",
+      "aliases": [
+        "C177",
+        "释迦果"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C178",
+      "displayName": "无花果",
+      "aliases": [
+        "C178",
+        "无花果"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C179",
+      "displayName": "桑葚",
+      "aliases": [
+        "C179",
+        "桑葚"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C180",
+      "displayName": "蓝莓",
+      "aliases": [
+        "C180",
+        "蓝莓"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C181",
+      "displayName": "香菇",
+      "aliases": [
+        "C181",
+        "香菇"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C182",
+      "displayName": "平菇",
+      "aliases": [
+        "C182",
+        "平菇"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C183",
+      "displayName": "金针菇",
+      "aliases": [
+        "C183",
+        "金针菇"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C184",
+      "displayName": "杏鲍菇",
+      "aliases": [
+        "C184",
+        "杏鲍菇"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C185",
+      "displayName": "白灵菇",
+      "aliases": [
+        "C185",
+        "白灵菇"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C186",
+      "displayName": "茶树菇",
+      "aliases": [
+        "C186",
+        "茶树菇"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C187",
+      "displayName": "猴头菇",
+      "aliases": [
+        "C187",
+        "猴头菇"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C188",
+      "displayName": "竹荪",
+      "aliases": [
+        "C188",
+        "竹荪"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C189",
+      "displayName": "木耳菌",
+      "aliases": [
+        "C189",
+        "木耳菌"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C190",
+      "displayName": "银耳",
+      "aliases": [
+        "C190",
+        "银耳"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C191",
+      "displayName": "松茸",
+      "aliases": [
+        "C191",
+        "松茸"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C192",
+      "displayName": "羊肚菌",
+      "aliases": [
+        "C192",
+        "羊肚菌"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C193",
+      "displayName": "鸡枞菌",
+      "aliases": [
+        "C193",
+        "鸡枞菌"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C194",
+      "displayName": "灰树花",
+      "aliases": [
+        "C194",
+        "灰树花"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C195",
+      "displayName": "双孢菇",
+      "aliases": [
+        "C195",
+        "双孢菇"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C196",
+      "displayName": "水芹",
+      "aliases": [
+        "C196",
+        "水芹"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C197",
+      "displayName": "莼菜",
+      "aliases": [
+        "C197",
+        "莼菜"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C198",
+      "displayName": "蒲菜",
+      "aliases": [
+        "C198",
+        "蒲菜"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C199",
+      "displayName": "菱角",
+      "aliases": [
+        "C199",
+        "菱角"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C200",
+      "displayName": "芡实",
+      "aliases": [
+        "C200",
+        "芡实"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C201",
+      "displayName": "桔梗",
+      "aliases": [
+        "C201",
+        "桔梗"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C202",
+      "displayName": "麦冬",
+      "aliases": [
+        "C202",
+        "麦冬"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C203",
+      "displayName": "柴胡",
+      "aliases": [
+        "C203",
+        "柴胡"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C204",
+      "displayName": "白术",
+      "aliases": [
+        "C204",
+        "白术"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C205",
+      "displayName": "白芍",
+      "aliases": [
+        "C205",
+        "白芍"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C206",
+      "displayName": "甘草",
+      "aliases": [
+        "C206",
+        "甘草"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C207",
+      "displayName": "苦参",
+      "aliases": [
+        "C207",
+        "苦参"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C208",
+      "displayName": "黄连",
+      "aliases": [
+        "C208",
+        "黄连"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C209",
+      "displayName": "黄柏",
+      "aliases": [
+        "C209",
+        "黄柏"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C210",
+      "displayName": "杜仲",
+      "aliases": [
+        "C210",
+        "杜仲"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C211",
+      "displayName": "厚朴",
+      "aliases": [
+        "C211",
+        "厚朴"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C212",
+      "displayName": "肉桂",
+      "aliases": [
+        "C212",
+        "肉桂"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C213",
+      "displayName": "五味子",
+      "aliases": [
+        "C213",
+        "五味子"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C214",
+      "displayName": "决明子",
+      "aliases": [
+        "C214",
+        "决明子"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C215",
+      "displayName": "薏苡仁",
+      "aliases": [
+        "C215",
+        "薏苡仁"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C216",
+      "displayName": "车前子",
+      "aliases": [
+        "C216",
+        "车前子"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C217",
+      "displayName": "菟丝子",
+      "aliases": [
+        "C217",
+        "菟丝子"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C218",
+      "displayName": "蛇床子",
+      "aliases": [
+        "C218",
+        "蛇床子"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C219",
+      "displayName": "山茱萸",
+      "aliases": [
+        "C219",
+        "山茱萸"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C220",
+      "displayName": "连翘",
+      "aliases": [
+        "C220",
+        "连翘"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C221",
+      "displayName": "丹参",
+      "aliases": [
+        "C221",
+        "丹参"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C222",
+      "displayName": "玄参",
+      "aliases": [
+        "C222",
+        "玄参"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C223",
+      "displayName": "生地",
+      "aliases": [
+        "C223",
+        "生地"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C224",
+      "displayName": "白芷",
+      "aliases": [
+        "C224",
+        "白芷"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C225",
+      "displayName": "藿香",
+      "aliases": [
+        "C225",
+        "藿香"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C226",
+      "displayName": "荆芥",
+      "aliases": [
+        "C226",
+        "荆芥"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C227",
+      "displayName": "防风",
+      "aliases": [
+        "C227",
+        "防风"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C228",
+      "displayName": "羌活",
+      "aliases": [
+        "C228",
+        "羌活"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C229",
+      "displayName": "独活",
+      "aliases": [
+        "C229",
+        "独活"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C230",
+      "displayName": "前胡",
+      "aliases": [
+        "C230",
+        "前胡"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C231",
+      "displayName": "玫瑰",
+      "aliases": [
+        "C231",
+        "玫瑰"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C232",
+      "displayName": "月季",
+      "aliases": [
+        "C232",
+        "月季"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C233",
+      "displayName": "牡丹",
+      "aliases": [
+        "C233",
+        "牡丹"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C234",
+      "displayName": "芍药花",
+      "aliases": [
+        "C234",
+        "芍药花"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C235",
+      "displayName": "菊花",
+      "aliases": [
+        "C235",
+        "菊花"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C236",
+      "displayName": "康乃馨",
+      "aliases": [
+        "C236",
+        "康乃馨"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C237",
+      "displayName": "百合花",
+      "aliases": [
+        "C237",
+        "百合花"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C238",
+      "displayName": "郁金香",
+      "aliases": [
+        "C238",
+        "郁金香"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C239",
+      "displayName": "茉莉花",
+      "aliases": [
+        "C239",
+        "茉莉花"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C240",
+      "displayName": "桂花",
+      "aliases": [
+        "C240",
+        "桂花"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C241",
+      "displayName": "栀子花",
+      "aliases": [
+        "C241",
+        "栀子花"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C242",
+      "displayName": "杜鹃花",
+      "aliases": [
+        "C242",
+        "杜鹃花"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C243",
+      "displayName": "茶花",
+      "aliases": [
+        "C243",
+        "茶花"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C244",
+      "displayName": "梅花",
+      "aliases": [
+        "C244",
+        "梅花"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C245",
+      "displayName": "兰花",
+      "aliases": [
+        "C245",
+        "兰花"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C246",
+      "displayName": "水仙花",
+      "aliases": [
+        "C246",
+        "水仙花"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C247",
+      "displayName": "荷花",
+      "aliases": [
+        "C247",
+        "荷花"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C248",
+      "displayName": "睡莲",
+      "aliases": [
+        "C248",
+        "睡莲"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C249",
+      "displayName": "鸢尾",
+      "aliases": [
+        "C249",
+        "鸢尾"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C250",
+      "displayName": "大丽花",
+      "aliases": [
+        "C250",
+        "大丽花"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C251",
+      "displayName": "一串红",
+      "aliases": [
+        "C251",
+        "一串红"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C252",
+      "displayName": "万寿菊",
+      "aliases": [
+        "C252",
+        "万寿菊"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C253",
+      "displayName": "孔雀草",
+      "aliases": [
+        "C253",
+        "孔雀草"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C254",
+      "displayName": "三色堇",
+      "aliases": [
+        "C254",
+        "三色堇"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C255",
+      "displayName": "矮牵牛",
+      "aliases": [
+        "C255",
+        "矮牵牛"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C256",
+      "displayName": "金鱼草",
+      "aliases": [
+        "C256",
+        "金鱼草"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C257",
+      "displayName": "石竹",
+      "aliases": [
+        "C257",
+        "石竹"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C258",
+      "displayName": "满天星",
+      "aliases": [
+        "C258",
+        "满天星"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C259",
+      "displayName": "葵花",
+      "aliases": [
+        "C259",
+        "葵花"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C260",
+      "displayName": "油菜花",
+      "aliases": [
+        "C260",
+        "油菜花"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C261",
+      "displayName": "紫菜苔",
+      "aliases": [
+        "C261",
+        "紫菜苔"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C262",
+      "displayName": "红菜苔",
+      "aliases": [
+        "C262",
+        "红菜苔"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C263",
+      "displayName": "洪山菜苔",
+      "aliases": [
+        "C263",
+        "洪山菜苔"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C264",
+      "displayName": "有机花菜",
+      "aliases": [
+        "C264",
+        "有机花菜"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C265",
+      "displayName": "松花菜",
+      "aliases": [
+        "C265",
+        "松花菜"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C266",
+      "displayName": "白菜花",
+      "aliases": [
+        "C266",
+        "白菜花"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C267",
+      "displayName": "黄花菜",
+      "aliases": [
+        "C267",
+        "黄花菜"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C268",
+      "displayName": "百合球",
+      "aliases": [
+        "C268",
+        "百合球"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C269",
+      "displayName": "芦笋",
+      "aliases": [
+        "C269",
+        "芦笋"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C270",
+      "displayName": "竹笋",
+      "aliases": [
+        "C270",
+        "竹笋"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C271",
+      "displayName": "荠菜",
+      "aliases": [
+        "C271",
+        "荠菜"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C272",
+      "displayName": "马兰头",
+      "aliases": [
+        "C272",
+        "马兰头"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C273",
+      "displayName": "艾草",
+      "aliases": [
+        "C273",
+        "艾草"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C274",
+      "displayName": "灰灰菜",
+      "aliases": [
+        "C274",
+        "灰灰菜"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C275",
+      "displayName": "苜蓿",
+      "aliases": [
+        "C275",
+        "苜蓿"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C276",
+      "displayName": "豌豆尖",
+      "aliases": [
+        "C276",
+        "豌豆尖"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C277",
+      "displayName": "红薯叶",
+      "aliases": [
+        "C277",
+        "红薯叶"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C278",
+      "displayName": "南瓜藤",
+      "aliases": [
+        "C278",
+        "南瓜藤"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C279",
+      "displayName": "丝瓜尖",
+      "aliases": [
+        "C279",
+        "丝瓜尖"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C280",
+      "displayName": "辣椒叶",
+      "aliases": [
+        "C280",
+        "辣椒叶"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C281",
+      "displayName": "芝麻叶",
+      "aliases": [
+        "C281",
+        "芝麻叶"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C282",
+      "displayName": "花椒芽",
+      "aliases": [
+        "C282",
+        "花椒芽"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C283",
+      "displayName": "香椿苗",
+      "aliases": [
+        "C283",
+        "香椿苗"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C284",
+      "displayName": "萝卜苗",
+      "aliases": [
+        "C284",
+        "萝卜苗"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C285",
+      "displayName": "黄豆芽",
+      "aliases": [
+        "C285",
+        "黄豆芽"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C286",
+      "displayName": "绿豆芽",
+      "aliases": [
+        "C286",
+        "绿豆芽"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C287",
+      "displayName": "黑豆芽",
+      "aliases": [
+        "C287",
+        "黑豆芽"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C288",
+      "displayName": "萝卜芽",
+      "aliases": [
+        "C288",
+        "萝卜芽"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C289",
+      "displayName": "荞麦芽",
+      "aliases": [
+        "C289",
+        "荞麦芽"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C290",
+      "displayName": "苜蓿芽",
+      "aliases": [
+        "C290",
+        "苜蓿芽"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C291",
+      "displayName": "豌豆苗",
+      "aliases": [
+        "C291",
+        "豌豆苗"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C292",
+      "displayName": "香椿芽",
+      "aliases": [
+        "C292",
+        "香椿芽"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C293",
+      "displayName": "蒜黄",
+      "aliases": [
+        "C293",
+        "蒜黄"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C294",
+      "displayName": "韭黄苗",
+      "aliases": [
+        "C294",
+        "韭黄苗"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C295",
+      "displayName": "姜芽",
+      "aliases": [
+        "C295",
+        "姜芽"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C296",
+      "displayName": "葱芽",
+      "aliases": [
+        "C296",
+        "葱芽"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C297",
+      "displayName": "彩椒",
+      "aliases": [
+        "C297",
+        "彩椒"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C298",
+      "displayName": "尖椒",
+      "aliases": [
+        "C298",
+        "尖椒"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C299",
+      "displayName": "朝天椒",
+      "aliases": [
+        "C299",
+        "朝天椒"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C300",
+      "displayName": "小米椒",
+      "aliases": [
+        "C300",
+        "小米椒"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C301",
+      "displayName": "藜麦",
+      "aliases": [
+        "C301",
+        "藜麦"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C302",
+      "displayName": "籽粒苋",
+      "aliases": [
+        "C302",
+        "籽粒苋"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C303",
+      "displayName": "莜麦",
+      "aliases": [
+        "C303",
+        "莜麦"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C304",
+      "displayName": "黑麦",
+      "aliases": [
+        "C304",
+        "黑麦"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C305",
+      "displayName": "红米",
+      "aliases": [
+        "C305",
+        "红米"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C306",
+      "displayName": "黑米",
+      "aliases": [
+        "C306",
+        "黑米"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C307",
+      "displayName": "紫米",
+      "aliases": [
+        "C307",
+        "紫米"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C308",
+      "displayName": "糯米稻",
+      "aliases": [
+        "C308",
+        "糯米稻"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C309",
+      "displayName": "粳稻",
+      "aliases": [
+        "C309",
+        "粳稻"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C310",
+      "displayName": "籼稻",
+      "aliases": [
+        "C310",
+        "籼稻"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C311",
+      "displayName": "旱稻",
+      "aliases": [
+        "C311",
+        "旱稻"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C312",
+      "displayName": "陆稻",
+      "aliases": [
+        "C312",
+        "陆稻"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C313",
+      "displayName": "鹰嘴豆",
+      "aliases": [
+        "C313",
+        "鹰嘴豆"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C314",
+      "displayName": "小扁豆",
+      "aliases": [
+        "C314",
+        "小扁豆"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C315",
+      "displayName": "木豆",
+      "aliases": [
+        "C315",
+        "木豆"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C316",
+      "displayName": "饭豆",
+      "aliases": [
+        "C316",
+        "饭豆"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C317",
+      "displayName": "眉豆",
+      "aliases": [
+        "C317",
+        "眉豆"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C318",
+      "displayName": "龙爪豆",
+      "aliases": [
+        "C318",
+        "龙爪豆"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C319",
+      "displayName": "草豌豆",
+      "aliases": [
+        "C319",
+        "草豌豆"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C320",
+      "displayName": "刀豆",
+      "aliases": [
+        "C320",
+        "刀豆"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C321",
+      "displayName": "扁豆",
+      "aliases": [
+        "C321",
+        "扁豆"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C322",
+      "displayName": "菜豆",
+      "aliases": [
+        "C322",
+        "菜豆"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C323",
+      "displayName": "芸豆",
+      "aliases": [
+        "C323",
+        "芸豆"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C324",
+      "displayName": "红芸豆",
+      "aliases": [
+        "C324",
+        "红芸豆"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C325",
+      "displayName": "白芸豆",
+      "aliases": [
+        "C325",
+        "白芸豆"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C326",
+      "displayName": "黑芸豆",
+      "aliases": [
+        "C326",
+        "黑芸豆"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C327",
+      "displayName": "花芸豆",
+      "aliases": [
+        "C327",
+        "花芸豆"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C328",
+      "displayName": "绿豆种",
+      "aliases": [
+        "C328",
+        "绿豆种"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C329",
+      "displayName": "赤小豆",
+      "aliases": [
+        "C329",
+        "赤小豆"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C330",
+      "displayName": "赤豆",
+      "aliases": [
+        "C330",
+        "赤豆"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C331",
+      "displayName": "四季豆",
+      "aliases": [
+        "C331",
+        "四季豆"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C332",
+      "displayName": "蔓生豆",
+      "aliases": [
+        "C332",
+        "蔓生豆"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C333",
+      "displayName": "矮生豆",
+      "aliases": [
+        "C333",
+        "矮生豆"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C334",
+      "displayName": "红花菜豆",
+      "aliases": [
+        "C334",
+        "红花菜豆"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C335",
+      "displayName": "龙芽豆",
+      "aliases": [
+        "C335",
+        "龙芽豆"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C336",
+      "displayName": "甜豌豆",
+      "aliases": [
+        "C336",
+        "甜豌豆"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C337",
+      "displayName": "食荚豌豆",
+      "aliases": [
+        "C337",
+        "食荚豌豆"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C338",
+      "displayName": "皱粒豌豆",
+      "aliases": [
+        "C338",
+        "皱粒豌豆"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C339",
+      "displayName": "甜玉米",
+      "aliases": [
+        "C339",
+        "甜玉米"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C340",
+      "displayName": "糯玉米",
+      "aliases": [
+        "C340",
+        "糯玉米"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C341",
+      "displayName": "黑莓",
+      "aliases": [
+        "C341",
+        "黑莓"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C342",
+      "displayName": "树莓",
+      "aliases": [
+        "C342",
+        "树莓"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C343",
+      "displayName": "蔓越莓",
+      "aliases": [
+        "C343",
+        "蔓越莓"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C344",
+      "displayName": "鹅莓",
+      "aliases": [
+        "C344",
+        "鹅莓"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C345",
+      "displayName": "金桔",
+      "aliases": [
+        "C345",
+        "金桔"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C346",
+      "displayName": "砂糖橘",
+      "aliases": [
+        "C346",
+        "砂糖橘"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C347",
+      "displayName": "蜜橘",
+      "aliases": [
+        "C347",
+        "蜜橘"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C348",
+      "displayName": "血橙",
+      "aliases": [
+        "C348",
+        "血橙"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C349",
+      "displayName": "脐橙",
+      "aliases": [
+        "C349",
+        "脐橙"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C350",
+      "displayName": "冰糖橙",
+      "aliases": [
+        "C350",
+        "冰糖橙"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C351",
+      "displayName": "丑橘",
+      "aliases": [
+        "C351",
+        "丑橘"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C352",
+      "displayName": "沃柑",
+      "aliases": [
+        "C352",
+        "沃柑"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C353",
+      "displayName": "皇帝柑",
+      "aliases": [
+        "C353",
+        "皇帝柑"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C354",
+      "displayName": "红心柚",
+      "aliases": [
+        "C354",
+        "红心柚"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C355",
+      "displayName": "葡萄柚",
+      "aliases": [
+        "C355",
+        "葡萄柚"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C356",
+      "displayName": "青柠",
+      "aliases": [
+        "C356",
+        "青柠"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C357",
+      "displayName": "丑柠檬",
+      "aliases": [
+        "C357",
+        "丑柠檬"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C358",
+      "displayName": "佛手柑",
+      "aliases": [
+        "C358",
+        "佛手柑"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C359",
+      "displayName": "金枣",
+      "aliases": [
+        "C359",
+        "金枣"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C360",
+      "displayName": "酸枣",
+      "aliases": [
+        "C360",
+        "酸枣"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C361",
+      "displayName": "蜜枣",
+      "aliases": [
+        "C361",
+        "蜜枣"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C362",
+      "displayName": "毛樱桃",
+      "aliases": [
+        "C362",
+        "毛樱桃"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C363",
+      "displayName": "酸樱桃",
+      "aliases": [
+        "C363",
+        "酸樱桃"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C364",
+      "displayName": "甜樱桃种",
+      "aliases": [
+        "C364",
+        "甜樱桃种"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C365",
+      "displayName": "大樱桃",
+      "aliases": [
+        "C365",
+        "大樱桃"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C366",
+      "displayName": "杨梅",
+      "aliases": [
+        "C366",
+        "杨梅"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C367",
+      "displayName": "青梅",
+      "aliases": [
+        "C367",
+        "青梅"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C368",
+      "displayName": "乌梅",
+      "aliases": [
+        "C368",
+        "乌梅"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C369",
+      "displayName": "黄梅",
+      "aliases": [
+        "C369",
+        "黄梅"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C370",
+      "displayName": "黑李",
+      "aliases": [
+        "C370",
+        "黑李"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C371",
+      "displayName": "红李",
+      "aliases": [
+        "C371",
+        "红李"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C372",
+      "displayName": "黄李",
+      "aliases": [
+        "C372",
+        "黄李"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C373",
+      "displayName": "西梅",
+      "aliases": [
+        "C373",
+        "西梅"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C374",
+      "displayName": "布朗",
+      "aliases": [
+        "C374",
+        "布朗"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C375",
+      "displayName": "油奈",
+      "aliases": [
+        "C375",
+        "油奈"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C376",
+      "displayName": "寿桃",
+      "aliases": [
+        "C376",
+        "寿桃"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C377",
+      "displayName": "蟠桃王",
+      "aliases": [
+        "C377",
+        "蟠桃王"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C378",
+      "displayName": "黄蟠桃",
+      "aliases": [
+        "C378",
+        "黄蟠桃"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C379",
+      "displayName": "油蟠桃",
+      "aliases": [
+        "C379",
+        "油蟠桃"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C380",
+      "displayName": "蟠桃种",
+      "aliases": [
+        "C380",
+        "蟠桃种"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C381",
+      "displayName": "花椒",
+      "aliases": [
+        "C381",
+        "花椒"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C382",
+      "displayName": "八角",
+      "aliases": [
+        "C382",
+        "八角"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C383",
+      "displayName": "桂皮",
+      "aliases": [
+        "C383",
+        "桂皮"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C384",
+      "displayName": "丁香",
+      "aliases": [
+        "C384",
+        "丁香"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C385",
+      "displayName": "胡椒",
+      "aliases": [
+        "C385",
+        "胡椒"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C386",
+      "displayName": "白胡椒",
+      "aliases": [
+        "C386",
+        "白胡椒"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C387",
+      "displayName": "肉豆蔻",
+      "aliases": [
+        "C387",
+        "肉豆蔻"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C388",
+      "displayName": "草果",
+      "aliases": [
+        "C388",
+        "草果"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C389",
+      "displayName": "砂仁",
+      "aliases": [
+        "C389",
+        "砂仁"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C390",
+      "displayName": "白蔻",
+      "aliases": [
+        "C390",
+        "白蔻"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C391",
+      "displayName": "孜然",
+      "aliases": [
+        "C391",
+        "孜然"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C392",
+      "displayName": "小茴香",
+      "aliases": [
+        "C392",
+        "小茴香"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C393",
+      "displayName": "大茴香",
+      "aliases": [
+        "C393",
+        "大茴香"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C394",
+      "displayName": "香叶",
+      "aliases": [
+        "C394",
+        "香叶"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C395",
+      "displayName": "咖喱叶",
+      "aliases": [
+        "C395",
+        "咖喱叶"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C396",
+      "displayName": "迷迭香",
+      "aliases": [
+        "C396",
+        "迷迭香"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C397",
+      "displayName": "百里香",
+      "aliases": [
+        "C397",
+        "百里香"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C398",
+      "displayName": "牛至",
+      "aliases": [
+        "C398",
+        "牛至"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C399",
+      "displayName": "鼠尾草",
+      "aliases": [
+        "C399",
+        "鼠尾草"
+      ],
+      "pinyin": []
+    },
+    {
+      "canonical": "C400",
+      "displayName": "番红花",
+      "aliases": [
+        "C400",
+        "番红花"
+      ],
+      "pinyin": []
+    }
+  ]
+}

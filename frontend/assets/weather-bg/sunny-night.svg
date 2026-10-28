@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300" preserveAspectRatio="xMidYMid slice">
+  <defs>
+    <linearGradient id="sunny-night-sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#1a1a3e"/>
+      <stop offset="60%" stop-color="#2d2d5e"/>
+      <stop offset="100%" stop-color="#3d3d6e"/>
+    </linearGradient>
+  </defs>
+  <rect width="400" height="300" fill="url(#sunny-night-sky)"/>
+  <circle cx="320" cy="60" r="22" fill="#f4f4e8" opacity="0.85"/>
+  <circle cx="310" cy="55" r="18" fill="#1a1a3e" opacity="0.9"/>
+  <g fill="#ffffff" opacity="0.6">
+    <circle cx="50" cy="40" r="1.5"/>
+    <circle cx="100" cy="70" r="1"/>
+    <circle cx="150" cy="30" r="1.5"/>
+    <circle cx="200" cy="50" r="1"/>
+    <circle cx="250" cy="80" r="1.5"/>
+    <circle cx="80" cy="100" r="1"/>
+    <circle cx="180" cy="90" r="1"/>
+    <circle cx="280" cy="40" r="1.5"/>
+  </g>
+</svg>

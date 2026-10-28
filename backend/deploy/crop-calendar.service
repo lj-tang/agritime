@@ -1,15 +1,15 @@
 [Unit]
-Description=Crop Calendar API
+Description=Crop Calendar API (华为 ICT 创新赛 V3.0)
 After=network.target
 
 [Service]
 Type=simple
-WorkingDirectory=/opt/crop-calendar
-ExecStart=/usr/bin/java -Dfile.encoding=UTF-8 -Dstdout.encoding=UTF-8 -Dstderr.encoding=UTF-8 -cp build/classes com.cropcalendar.Server
-Restart=on-failure
+WorkingDirectory=/agritime/backend
+ExecStart=/usr/bin/java -Dfile.encoding=UTF-8 -cp build/classes com.cropcalendar.Server
+Restart=always
 RestartSec=5
-StandardOutput=append:/opt/crop-calendar/server.log
-StandardError=append:/opt/crop-calendar/server.log
+StandardOutput=append:/var/log/crop-calendar/app.log
+StandardError=append:/var/log/crop-calendar/app.err.log
 
 [Install]
 WantedBy=multi-user.target

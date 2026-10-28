@@ -1,0 +1,70 @@
+{
+  "version": "1.0.0",
+  "comment": "作物属性体系（T07）。生长周期/年限/熟制与农事规则联动，影响时间线节点排布。",
+  "crops": [
+    {
+      "cropId": "dry_garlic", "displayName": "山东金乡大蒜",
+      "growthCycle": "long", "growthCycleLabel": "长周期",
+      "lifespan": "annual", "lifespanLabel": "一年生",
+      "croppingSystem": "single", "croppingSystemLabel": "一年一熟",
+      "totalDays": 190, "suitableSeason": "秋播", "suitableRegion": "黄淮海平原",
+      "tempRequirement": "耐寒，越冬期可耐-10℃"
+    },
+    {
+      "cropId": "wheat_winter", "displayName": "冬小麦",
+      "growthCycle": "long", "growthCycleLabel": "长周期",
+      "lifespan": "annual", "lifespanLabel": "一年生",
+      "croppingSystem": "single", "croppingSystemLabel": "一年一熟",
+      "totalDays": 230, "suitableSeason": "秋播", "suitableRegion": "黄淮海平原",
+      "tempRequirement": "耐寒，越冬期可耐-20℃"
+    },
+    {
+      "cropId": "corn_summer", "displayName": "夏玉米",
+      "growthCycle": "short", "growthCycleLabel": "短周期",
+      "lifespan": "annual", "lifespanLabel": "一年生",
+      "croppingSystem": "multi", "croppingSystemLabel": "一年多熟",
+      "totalDays": 100, "suitableSeason": "夏播", "suitableRegion": "全国广泛",
+      "tempRequirement": "喜温，发芽最低温度10℃"
+    },
+    {
+      "cropId": "rice", "displayName": "水稻",
+      "growthCycle": "short", "growthCycleLabel": "短周期",
+      "lifespan": "annual", "lifespanLabel": "一年生",
+      "croppingSystem": "multi", "croppingSystemLabel": "一年多熟",
+      "totalDays": 120, "suitableSeason": "春播/夏播", "suitableRegion": "南方水田区",
+      "tempRequirement": "喜温喜湿，需水量大"
+    },
+    {
+      "cropId": "soybean", "displayName": "大豆",
+      "growthCycle": "short", "growthCycleLabel": "短周期",
+      "lifespan": "annual", "lifespanLabel": "一年生",
+      "croppingSystem": "single", "croppingSystemLabel": "一年一熟",
+      "totalDays": 110, "suitableSeason": "春播/夏播", "suitableRegion": "东北及黄淮",
+      "tempRequirement": "喜温，发芽最低温度8℃"
+    },
+    {
+      "cropId": "tomato", "displayName": "番茄",
+      "growthCycle": "short", "growthCycleLabel": "短周期",
+      "lifespan": "perennial", "lifespanLabel": "多年生（作一年生栽培）",
+      "croppingSystem": "multi", "croppingSystemLabel": "一年多熟",
+      "totalDays": 90, "suitableSeason": "春播/秋播", "suitableRegion": "全国广泛",
+      "tempRequirement": "喜温，最适20-25℃"
+    },
+    {
+      "cropId": "cotton", "displayName": "棉花",
+      "growthCycle": "long", "growthCycleLabel": "长周期",
+      "lifespan": "perennial", "lifespanLabel": "多年生（作一年生栽培）",
+      "croppingSystem": "single", "croppingSystemLabel": "一年一熟",
+      "totalDays": 200, "suitableSeason": "春播", "suitableRegion": "新疆及黄淮",
+      "tempRequirement": "喜温，怕霜冻"
+    },
+    {
+      "cropId": "chili_pepper", "displayName": "辣椒",
+      "growthCycle": "short", "growthCycleLabel": "短周期",
+      "lifespan": "perennial", "lifespanLabel": "多年生（作一年生栽培）",
+      "croppingSystem": "multi", "croppingSystemLabel": "一年多熟",
+      "totalDays": 100, "suitableSeason": "春播", "suitableRegion": "全国广泛",
+      "tempRequirement": "喜温，最适25-30℃"
+    }
+  ]
+}

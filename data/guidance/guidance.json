@@ -1,0 +1,73 @@
+{
+  "version": "1.0.0",
+  "comment": "全链条农事指导规则库（T03）。指导参数随天气条件动态调整。",
+  "irrigation": {
+    "default": {
+      "method": "滴灌",
+      "duration": "30-40分钟",
+      "waterPerMu": "15-20方/亩",
+      "tips": "保持土壤湿润但不积水，避免正午高温时段浇水"
+    },
+    "rainy": {
+      "method": "暂停灌溉",
+      "duration": "—",
+      "waterPerMu": "0方/亩",
+      "tips": "已有降雨补充土壤墒情，无需额外浇水，注意排水防涝"
+    },
+    "drought": {
+      "method": "漫灌+滴灌组合",
+      "duration": "60-90分钟",
+      "waterPerMu": "30-40方/亩",
+      "tips": "旱情较重，加大灌水量，分次灌溉避免径流"
+    }
+  },
+  "fertilize": {
+    "default": {
+      "type": "复合肥",
+      "npk": "15-15-15",
+      "amount": "20-25kg/亩",
+      "method": "沟施覆土",
+      "tips": "施肥后及时浇水促进吸收，避免肥料直接接触根系"
+    },
+    "seedling": {
+      "type": "氮肥（尿素）",
+      "npk": "46-0-0",
+      "amount": "8-10kg/亩",
+      "method": "随水冲施",
+      "tips": "苗期以促苗壮为主，控量防旺长"
+    },
+    "flowering": {
+      "type": "磷钾肥",
+      "npk": "0-15-30",
+      "amount": "15-20kg/亩",
+      "method": "穴施",
+      "tips": "花果期补磷钾促花保果，控氮防徒长"
+    }
+  },
+  "pesticide": {
+    "commonPests": [
+      {"name": "蚜虫", "symptoms": "叶片卷曲发黄，嫩梢萎蔫，可见密集小虫", "solution": "10%吡虫啉可湿性粉剂", "dosage": "20g/亩兑水30kg喷雾", "prevention": "清除田间杂草，悬挂黄板诱杀"},
+      {"name": "红蜘蛛", "symptoms": "叶面出现密集白点，叶片灰白枯萎", "solution": "1.8%阿维菌素乳油", "dosage": "30ml/亩兑水30kg喷雾", "prevention": "保持田间湿度，干旱易发"},
+      {"name": "霜霉病", "symptoms": "叶面出现黄褐色多角形病斑，叶背有灰霉", "solution": "80%代森锰锌可湿性粉剂", "dosage": "100g/亩兑水45kg喷雾", "prevention": "通风透光，避免密植"},
+      {"name": "白粉病", "symptoms": "叶面覆盖白色粉状物，叶片变黄卷缩", "solution": "25%三唑酮可湿性粉剂", "dosage": "60g/亩兑水30kg喷雾", "prevention": "降低湿度，增施磷钾肥"},
+      {"name": "根腐病", "symptoms": "根部变褐腐烂，植株萎蔫枯死", "solution": "50%多菌灵可湿性粉剂", "dosage": "灌根1000倍液", "prevention": "轮作换茬，改善排水"},
+      {"name": "玉米螟", "symptoms": "茎秆蛀孔，心叶排孔，果穗被蛀", "solution": "20%氯虫苯甲酰胺悬浮剂", "dosage": "10ml/亩兑水30kg喷雾", "prevention": "秸秆粉碎还田，消灭越冬幼虫"},
+      {"name": "稻飞虱", "symptoms": "稻株基部群集小虫，叶片黄枯倒伏", "solution": "25%噻嗪酮可湿性粉剂", "dosage": "50g/亩兑水45kg喷雾", "prevention": "浅水勤灌，清除田边杂草"},
+      {"name": "叶枯病", "symptoms": "叶尖叶缘出现黄褐色枯斑，向下扩展", "solution": "70%甲基托布津可湿性粉剂", "dosage": "80g/亩兑水30kg喷雾", "prevention": "喷药预防为主，抽薹前施药"},
+      {"name": "棉铃虫", "symptoms": "蕾铃被蛀孔，脱落严重，铃室有虫粪", "solution": "20%氯虫苯甲酰胺悬浮剂", "dosage": "10ml/亩兑水30kg喷雾", "prevention": "种植诱集带，保护天敌"},
+      {"name": "地下害虫", "symptoms": "幼苗根茎被咬断，缺苗断垄", "solution": "5%辛硫磷颗粒剂", "dosage": "2kg/亩随种沟施", "prevention": "土壤处理，灯光诱杀成虫"},
+      {"name": "猝倒病", "symptoms": "幼苗茎基部水渍状缢缩，倒伏死亡", "solution": "25%甲霜灵可湿性粉剂", "dosage": "800倍液喷淋苗床", "prevention": "苗床消毒，控制浇水"},
+      {"name": "炭疽病", "symptoms": "果实上出现凹陷黑褐色圆斑，有橙色孢子", "solution": "25%咪鲜胺乳油", "dosage": "1500倍液喷雾", "prevention": "采后及时处理，通风降湿"},
+      {"name": "早疫病", "symptoms": "叶片出现同心轮纹的褐色病斑", "solution": "75%百菌清可湿性粉剂", "dosage": "100g/亩兑水30kg喷雾", "prevention": "轮作，清除病残体"},
+      {"name": "晚疫病", "symptoms": "叶片出现水渍状暗绿色病斑，迅速扩大", "solution": "68%精甲霜灵锰锌水分散粒剂", "dosage": "100g/亩兑水30kg喷雾", "prevention": "发病初期及时喷药，雨季前预防"},
+      {"name": "斜纹夜蛾", "symptoms": "叶片被啃食成孔洞，幼虫群集为害", "solution": "5%甲维盐微乳剂", "dosage": "30ml/亩兑水30kg喷雾", "prevention": "灯光诱杀，人工摘除卵块"}
+    ]
+  },
+  "tools": {
+    "sowing": ["播种机/播种器", "锄头", "耙子", "测绳"],
+    "irrigation": ["滴灌带/喷灌带", "水管", "水泵", "阀门"],
+    "fertilize": ["施肥器", "锄头", "桶", "秤"],
+    "pesticide": ["喷雾器", "防护服", "口罩", "手套", "量杯"],
+    "harvest": ["镰刀/收割机", "运输车", "晾晒工具", "编织袋"]
+  }
+}

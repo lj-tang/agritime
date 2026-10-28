@@ -6,8 +6,28 @@
   <meta name="theme-color" content="#f4efe3" />
   <title>知农时</title>
   <link rel="stylesheet" href="../assets/css/common.css" />
+  <link rel="stylesheet" href="../components/voice-input/voice-input.css" />
+  <link rel="stylesheet" href="../components/sidebar/sidebar.css" />
+  <link rel="stylesheet" href="../assets/css/my-crops.css" />
+  <link rel="stylesheet" href="../assets/css/my-plots.css" />
+  <link rel="stylesheet" href="../components/floating-ball/floating-ball.css" />
+  <link rel="stylesheet" href="../components/location-picker/location-picker.css" />
+  <link rel="stylesheet" href="../assets/leaflet/leaflet.css" />
 </head>
-<body>
+<body data-layout="app">
+
+  <div id="loading-gate">
+    <div class="loading-gate-spinner"></div>
+    <span class="loading-gate-text">加载中…</span>
+  </div>
+
+  <button class="sidebar-burger" id="sidebar-burger" aria-label="菜单">☰</button>
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">知农时</div>
+    <nav class="sidebar-nav" id="sidebar-nav"></nav>
+  </aside>
+
+  <div class="app-main">
   <main class="page page--home">
     <header class="brand">
       <div class="brand-row">
@@ -55,6 +75,7 @@
       <div class="field" id="field-location">
         <label for="location">所在地</label>
         <input id="location" name="location" type="text" autocomplete="off" placeholder="" />
+        <button type="button" class="map-picker-btn" id="map-picker-btn" aria-label="地图标点">📍</button>
         <div class="error" id="error-location">请输入所在地</div>
       </div>
 
@@ -84,12 +105,129 @@
       <div class="history-list" id="history-list"></div>
     </div>
   </main>
+  </div>
+
+  <div class="content-pane" data-module="calendar" id="calendar-pane">
+    <div id="module-placeholder"></div>
+  </div>
+
+  <div class="content-pane" data-module="my-crops" id="my-crops-pane">
+    <div class="my-crops-pane">
+      <div class="my-crops-header">
+        <span class="my-crops-title">我的产品</span>
+      </div>
+      <div id="my-crops-list"></div>
+    </div>
+  </div>
+
+  <div class="content-pane" data-module="plots" id="plots-pane">
+    <div class="my-plots-pane">
+      <div class="my-plots-header">
+        <span class="my-plots-title">我的地块</span>
+        <button type="button" class="my-plots-add" id="my-plots-add-btn">+ 添加地块</button>
+      </div>
+      <form class="my-plots-form" id="my-plots-form">
+        <h3>地块信息</h3>
+        <input type="hidden" name="plot-id" />
+        <div class="field">
+          <label>地块名称</label>
+          <input type="text" name="plot-name" placeholder="如：东边麦田" required />
+        </div>
+        <div class="field">
+          <label>地块种类</label>
+          <select name="plot-type">
+            <option value="farmland">耕田</option>
+            <option value="economic">经济作物田</option>
+            <option value="greenhouse">大棚</option>
+            <option value="fishpond">鱼塘</option>
+            <option value="orchard">果园</option>
+            <option value="paddy">水稻田</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>所在地 <span class="hint">支持自动定位/地图选点/文字搜索</span></label>
+          <div class="my-plots-loc-row">
+            <input type="text" name="plot-location" id="plot-location" placeholder="点击右侧按钮定位" />
+          </div>
+          <div class="my-plots-loc-btns" style="margin-top:8px;">
+            <button type="button" id="plot-loc-auto">📍 自动定位</button>
+            <button type="button" id="plot-loc-map">🗺️ 地图选点</button>
+          </div>
+          <input type="hidden" name="plot-lat" id="plot-lat" />
+          <input type="hidden" name="plot-lon" id="plot-lon" />
+        </div>
+        <div class="my-plots-form-row">
+          <div class="field">
+            <label>形状</label>
+            <select name="plot-shape">
+              <option value="rectangle">方形</option>
+              <option value="strip">条状</option>
+              <option value="irregular">不规则</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>面积（亩）</label>
+            <input type="number" name="plot-area" min="0" step="0.1" placeholder="0" />
+          </div>
+        </div>
+        <div class="my-plots-form-row">
+          <div class="field">
+            <label>倾角（°）</label>
+            <input type="number" name="plot-angle" min="0" max="90" step="1" value="0" />
+          </div>
+          <div class="field">
+            <label>坡度（°）</label>
+            <input type="number" name="plot-slope" min="0" max="90" step="1" value="0" />
+          </div>
+        </div>
+        <div class="field">
+          <label><input type="checkbox" name="plot-terrace" style="width:auto;margin-right:6px;" /> 梯田</label>
+        </div>
+        <div class="field">
+          <label>备注</label>
+          <textarea name="plot-remark" placeholder="补充说明…"></textarea>
+        </div>
+        <div class="my-plots-form-actions">
+          <button type="submit" class="btn btn-primary">保存</button>
+          <button type="button" class="btn btn-ghost" id="my-plots-cancel">取消</button>
+        </div>
+      </form>
+      <div class="my-plots-detail" id="my-plots-detail"></div>
+      <div id="my-plots-list"></div>
+    </div>
+  </div>
+
+  <div class="timeline-pane" id="timeline-pane">
+    <button type="button" class="btn home-pane-back" id="home-back" onclick="document.body.classList.remove('split-active');document.getElementById('timeline-pane').style.display='none';this.style.display='none';">← 返回编辑</button>
+    <iframe class="timeline-iframe" id="timeline-iframe" title="农事时间线"></iframe>
+  </div>
 
   <script src="../assets/mock/mock-data.js"></script>
   <script src="../assets/js/crop-map.js"></script>
   <script src="../assets/js/history-store.js"></script>
   <script src="photo-capture.js"></script>
   <script src="../assets/js/weather-visual.js"></script>
+  <script src="../assets/js/time-period.js"></script>
+  <script src="../assets/js/my-crops-store.js"></script>
+  <script src="../assets/js/my-plots-store.js"></script>
+  <script src="../components/crop-photo/crop-photo.js"></script>
+  <script src="../assets/js/my-crops.js"></script>
+  <script src="../assets/js/my-plots.js"></script>
+  <script src="../components/floating-ball/floating-ball.js"></script>
+  <script src="../assets/leaflet/leaflet.js"></script>
+  <script src="../components/location-picker/location-picker.js"></script>
+  <script src="../components/voice-input/voice-input.js"></script>
+  <script src="../components/sidebar/sidebar.js"></script>
+  <script>
+    document.addEventListener('weather-ready', function () {
+      var gate = document.getElementById('loading-gate');
+      if (gate) gate.classList.add('hidden');
+    });
+    setTimeout(function () {
+      var gate = document.getElementById('loading-gate');
+      if (gate && !gate.classList.contains('hidden')) gate.classList.add('hidden');
+    }, 3000);
+  </script>
   <script>
     (function () {
       var CROPS = window.CropMap.CROPS;
@@ -244,8 +382,16 @@
         suggestHits = [];
         suggestActive = -1;
         if (!kw) { suggestions.classList.remove('show'); return; }
-        suggestHits = CROPS.filter(function (c) { return c.name.indexOf(kw) !== -1; });
-        if (suggestHits.length === 0) { suggestions.classList.remove('show'); return; }
+        var matches = (window.CropMap && window.CropMap.matchCrop) ? window.CropMap.matchCrop(kw) : [];
+        if (matches.length === 0) {
+          var fallback = CROPS.filter(function (c) { return c.name.indexOf(kw) !== -1; });
+          matches = fallback.map(function (c) { return c.name; });
+        }
+        if (matches.length === 0) { suggestions.classList.remove('show'); return; }
+        suggestHits = matches.map(function (name) {
+          var hit = findCrop(name);
+          return { name: name, city: hit ? hit.city : '', lat: hit ? hit.lat : 35.07, lng: hit ? hit.lng : 116.31 };
+        });
         suggestHits.forEach(function (c) {
           var btn = document.createElement('button');
           btn.type = 'button';
@@ -343,7 +489,9 @@
         var items = window.HistoryStore.list();
         historyList.innerHTML = '';
         if (!items.length) { historyBox.classList.add('hidden'); return; }
-        items.forEach(function (it) {
+        items.forEach(function (it, idx) {
+          var row = document.createElement('div');
+          row.className = 'history-row';
           var btn = document.createElement('button');
           btn.type = 'button';
           btn.className = 'history-item';
@@ -353,17 +501,46 @@
             if (it.cropName) cropInput.value = it.cropName;
             if (it.location) locationInput.value = it.location;
             if (it.sowDate) { syncSelectsFromDate(it.sowDate); composeDate(); }
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+            historyBox.classList.add('hidden');
           });
-          historyList.appendChild(btn);
+          var del = document.createElement('button');
+          del.type = 'button';
+          del.className = 'history-del';
+          del.textContent = '×';
+          del.setAttribute('aria-label', '删除此条');
+          del.addEventListener('click', function (e) {
+            e.stopPropagation();
+            window.HistoryStore.remove(idx);
+            renderHistory();
+          });
+          row.appendChild(btn);
+          row.appendChild(del);
+          historyList.appendChild(row);
         });
         historyBox.classList.remove('hidden');
       }
+
+      cropInput.addEventListener('focus', function () {
+        if (!cropInput.value.trim() && window.HistoryStore && window.HistoryStore.list().length) {
+          renderHistory();
+        }
+      });
+      cropInput.addEventListener('input', function () {
+        if (cropInput.value.trim()) historyBox.classList.add('hidden');
+      });
 
       historyClear.addEventListener('click', function () {
         if (window.HistoryStore) window.HistoryStore.clear();
         renderHistory();
       });
+
+      function resolveTimelineUrl() {
+        var p = location.pathname || '';
+        if (p.indexOf('/pages/') !== -1) return 'timeline.html';
+        if (p === '/' || p === '' || p === '/index.html') return 'timeline.html';
+        var dir = p.replace(/\/index\.html$/i, '').replace(/\/$/, '');
+        return dir + '/timeline.html';
+      }
 
       function buildTimelineQuery(opts) {
         var params = new URLSearchParams();
@@ -385,13 +562,26 @@
         if (window.HistoryStore) {
           window.HistoryStore.add({ cropName: cropName, sowDate: sowDate, location: location });
         }
-        window.location.href = 'timeline.html?' + buildTimelineQuery({
+        var query = buildTimelineQuery({
           cropName: cropName,
           sowDate: sowDate,
-          lat: hit ? hit.lat : 35.07,
-          lon: hit ? hit.lng : 116.31,
+          lat: window.__markerLatLon ? window.__markerLatLon.lat : (hit ? hit.lat : 35.07),
+          lon: window.__markerLatLon ? window.__markerLatLon.lon : (hit ? hit.lng : 116.31),
           location: location
         });
+        try {
+          var pane = document.getElementById('timeline-pane');
+          var iframe = document.getElementById('timeline-iframe');
+          var backBtn = document.getElementById('home-back');
+          if (pane && iframe) {
+            iframe.src = resolveTimelineUrl() + '?' + query;
+            document.body.classList.add('split-active');
+            pane.style.display = 'block';
+            if (backBtn) backBtn.style.display = 'inline-block';
+            return;
+          }
+        } catch (err) { /* 降级回退整页跳转 */ }
+        window.location.href = 'timeline.html?' + query;
       });
 
       fillYears();
