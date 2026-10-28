@@ -10,6 +10,9 @@ backend/build/
 .codeartsdoer/temp/
 .codeartsdoer/.codebase/file-index.db
 
+# 智能体工作目录（本地记忆，不入库）
+.workbuddy/
+
 # 依赖与系统文件
 node_modules/
 .DS_Store
