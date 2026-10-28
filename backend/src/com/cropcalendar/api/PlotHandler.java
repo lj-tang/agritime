@@ -88,7 +88,10 @@ public class PlotHandler implements HttpHandler {
             for (String f : factors) factorJson.add(Json.str(f));
             parts.add("\"factors\":" + Json.arr(factorJson));
 
-            HttpSupport.write(ex, 200, Json.obj(parts.toArray(new String[0])));
+            // parts 里每一项已经是拼好的 "\"key\":value" 片段，直接拼接成对象。
+            // 不能再交给 Json.obj()：它接收的是「键, 值」交替参数，
+            // 传片段数组会把每个片段当成键，导致整段键值错位、返回非法 JSON。
+            HttpSupport.write(ex, 200, "{" + String.join(",", parts) + "}");
         } catch (Exception e) {
             HttpSupport.write(ex, 500, Json.obj("error", Json.str("INTERNAL_ERROR"), "message", Json.str(String.valueOf(e.getMessage()))));
         }
