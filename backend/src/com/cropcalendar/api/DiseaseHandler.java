@@ -52,6 +52,13 @@ public class DiseaseHandler implements HttpHandler {
                     "data", "null"));
             return;
         }
+        if (text == null && crop == null) {
+            HttpSupport.write(ex, 400, Json.obj(
+                    "code", "40002",
+                    "message", Json.str("只上传照片时，请先选择作物，否则无法给出候选病害"),
+                    "data", "null"));
+            return;
+        }
 
         List<Map<String, Object>> lib;
         try {
@@ -78,14 +85,17 @@ public class DiseaseHandler implements HttpHandler {
         }
         scored.sort((a, b) -> Double.compare(b.score, a.score));
 
-        // 文字没匹配上、但传了图：给该作物的常见病害，明确标注置信度低
-        boolean imageOnly = scored.isEmpty();
-        if (imageOnly) {
+        // 文字只命中一两条时，用同作物其余常见病害补齐到 3 条（置信度压到 0.25），
+        // 相当于"其他可能"，比只甩一条结论更接近真实的鉴别诊断。
+        boolean imageOnly = scored.isEmpty() && hasImage;
+        if (crop != null && scored.size() < TOP_N) {
+            java.util.Set<String> used = new java.util.HashSet<>();
+            for (Scored s : scored) used.add(str(s.disease.get("id")));
             for (Map<String, Object> d : lib) {
-                if (crop == null || matchesCrop(d, crop)) {
-                    scored.add(new Scored(d, 0.30, 0));
-                }
                 if (scored.size() >= TOP_N) break;
+                if (!used.add(str(d.get("id")))) continue;
+                if (!matchesCrop(d, crop)) continue;
+                scored.add(new Scored(d, 0.25, 0));
             }
         }
 
