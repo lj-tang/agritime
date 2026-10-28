@@ -2,6 +2,7 @@ package com.cropcalendar;
 
 import com.cropcalendar.api.ChartHandler;
 import com.cropcalendar.api.CropsHandler;
+import com.cropcalendar.api.DiseaseHandler;
 import com.cropcalendar.api.HealthHandler;
 import com.cropcalendar.api.PlotHandler;
 import com.cropcalendar.api.RecognitionHandler;
@@ -37,6 +38,7 @@ public class Server {
         server.createContext("/api/recognition", new RecognitionHandler());
         server.createContext("/api/chart", new ChartHandler());
         server.createContext("/api/plots", new PlotHandler());
+        server.createContext("/api/disease", new DiseaseHandler());
         server.setExecutor(Executors.newFixedThreadPool(8));
 
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {

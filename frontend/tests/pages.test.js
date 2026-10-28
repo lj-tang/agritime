@@ -724,3 +724,44 @@ test('V4 地图标点：经纬度校验纯函数', () => {
   assert.strictEqual(LP.validateLatLon(0, 181), false);
   assert.strictEqual(LP.validateLatLon('abc', 'def'), false);
 });
+// ---------------- T13 病害检查 ----------------
+const diseaseJs = read(path.resolve(__dirname, '..', 'assets', 'js', 'disease.js'));
+const diseaseCss = read(path.join(CSS, 'disease.css'));
+
+test('T13 病害检查：index.html 集成', () => {
+  assert.ok(indexHtml.includes('data-module="disease"'));
+  assert.ok(indexHtml.includes('disease.css'));
+  assert.ok(indexHtml.includes('disease.js'));
+  assert.ok(indexHtml.includes('id="disease-form"'));
+  assert.ok(indexHtml.includes('id="disease-text"'));
+  assert.ok(indexHtml.includes('id="disease-photo"'));
+});
+
+test('T13 病害检查：脚本走接口且显式处理中文与图片标记', () => {
+  assert.ok(diseaseJs.includes('/api/disease/detect'));
+  assert.ok(diseaseJs.includes('encodeURIComponent'));
+  assert.ok(diseaseJs.includes('hasImage'));
+});
+
+test('T13 病害检查：样式与无障碍基础', () => {
+  assert.ok(diseaseCss.includes('.disease-card'));
+  assert.ok(diseaseCss.includes('.disease-bar-fill'));
+  assert.ok(diseaseCss.includes('.disease-empty'));
+});
+
+test('T13 病害检查：侧栏入口已置为可用', () => {
+  const sidebarJs = read(path.resolve(__dirname, '..', 'components', 'sidebar', 'sidebar.js'));
+  assert.ok(/id: 'disease'[^}]*implemented: true/.test(sidebarJs));
+});
+
+test('T13 病害库：结构与字段完整', () => {
+  const lib = JSON.parse(read(path.resolve(__dirname, '..', '..', 'data', 'disease', 'library.json')));
+  assert.ok(Array.isArray(lib.diseases));
+  assert.ok(lib.diseases.length >= 10, '病害条目太少：' + lib.diseases.length);
+  lib.diseases.forEach((d) => {
+    ['id', 'name', 'crops', 'symptoms', 'treatment', 'medicine', 'prevention'].forEach((k) => {
+      assert.ok(d[k], d.id + ' 缺字段 ' + k);
+    });
+    assert.ok(d.symptoms.length >= 3, d.id + ' 症状词条过少');
+  });
+});

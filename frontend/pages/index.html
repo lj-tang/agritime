@@ -11,6 +11,7 @@
   <link rel="stylesheet" href="../components/sidebar/sidebar.css" />
   <link rel="stylesheet" href="../assets/css/my-crops.css" />
   <link rel="stylesheet" href="../assets/css/my-plots.css" />
+  <link rel="stylesheet" href="../assets/css/disease.css" />
   <link rel="stylesheet" href="../components/floating-ball/floating-ball.css" />
   <link rel="stylesheet" href="../components/location-picker/location-picker.css" />
   <link rel="stylesheet" href="../assets/leaflet/leaflet.css" />
@@ -198,6 +199,49 @@
     </div>
   </div>
 
+  <div class="content-pane" data-module="disease" id="disease-pane">
+    <div class="disease-pane">
+      <div class="disease-header">
+        <span class="disease-title">病害检查</span>
+        <span class="disease-sub">描述症状或拍照上传，给出判断与应对策略</span>
+      </div>
+
+      <form class="disease-form" id="disease-form">
+        <div class="field">
+          <label for="disease-crop">作物</label>
+          <select id="disease-crop" name="crop">
+            <option value="">不确定（在全部作物里找）</option>
+            <option value="番茄">番茄</option>
+            <option value="大蒜">大蒜</option>
+            <option value="小麦">小麦</option>
+            <option value="玉米">玉米</option>
+            <option value="水稻">水稻</option>
+            <option value="大豆">大豆</option>
+            <option value="辣椒">辣椒</option>
+            <option value="棉花">棉花</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="disease-text">症状描述 <span class="hint">写清楚部位、颜色，有没有霉层或虫子</span></label>
+          <textarea id="disease-text" name="q" rows="3"
+            placeholder="例：叶片上有褐色斑点，边缘不清晰，湿度大时叶背有白色霉层"></textarea>
+        </div>
+        <div class="disease-photo-row">
+          <input type="file" id="disease-photo" accept="image/*" class="hidden" />
+          <button type="button" class="btn btn-ghost" id="disease-photo-btn">📷 拍照 / 选图</button>
+          <span class="disease-photo-name" id="disease-photo-name"></span>
+        </div>
+        <p class="disease-tip">图片暂不参与识别，只做留档；判断依据是上面的文字描述。</p>
+        <div class="disease-actions">
+          <button type="submit" class="btn btn-primary">开始判断</button>
+          <button type="button" class="btn btn-ghost" id="disease-reset">清空</button>
+        </div>
+      </form>
+
+      <div id="disease-result"></div>
+    </div>
+  </div>
+
   <div class="timeline-pane" id="timeline-pane">
     <button type="button" class="btn home-pane-back" id="home-back" onclick="document.body.classList.remove('split-active');document.getElementById('timeline-pane').style.display='none';this.style.display='none';">← 返回编辑</button>
     <iframe class="timeline-iframe" id="timeline-iframe" title="农事时间线"></iframe>
@@ -214,6 +258,7 @@
   <script src="../components/crop-photo/crop-photo.js"></script>
   <script src="../assets/js/my-crops.js"></script>
   <script src="../assets/js/my-plots.js"></script>
+  <script src="../assets/js/disease.js"></script>
   <script src="../components/floating-ball/floating-ball.js"></script>
   <script src="../assets/leaflet/leaflet.js"></script>
   <script src="../components/location-picker/location-picker.js"></script>

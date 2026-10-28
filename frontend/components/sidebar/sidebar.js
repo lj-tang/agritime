@@ -7,7 +7,7 @@
   var MODULE_ENTRIES = [
     { id: 'recommend', label: '种植推荐', icon: '🌱', implemented: false },
     { id: 'calendar', label: '农事日历', icon: '📅', implemented: true },
-    { id: 'disease', label: '病害检查', icon: '🔍', implemented: false },
+    { id: 'disease', label: '病害检查', icon: '🔍', implemented: true },
     { id: 'my', label: '我的', icon: '👤', implemented: true, children: [
       { id: 'plots', label: '我的地块', icon: '📍', implemented: true },
       { id: 'my-crops', label: '我的产品', icon: '🌾', implemented: true }
