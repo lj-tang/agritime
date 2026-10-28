@@ -1,0 +1,16 @@
+# 构建产物
+backend/build/
+*.class
+
+# 运行时文件
+*.log
+*.pid
+
+# 工具临时数据（CodeArts 索引 / 抓取数据集，非源码）
+.codeartsdoer/temp/
+.codeartsdoer/.codebase/file-index.db
+
+# 依赖与系统文件
+node_modules/
+.DS_Store
+Thumbs.db
