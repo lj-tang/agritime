@@ -585,6 +585,9 @@ body[data-layout="app"] .page--home { max-width: none; background-image: none; b
    切到这些板块时日历主体整个让位，板块自己占满侧栏右侧的内容区，
    宽度与农事日历一致，内容居中对齐在 1200px 容器里 */
 body[data-layout="app"].pane-mode .app-main { display: none; }
+/* 日历模式下板块一律不占位：.content-pane 带了 flex:1，
+   若此时还显示（calendar 自己那个空 pane），会和 .app-main 平分宽度，首页就被挤窄了 */
+body[data-layout="app"]:not(.pane-mode) .content-pane { display: none !important; }
 body[data-layout="app"] .content-pane {
   flex: 1;
   min-width: 0;

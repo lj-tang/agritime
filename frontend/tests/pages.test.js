@@ -790,3 +790,10 @@ test('布局：病害检查为两列表单+结果', () => {
 test('布局：全局 .hidden 工具类存在', () => {
   assert.ok(commonCss.includes('.hidden { display: none !important; }'));
 });
+
+test('布局：日历模式下板块不占位（否则与 .app-main 平分宽度，首页被挤窄）', () => {
+  assert.ok(
+    commonCss.includes('body[data-layout="app"]:not(.pane-mode) .content-pane'),
+    '缺少日历模式下隐藏 content-pane 的规则'
+  );
+});
