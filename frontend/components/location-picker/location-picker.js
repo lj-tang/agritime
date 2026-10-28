@@ -18,17 +18,50 @@
   var pendingCallback = null;
   var displayMap = null;
 
+  /**
+   * Leaflet 默认图标依赖 leaflet/images/*.png，但我们只随包带了 leaflet.css 和 leaflet.js，
+   * 那几张图不存在，导致每个标记都打一次 404、地图上也没有图标。
+   * 这里把默认图标换成内联 SVG 的 data URI，尺寸与锚点和原版一致，彻底不依赖图片文件。
+   */
+  var MARKER_SVG = "<svg xmlns='http://www.w3.org/2000/svg' width='28' height='40' viewBox='0 0 28 40'>" +
+    "<path d='M14 1C7.4 1 2 6.3 2 12.9 2 21.6 14 39 14 39s12-17.4 12-26.1C26 6.3 20.6 1 14 1z' " +
+    "fill='#4a7c59' stroke='#ffffff' stroke-width='2'/><circle cx='14' cy='13' r='4.5' fill='#ffffff'/></svg>";
+  var BLANK_SVG = "<svg xmlns='http://www.w3.org/2000/svg' width='1' height='1'></svg>";
+
+  function applyDefaultMarkerIcon() {
+    if (typeof L === 'undefined' || !L.Icon || !L.Icon.Default) return;
+    if (L.Icon.Default.__agritimePatched) return;
+    var icon = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(MARKER_SVG);
+    var blank = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(BLANK_SVG);
+    L.Icon.Default.mergeOptions({
+      iconUrl: icon,
+      iconRetinaUrl: icon,
+      shadowUrl: blank,
+      iconSize: [28, 40],
+      iconAnchor: [14, 40],
+      popupAnchor: [0, -40],
+      shadowSize: [1, 1]
+    });
+    L.Icon.Default.__agritimePatched = true;
+  }
+
+  /** Leaflet 就绪后统一打一次图标补丁，返回 true 供 Promise 使用 */
+  function leafletOk() {
+    applyDefaultMarkerIcon();
+    return true;
+  }
+
   function loadLeaflet() {
     if (leafletReady) return leafletReady;
     leafletReady = new Promise(function (resolve) {
-      if (typeof L !== 'undefined') { resolve(true); return; }
+      if (typeof L !== 'undefined') { resolve(leafletOk()); return; }
       var link = document.createElement('link');
       link.rel = 'stylesheet';
       link.href = LEAFLET_CSS;
       document.head.appendChild(link);
       var script = document.createElement('script');
       script.src = LEAFLET_JS;
-      script.onload = function () { resolve(true); };
+      script.onload = function () { resolve(leafletOk()); };
       script.onerror = function () { resolve(false); };
       document.head.appendChild(script);
       setTimeout(function () { resolve(typeof L !== 'undefined'); }, LOAD_TIMEOUT);

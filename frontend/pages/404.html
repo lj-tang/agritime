@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>页面不存在 · 知农时</title>
+  <link rel="icon" type="image/svg+xml" href="../assets/img/common-logo.svg" />
+  <style>
+    html, body { height: 100%; margin: 0; }
+    body {
+      display: flex; align-items: center; justify-content: center;
+      background: #f4efe3; color: #3f4a3c;
+      font-family: -apple-system, "PingFang SC", "Microsoft YaHei", "Segoe UI", sans-serif;
+    }
+    .box { text-align: center; padding: 32px 24px; max-width: 420px; }
+    .code { font-size: 64px; font-weight: 700; letter-spacing: 2px; color: #4a7c59; line-height: 1; }
+    .title { margin: 16px 0 8px; font-size: 20px; font-weight: 600; }
+    .desc { margin: 0 0 24px; font-size: 14px; line-height: 1.7; color: #77806f; }
+    .btn {
+      display: inline-block; padding: 10px 26px; border-radius: 999px;
+      background: #4a7c59; color: #fff; text-decoration: none; font-size: 15px;
+      transition: opacity .2s;
+    }
+    .btn:hover { opacity: .86; }
+    .hint { margin-top: 18px; font-size: 12px; color: #9aa394; }
+  </style>
+</head>
+<body>
+  <div class="box">
+    <div class="code">404</div>
+    <p class="title">这个页面不在农时里</p>
+    <p class="desc" id="desc">链接可能输错了，或者这个地址已经失效。<br />马上带你回首页，也可以点下面的按钮。</p>
+    <a class="btn" href="/">返回首页</a>
+    <p class="hint" id="hint">3 秒后自动返回…</p>
+  </div>
+  <script>
+    (function () {
+      var left = 3;
+      var hint = document.getElementById('hint');
+      var timer = setInterval(function () {
+        left -= 1;
+        if (left > 0) { hint.textContent = left + ' 秒后自动返回…'; return; }
+        clearInterval(timer);
+        location.replace('/');
+      }, 1000);
+    })();
+  </script>
+</body>
+</html>

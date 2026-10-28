@@ -288,11 +288,17 @@
       container.appendChild(wqTitle);
       var wqGrid = document.createElement('div');
       wqGrid.className = 'my-plots-env-grid';
-      wqGrid.appendChild(envItem('水质等级', data.waterQuality.grade, ''));
+      wqGrid.appendChild(envItem('水质等级', data.waterQuality.grade || '暂无监测', ''));
       wqGrid.appendChild(envItem('pH值', data.waterQuality.ph, ''));
       wqGrid.appendChild(envItem('溶解氧', data.waterQuality.dissolvedOxygen, 'mg/L'));
       wqGrid.appendChild(envItem('浊度', data.waterQuality.turbidity, 'NTU'));
       container.appendChild(wqGrid);
+      if (data.waterQuality.estimated) {
+        var wqNote = document.createElement('div');
+        wqNote.className = 'my-plots-card-meta';
+        wqNote.textContent = 'pH／溶解氧／浊度为模型估算值，非实测数据';
+        container.appendChild(wqNote);
+      }
     }
 
     var soilTitle = document.createElement('div');

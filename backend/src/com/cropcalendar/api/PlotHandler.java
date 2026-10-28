@@ -1,5 +1,6 @@
 package com.cropcalendar.api;
 
+import com.cropcalendar.orchestration.CacheStore;
 import com.cropcalendar.util.Json;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
@@ -31,6 +32,15 @@ public class PlotHandler implements HttpHandler {
 
     private static final double EARTH_R = 6371.0;
 
+    /**
+     * 环境数据缓存：气温/湿度这类数据几十秒内不会变，
+     * 而这个接口每次都要实时打 Open-Meteo（实测 2.3 秒，超过 p95<2s 的验收线），
+     * 不缓存的话用户每点一次地块详情都要等两秒多。
+     * 5 分钟对"实时监控"够用，对上游也友好。
+     */
+    private static final CacheStore CACHE = new CacheStore();
+    private static final int CACHE_TTL_SECONDS = 300;
+
     @Override
     public void handle(HttpExchange ex) throws IOException {
         HttpSupport.cors(ex);
@@ -45,12 +55,22 @@ public class PlotHandler implements HttpHandler {
         String type = HttpSupport.trimToNull(q.get("type"));
         if (type == null) type = "farmland";
 
+        // 坐标取到小数点后三位（约 100 米）再拼 key，附近地块能共用一次上游请求
+        String cacheKey = "plot:" + Math.round(lat * 1000) + ":" + Math.round(lon * 1000) + ":" + type;
+        String cached = CACHE.get(cacheKey, String.class);
+        if (cached != null) {
+            HttpSupport.write(ex, 200, cached);
+            return;
+        }
+
         try {
             WeatherCurrent wc = fetchCurrentWeather(lat, lon);
             String soilType = inferSoilType(lat, lon);
             String soilDesc = soilDescription(soilType);
             List<RiverInfo> rivers = findNearbyRivers(lat, lon);
-            String waterGrade = inferWaterGrade(lat, lon);
+            // 水质等级只认最近水体的实测等级；没有邻近水体就返回 null，
+            // 不再用坐标算一个"看起来很像真的"等级糊弄用户。
+            String waterGrade = rivers.isEmpty() ? null : rivers.get(0).grade();
             List<String> factors = buildFactors(wc, soilType, waterGrade, type, rivers);
 
             List<String> parts = new ArrayList<>();
@@ -72,6 +92,8 @@ public class PlotHandler implements HttpHandler {
             parts.add("\"waterQualityGrade\":" + Json.str(waterGrade));
 
             if ("fishpond".equals(type)) {
+                // 没有任何水质传感器接入，这三项是按经纬度推的估算值，
+                // 所以显式带上 estimated=true，前端会标"估算"，别当实测数据讲。
                 double ph = 6.5 + ((lon * 7 + lat * 3) % 20) / 10.0;
                 double dox = 5.0 + ((lat * 5 + lon * 2) % 50) / 10.0;
                 double turb = 10 + ((lat * 3 + lon * 4) % 40);
@@ -79,7 +101,8 @@ public class PlotHandler implements HttpHandler {
                         "grade", Json.str(waterGrade),
                         "ph", String.format("%.1f", ph),
                         "dissolvedOxygen", String.format("%.1f", dox),
-                        "turbidity", String.format("%.0f", turb)));
+                        "turbidity", String.format("%.0f", turb),
+                        "estimated", "true"));
             } else {
                 parts.add("\"waterQuality\":null");
             }
@@ -91,7 +114,9 @@ public class PlotHandler implements HttpHandler {
             // parts 里每一项已经是拼好的 "\"key\":value" 片段，直接拼接成对象。
             // 不能再交给 Json.obj()：它接收的是「键, 值」交替参数，
             // 传片段数组会把每个片段当成键，导致整段键值错位、返回非法 JSON。
-            HttpSupport.write(ex, 200, "{" + String.join(",", parts) + "}");
+            String body = "{" + String.join(",", parts) + "}";
+            CACHE.put(cacheKey, body, CACHE_TTL_SECONDS);
+            HttpSupport.write(ex, 200, body);
         } catch (Exception e) {
             HttpSupport.write(ex, 500, Json.obj("error", Json.str("INTERNAL_ERROR"), "message", Json.str(String.valueOf(e.getMessage()))));
         }
@@ -187,15 +212,6 @@ public class PlotHandler implements HttpHandler {
         return result.size() > 4 ? result.subList(0, 4) : result;
     }
 
-    private String inferWaterGrade(double lat, double lon) {
-        double h = Math.abs(lat * 13 + lon * 7) % 5;
-        if (h < 1) return "Ⅰ类";
-        if (h < 2) return "Ⅱ类";
-        if (h < 3) return "Ⅲ类";
-        if (h < 4) return "Ⅳ类";
-        return "Ⅴ类";
-    }
-
     private List<String> buildFactors(WeatherCurrent wc, String soil, String waterGrade, String type, List<RiverInfo> rivers) {
         List<String> f = new ArrayList<>();
         f.add("土壤：" + soil);
@@ -210,7 +226,11 @@ public class PlotHandler implements HttpHandler {
             else if (wc.humidity > 80) f.add("湿度过高，防病害");
             else f.add("湿度偏低（" + wc.humidity + "%）");
         }
-        f.add("水质等级：" + waterGrade);
+        if (waterGrade != null) {
+            f.add("水质等级：" + waterGrade + "（参考" + rivers.get(0).name + "）");
+        } else {
+            f.add("水质：附近无可参考监测水体");
+        }
         if ("fishpond".equals(type)) f.add("鱼塘地块：关注溶氧与pH");
         if ("greenhouse".equals(type)) f.add("大棚地块：关注通风控温");
         if ("paddy".equals(type)) f.add("水稻田：保持水位管理");
