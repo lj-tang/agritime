@@ -5,6 +5,8 @@ After=network.target
 [Service]
 Type=simple
 WorkingDirectory=/agritime/backend
+# 密钥等敏感配置放 /etc/agritime.env（chmod 600，不入库），前缀 - 表示文件缺失也不报错
+EnvironmentFile=-/etc/agritime.env
 ExecStart=/usr/bin/java -Dfile.encoding=UTF-8 -cp build/classes com.cropcalendar.Server
 Restart=always
 RestartSec=5
