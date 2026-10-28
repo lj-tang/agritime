@@ -65,7 +65,9 @@
   justify-content: center;
 }
 
-.content-pane { display: none; }
+/* 板块容器是 body 的 flex 子项，必须给 flex:1，
+   否则会按内容宽度收缩、被挤到最右侧，中间留一大片空白 */
+.content-pane { display: none; flex: 1; min-width: 0; }
 .content-pane--active { display: block; }
 
 #module-placeholder {

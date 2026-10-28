@@ -116,7 +116,7 @@
   <div class="content-pane" data-module="my-crops" id="my-crops-pane">
     <div class="my-crops-pane">
       <div class="my-crops-header">
-        <span class="my-crops-title">我的产品</span>
+        <div class="pane-head-text"><span class="my-crops-title">我的产品</span><span class="pane-sub">已经种下的作物，拍照记录长势</span></div>
       </div>
       <div id="my-crops-list"></div>
     </div>
@@ -125,7 +125,7 @@
   <div class="content-pane" data-module="plots" id="plots-pane">
     <div class="my-plots-pane">
       <div class="my-plots-header">
-        <span class="my-plots-title">我的地块</span>
+        <div class="pane-head-text"><span class="my-plots-title">我的地块</span><span class="pane-sub">记录田地、大棚、鱼塘，查看实时环境与周边水体</span></div>
         <button type="button" class="my-plots-add" id="my-plots-add-btn">+ 添加地块</button>
       </div>
       <form class="my-plots-form" id="my-plots-form">
@@ -206,6 +206,7 @@
         <span class="disease-sub">描述症状或拍照上传，给出判断与应对策略</span>
       </div>
 
+      <div class="disease-body">
       <form class="disease-form" id="disease-form">
         <div class="field">
           <label for="disease-crop">作物</label>
@@ -239,6 +240,7 @@
       </form>
 
       <div id="disease-result"></div>
+      </div>
     </div>
   </div>
 

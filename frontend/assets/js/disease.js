@@ -26,12 +26,15 @@
       photoName.textContent = f ? ('已选择：' + f.name) : '';
     });
     document.getElementById('disease-reset').addEventListener('click', reset);
+
+    // 进来先给一个引导态，别让右侧结果区空着
+    showMessage('在左侧写下症状，点「开始判断」，这里会给出最可能的三条判断和应对策略');
   }
 
   function reset() {
     form.reset();
     photoName.textContent = '';
-    resultBox.innerHTML = '';
+    showMessage('在左侧写下症状，点「开始判断」，这里会给出最可能的三条判断和应对策略');
   }
 
   function onSubmit(e) {

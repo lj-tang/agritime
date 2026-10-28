@@ -70,8 +70,26 @@
     if (sub) sub.classList.toggle('sidebar-submenu--open');
   }
 
+  /** 切到子菜单里的板块时，把父级菜单自动展开，避免用户看不出自己在哪 */
+  function openParentOf(id) {
+    for (var i = 0; i < MODULE_ENTRIES.length; i++) {
+      var e = MODULE_ENTRIES[i];
+      if (!e.children) continue;
+      for (var j = 0; j < e.children.length; j++) {
+        if (e.children[j].id === id) {
+          var sub = document.querySelector('.sidebar-submenu[data-parent="' + e.id + '"]');
+          if (sub) sub.classList.add('sidebar-submenu--open');
+          return;
+        }
+      }
+    }
+  }
+
   function switchModule(id) {
     currentModule = id;
+    // 切到子功能板块时让日历主体整体让位，由板块占满内容区（见 common.css 的 .pane-mode）
+    document.body.classList.toggle('pane-mode', id !== 'calendar');
+    openParentOf(id);
     var tp = document.getElementById('timeline-pane');
     if (tp) tp.style.display = 'none';
     document.body.classList.remove('split-active');

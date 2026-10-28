@@ -765,3 +765,28 @@ test('T13 病害库：结构与字段完整', () => {
     assert.ok(d.symptoms.length >= 3, d.id + ' 症状词条过少');
   });
 });
+
+// ---------------- 子功能板块布局 ----------------
+test('布局：子功能板块占满内容区（不再是右侧窄条）', () => {
+  const sidebarCss = read(path.resolve(__dirname, '..', 'components', 'sidebar', 'sidebar.css'));
+  const paneRule = sidebarCss.split('.content-pane {')[1].split('}')[0];
+  assert.ok(paneRule.includes('flex: 1'), '.content-pane 必须是 flex:1，否则会收缩成内容宽度');
+  assert.ok(commonCss.includes('.pane-mode'), '缺少 pane-mode 让日历主体让位的规则');
+  assert.ok(commonCss.includes('body[data-layout="app"] .content-pane'), '缺少板块占满内容区的规则');
+});
+
+test('布局：切板块时同步切换 pane-mode', () => {
+  const sidebarJs = read(path.resolve(__dirname, '..', 'components', 'sidebar', 'sidebar.js'));
+  assert.ok(sidebarJs.includes("classList.toggle('pane-mode'"));
+  assert.ok(sidebarJs.includes('openParentOf'), '子板块应自动展开父级菜单');
+});
+
+test('布局：病害检查为两列表单+结果', () => {
+  assert.ok(indexHtml.includes('class="disease-body"'));
+  assert.ok(diseaseCss.includes('.disease-body'));
+  assert.ok(/\.disease-body\s*\{[^}]*grid-template-columns/.test(diseaseCss));
+});
+
+test('布局：全局 .hidden 工具类存在', () => {
+  assert.ok(commonCss.includes('.hidden { display: none !important; }'));
+});

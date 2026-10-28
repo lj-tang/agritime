@@ -571,12 +571,34 @@ body.split-active .home-pane-back { display: inline-block; }
   body.split-active .timeline-pane { flex: none; padding-left: 0; padding-top: 16px; }
   .timeline-iframe { height: 70vh; }
 }
+/* 通用隐藏工具类：多处 HTML 用 class="hidden"，但此前没有全局定义 */
+.hidden { display: none !important; }
+
 /* === V4 T01: UI 改版 === */
 
 body[data-layout="app"] { display: flex; min-height: 100vh; background: linear-gradient(180deg, #ffffff 0%, #faf9f6 100%); }
 body[data-layout="app"] .sidebar { position: fixed; left: 0; top: 0; bottom: 0; z-index: 2; }
 body[data-layout="app"] .app-main { flex: 1; margin-left: 200px; min-height: 100vh; position: relative; z-index: 1; background: transparent; }
 body[data-layout="app"] .page--home { max-width: none; background-image: none; background-color: transparent; }
+
+/* 子功能板块（我的地块 / 我的产品 / 病害检查）：
+   切到这些板块时日历主体整个让位，板块自己占满侧栏右侧的内容区，
+   宽度与农事日历一致，内容居中对齐在 1200px 容器里 */
+body[data-layout="app"].pane-mode .app-main { display: none; }
+body[data-layout="app"] .content-pane {
+  flex: 1;
+  min-width: 0;
+  margin-left: 200px;
+  min-height: 100vh;
+  box-sizing: border-box;
+  padding: 28px clamp(16px, 2.4vw, 36px) 56px;
+}
+body[data-layout="app"] .content-pane > * {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  box-sizing: border-box;
+}
 
 .weather-fx-overlay { position: fixed; inset: 0; z-index: 1; pointer-events: none; }
 
@@ -598,4 +620,6 @@ body[data-layout="app"] .page--home { max-width: none; background-image: none; b
 
 @media (max-width: 767px) {
   body[data-layout="app"] .app-main { margin-left: 0; }
+  /* 移动端左上角有汉堡按钮（fixed 定位），顶部留出空间避免压住标题 */
+  body[data-layout="app"] .content-pane { margin-left: 0; padding: 58px 14px 40px; }
 }

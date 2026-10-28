@@ -1,12 +1,18 @@
-/* 我的地块样式（T06） */
-.my-plots-pane { padding: 20px 16px; }
-.my-plots-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
-.my-plots-title { font-size: 20px; font-weight: 800; letter-spacing: 2px; color: var(--ink); }
-.my-plots-add { font-family: inherit; font-size: 15px; font-weight: 700; color: #fff; background: linear-gradient(155deg, var(--leaf-2), var(--leaf)); border: none; border-radius: 10px; padding: 8px 16px; cursor: pointer; }
+/* 我的地块样式（T06）
+   容器宽度/内边距由 common.css 的 body[data-layout="app"] .content-pane 统一控制，这里不再重复设 */
+.my-plots-pane { display: block; }
+.my-plots-header { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 18px; }
+/* --- 板块头部统一（与病害检查一致） --- */
+.pane-head-text { display: flex; flex-direction: column; gap: 6px; }
+.pane-sub { font-size: 13px; color: var(--muted); }
+
+.my-plots-title { font-size: 22px; font-weight: 800; letter-spacing: 1px; color: var(--ink); }
+.my-plots-add { white-space: nowrap; font-family: inherit; font-size: 15px; font-weight: 700; color: #fff; background: linear-gradient(155deg, var(--leaf-2), var(--leaf)); border: none; border-radius: 10px; padding: 8px 16px; cursor: pointer; }
 .my-plots-add:active { transform: translateY(1px); }
-.my-plots-empty { text-align: center; color: var(--muted); font-size: 15px; padding: 48px 16px; background: var(--card); border: 1px dashed var(--line); border-radius: var(--radius-sm); }
+.my-plots-empty { display: flex; align-items: center; justify-content: center; min-height: 240px; text-align: center; color: var(--muted); font-size: 15px; padding: 48px 16px; background: var(--card); border: 1px dashed var(--line); border-radius: var(--radius-sm); }
 .my-plots-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 14px; }
-.my-plots-card { background: var(--card); border: 1px solid rgba(228,221,203,0.9); border-radius: var(--radius-sm); box-shadow: var(--shadow-soft); padding: 16px; }
+.my-plots-card { background: var(--card); border: 1px solid rgba(228,221,203,0.9); border-radius: var(--radius-sm); box-shadow: var(--shadow-soft); padding: 16px; transition: box-shadow .2s ease, transform .2s ease; }
+.my-plots-card:hover { box-shadow: var(--shadow); transform: translateY(-1px); }
 .my-plots-card-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
 .my-plots-card-name { font-size: 17px; font-weight: 700; color: var(--ink); }
 .my-plots-card-type { font-size: 12px; font-weight: 600; color: var(--leaf); background: var(--leaf-soft); border-radius: 999px; padding: 3px 10px; }
@@ -15,7 +21,7 @@
 .my-plots-card-shape { font-size: 12.5px; color: var(--muted); margin-top: 6px; }
 .my-plots-card-actions { display: flex; gap: 8px; margin-top: 12px; }
 .my-plots-card-actions .btn { margin-top: 0; font-size: 14px; padding: 8px 12px; }
-.my-plots-form { display: none; background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); padding: 20px 18px; margin-bottom: 16px; }
+.my-plots-form { max-width: 760px; display: none; background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); padding: 20px 18px; margin-bottom: 16px; }
 .my-plots-form.show { display: block; }
 .my-plots-form h3 { margin: 0 0 16px; font-size: 18px; font-weight: 800; }
 .my-plots-form .field { margin-bottom: 18px; }
@@ -32,7 +38,7 @@
 .my-plots-loc-btns button:active { background: var(--leaf); color: #fff; }
 .my-plots-form-actions { display: flex; gap: 10px; margin-top: 8px; }
 .my-plots-form-actions .btn { margin-top: 0; }
-.my-plots-detail { display: none; background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); padding: 20px 18px; }
+.my-plots-detail { max-width: 900px; display: none; background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); padding: 20px 18px; }
 .my-plots-detail.show { display: block; }
 .my-plots-detail h3 { margin: 0 0 4px; font-size: 20px; font-weight: 800; }
 .my-plots-detail-sub { font-size: 13px; color: var(--muted); margin-bottom: 16px; }

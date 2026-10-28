@@ -1,20 +1,30 @@
-.my-crops-pane { padding: 20px; max-width: 800px; margin: 0 auto; }
-.my-crops-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
-.my-crops-title { font-size: 20px; font-weight: 700; color: var(--leaf); }
-.my-crops-add { padding: 8px 16px; border: 1px solid var(--leaf-2); border-radius: var(--radius-sm); background: var(--leaf-soft); color: var(--leaf); cursor: pointer; font-size: 14px; }
+/* 容器宽度/内边距由 common.css 的 .content-pane 统一控制 */
+.my-crops-pane { display: block; }
+.my-crops-header { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 18px; }
+/* --- 板块头部统一（与病害检查一致） --- */
+.pane-head-text { display: flex; flex-direction: column; gap: 6px; }
+.pane-sub { font-size: 13px; color: var(--muted); }
+
+.my-crops-title { font-size: 22px; font-weight: 800; letter-spacing: 1px; color: var(--ink); }
+.my-crops-add { white-space: nowrap; padding: 8px 16px; border: 1px solid var(--leaf-2); border-radius: var(--radius-sm); background: var(--leaf-soft); color: var(--leaf); cursor: pointer; font-size: 14px; }
 .my-crops-add:hover { background: var(--leaf); color: var(--paper); }
-.my-crops-empty { text-align: center; padding: 60px 20px; color: var(--muted); font-size: 16px; }
+.my-crops-empty { display: flex; align-items: center; justify-content: center; min-height: 240px; text-align: center; padding: 60px 20px; color: var(--muted); font-size: 15px; background: var(--card); border: 1px dashed var(--line); border-radius: var(--radius); }
 .my-crops-group { margin-bottom: 24px; }
 .my-crops-group-title { font-size: 16px; font-weight: 600; color: var(--ink); margin-bottom: 12px; border-bottom: 1px solid var(--line); padding-bottom: 6px; }
-.my-crops-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px; }
-.my-crops-card { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius-sm); padding: 16px; box-shadow: var(--shadow-soft); }
+.my-crops-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 14px; }
+.my-crops-card { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius-sm); padding: 16px; box-shadow: var(--shadow-soft); transition: box-shadow .2s ease, transform .2s ease; }
+.my-crops-card:hover { box-shadow: var(--shadow); transform: translateY(-1px); }
 .my-crops-card-name { font-size: 16px; font-weight: 700; color: var(--leaf); margin-bottom: 8px; }
 .my-crops-card-fields { font-size: 13px; color: var(--ink-soft); line-height: 1.6; margin-bottom: 12px; }
 .my-crops-card-actions { display: flex; gap: 8px; }
 .my-crops-card-actions .btn { padding: 4px 12px; font-size: 12px; }
-.my-crops-form { display: none; background: var(--card); border: 1px solid var(--line); border-radius: var(--radius-sm); padding: 20px; margin-bottom: 20px; }
+.my-crops-form { max-width: 760px; display: none; background: var(--card); border: 1px solid var(--line); border-radius: var(--radius-sm); padding: 20px; margin-bottom: 20px; }
 .my-crops-form .field { margin-bottom: 12px; }
 .my-crops-form label { display: block; font-size: 14px; color: var(--ink-soft); margin-bottom: 4px; }
 .my-crops-form input, .my-crops-form select, .my-crops-form textarea { width: 100%; padding: 8px; border: 1px solid var(--line); border-radius: var(--radius-sm); font-size: 14px; }
 .my-crops-form-actions { display: flex; gap: 8px; margin-top: 16px; }
 @media (max-width: 767px) { .my-crops-cards { grid-template-columns: 1fr; } }
+/* 分组之间用两列排布，避免每组只有一张卡、右侧一片空 */
+#my-crops-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(520px, 1fr)); gap: 20px 24px; align-items: start; }
+.my-crops-group { margin-bottom: 0; }
+@media (max-width: 1100px) { #my-crops-list { grid-template-columns: 1fr; } }
