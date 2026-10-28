@@ -1,50 +1,88 @@
-# 知农时 · 部署与公网验证
+# 部署与运维
 
-## 一、本地启动（W1 起即可演示）
+> 线上地址：<http://115.175.44.27/>（华为云 ECS，Ubuntu 24.04）
+> 本文替代旧版说明——旧版写的 Node.js `orchestration/` + FunctionGraph 已不再使用，实际是 **Java + nginx + systemd**。
 
-```bash
-cd orchestration
-npm install
-npm start
+## 一、线上架构
+
+```
+浏览器
+  │  :80
+  ▼
+ nginx  ── /            → /agritime/frontend/pages   （静态页，直接读文件，无构建）
+         ── /assets/    → /agritime/frontend/assets
+         ── /components/→ /agritime/frontend/components
+         ── /api/       → 127.0.0.1:8080           （限流 30 次/分钟，超限 429）
+                          │
+                          ▼
+                    crop-calendar.service（systemd 托管 Java，Restart=always）
+                    JDK 自带 HttpServer，零依赖，-cp build/classes
 ```
 
-- 接口：`POST http://localhost:3000/api/timeline`、`POST http://localhost:3000/api/recognition`
-- 页面：用静态服务器托管 `frontend/`，例如 `npx serve frontend`，打开 `pages/index.html`。
-- 断网演示：`frontend/assets/mock/mock-data.js` 提供离线时间线，页面请求失败会自动回落。
+| 组件 | 位置 |
+|---|---|
+| 站点根目录（= git 工作区） | `/agritime` |
+| nginx 配置 | `/etc/nginx/sites-enabled/agritime` |
+| systemd 单元 | `/etc/systemd/system/crop-calendar.service`（仓库内有同源副本 `backend/deploy/crop-calendar.service`） |
+| 敏感配置 | `/etc/agritime.env`（chmod 600，不入库，由 unit 的 `EnvironmentFile` 加载） |
+| 应用日志 | `/var/log/crop-calendar/app.log`、`app.err.log`（已配 logrotate） |
+| 访问日志 | `/var/log/nginx/access.log` |
 
-## 二、环境变量
+## 二、首次接管（只做一次）
 
-复制 `deploy/env.example.json` 为实际配置并注入运行环境（模板不含任何真实密钥）：
+服务器上的 `/agritime` 原本没有版本控制，用这个脚本把它变成 git 工作区：
 
-| 变量 | 说明 | 默认 |
+```bash
+bash /agritime/deploy/init-server.sh
+```
+
+脚本会先把整个目录打包到 `/root/agritime-before-git-<时间戳>.tar.gz`，再 init / 拉取 / 切分支，最后报告工作区与仓库的差异。
+
+## 三、日常部署
+
+```bash
+/agritime/deploy/deploy.sh
+```
+
+四步：`git fetch` → `javac` 编译 → 切换字节码并重启 → 健康检查。
+**编译失败不会重启**（旧版本继续跑）；**健康检查失败自动回滚**到上一个提交。
+
+可选环境变量：
+
+| 变量 | 默认 | 说明 |
 |---|---|---|
-| `EXTERNAL_TIMEOUT_MS` | 外部调用超时（毫秒） | 800 |
-| `WEATHER_BASE_URL` | 天气服务地址 | Open-Meteo |
-| `RECOGNITION_BASE_URL` | 识别服务地址（留空则用本地演示候选） | 空 |
-| `CACHE_TTL_SECONDS` | 缓存有效期（秒） | 1800 |
-| `API_VERSION` | 接口版本 | v1 |
-| `PORT` | 本地监听端口 | 3000 |
+| `BRANCH` | `main` | 部署分支 |
+| `SKIP_PULL` | `0` | 设 1 则只重编译不拉取，用于只调配置 |
+| `SERVICE` | `crop-calendar.service` | systemd 单元名 |
 
-## 三、华为云 FunctionGraph 部署
+> 服务器是纯部署端，`deploy.sh` 会 `git reset --hard origin/<分支>`，**不要在服务器上直接改代码**，改了下次部署就没了。改代码请在本地开发 → 推送 → 服务器执行 deploy.sh。
 
-1. 依据 `deploy/functiongraph.yaml` 创建函数，运行时 `Node.js 18`，入口 `orchestration/server.js`。
-2. 在函数配置中注入上表环境变量（真实密钥走环境变量，不入库）。
-3. 绑定 APIG 触发器，路由 `/api/timeline`、`/api/recognition`（POST）。
-4. 静态页面可托管到 OBS/FunctionGraph 静态托管，入口 `frontend/pages/index.html`。
-5. 若 FunctionGraph 部署受阻，按 W3 保底：ECS 或本地端口 + 内网穿透，优先保证演示环境可用。
+## 四、敏感配置
 
-## 四、公网验证方法
+`/etc/agritime.env` 内容（不要提交到仓库）：
 
 ```bash
-curl -X POST https://<公网地址>/api/timeline \
-  -H "Content-Type: application/json" \
-  -d '{"crop":"山东金乡大蒜","sowingDate":"2025-03-15","location":{"latitude":35.07,"longitude":116.31,"county":"山东省济宁市金乡县"}}'
+LLM_API_URL=https://api.modelarts-maas.com/v2/chat/completions
+LLM_API_KEY=<到华为云 MaaS 控制台申请>
+LLM_MODEL=openPangu-2.0-flash
 ```
 
-- 期望：返回 `apiVersion/dataSource/dataTime/todayConclusion/nodes/reminders`。
-- 天气不可用时：`dataSource=unavailable`，响应仍返回节点，不报错、不空白。
-- 公网打开 `pages/index.html`，三字段 → 生成时间线，375px 视口无横向滚动。
+`AppConfig` 的取值优先级：**环境变量 > application.properties > 内置默认值**，
+变量名规则是「配置项转大写、点换下划线」，即 `llm.api.key` → `LLM_API_KEY`。
+仓库里的 `backend/application.properties` 该行故意留空。
 
-## 五、安全
+## 五、常用排查
 
-- 仓库与前端资源中不含任何真实密钥；`.env`、令牌一律通过部署环境注入。
+```bash
+systemctl status crop-calendar.service          # 服务状态
+journalctl -u crop-calendar.service -n 50       # 启动/重启日志
+tail -f /var/log/crop-calendar/app.log          # 应用输出
+tail -f /var/log/nginx/access.log               # 访问日志
+curl -s http://127.0.0.1:8080/api/health/detail # 后端自检
+nginx -t && systemctl reload nginx              # 改完 nginx 配置
+```
+
+## 六、历史遗留（待清理）
+
+- `/root/keep-agritime.sh`：早期没有 systemd 时写的保活脚本，现已失效，且逻辑有误（探 80 端口拉起 python 静态服务会与 nginx 抢端口）。
+- `deploy/frontend_server.py`：同一时期的应急静态服务，与 nginx 重复，保留仅作查阅。
