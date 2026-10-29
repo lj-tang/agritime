@@ -797,3 +797,31 @@ test('布局：日历模式下板块不占位（否则与 .app-main 平分宽度
     '缺少日历模式下隐藏 content-pane 的规则'
   );
 });
+
+// ---------------- 地址解析（双斜杠） ----------------
+test('地址解析：任何路径都不会拼出 // 开头的协议相对地址', () => {
+  const PageUrl = require('../assets/js/page-url.js');
+  const cases = [
+    ['/', '/timeline.html'],
+    ['//', '/timeline.html'],
+    ['///', '/timeline.html'],
+    ['', '/timeline.html'],
+    ['/index.html', '/timeline.html'],
+    ['//index.html', '/timeline.html'],
+    ['/pages/', '/pages/timeline.html'],
+    ['/pages//', '/pages/timeline.html'],
+    ['/pages/index.html', '/pages/timeline.html'],
+    ['/app/pages/index.html', '/app/pages/timeline.html']
+  ];
+  cases.forEach(([input, expected]) => {
+    assert.strictEqual(PageUrl.timelineUrl(input), expected, '输入 ' + JSON.stringify(input));
+  });
+  cases.forEach(([input]) => {
+    assert.ok(!PageUrl.timelineUrl(input).startsWith('//'), '不允许出现 // 开头：' + input);
+  });
+});
+
+test('地址解析：index.html 已接入 page-url.js', () => {
+  assert.ok(indexHtml.includes('page-url.js'));
+  assert.ok(indexHtml.includes('window.PageUrl.timelineUrl'));
+});

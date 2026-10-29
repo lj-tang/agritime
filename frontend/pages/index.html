@@ -583,11 +583,10 @@
       });
 
       function resolveTimelineUrl() {
-        var p = location.pathname || '';
-        if (p.indexOf('/pages/') !== -1) return 'timeline.html';
-        if (p === '/' || p === '' || p === '/index.html') return 'timeline.html';
-        var dir = p.replace(/\/index\.html$/i, '').replace(/\/$/, '');
-        return dir + '/timeline.html';
+        // 交给 page-url.js：会折叠双斜杠并返回绝对路径，
+        // 避免 http://host// 这种地址下拼出 "//timeline.html" 被当成主机名
+        if (window.PageUrl) return window.PageUrl.timelineUrl(location.pathname);
+        return '/timeline.html';
       }
 
       function buildTimelineQuery(opts) {
@@ -629,7 +628,7 @@
             return;
           }
         } catch (err) { /* 降级回退整页跳转 */ }
-        window.location.href = 'timeline.html?' + query;
+        window.location.href = resolveTimelineUrl() + '?' + query;
       });
 
       fillYears();
