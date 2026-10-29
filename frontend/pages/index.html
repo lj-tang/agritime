@@ -13,6 +13,9 @@
   <link rel="stylesheet" href="../assets/css/my-crops.css" />
   <link rel="stylesheet" href="../assets/css/my-plots.css" />
   <link rel="stylesheet" href="../assets/css/disease.css" />
+  <link rel="stylesheet" href="../assets/css/service.css" />
+  <link rel="stylesheet" href="../assets/css/admin.css" />
+  <link rel="stylesheet" href="../assets/css/recommend.css" />
   <link rel="stylesheet" href="../components/floating-ball/floating-ball.css" />
   <link rel="stylesheet" href="../components/location-picker/location-picker.css" />
   <link rel="stylesheet" href="../assets/leaflet/leaflet.css" />
@@ -112,6 +115,44 @@
 
   <div class="content-pane" data-module="calendar" id="calendar-pane">
     <div id="module-placeholder"></div>
+  </div>
+
+  <div class="content-pane" data-module="recommend" id="recommend-pane">
+    <div class="recommend-pane">
+      <div class="recommend-header">
+        <span class="recommend-title">种植推荐</span>
+        <span class="recommend-sub">选择时间和地点，综合节气、气候、市场推荐适宜作物</span>
+      </div>
+      <form class="recommend-form" id="recommend-form">
+        <div class="field">
+          <label for="recommend-month">种植月份</label>
+          <select id="recommend-month"></select>
+        </div>
+        <div class="field">
+          <label for="recommend-location">地点 <span class="hint">城市或地区名</span></label>
+          <input type="text" id="recommend-location" placeholder="如：山东济宁" />
+        </div>
+        <div class="field">
+          <label for="recommend-lat">纬度 <span class="hint">可选</span></label>
+          <input type="text" id="recommend-lat" value="35.07" />
+        </div>
+        <div class="field">
+          <label for="recommend-lon">经度 <span class="hint">可选</span></label>
+          <input type="text" id="recommend-lon" value="116.31" />
+        </div>
+        <div class="field">
+          <label>定位</label>
+          <div class="recommend-loc-row">
+            <button type="button" class="btn btn-ghost" id="recommend-loc-btn">📍 自动定位</button>
+            <span class="recommend-loc-status" id="recommend-loc-status"></span>
+          </div>
+        </div>
+        <div class="recommend-submit-row">
+          <button type="submit" class="btn btn-primary">获取推荐</button>
+        </div>
+      </form>
+      <div id="recommend-result"></div>
+    </div>
   </div>
 
   <div class="content-pane" data-module="my-crops" id="my-crops-pane">
@@ -245,10 +286,90 @@
     </div>
   </div>
 
+  <div class="content-pane" data-module="service" id="service-pane">
+    <div class="service-pane">
+      <div class="service-header">
+        <div>
+          <span class="service-title">在线客服</span>
+          <span class="service-sub">有问题随时提问，客服会尽快回复</span>
+        </div>
+        <button type="button" class="btn btn-primary service-new-btn" id="service-new-btn">+ 新建咨询</button>
+      </div>
+      <button type="button" class="btn btn-ghost service-back-btn" id="service-back-btn" style="display:none;margin-bottom:10px;">← 返回列表</button>
+      <div id="service-list"></div>
+      <form class="service-form" id="service-form" style="display:none;">
+        <div class="field">
+          <label for="service-user-name">您的称呼 <span class="hint">选填，方便客服称呼您</span></label>
+          <input type="text" id="service-user-name" placeholder="如：老李" />
+        </div>
+        <div class="field">
+          <label for="service-subject">问题标题</label>
+          <input type="text" id="service-subject" placeholder="一句话概括您的问题" required />
+        </div>
+        <div class="field">
+          <label for="service-category">问题类别</label>
+          <select id="service-category">
+            <option value="种植技术">种植技术</option>
+            <option value="病虫害">病虫害</option>
+            <option value="天气农事">天气农事</option>
+            <option value="地块管理">地块管理</option>
+            <option value="其他">其他</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="service-content">问题描述</label>
+          <textarea id="service-content" rows="4" placeholder="详细描述您遇到的问题…" required></textarea>
+        </div>
+        <div class="service-form-actions">
+          <button type="submit" class="btn btn-primary">提交工单</button>
+        </div>
+      </form>
+      <div id="service-detail" style="display:none;"></div>
+    </div>
+  </div>
+
+  <div class="content-pane" data-module="admin" id="admin-pane">
+    <div class="admin-pane">
+      <div class="admin-header">
+        <span class="admin-title">管理后台</span>
+        <span class="admin-sub">查看用户工单并回复</span>
+      </div>
+      <div id="admin-login">
+        <div class="admin-login-box">
+          <h3>超管登录</h3>
+          <p>输入管理密码查看和回复用户工单</p>
+          <form id="admin-login-form">
+            <div class="field">
+              <label for="admin-password">管理密码</label>
+              <input type="password" id="admin-password" placeholder="请输入密码" required />
+            </div>
+            <button type="submit" class="btn btn-primary">登录</button>
+          </form>
+        </div>
+      </div>
+      <div id="admin-panel" style="display:none;">
+        <div class="admin-toolbar">
+          <select id="admin-filter">
+            <option value="">全部工单</option>
+            <option value="open">待回复</option>
+            <option value="replied">已回复</option>
+            <option value="closed">已关闭</option>
+          </select>
+          <button type="button" class="btn btn-ghost" id="admin-refresh">刷新</button>
+          <span class="admin-count" id="admin-count"></span>
+          <button type="button" class="btn btn-ghost admin-logout" id="admin-logout" style="margin-left:auto;">退出登录</button>
+        </div>
+        <div id="admin-tickets"></div>
+        <div class="admin-detail" id="admin-detail"></div>
+      </div>
+    </div>
+  </div>
+
   <div class="timeline-pane" id="timeline-pane">
     <button type="button" class="btn home-pane-back" id="home-back" onclick="document.body.classList.remove('split-active');document.getElementById('timeline-pane').style.display='none';this.style.display='none';">← 返回编辑</button>
     <iframe class="timeline-iframe" id="timeline-iframe" title="农事时间线"></iframe>
   </div>
+
 
   <script src="../assets/mock/mock-data.js"></script>
   <script src="../assets/js/crop-map.js"></script>
@@ -262,6 +383,8 @@
   <script src="../assets/js/my-crops.js"></script>
   <script src="../assets/js/my-plots.js"></script>
   <script src="../assets/js/disease.js"></script>
+  <script src="../assets/js/service.js"></script>
+  <script src="../assets/js/admin.js"></script>
   <script src="../components/floating-ball/floating-ball.js"></script>
   <script src="../assets/leaflet/leaflet.js"></script>
   <script src="../components/location-picker/location-picker.js"></script>

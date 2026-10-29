@@ -5,14 +5,15 @@
  */
 (function () {
   var MODULE_ENTRIES = [
-    { id: 'recommend', label: '种植推荐', icon: '🌱', implemented: false },
+    { id: 'recommend', label: '种植推荐', icon: '🌱', implemented: true },
     { id: 'calendar', label: '农事日历', icon: '📅', implemented: true },
     { id: 'disease', label: '病害检查', icon: '🔍', implemented: true },
     { id: 'my', label: '我的', icon: '👤', implemented: true, children: [
       { id: 'plots', label: '我的地块', icon: '📍', implemented: true },
       { id: 'my-crops', label: '我的产品', icon: '🌾', implemented: true }
     ]},
-    { id: 'service', label: '客服', icon: '💬', implemented: false }
+    { id: 'service', label: '客服', icon: '💬', implemented: true },
+    { id: 'admin', label: '管理后台', icon: '⚙️', implemented: true }
   ];
 
   var PLACEHOLDER_TEXT = '该板块正在开发中，敬请期待';
