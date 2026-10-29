@@ -1,4 +1,4 @@
-package com.cropcalendar.user;
+package com.cropcalendar.model;
 
 /**
  * 一个账号。字段刻意保持扁平 —— 这份数据要落盘成 JSON，

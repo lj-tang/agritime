@@ -1,8 +1,8 @@
 package com.cropcalendar.api;
 
-import com.cropcalendar.user.Auth;
-import com.cropcalendar.user.User;
-import com.cropcalendar.user.UserDataStore;
+import com.cropcalendar.middleware.Auth;
+import com.cropcalendar.model.User;
+import com.cropcalendar.service.user.UserDataStore;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 

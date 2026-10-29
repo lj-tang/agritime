@@ -1,6 +1,6 @@
 package com.cropcalendar.api;
 
-import com.cropcalendar.geo.GeoResolver;
+import com.cropcalendar.service.geo.GeoResolver;
 import com.cropcalendar.util.Json;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;

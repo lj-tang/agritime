@@ -1,4 +1,4 @@
-package com.cropcalendar.user;
+package com.cropcalendar.service.user;
 
 import com.cropcalendar.config.AppConfig;
 

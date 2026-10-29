@@ -1,6 +1,7 @@
-package com.cropcalendar.user;
+package com.cropcalendar.service.user;
 
 import com.cropcalendar.config.AppConfig;
+import com.cropcalendar.model.User;
 import com.cropcalendar.util.Json;
 import com.cropcalendar.util.JsonParser;
 
@@ -154,7 +155,7 @@ public final class UserStore {
     }
 
     /** 给令牌签名用的密钥，首次启动随机生成并落盘，重启后已发的令牌仍有效 */
-    static byte[] secret() {
+    public static byte[] secret() {
         ensureLoaded();
         return secret;
     }

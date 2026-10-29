@@ -1,5 +1,7 @@
-package com.cropcalendar.user;
+package com.cropcalendar.middleware;
 
+import com.cropcalendar.model.User;
+import com.cropcalendar.service.user.UserStore;
 import com.sun.net.httpserver.HttpExchange;
 
 import javax.crypto.Mac;

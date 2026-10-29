@@ -1,4 +1,4 @@
-package com.cropcalendar.geo;
+package com.cropcalendar.service.geo;
 
 import com.cropcalendar.util.JsonParser;
 
