@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#f4efe3" />
+  <title>超管后台 · 知农时</title>
+  <link rel="icon" type="image/svg+xml" href="../assets/img/common-logo.svg" />
+  <link rel="stylesheet" href="../assets/css/common.css" />
+  <link rel="stylesheet" href="../assets/css/admin-users.css" />
+</head>
+<body class="admin-body">
+
+  <header class="admin-header">
+    <div class="admin-brand">
+      <img src="../assets/img/common-logo.svg" width="24" height="24" alt="" aria-hidden="true" />
+      <span>知农时 · 超管后台</span>
+    </div>
+    <a class="admin-back" href="./index.html">返回主页</a>
+  </header>
+
+  <main class="admin-main" id="admin-main">
+
+    <section class="admin-gate" id="admin-gate" hidden>
+      <h1>需要管理员权限</h1>
+      <p id="admin-gate-text">请用超管账号登录后查看。</p>
+      <a class="admin-btn" href="./auth.html?next=admin.html">去登录</a>
+    </section>
+
+    <section class="admin-content" id="admin-content" hidden>
+      <div class="admin-stats" id="admin-stats"></div>
+
+      <div class="admin-panel">
+        <div class="admin-panel-head">
+          <h2>账号列表</h2>
+          <span class="admin-panel-sub" id="admin-count"></span>
+        </div>
+        <div class="admin-table-wrap">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>用户名</th>
+                <th>昵称</th>
+                <th>角色</th>
+                <th>注册时间</th>
+                <th>最近登录</th>
+                <th>登录次数</th>
+              </tr>
+            </thead>
+            <tbody id="admin-users-body"></tbody>
+          </table>
+        </div>
+        <p class="admin-empty" id="admin-empty" hidden>还没有账号</p>
+      </div>
+    </section>
+
+  </main>
+
+  <script src="../assets/js/admin-users.js"></script>
+</body>
+</html>

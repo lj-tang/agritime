@@ -400,3 +400,35 @@
   .tl-action .name { font-size: 19px; }
   .conclusion { font-size: 24px; }
 }
+/* 确认播种：日历 → 我的作物的入口（T12） */
+.sowing-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 14px;
+  flex-wrap: wrap;
+}
+
+.sowing-btn {
+  padding: 8px 20px;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  color: #fff;
+  background: var(--leaf);
+  border: 0;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background 0.18s ease;
+}
+.sowing-btn:hover { background: var(--leaf-2); }
+.sowing-btn[disabled] {
+  background: var(--leaf-soft);
+  color: var(--leaf);
+  cursor: default;
+}
+
+.sowing-hint {
+  font-size: 13px;
+  color: var(--muted);
+}

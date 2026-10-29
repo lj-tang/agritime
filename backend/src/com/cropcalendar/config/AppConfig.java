@@ -107,6 +107,26 @@ public final class AppConfig {
         return (v != null && !v.isBlank()) ? v.trim() : "";
     }
 
+    /** 账号库落盘路径（相对后端工作目录），默认 var/users.json */
+    public static String authStorePath() {
+        String v = raw("auth.store.path");
+        return (v != null && !v.isBlank()) ? v.trim() : "var/users.json";
+    }
+
+    /**
+     * 预置超管的初始密码。只在账号库为空、首次建库时生效；
+     * 生产环境务必用环境变量 AUTH_ADMIN_PASSWORD 覆盖，别用代码里的默认值。
+     */
+    public static String authAdminPassword() {
+        String v = raw("auth.admin.password");
+        return (v != null && !v.isBlank()) ? v.trim() : "";
+    }
+
+    /** 是否开放注册。关掉后只有超管能建号，用于正式对外时收口 */
+    public static boolean authAllowRegister() {
+        return boolOf("auth.allow.register", true);
+    }
+
     private static String raw(String key) {
         String envKey = key.toUpperCase().replace('.', '_').replace('-', '_');
         String env = System.getenv(envKey);

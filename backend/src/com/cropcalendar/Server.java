@@ -1,5 +1,7 @@
 package com.cropcalendar;
 
+import com.cropcalendar.api.AdminHandler;
+import com.cropcalendar.api.AuthHandler;
 import com.cropcalendar.api.ChartHandler;
 import com.cropcalendar.api.CropsHandler;
 import com.cropcalendar.api.DiseaseHandler;
@@ -41,6 +43,8 @@ public class Server {
         server.createContext("/api/plots", new PlotHandler());
         server.createContext("/api/disease", new DiseaseHandler());
         server.createContext("/api/geo", new GeoHandler());
+        server.createContext("/api/auth", new AuthHandler());
+        server.createContext("/api/admin", new AdminHandler());
         server.setExecutor(Executors.newFixedThreadPool(8));
 
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {

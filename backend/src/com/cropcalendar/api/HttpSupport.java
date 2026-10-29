@@ -70,6 +70,46 @@ final class HttpSupport {
         return t.isEmpty() ? null : t;
     }
 
+    /** 读请求体（UTF-8）。上限 64KB —— 账号接口不该有更大的载荷 */
+    static String body(HttpExchange ex) throws IOException {
+        byte[] bytes = ex.getRequestBody().readAllBytes();
+        if (bytes.length > 64 * 1024) {
+            throw new IOException("请求体过大");
+        }
+        return new String(bytes, StandardCharsets.UTF_8);
+    }
+
+    /** 读请求体并解析成对象；不是合法 JSON 对象时返回 null，由调用方回 400 */
+    @SuppressWarnings("unchecked")
+    static Map<String, Object> jsonBody(HttpExchange ex) throws IOException {
+        String text = body(ex);
+        if (text.isBlank()) return null;
+        try {
+            Object root = com.cropcalendar.util.JsonParser.parse(text);
+            return root instanceof Map<?, ?> m ? (Map<String, Object>) m : null;
+        } catch (IllegalArgumentException e) {
+            return null;
+        }
+    }
+
+    /** 取 JSON 对象里的字符串字段，缺省返回空串 */
+    static String field(Map<String, Object> m, String key) {
+        if (m == null) return "";
+        Object v = m.get(key);
+        return v instanceof String s ? s.trim() : "";
+    }
+
+    /** 统一的成功响应 */
+    static String ok(String dataJson) {
+        return "{\"code\":0,\"message\":\"ok\",\"data\":" + dataJson + "}";
+    }
+
+    /** 统一的错误响应 */
+    static String error(int code, String message) {
+        return "{\"code\":" + code + ",\"message\":"
+                + com.cropcalendar.util.Json.str(message) + ",\"data\":null}";
+    }
+
     static double parseDouble(String s, double fallback) {
         if (s == null || s.isBlank()) return fallback;
         try {
