@@ -20,6 +20,8 @@
     var cancelBtn = document.getElementById('my-plots-cancel');
     if (cancelBtn) cancelBtn.addEventListener('click', function () { hideForm(); });
     bindLocationButtons();
+    // 账号数据从服务端合并回来后重渲染，避免先显示本地旧数据
+    window.addEventListener('agritime:data-synced', renderList);
   }
 
   function bindLocationButtons() {

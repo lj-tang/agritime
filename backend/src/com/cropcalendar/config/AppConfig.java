@@ -122,6 +122,12 @@ public final class AppConfig {
         return (v != null && !v.isBlank()) ? v.trim() : "";
     }
 
+    /** 用户业务数据的存放目录（我的作物/地块/历史），默认 var/userdata */
+    public static String authDataDir() {
+        String v = raw("auth.data.dir");
+        return (v != null && !v.isBlank()) ? v.trim() : "var/userdata";
+    }
+
     /** 是否开放注册。关掉后只有超管能建号，用于正式对外时收口 */
     public static boolean authAllowRegister() {
         return boolOf("auth.allow.register", true);

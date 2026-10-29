@@ -11,6 +11,7 @@
     renderList();
     var addBtn = document.getElementById('my-crops-add-btn');
     if (addBtn) addBtn.addEventListener('click', function () { showForm(null); });
+    window.addEventListener('agritime:data-synced', renderList);
     window.addEventListener('agritime:sowing-confirmed', function (e) {
       var d = e.detail || {};
       if (!d.cropName) return;
