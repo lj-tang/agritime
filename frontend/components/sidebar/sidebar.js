@@ -5,8 +5,9 @@
  */
 (function () {
   var MODULE_ENTRIES = [
-    { id: 'recommend', label: '种植推荐', icon: '🌱', implemented: true },
+    // 农事日历是主功能，放最上面；其余按「先看天气再选种」的使用顺序排
     { id: 'calendar', label: '农事日历', icon: '📅', implemented: true },
+    { id: 'recommend', label: '种植推荐', icon: '🌱', implemented: true },
     { id: 'disease', label: '病害检查', icon: '🔍', implemented: true },
     { id: 'my', label: '我的', icon: '👤', implemented: true, children: [
       { id: 'plots', label: '我的地块', icon: '📍', implemented: true },

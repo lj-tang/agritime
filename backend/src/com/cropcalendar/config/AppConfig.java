@@ -134,6 +134,12 @@ public final class AppConfig {
         return (v != null && !v.isBlank()) ? v.trim() : "var/settings.json";
     }
 
+    /** 超管操作审计日志路径，默认 var/admin-audit.log */
+    public static String adminAuditPath() {
+        String v = raw("admin.audit.path");
+        return (v != null && !v.isBlank()) ? v.trim() : "var/admin-audit.log";
+    }
+
     /**
      * 后台文件管理的根目录，默认 /agritime（整站）。
      * 改成 / 就等于把整机文件读写暴露给超管接口，只在演示机上这么干。

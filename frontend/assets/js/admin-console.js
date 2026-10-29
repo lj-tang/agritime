@@ -15,6 +15,8 @@
   var swSearch, swLlm, swMsg;
 
   var currentPath = '/';
+  var meUser = null;
+  var auditEl, auditEmpty;
   var editingPath = null;
   var busy = false;
 
@@ -36,6 +38,9 @@
   function handle(res) {
     if (res.status === 401) return { gate: '请用超管账号登录后查看。' };
     if (res.status === 403) return { gate: '当前账号不是管理员，无法进入后台。' };
+    if (res.status === 429) {
+      return Promise.reject(new Error('请求过于频繁，请等几秒后刷新页面'));
+    }
     return res.json().catch(function () { return {}; }).then(function (d) {
       if (!res.ok) throw new Error((d && d.message) || ('HTTP ' + res.status));
       return d;
@@ -70,6 +75,8 @@
     editorTitle = document.getElementById('editor-title');
     editorText = document.getElementById('editor-text');
     editorMsg = document.getElementById('editor-msg');
+    auditEl = document.getElementById('admin-audit');
+    auditEmpty = document.getElementById('admin-audit-empty');
     swSearch = document.getElementById('sw-search');
     swLlm = document.getElementById('sw-llm');
     swMsg = document.getElementById('sw-msg');
@@ -82,6 +89,7 @@
     document.getElementById('fs-new-dir').addEventListener('click', function () { createEntry(true); });
     document.getElementById('fs-refresh').addEventListener('click', loadFiles);
     document.getElementById('sw-save').addEventListener('click', saveSettings);
+    document.getElementById('audit-refresh').addEventListener('click', loadAudit);
 
     document.getElementById('editor-close').addEventListener('click', closeEditor);
     document.getElementById('editor-cancel').addEventListener('click', closeEditor);
@@ -91,7 +99,18 @@
   }
 
   function boot() {
-    get(API + '/stats')
+    // 先确认是谁，再拉列表：否则「当前登录」标记和危险按钮的隐藏都无从判断
+    fetch('/api/auth/me')
+      .then(function (res) { return res.ok ? res.json() : null; })
+      .then(function (d) {
+        var u = d && d.data && d.data.user;
+        if (u) {
+          meUser = u;
+          whoEl.textContent = (u.nickname || u.username) + '（管理员）';
+        }
+      })
+      .catch(function () { /* 认人失败不影响后续，服务端仍会校验权限 */ })
+      .then(function () { return get(API + '/stats'); })
       .then(function (r) {
         if (r.gate) { showGate(r.gate); return; }
         renderStats(r.data);
@@ -99,7 +118,6 @@
         loadUsers();
         loadFiles();
         loadSettings();
-        loadWho();
       })
       .catch(function (e) { showGate('后台数据加载失败：' + e.message); });
   }
@@ -117,16 +135,7 @@
     document.querySelectorAll('.admin-panel-wrap').forEach(function (p) {
       p.hidden = p.getAttribute('data-panel') !== name;
     });
-  }
-
-  function loadWho() {
-    fetch('/api/auth/me')
-      .then(function (r) { return r.ok ? r.json() : null; })
-      .then(function (d) {
-        var u = d && d.data && d.data.user;
-        if (u) whoEl.textContent = (u.nickname || u.username) + '（管理员）';
-      })
-      .catch(function () { /* 忽略 */ });
+    if (name === 'audit') loadAudit();
   }
 
   // ---------------- 概览 ----------------
@@ -180,14 +189,23 @@
     tr.appendChild(el('td', null, u.lastLoginAt || '从未登录'));
     tr.appendChild(el('td', null, String(u.loginCount || 0)));
 
-    var opTd = el('td');
+    var isSelf = !!(meUser && meUser.id === u.id);
+    var opTd = el('td', 'admin-ops');
+
     if (u.role !== 'admin') {
-      var btn = el('button', 'admin-mini' + (u.banned ? '' : ' is-danger'), u.banned ? '解封' : '封号');
-      btn.addEventListener('click', function () { toggleBan(u); });
-      opTd.appendChild(btn);
-    } else {
-      opTd.appendChild(el('span', 'admin-muted', '—'));
+      opTd.appendChild(miniBtn(u.banned ? '解封' : '封号', u.banned ? '' : 'is-danger',
+        function () { toggleBan(u); }));
     }
+    if (!isSelf) {
+      opTd.appendChild(miniBtn(u.role === 'admin' ? '取消管理员' : '设为管理员', '',
+        function () { toggleRole(u); }));
+    }
+    opTd.appendChild(miniBtn('重置密码', '', function () { resetPwd(u); }));
+    if (u.role !== 'admin' && !isSelf) {
+      opTd.appendChild(miniBtn('删除', 'is-danger', function () { removeUser(u); }));
+    }
+    if (isSelf) opTd.appendChild(el('span', 'admin-muted', '当前登录'));
+
     tr.appendChild(opTd);
     return tr;
   }
@@ -201,6 +219,58 @@
       .then(function () { loadUsers(); loadStats(); })
       .catch(function (e) { alert('操作失败：' + e.message); })
       .then(function () { busy = false; });
+  }
+
+  function miniBtn(text, extraCls, onClick) {
+    var b = el('button', 'admin-mini' + (extraCls ? ' ' + extraCls : ''), text);
+    b.addEventListener('click', onClick);
+    return b;
+  }
+
+  /** 升 / 降管理员 */
+  function toggleRole(u) {
+    if (busy) return;
+    var next = u.role === 'admin' ? 'user' : 'admin';
+    var tip = next === 'admin'
+      ? '把「' + u.username + '」设为管理员？他将能进入后台并管理所有账号。'
+      : '取消「' + u.username + '」的管理员身份？';
+    if (!confirm(tip)) return;
+    busy = true;
+    send(API + '/users/role', 'POST', { id: u.id, role: next })
+      .then(function () { loadUsers(); loadStats(); })
+      .catch(function (e) { alert('操作失败：' + e.message); })
+      .then(function () { busy = false; });
+  }
+
+  /** 重置密码：不显示原密码，直接设新的 */
+  function resetPwd(u) {
+    var pwd = prompt('给「' + u.username + '」设置新密码（至少 6 位）：');
+    if (!pwd) return;
+    if (pwd.length < 6) { alert('密码至少 6 位'); return; }
+    send(API + '/users/password', 'POST', { id: u.id, password: pwd })
+      .then(function () { alert('已重置，「' + u.username + '」下次登录请用新密码'); })
+      .catch(function (e) { alert('重置失败：' + e.message); });
+  }
+
+  /** 删号（连同他的地块/作物数据） */
+  function removeUser(u) {
+    if (!confirm('删除「' + u.username + '」？账号和他的地块、作物记录都会被清空，不可恢复。')) return;
+    send(API + '/users?id=' + encodeURIComponent(u.id), 'DELETE')
+      .then(function () { loadUsers(); loadStats(); })
+      .catch(function (e) { alert('删除失败：' + e.message); });
+  }
+
+  function loadAudit() {
+    get(API + '/audit?limit=200')
+      .then(function (d) {
+        var items = (d.data && d.data.items) || [];
+        auditEl.innerHTML = '';
+        auditEmpty.hidden = items.length > 0;
+        items.forEach(function (line) {
+          auditEl.appendChild(el('div', 'admin-audit-row', line));
+        });
+      })
+      .catch(function (e) { auditEl.textContent = '加载失败：' + e.message; });
   }
 
   function loadStats() {

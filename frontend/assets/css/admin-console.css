@@ -365,3 +365,24 @@
 
 /* [hidden] 是 UA 样式，被上面的 display:flex 盖掉了 —— 显式兜一层 */
 .admin-editor[hidden] { display: none !important; }
+
+/* 操作列：一排小按钮 */
+.admin-ops { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+
+/* 审计日志 */
+.admin-audit {
+  max-height: 520px;
+  overflow-y: auto;
+  padding: 8px 0;
+}
+.admin-audit-row {
+  padding: 8px 22px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Courier New", monospace;
+  font-size: 12.5px;
+  line-height: 1.6;
+  color: var(--ink-soft);
+  border-bottom: 1px dashed var(--line);
+  word-break: break-all;
+}
+.admin-audit-row:last-child { border-bottom: 0; }
+.admin-audit-row:nth-child(odd) { background: var(--paper); }

@@ -138,6 +138,52 @@ public final class UserStore {
         }
     }
 
+    /** 升/降管理员。role 只接受 admin / user */
+    public static boolean setRole(String userId, String role) {
+        ensureLoaded();
+        if (!"admin".equals(role) && !"user".equals(role)) return false;
+        synchronized (LOCK) {
+            User u = BY_ID.get(userId);
+            if (u == null) return false;
+            BY_ID.put(userId, new User(u.id(), u.username(), u.nickname(), u.passwordHash(),
+                    role, u.createdAt(), u.lastLoginAt(), u.loginCount(), u.banned()));
+            persist();
+            return true;
+        }
+    }
+
+    /** 超管重置密码：不需要旧密码，用于用户忘记密码 */
+    public static boolean resetPassword(String userId, String password) {
+        ensureLoaded();
+        if (password == null || password.length() < 6) return false;
+        synchronized (LOCK) {
+            User u = BY_ID.get(userId);
+            if (u == null) return false;
+            BY_ID.put(userId, new User(u.id(), u.username(), u.nickname(), hash(password),
+                    u.role(), u.createdAt(), u.lastLoginAt(), u.loginCount(), u.banned()));
+            persist();
+            return true;
+        }
+    }
+
+    /** 删号。连同这个人的业务数据一起清掉，避免留下孤儿文件 */
+    public static boolean delete(String userId) {
+        ensureLoaded();
+        synchronized (LOCK) {
+            User u = BY_ID.get(userId);
+            if (u == null) return false;
+            BY_ID.remove(userId);
+            ID_BY_NAME.remove(norm(u.username()));
+            persist();
+            try {
+                com.cropcalendar.service.user.UserDataStore.delete(userId);
+            } catch (Exception e) {
+                System.err.println("[user] 清理用户数据失败：" + e.getMessage());
+            }
+            return true;
+        }
+    }
+
     public static int count() {
         ensureLoaded();
         synchronized (LOCK) {

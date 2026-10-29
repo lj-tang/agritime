@@ -35,6 +35,7 @@
         <button type="button" class="admin-tab" data-tab="users">账号</button>
         <button type="button" class="admin-tab" data-tab="files">文件</button>
         <button type="button" class="admin-tab" data-tab="switches">开关</button>
+        <button type="button" class="admin-tab" data-tab="audit">日志</button>
       </nav>
 
       <!-- 概览 -->
@@ -128,6 +129,21 @@
             <button type="button" class="admin-btn" id="sw-save">保存开关</button>
             <span class="admin-switch-msg" id="sw-msg"></span>
           </div>
+        </div>
+      </div>
+
+      <!-- 操作日志 -->
+      <div class="admin-panel-wrap" data-panel="audit" hidden>
+        <div class="admin-panel">
+          <div class="admin-panel-head">
+            <h2>操作日志</h2>
+            <span class="admin-panel-sub">超管的每一次敏感操作都会留痕，只增不改</span>
+            <div class="admin-fs-actions">
+              <button type="button" class="admin-mini" id="audit-refresh">刷新</button>
+            </div>
+          </div>
+          <div class="admin-audit" id="admin-audit"></div>
+          <p class="admin-empty" id="admin-audit-empty" hidden>还没有操作记录</p>
         </div>
       </div>
 

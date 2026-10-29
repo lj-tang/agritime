@@ -47,6 +47,11 @@ public final class UserDataStore {
         }
     }
 
+    /** 删号时一并删掉这个人的数据文件 */
+    public static void delete(String userId) throws IOException {
+        Files.deleteIfExists(pathOf(userId));
+    }
+
     private static Path pathOf(String userId) {
         String safe = userId == null ? "anonymous" : userId.replaceAll("[^A-Za-z0-9_\\-]", "_");
         String dir = AppConfig.authDataDir();
