@@ -1,0 +1,31 @@
+{
+  "version": "1.0.0",
+  "comment": "种植推荐规则库（T15）。每个作物给出适宜播种月份（1-12）、适宜气候带、市场需求热度。后端结合用户选择的时间(月份)、地点(纬度)综合打分，输出 Top 推荐并给出理由。",
+  "crops": [
+    { "name": "大蒜", "cropId": "dry_garlic", "sowMonths": [9, 10], "climate": "温带", "latRange": [30, 42], "market": 88, "reason": "秋季播种越冬生长，山东河南等大蒜主产区适配" },
+    { "name": "冬小麦", "cropId": "wheat_winter", "sowMonths": [9, 10, 11], "climate": "温带", "latRange": [32, 42], "market": 82, "reason": "黄淮海平原适期播种，冬前壮苗越冬" },
+    { "name": "玉米", "cropId": "corn_summer", "sowMonths": [5, 6], "climate": "温带", "latRange": [28, 47], "market": 80, "reason": "夏播玉米需赶在雨季前抢种，东北华北主产区" },
+    { "name": "水稻", "cropId": "rice", "sowMonths": [3, 4, 5, 6], "climate": "亚热带", "latRange": [20, 35], "market": 85, "reason": "南方水热条件充足，早中晚稻多熟制" },
+    { "name": "大豆", "cropId": "soybean", "sowMonths": [5, 6], "climate": "温带", "latRange": [32, 50], "market": 75, "reason": "夏大豆适期播种，东北大豆品质优" },
+    { "name": "番茄", "cropId": "tomato", "sowMonths": [3, 4, 5], "climate": "温带", "latRange": [25, 45], "market": 90, "reason": "市场需求大，设施与露地均可，寿光等产区成熟" },
+    { "name": "辣椒", "cropId": "chili_pepper", "sowMonths": [3, 4], "climate": "温带", "latRange": [22, 40], "market": 86, "reason": "鲜食与加工需求旺，南方春秋两季可种" },
+    { "name": "棉花", "cropId": "cotton", "sowMonths": [4, 5], "climate": "温带", "latRange": [28, 42], "market": 78, "reason": "新疆黄河流域主产，需充足积温" },
+    { "name": "花生", "cropId": "", "sowMonths": [4, 5], "climate": "温带", "latRange": [25, 40], "market": 76, "reason": "油料作物需求稳定，砂质土壤适配" },
+    { "name": "油菜", "cropId": "", "sowMonths": [9, 10], "climate": "亚热带", "latRange": [23, 35], "market": 74, "reason": "长江流域稻油轮作，冬油菜越冬" },
+    { "name": "黄瓜", "cropId": "", "sowMonths": [3, 4, 5], "climate": "温带", "latRange": [22, 42], "market": 84, "reason": "设施栽培全年可供应，夏季露地需求大" },
+    { "name": "茄子", "cropId": "", "sowMonths": [3, 4], "climate": "温带", "latRange": [22, 42], "market": 79, "reason": "夏秋蔬菜，南北均可种植" },
+    { "name": "马铃薯", "cropId": "", "sowMonths": [2, 3, 9, 10], "climate": "温带", "latRange": [25, 48], "market": 81, "reason": "春秋两季可种，耐贮运，粮菜兼用" },
+    { "name": "红薯", "cropId": "", "sowMonths": [4, 5], "climate": "温带", "latRange": [22, 40], "market": 73, "reason": "耐旱耐瘠，丘陵旱地适配" },
+    { "name": "苹果", "cropId": "", "sowMonths": [3, 11], "climate": "温带", "latRange": [33, 42], "market": 83, "reason": "北方落叶果树主栽，需冬季休眠" },
+    { "name": "草莓", "cropId": "", "sowMonths": [8, 9], "climate": "温带", "latRange": [25, 40], "market": 91, "reason": "冬春季鲜果需求旺盛，设施促成栽培效益高" },
+    { "name": "葡萄", "cropId": "", "sowMonths": [3, 4], "climate": "温带", "latRange": [30, 42], "market": 80, "reason": "鲜食与酿酒双重需求，北方适栽" },
+    { "name": "西瓜", "cropId": "", "sowMonths": [3, 4, 5], "climate": "温带", "latRange": [22, 42], "market": 87, "reason": "夏季消暑刚需，露地与大棚均可" },
+    { "name": "大白菜", "cropId": "", "sowMonths": [8], "climate": "温带", "latRange": [25, 42], "market": 85, "reason": "秋冬蔬菜主栽，北方冬储刚需" },
+    { "name": "萝卜", "cropId": "", "sowMonths": [8, 9], "climate": "温带", "latRange": [22, 42], "market": 77, "reason": "秋冬根菜，管理粗放产量高" },
+    { "name": "菠菜", "cropId": "", "sowMonths": [3, 9, 10], "climate": "温带", "latRange": [22, 42], "market": 75, "reason": "耐寒速生叶菜，春秋两季上市" },
+    { "name": "韭菜", "cropId": "", "sowMonths": [3, 4, 9], "climate": "温带", "latRange": [25, 42], "market": 78, "reason": "多年生叶菜，一次种植多次采收" },
+    { "name": "生姜", "cropId": "", "sowMonths": [4, 5], "climate": "亚热带", "latRange": [22, 35], "market": 82, "reason": "南方主产，需温暖湿润与遮阴" },
+    { "name": "甘蔗", "cropId": "", "sowMonths": [2, 3], "climate": "热带", "latRange": [18, 25], "market": 79, "reason": "华南糖料主栽，需充足热量" },
+    { "name": "芒果", "cropId": "", "sowMonths": [3, 4], "climate": "热带", "latRange": [18, 25], "market": 76, "reason": "热带水果，华南海南适栽" }
+  ]
+}

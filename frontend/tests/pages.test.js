@@ -825,3 +825,34 @@ test('地址解析：index.html 已接入 page-url.js', () => {
   assert.ok(indexHtml.includes('page-url.js'));
   assert.ok(indexHtml.includes('window.PageUrl.timelineUrl'));
 });
+
+// ---------------- T15 种植推荐 ----------------
+const recommendJs = read(path.resolve(__dirname, '..', 'assets', 'js', 'recommend.js'));
+const recommendCss = read(path.join(CSS, 'recommend.css'));
+
+test('T15 种植推荐：index.html 集成', () => {
+  assert.ok(indexHtml.includes('data-module="recommend"'));
+  assert.ok(indexHtml.includes('recommend.css'));
+  assert.ok(indexHtml.includes('recommend.js'));
+  assert.ok(indexHtml.includes('id="recommend-form"'));
+  assert.ok(indexHtml.includes('class="recommend-body"'));
+});
+
+test('T15 种植推荐：脚本走接口并带月份/经纬度参数', () => {
+  assert.ok(recommendJs.includes('/api/recommend'));
+  assert.ok(recommendJs.includes('month'));
+  assert.ok(recommendJs.includes('lat'));
+  assert.ok(recommendJs.includes('lon'));
+});
+
+test('T15 推荐规则库：结构与字段完整', () => {
+  const lib = JSON.parse(read(path.resolve(__dirname, '..', '..', 'data', 'market', 'recommend-rules.json')));
+  assert.ok(Array.isArray(lib.crops));
+  assert.ok(lib.crops.length >= 20, '推荐作物太少：' + lib.crops.length);
+  lib.crops.forEach((c) => {
+    ['name', 'sowMonths', 'latRange', 'market', 'reason'].forEach((k) => {
+      assert.ok(c[k] !== undefined, c.name + ' 缺字段 ' + k);
+    });
+    assert.ok(c.sowMonths.length >= 1 && c.sowMonths.every((m) => m >= 1 && m <= 12), c.name + ' 月份非法');
+  });
+});

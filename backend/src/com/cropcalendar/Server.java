@@ -10,6 +10,7 @@ import com.cropcalendar.api.HealthHandler;
 import com.cropcalendar.api.MeHandler;
 import com.cropcalendar.api.PlotHandler;
 import com.cropcalendar.api.RecognitionHandler;
+import com.cropcalendar.api.RecommendHandler;
 import com.cropcalendar.api.SiteConfigHandler;
 import com.cropcalendar.api.TimelineHandler;
 import com.cropcalendar.compute.ComputeStub;
@@ -49,6 +50,7 @@ public class Server {
         server.createContext("/api/admin", new AdminHandler());
         server.createContext("/api/me", new MeHandler());
         server.createContext("/api/site-config", new SiteConfigHandler());
+        server.createContext("/api/recommend", new RecommendHandler());
         server.setExecutor(Executors.newFixedThreadPool(8));
 
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
