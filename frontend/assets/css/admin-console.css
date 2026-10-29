@@ -362,3 +362,6 @@
   .admin-tabs { width: 100%; }
   .admin-tab { flex: 1; padding: 8px 0; }
 }
+
+/* [hidden] 是 UA 样式，被上面的 display:flex 盖掉了 —— 显式兜一层 */
+.admin-editor[hidden] { display: none !important; }

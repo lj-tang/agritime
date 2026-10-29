@@ -178,7 +178,7 @@ public class AdminHandler implements HttpHandler {
                         "mtime", Json.str(e.mtime())));
             }
             String data = Json.obj(
-                    "root", Json.str(AdminFiles.rel(AdminFiles.root())),
+                    "root", Json.str(AdminFiles.root().toString()),
                     "path", Json.str(AdminFiles.rel(AdminFiles.resolve(dir))),
                     "items", Json.arr(items));
             HttpSupport.write(ex, 200, HttpSupport.ok(data));
