@@ -121,6 +121,11 @@ public class AuthHandler implements HttpHandler {
             return;
         }
 
+        if (u.banned()) {
+            HttpSupport.write(ex, 403, HttpSupport.error(403, "该账号已被封禁，请联系管理员"));
+            return;
+        }
+
         FAILS.remove(key);
         LOCK_UNTIL.remove(key);
 

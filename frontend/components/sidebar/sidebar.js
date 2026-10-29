@@ -13,12 +13,15 @@
       { id: 'my-crops', label: '我的产品', icon: '🌾', implemented: true }
     ]},
     { id: 'service', label: '客服', icon: '💬', implemented: true },
-    { id: 'admin', label: '管理后台', icon: '⚙️', implemented: true }
+    // 管理后台只给超管看：非管理员连入口都不出现，权限判断仍在服务端
+    { id: 'admin', label: '管理后台', icon: '⚙️', implemented: true, adminOnly: true }
   ];
 
   var PLACEHOLDER_TEXT = '该板块正在开发中，敬请期待';
 
   var currentModule = 'calendar';
+  var isAdmin = false;
+  var adminChecked = false;
 
   function findEntry(id) {
     for (var i = 0; i < MODULE_ENTRIES.length; i++) {
@@ -37,6 +40,7 @@
     if (!nav) return;
     nav.innerHTML = '';
     MODULE_ENTRIES.forEach(function (entry) {
+      if (entry.adminOnly && !isAdmin) return;
       var btn = document.createElement('button');
       btn.type = 'button';
       btn.className = 'sidebar-item' + (entry.id === currentModule ? ' sidebar-item--active' : '');
@@ -87,6 +91,8 @@
   }
 
   function switchModule(id) {
+    var guard = findEntry(id);
+    if (guard && guard.adminOnly && !isAdmin) return;
     currentModule = id;
     // 切到子功能板块时让日历主体整体让位，由板块占满内容区（见 common.css 的 .pane-mode）
     document.body.classList.toggle('pane-mode', id !== 'calendar');
@@ -136,6 +142,28 @@
     var burger = document.getElementById('sidebar-burger');
     if (burger) burger.addEventListener('click', toggleDrawer);
     switchModule(currentModule);
+    checkAdmin();
+  }
+
+  /**
+   * 只有超管才挂「管理后台」入口。
+   * 先渲染再查身份，避免等接口时侧栏是空的；查到是超管就重渲染一次。
+   */
+  function checkAdmin() {
+    if (typeof fetch !== 'function') return;
+    fetch('/api/auth/me')
+      .then(function (res) { return res.ok ? res.json() : null; })
+      .then(function (d) {
+        var user = d && d.data && d.data.user;
+        isAdmin = !!(user && user.role === 'admin');
+        if (!adminChecked && isAdmin) {
+          adminChecked = true;
+          renderSidebar();
+          switchModule(currentModule);
+        }
+        adminChecked = true;
+      })
+      .catch(function () { adminChecked = true; });
   }
 
   if (typeof window !== 'undefined') {

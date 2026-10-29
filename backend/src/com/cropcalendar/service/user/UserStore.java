@@ -91,7 +91,7 @@ public final class UserStore {
             String id = "u_" + Long.toString(System.currentTimeMillis(), 36)
                     + Integer.toString(RANDOM.nextInt(1296), 36);
             User u = new User(id, username.trim(), nickname == null ? "" : nickname.trim(),
-                    hash(password), role, now(), "", 0);
+                    hash(password), role, now(), "", 0, false);
             BY_ID.put(id, u);
             ID_BY_NAME.put(name, id);
             persist();
@@ -122,6 +122,19 @@ public final class UserStore {
             BY_ID.put(updated.id(), updated);
             persist();
             return updated;
+        }
+    }
+
+    /** 封号 / 解封。超管自己不能被封，否则后台就进不去了 */
+    public static boolean setBanned(String userId, boolean banned) {
+        ensureLoaded();
+        synchronized (LOCK) {
+            User u = BY_ID.get(userId);
+            if (u == null || u.isAdmin()) return false;
+            User updated = u.withBanned(banned);
+            BY_ID.put(userId, updated);
+            persist();
+            return true;
         }
     }
 
@@ -223,7 +236,7 @@ public final class UserStore {
                             str(u, "id"), str(u, "username"), str(u, "nickname"),
                             str(u, "passwordHash"), str(u, "role"),
                             str(u, "createdAt"), str(u, "lastLoginAt"),
-                            (int) num(u, "loginCount"));
+                            (int) num(u, "loginCount"), bool(u, "banned"));
                     BY_ID.put(user.id(), user);
                     ID_BY_NAME.put(norm(user.username()), user.id());
                 }
@@ -243,7 +256,7 @@ public final class UserStore {
             pwd = "agritime@2026";
         }
         User admin = new User("u_admin", "admin", "超级管理员",
-                hash(pwd), "admin", now(), "", 0);
+                hash(pwd), "admin", now(), "", 0, false);
         BY_ID.put(admin.id(), admin);
         ID_BY_NAME.put("admin", admin.id());
         persist();
@@ -264,7 +277,8 @@ public final class UserStore {
                         "role", Json.str(u.role()),
                         "createdAt", Json.str(u.createdAt()),
                         "lastLoginAt", Json.str(u.lastLoginAt()),
-                        "loginCount", String.valueOf(u.loginCount())));
+                        "loginCount", String.valueOf(u.loginCount()),
+                        "banned", String.valueOf(u.banned())));
             }
             String body = Json.obj(
                     "version", "1",
@@ -292,6 +306,13 @@ public final class UserStore {
     private static String str(Map<String, Object> m, String key) {
         Object v = m.get(key);
         return v instanceof String s ? s : "";
+    }
+
+    private static boolean bool(Map<String, Object> m, String key) {
+        Object v = m.get(key);
+        if (v instanceof Boolean b) return b;
+        if (v instanceof String s) return "true".equalsIgnoreCase(s.trim());
+        return false;
     }
 
     private static double num(Map<String, Object> m, String key) {

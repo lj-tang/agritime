@@ -15,7 +15,8 @@ public record User(
         String role,          // "admin" | "user"
         String createdAt,     // ISO-8601 秒级
         String lastLoginAt,
-        int loginCount) {
+        int loginCount,
+        boolean banned) {      // 被封号的账号登录即拒，已登录的会话也立即失效
 
     public boolean isAdmin() {
         return "admin".equals(role);
@@ -30,10 +31,15 @@ public record User(
                 "role", com.cropcalendar.util.Json.str(role),
                 "createdAt", com.cropcalendar.util.Json.str(createdAt),
                 "lastLoginAt", com.cropcalendar.util.Json.str(lastLoginAt),
-                "loginCount", String.valueOf(loginCount));
+                "loginCount", String.valueOf(loginCount),
+                "banned", String.valueOf(banned));
     }
 
     public User withLogin(String at) {
-        return new User(id, username, nickname, passwordHash, role, createdAt, at, loginCount + 1);
+        return new User(id, username, nickname, passwordHash, role, createdAt, at, loginCount + 1, banned);
+    }
+
+    public User withBanned(boolean value) {
+        return new User(id, username, nickname, passwordHash, role, createdAt, lastLoginAt, loginCount, value);
     }
 }

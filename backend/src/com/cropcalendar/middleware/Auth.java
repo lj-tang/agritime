@@ -64,7 +64,10 @@ public final class Auth {
         }
         if (exp < System.currentTimeMillis() / 1000) return null;
 
-        return UserStore.findById(id);
+        User u = UserStore.findById(id);
+        // 封号即时生效：不等令牌过期，下一次请求就登不进来
+        if (u == null || u.banned()) return null;
+        return u;
     }
 
     public static void setCookie(HttpExchange ex, String token) {

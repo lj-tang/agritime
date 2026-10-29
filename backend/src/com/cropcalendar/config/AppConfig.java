@@ -128,6 +128,21 @@ public final class AppConfig {
         return (v != null && !v.isBlank()) ? v.trim() : "var/userdata";
     }
 
+    /** 站点开关文件路径（禁用搜索 / 禁用大模型），默认 var/settings.json */
+    public static String adminSettingsPath() {
+        String v = raw("admin.settings.path");
+        return (v != null && !v.isBlank()) ? v.trim() : "var/settings.json";
+    }
+
+    /**
+     * 后台文件管理的根目录，默认 /agritime（整站）。
+     * 改成 / 就等于把整机文件读写暴露给超管接口，只在演示机上这么干。
+     */
+    public static String adminFsRoot() {
+        String v = raw("admin.fs.root");
+        return (v != null && !v.isBlank()) ? v.trim() : "/agritime";
+    }
+
     /** 是否开放注册。关掉后只有超管能建号，用于正式对外时收口 */
     public static boolean authAllowRegister() {
         return boolOf("auth.allow.register", true);
