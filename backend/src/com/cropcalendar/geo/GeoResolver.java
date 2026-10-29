@@ -128,7 +128,7 @@ public final class GeoResolver {
                 + "&page_size=" + n + "&key=" + enc(key);
         Map<String, Object> root = getJson(url);
         java.util.List<Suggestion> out = new java.util.ArrayList<>();
-        if (root == null || !"0".equals(str(root, "status"))) return out;
+        if (root == null || !codeIs(root, "status", "0")) return out;
         List<?> data = list(root, "data");
         if (data == null) return out;
         for (Object o : data) {
@@ -149,7 +149,7 @@ public final class GeoResolver {
                 + "&key=" + enc(key) + "&offset=" + n + "&page=1&extensions=base";
         Map<String, Object> root = getJson(url);
         java.util.List<Suggestion> out = new java.util.ArrayList<>();
-        if (root == null || !"1".equals(str(root, "status"))) return out;
+        if (root == null || !codeIs(root, "status", "1")) return out;
         List<?> pois = list(root, "pois");
         if (pois == null) return out;
         for (Object o : pois) {
@@ -174,6 +174,18 @@ public final class GeoResolver {
         return lat >= -90 && lat <= 90 && lon >= -180 && lon <= 180;
     }
 
+    /**
+     * 状态码比较。腾讯返回的是数字 0，高德返回的是字符串 "1"，
+     * 用 str() 统一取字符串会把数字吃掉，所以单独判一次。
+     */
+    private static boolean codeIs(Map<String, Object> m, String key, String expected) {
+        if (m == null) return false;
+        Object v = m.get(key);
+        if (v instanceof String s) return expected.equals(s.trim());
+        if (v instanceof Number n) return expected.equals(String.valueOf(n.intValue()));
+        return false;
+    }
+
     private static double dbl(Map<String, Object> m, String key) {
         Object v = m.get(key);
         if (v instanceof Number num) return num.doubleValue();
@@ -193,9 +205,13 @@ public final class GeoResolver {
         String url = "https://apis.map.qq.com/ws/geocoder/v1/?location="
                 + String.format(Locale.ROOT, "%.6f,%.6f", lat, lon)
                 + "&key=" + enc(key) + "&get_poi=1";
-        Map<String, Object> root = getJson(url);
+        return parseTencent(getJson(url));
+    }
+
+    /** 解析腾讯返回体。单独抽出来，便于用固定报文做回归（见 /tmp 下的解析自测） */
+    static Place parseTencent(Map<String, Object> root) {
         if (root == null) return null;
-        if (!"0".equals(str(root, "status"))) return null;
+        if (!codeIs(root, "status", "0")) return null;
 
         Map<String, Object> result = map(root, "result");
         if (result == null) return null;
@@ -232,9 +248,13 @@ public final class GeoResolver {
         String url = "https://restapi.amap.com/v3/geocode/regeo?key=" + enc(key)
                 + "&location=" + String.format(Locale.ROOT, "%.6f,%.6f", lon, lat)
                 + "&extensions=all&radius=300&roadlevel=0";
-        Map<String, Object> root = getJson(url);
+        return parseAmap(getJson(url));
+    }
+
+    /** 解析高德返回体。单独抽出来，便于用固定报文做回归 */
+    static Place parseAmap(Map<String, Object> root) {
         if (root == null) return null;
-        if (!"1".equals(str(root, "status"))) return null;
+        if (!codeIs(root, "status", "1")) return null;
 
         Map<String, Object> regeo = map(root, "regeocode");
         if (regeo == null) return null;

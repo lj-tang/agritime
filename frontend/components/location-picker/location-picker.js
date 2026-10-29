@@ -170,6 +170,7 @@
         document.getElementById('map-search-input').addEventListener('keydown', function (e) { if (e.key === 'Enter') doSearch(); });
       }
       overlay.style.display = 'flex';
+      geoToken++;            // 作废上一次打开时还没回来的识别结果
       currentPlace = null;
       resolving = false;
       setConfirmBusy(false);
@@ -221,7 +222,7 @@
       if (place) {
         if (el) el.textContent = place.displayName;
       } else if (el) {
-        el.textContent = '该位置暂无法识别地名，可拖动标点重试，或确认后手动补充地点';
+        el.textContent = '该位置暂无法识别地名，可直接确认后手动填写地点';
       }
       setConfirmBusy(false);
     });
@@ -319,10 +320,10 @@
     close();
   }
 
-  /** 回填到地点输入框的文本：优先用小区级地名 */
+  /** 回填到地点输入框的文本：优先用小区级地名，识别不出来时才用占位文案 */
   function selectionName() {
     if (currentPlace && currentPlace.displayName) return currentPlace.displayName;
-    return '地图选点位置';
+    return '地图选点';
   }
 
   function round6(v) {

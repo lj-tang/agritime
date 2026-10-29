@@ -93,6 +93,65 @@
 { "status": "ok" }
 ```
 
+## 5. GET /api/geo/reverse
+
+地图标点的逆地理编码：经纬度 → 中文地名，目标精度到小区/村。
+
+经纬度只在后端使用与缓存，前端只展示 `displayName`。
+
+### 请求参数
+
+| 参数 | 类型 | 必填 | 说明 |
+| --- | --- | --- | --- |
+| lat | number | 是 | 纬度，保留 6 位小数（约 0.1 米） |
+| lon | number | 是 | 经度，保留 6 位小数 |
+
+### 响应结构
+
+```json
+{
+  "code": 0,
+  "message": "ok",
+  "data": {
+    "displayName": "望京SOHO（望京街道 · 朝阳区 · 北京市）",
+    "name": "望京SOHO",
+    "street": "望京街道",
+    "district": "朝阳区",
+    "city": "北京市",
+    "province": "北京市",
+    "level": "community",
+    "source": "amap"
+  }
+}
+```
+
+`level` 取值：`community`（小区/村）> `building` > `poi` > `street` > `district` > `unknown`。
+`unknown` 表示没配服务商 key 或上游不可用，HTTP 仍是 200，前端据此提示手动输入。
+
+### 数据来源
+
+服务端按 key 配置选择：腾讯位置服务（`GEO_QQ_KEY`）优先，高德 Web 服务（`GEO_AMAP_KEY`）兜底。
+两者都未配置时返回 `level=unknown`。**不要在前端直连 Nominatim**：国内实测 10s 超时。
+
+## 6. GET /api/geo/search
+
+地图弹层的地点搜索联想。
+
+### 请求参数
+
+| 参数 | 类型 | 必填 | 说明 |
+| --- | --- | --- | --- |
+| q | string | 是 | 关键字 |
+| lat / lon | number | 否 | 搜索中心点，用于结果排序 |
+
+### 响应结构
+
+```json
+{ "code": 0, "message": "ok", "data": { "items": [
+  { "title": "望京SOHO", "address": "北京市朝阳区望京街道", "lat": 39.9963, "lon": 116.4809, "source": "amap" }
+] } }
+```
+
 ## REST 规范
 
 - 资源命名使用名词复数
