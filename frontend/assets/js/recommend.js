@@ -152,15 +152,23 @@
       card.appendChild(sm);
     }
 
-    // 一键进农事日历（仅命中日历作物的才给入口）
+    // 底部操作区：命中日历作物的给「进入日历」，其余给占位说明，保证卡片等高
+    var foot = document.createElement('div');
+    foot.className = 'recommend-foot';
     if (r.cropId && r.cropId !== '') {
       var go = document.createElement('button');
       go.type = 'button';
       go.className = 'btn btn-primary recommend-go';
       go.textContent = '进入农事日历 →';
       go.addEventListener('click', function () { goCalendar(r); });
-      card.appendChild(go);
+      foot.appendChild(go);
+    } else {
+      var note = document.createElement('span');
+      note.className = 'recommend-nocal';
+      note.textContent = '该作物暂未接入农事日历';
+      foot.appendChild(note);
     }
+    card.appendChild(foot);
 
     return card;
   }
