@@ -1,0 +1,33 @@
+{
+  "updated": "2026-10-29",
+  "crops": [
+    {"name": "大蒜", "demand": "high", "priceTrend": "up", "note": "出口需求旺盛，金乡产区价格稳中有升"},
+    {"name": "玉米", "demand": "high", "priceTrend": "stable", "note": "饲料需求大，价格受养殖周期影响"},
+    {"name": "水稻", "demand": "high", "priceTrend": "stable", "note": "主粮保底收购，价格稳定"},
+    {"name": "大豆", "demand": "high", "priceTrend": "up", "note": "国产缺口大，政策扶持种植"},
+    {"name": "冬小麦", "demand": "medium", "priceTrend": "stable", "note": "主粮稳定收购，国家托市"},
+    {"name": "春小麦", "demand": "medium", "priceTrend": "stable", "note": "春播区主粮，品质优"},
+    {"name": "番茄", "demand": "high", "priceTrend": "volatile", "note": "设施番茄全年需求，价格波动大"},
+    {"name": "辣椒", "demand": "high", "priceTrend": "up", "note": "餐饮需求刚性，干辣椒耐储"},
+    {"name": "马铃薯", "demand": "high", "priceTrend": "up", "note": "第四大主粮，加工需求增长"},
+    {"name": "西瓜", "demand": "high", "priceTrend": "volatile", "note": "夏季时令水果，集中上市期价低"},
+    {"name": "草莓", "demand": "high", "priceTrend": "up", "note": "冬春高端水果，设施种植效益好"},
+    {"name": "葡萄", "demand": "medium", "priceTrend": "stable", "note": "鲜食与酿酒双赛道，避雨栽培推广"},
+    {"name": "苹果", "demand": "medium", "priceTrend": "stable", "note": "大宗水果，产区集中度高"},
+    {"name": "棉花", "demand": "medium", "priceTrend": "stable", "note": "纺织原料，进口冲击大"},
+    {"name": "油菜", "demand": "medium", "priceTrend": "up", "note": "食用油需求大，政策补贴种植"},
+    {"name": "花生", "demand": "medium", "priceTrend": "stable", "note": "油料兼零食，需求稳定"},
+    {"name": "黄瓜", "demand": "medium", "priceTrend": "stable", "note": "日常蔬菜，设施可全年种植"},
+    {"name": "红薯", "demand": "medium", "priceTrend": "stable", "note": "杂粮保健食品，加工用途广"},
+    {"name": "白菜", "demand": "medium", "priceTrend": "volatile", "note": "秋冬当家菜，丰产期易滞销"},
+    {"name": "萝卜", "demand": "medium", "priceTrend": "stable", "note": "耐储运，冬春供应稳定"},
+    {"name": "生姜", "demand": "medium", "priceTrend": "volatile", "note": "调味刚需，周期性价格波动大"},
+    {"name": "洋葱", "demand": "medium", "priceTrend": "stable", "note": "出口蔬菜，耐储运"},
+    {"name": "甘蔗", "demand": "medium", "priceTrend": "stable", "note": "制糖原料，产区集中"},
+    {"name": "绿豆", "demand": "low", "priceTrend": "stable", "note": "杂豆消暑需求，小众市场"},
+    {"name": "芝麻", "demand": "low", "priceTrend": "up", "note": "高端油料，产量少价格好"},
+    {"name": "高粱", "demand": "low", "priceTrend": "stable", "note": "酿造与饲料用，种植面积收缩"},
+    {"name": "菠菜", "demand": "low", "priceTrend": "stable", "note": "叶菜短周期，本地销售为主"},
+    {"name": "芹菜", "demand": "low", "priceTrend": "stable", "note": "耐凉蔬菜，秋冬为主"}
+  ]
+}

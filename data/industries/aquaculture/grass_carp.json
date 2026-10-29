@@ -1,0 +1,89 @@
+{
+  "category": "grass_carp",
+  "name": "草鱼",
+  "alias": "鲩鱼",
+  "type": "淡水鱼类",
+  "growthCycleDays": 240,
+  "waterTempMin": 15,
+  "waterTempMax": 32,
+  "optimalTemp": "22~28°C",
+  "description": "草鱼是中国四大家鱼之一，生长快、适应性强，以水草和配合饲料为主食",
+  "stages": [
+    {
+      "name": "池塘准备",
+      "dayOffset": 0,
+      "durationDays": 7,
+      "action": "清塘消毒、注水培肥",
+      "detail": "生石灰清塘（75kg/亩），注水1.5~2米，施有机肥培肥水质",
+      "weatherTip": "晴天操作效果好，雨天不宜清塘",
+      "tempMin": 10, "tempMax": 35
+    },
+    {
+      "name": "放苗",
+      "dayOffset": 7,
+      "durationDays": 1,
+      "action": "投放草鱼鱼苗",
+      "detail": "选择体长8~12cm的健康鱼苗，每亩投放800~1200尾，温差不超过2°C",
+      "weatherTip": "选择晴天上午放苗，避免阴雨天操作，水温15°C以上为宜",
+      "tempMin": 15, "tempMax": 30
+    },
+    {
+      "name": "驯食投喂期",
+      "dayOffset": 8,
+      "durationDays": 15,
+      "action": "驯化摄食、少量多次投喂",
+      "detail": "每日投喂2~3次，日投喂量为鱼体重的2~3%，以配合饲料为主",
+      "weatherTip": "水温20°C以上摄食旺盛，低于15°C减少投喂",
+      "tempMin": 15, "tempMax": 32,
+      "feedingGuide": "日投喂量 = 鱼体重 × 2.5%，分3次投喂"
+    },
+    {
+      "name": "快速生长期",
+      "dayOffset": 23,
+      "durationDays": 90,
+      "action": "加大投喂、定期换水",
+      "detail": "每日投喂3~4次，日投喂量3~5%，每10~15天换水1/3，保持溶氧>4mg/L",
+      "weatherTip": "高温季节注意增氧防浮头，暴雨前减少投喂",
+      "tempMin": 22, "tempMax": 32,
+      "feedingGuide": "日投喂量 = 鱼体重 × 4%，分4次投喂，上午8点开始"
+    },
+    {
+      "name": "中期管理",
+      "dayOffset": 113,
+      "durationDays": 60,
+      "action": "水质调控、病害防治",
+      "detail": "每15天换水1/4，定期泼洒微生物制剂，注意防治烂鳃病和肠炎",
+      "weatherTip": "连续阴雨天注意增氧，高温期注意防泛塘",
+      "tempMin": 18, "tempMax": 32,
+      "feedingGuide": "日投喂量 = 鱼体重 × 3%，根据水温调整"
+    },
+    {
+      "name": "育肥期",
+      "dayOffset": 173,
+      "durationDays": 50,
+      "action": "加强投喂、蓄肥",
+      "detail": "增加饲料蛋白含量，日投喂量3~4%，保持水质清新",
+      "weatherTip": "秋季水温下降，白天投喂为主",
+      "tempMin": 15, "tempMax": 28,
+      "feedingGuide": "日投喂量 = 鱼体重 × 3.5%，高蛋白饲料"
+    },
+    {
+      "name": "停食越冬",
+      "dayOffset": 223,
+      "durationDays": 10,
+      "action": "逐步减少投喂、准备越冬",
+      "detail": "水温低于10°C停止投喂，加深水位至2米以上",
+      "weatherTip": "寒潮来临前加深水位，防止冻伤",
+      "tempMin": 0, "tempMax": 15
+    },
+    {
+      "name": "捕捞上市",
+      "dayOffset": 233,
+      "durationDays": 7,
+      "action": "排水捕捞、分规格上市",
+      "detail": "规格达1.5~2.5kg可上市，拉网捕捞，注意操作轻柔避免受伤",
+      "weatherTip": "选择晴天捕捞，避免高温中午操作",
+      "tempMin": 5, "tempMax": 25
+    }
+  ]
+}

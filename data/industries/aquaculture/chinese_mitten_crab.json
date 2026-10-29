@@ -1,0 +1,80 @@
+{
+  "category": "chinese_mitten_crab",
+  "name": "大闸蟹",
+  "alias": "中华绒螯蟹",
+  "type": "甲壳类",
+  "growthCycleDays": 180,
+  "waterTempMin": 10,
+  "waterTempMax": 30,
+  "optimalTemp": "20~25°C",
+  "description": "大闸蟹经济价值高，以长江水系品质最佳，需精细化管理水质与投喂",
+  "stages": [
+    {
+      "name": "蟹塘准备",
+      "dayOffset": 0,
+      "durationDays": 10,
+      "action": "清塘、种草、防逃设施",
+      "detail": "生石灰清塘120kg/亩，种植伊乐藻/轮叶黑藻，安装防逃膜，注水0.8~1.2米",
+      "weatherTip": "晴天种草成活率高，大风天不宜安装防逃设施",
+      "tempMin": 8, "tempMax": 30
+    },
+    {
+      "name": "放苗（扣蟹）",
+      "dayOffset": 10,
+      "durationDays": 1,
+      "action": "投放扣蟹",
+      "detail": "选择规格120~200只/kg的优质扣蟹，每亩投放800~1200只，缓温适应后下塘",
+      "weatherTip": "水温12°C以上放苗，避开高温中午，阴天早晨最佳",
+      "tempMin": 10, "tempMax": 25
+    },
+    {
+      "name": "适应恢复期",
+      "dayOffset": 11,
+      "durationDays": 14,
+      "action": "少量投喂、观察摄食",
+      "detail": "投喂小杂鱼+配合饲料，日投喂量1~2%，傍晚投喂为主",
+      "weatherTip": "水温低时摄食少，天气回暖逐步加量",
+      "tempMin": 10, "tempMax": 28,
+      "feedingGuide": "日投喂量 = 蟹体重 × 1.5%，傍晚5~6点投喂"
+    },
+    {
+      "name": "蜕壳生长期",
+      "dayOffset": 25,
+      "durationDays": 75,
+      "action": "足量投喂、水质管理、防病害",
+      "detail": "日投喂量3~5%，以冰鲜鱼+配合饲料交替，每7~10天换水1/5，保持溶氧>5mg/L",
+      "weatherTip": "蜕壳期忌用药，暴雨前增氧，闷热天开增氧机",
+      "tempMin": 18, "tempMax": 30,
+      "feedingGuide": "日投喂量 = 蟹体重 × 4%，傍晚为主，动物性饲料占60%"
+    },
+    {
+      "name": "育肥增重期",
+      "dayOffset": 100,
+      "durationDays": 50,
+      "action": "高营养投喂、强化育肥",
+      "detail": "增加动物性饲料比例（鲜鱼、螺蚌），日投喂量3~4%，注意水草覆盖度保持40~60%",
+      "weatherTip": "秋季温差大，注意水质稳定，连阴天减少投喂",
+      "tempMin": 15, "tempMax": 28,
+      "feedingGuide": "日投喂量 = 蟹体重 × 3.5%，动物性饲料占70%"
+    },
+    {
+      "name": "生殖洄游监控",
+      "dayOffset": 150,
+      "durationDays": 20,
+      "action": "防逃巡查、减少投喂",
+      "detail": "气温下降蟹开始爬动，加强防逃设施巡查，日投喂量降至1~2%",
+      "weatherTip": "北风降温时蟹活跃，加强夜间巡查防逃",
+      "tempMin": 8, "tempMax": 20,
+      "feedingGuide": "日投喂量 = 蟹体重 × 1.5%"
+    },
+    {
+      "name": "捕捞上市",
+      "dayOffset": 170,
+      "durationDays": 10,
+      "action": "地笼捕捞、分规格上市",
+      "detail": "规格达150~200g（2.5~3两/只）可上市，地笼诱捕，活水暂养提品质",
+      "weatherTip": "寒露后品质最佳，避开冻雨天捕捞",
+      "tempMin": 5, "tempMax": 18
+    }
+  ]
+}

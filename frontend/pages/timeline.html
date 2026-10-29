@@ -30,6 +30,11 @@
 
       <div class="conclusion" id="conclusion"></div>
       <div class="data-meta" id="data-meta"></div>
+
+      <div class="sowing-actions">
+        <button type="button" class="sowing-btn" id="sowing-confirm">确认已播种</button>
+        <span class="sowing-hint" id="sowing-hint"></span>
+      </div>
     </section>
 
     <div class="loading" id="loading" role="status" aria-live="polite">
@@ -61,6 +66,7 @@
 
   <script src="../assets/mock/mock-data.js"></script>
   <script src="../assets/js/crop-map.js"></script>
+  <script src="../assets/js/my-crops-store.js"></script>
   <script src="../assets/js/timeline-logic.js"></script>
   <script src="../assets/js/chart-client.js"></script>
   <script src="../components/location-picker/location-picker.js"></script>
@@ -205,6 +211,49 @@
         var extra = degradedSource ? ' · 本地兜底数据（' + degradedText + '）' : '';
         meta.textContent = '数据来源：' + sourceText + (data.dataTime ? ' · 数据时间 ' + new Date(data.dataTime).toLocaleString() : '') + extra;
         meta.className = 'data-meta' + ((data.dataSource === 'realtime' && !degradedSource) ? '' : ' warn');
+
+        bindSowingConfirm(displayCropName);
+      }
+
+      /**
+       * 确认播种 → 写入「我的作物」（T12 日历联动）
+       *
+       * 日历通常嵌在主页的 iframe 里，CustomEvent 跨不过 iframe 边界，
+       * 所以嵌在主页时用 postMessage 交给父页面处理；单独打开时直接写本地存储，
+       * 两条路径只走其中一条，避免同一条记录被加两次。
+       */
+      function bindSowingConfirm(displayCropName) {
+        var btn = document.getElementById('sowing-confirm');
+        var hint = document.getElementById('sowing-hint');
+        if (!btn) return;
+
+        btn.disabled = false;
+        btn.textContent = '确认已播种';
+        if (hint) hint.textContent = '';
+
+        btn.onclick = function () {
+          var detail = {
+            cropName: displayCropName,
+            cropId: query.crop || null,
+            sownDate: query.sowDate || null,
+            lat: query.lat,
+            lon: query.lon
+          };
+
+          if (window.parent && window.parent !== window) {
+            window.parent.postMessage({ type: 'agritime:sowing-confirmed', detail: detail }, '*');
+          } else if (window.MyCropsStore) {
+            window.MyCropsStore.add({
+              cropName: detail.cropName,
+              cropId: detail.cropId,
+              sownDate: detail.sownDate
+            });
+          }
+
+          btn.disabled = true;
+          btn.textContent = '已加入我的作物';
+          if (hint) hint.textContent = '到「我的作物」可补充发芽情况和长势';
+        };
       }
 
       function renderWeather(card, node) {

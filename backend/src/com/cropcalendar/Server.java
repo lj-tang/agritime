@@ -1,12 +1,19 @@
 package com.cropcalendar;
 
+import com.cropcalendar.api.AdminHandler;
+import com.cropcalendar.api.AuthHandler;
 import com.cropcalendar.api.ChartHandler;
 import com.cropcalendar.api.CropsHandler;
 import com.cropcalendar.api.DiseaseHandler;
 import com.cropcalendar.api.GeoHandler;
 import com.cropcalendar.api.HealthHandler;
+import com.cropcalendar.api.IndustryHandler;
+import com.cropcalendar.api.MeHandler;
 import com.cropcalendar.api.PlotHandler;
 import com.cropcalendar.api.RecognitionHandler;
+import com.cropcalendar.api.RecommendHandler;
+import com.cropcalendar.api.SiteConfigHandler;
+import com.cropcalendar.api.SupportHandler;
 import com.cropcalendar.api.TimelineHandler;
 import com.cropcalendar.compute.ComputeStub;
 import com.cropcalendar.config.AppConfig;
@@ -41,6 +48,13 @@ public class Server {
         server.createContext("/api/plots", new PlotHandler());
         server.createContext("/api/disease", new DiseaseHandler());
         server.createContext("/api/geo", new GeoHandler());
+        server.createContext("/api/auth", new AuthHandler());
+        server.createContext("/api/admin", new AdminHandler());
+        server.createContext("/api/me", new MeHandler());
+        server.createContext("/api/site-config", new SiteConfigHandler());
+        server.createContext("/api/support", new SupportHandler());
+        server.createContext("/api/recommend", new RecommendHandler());
+        server.createContext("/api/industry", new IndustryHandler());
         server.setExecutor(Executors.newFixedThreadPool(8));
 
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {

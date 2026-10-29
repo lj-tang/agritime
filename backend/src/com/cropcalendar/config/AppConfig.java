@@ -107,6 +107,53 @@ public final class AppConfig {
         return (v != null && !v.isBlank()) ? v.trim() : "";
     }
 
+    /** 账号库落盘路径（相对后端工作目录），默认 var/users.json */
+    public static String authStorePath() {
+        String v = raw("auth.store.path");
+        return (v != null && !v.isBlank()) ? v.trim() : "var/users.json";
+    }
+
+    /**
+     * 预置超管的初始密码。只在账号库为空、首次建库时生效；
+     * 生产环境务必用环境变量 AUTH_ADMIN_PASSWORD 覆盖，别用代码里的默认值。
+     */
+    public static String authAdminPassword() {
+        String v = raw("auth.admin.password");
+        return (v != null && !v.isBlank()) ? v.trim() : "";
+    }
+
+    /** 用户业务数据的存放目录（我的作物/地块/历史），默认 var/userdata */
+    public static String authDataDir() {
+        String v = raw("auth.data.dir");
+        return (v != null && !v.isBlank()) ? v.trim() : "var/userdata";
+    }
+
+    /** 站点开关文件路径（禁用搜索 / 禁用大模型），默认 var/settings.json */
+    public static String adminSettingsPath() {
+        String v = raw("admin.settings.path");
+        return (v != null && !v.isBlank()) ? v.trim() : "var/settings.json";
+    }
+
+    /** 超管操作审计日志路径，默认 var/admin-audit.log */
+    public static String adminAuditPath() {
+        String v = raw("admin.audit.path");
+        return (v != null && !v.isBlank()) ? v.trim() : "var/admin-audit.log";
+    }
+
+    /**
+     * 后台文件管理的根目录，默认 /agritime（整站）。
+     * 改成 / 就等于把整机文件读写暴露给超管接口，只在演示机上这么干。
+     */
+    public static String adminFsRoot() {
+        String v = raw("admin.fs.root");
+        return (v != null && !v.isBlank()) ? v.trim() : "/agritime";
+    }
+
+    /** 是否开放注册。关掉后只有超管能建号，用于正式对外时收口 */
+    public static boolean authAllowRegister() {
+        return boolOf("auth.allow.register", true);
+    }
+
     private static String raw(String key) {
         String envKey = key.toUpperCase().replace('.', '_').replace('-', '_');
         String env = System.getenv(envKey);

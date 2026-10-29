@@ -47,6 +47,11 @@ public final class LlmService {
             System.err.println("[llm] 未配置 API 端点或密钥，跳过大模型生成");
             return List.of();
         }
+        // 超管在后台关掉大模型后，一律走本地规程库（省钱，也避免演示被网络拖慢）
+        if (!com.cropcalendar.service.SettingsStore.llmEnabled()) {
+            System.err.println("[llm] 后台已禁用大模型，跳过大模型生成");
+            return List.of();
+        }
 
         try {
             String response = callMaaS(url, key, cropName);
@@ -71,6 +76,7 @@ public final class LlmService {
         String url = AppConfig.llmApiUrl();
         String key = AppConfig.llmApiKey();
         if (url.isEmpty() || key.isEmpty()) return null;
+        if (!com.cropcalendar.service.SettingsStore.llmEnabled()) return null;
 
         try {
             String prompt = String.format(CHART_PROMPT_TEMPLATE, cropName, totalDays, totalDays);

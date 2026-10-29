@@ -12,6 +12,6 @@ BACKEND="$(cd "$DIR/.." && pwd)"
 OUT="$(mktemp -d)"
 
 javac -encoding UTF-8 -cp "$BACKEND/build/classes" -d "$OUT" \
-  "$DIR/com/cropcalendar/geo/GeoParseTest.java"
-java -cp "$BACKEND/build/classes:$OUT" com.cropcalendar.geo.GeoParseTest
+  "$DIR/com/cropcalendar/service/geo/GeoParseTest.java"
+java -cp "$BACKEND/build/classes:$OUT" com.cropcalendar.service.geo.GeoParseTest
 rm -rf "$OUT"

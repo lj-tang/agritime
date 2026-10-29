@@ -1,0 +1,141 @@
+/* 客服工单系统 - 用户端样式（T14） */
+
+.service-pane { padding: 20px 24px; max-width: 900px; margin: 0 auto; }
+.service-header { margin-bottom: 18px; display: flex; align-items: center; justify-content: space-between; }
+.service-title { font-size: 22px; font-weight: 800; color: var(--ink); }
+.service-sub { display: block; margin-top: 4px; font-size: 13px; color: var(--muted); }
+.service-new-btn { font-size: 14px; padding: 8px 16px; }
+
+.service-toolbar { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+.service-back-btn { font-size: 13px; padding: 6px 14px; }
+
+.service-empty {
+  display: flex; align-items: center; justify-content: center;
+  min-height: 200px; color: var(--muted); font-size: 14px;
+  background: var(--card); border: 1px dashed var(--line); border-radius: var(--radius);
+}
+
+/* 工单列表 */
+.service-ticket-card {
+  background: var(--card); border: 1px solid var(--line); border-radius: var(--radius-sm);
+  padding: 14px 16px; margin-bottom: 10px; cursor: pointer; transition: box-shadow 0.2s, transform 0.2s;
+}
+.service-ticket-card:hover { box-shadow: var(--shadow); transform: translateY(-1px); }
+.service-ticket-top { display: flex; align-items: center; gap: 8px; }
+.service-ticket-id { font-size: 12px; color: var(--muted); font-weight: 600; flex: none; }
+.service-ticket-subject { font-size: 15px; font-weight: 700; color: var(--ink); flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.service-ticket-meta { display: flex; gap: 14px; margin-top: 6px; font-size: 12px; color: var(--muted); }
+
+.service-status { font-size: 11.5px; font-weight: 600; border-radius: 999px; padding: 2px 8px; flex: none; }
+.service-status--open { color: #c77700; background: #fdf3e0; }
+.service-status--replied { color: var(--leaf); background: var(--leaf-soft); }
+.service-status--closed { color: var(--muted); background: var(--paper-2); }
+
+/* 新建工单表单 */
+.service-form {
+  background: var(--card); border: 1px solid var(--line); border-radius: var(--radius);
+  box-shadow: var(--shadow-soft); padding: 20px; max-width: 600px;
+}
+.service-form .field { margin-bottom: 14px; }
+.service-form .field label { display: block; font-size: 14px; font-weight: 600; color: var(--ink); margin-bottom: 4px; }
+.service-form .field .hint { font-size: 12px; font-weight: 400; color: var(--muted); }
+.service-form .field input,
+.service-form .field select,
+.service-form .field textarea {
+  width: 100%; font-family: inherit; font-size: 15px; padding: 10px 12px; color: var(--ink);
+  background: #fbf8f0; border: 1.5px solid var(--line); border-radius: 10px; box-sizing: border-box;
+}
+.service-form .field textarea { resize: vertical; min-height: 80px; line-height: 1.6; }
+.service-form .field input:focus,
+.service-form .field select:focus,
+.service-form .field textarea:focus { outline: none; border-color: var(--leaf-2); background: #fff; box-shadow: 0 0 0 3px rgba(63,143,86,0.14); }
+.service-form-actions { display: flex; gap: 10px; }
+.service-form-actions .btn { flex: 1; }
+
+/* 工单详情 + 聊天 */
+.service-detail-head { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
+.service-detail-id { font-size: 12px; color: var(--muted); font-weight: 600; }
+.service-detail-subject { font-size: 17px; font-weight: 700; color: var(--ink); flex: 1; }
+.service-detail-meta { font-size: 12px; color: var(--muted); margin-bottom: 14px; }
+
+.service-chat {
+  background: var(--paper); border: 1px solid var(--line); border-radius: var(--radius-sm);
+  padding: 16px; max-height: 400px; overflow-y: auto; margin-bottom: 14px;
+}
+.service-bubble { max-width: 80%; margin-bottom: 12px; }
+.service-bubble--user { margin-left: auto; }
+.service-bubble--admin { margin-right: auto; }
+.service-bubble-head { display: flex; gap: 8px; align-items: center; margin-bottom: 4px; }
+.service-bubble-from { font-size: 12px; font-weight: 700; }
+.service-bubble--user .service-bubble-from { color: var(--leaf); }
+.service-bubble--admin .service-bubble-from { color: #c77700; }
+.service-bubble-time { font-size: 11px; color: var(--muted); }
+.service-bubble-content {
+  font-size: 14px; line-height: 1.7; color: var(--ink); padding: 10px 14px; border-radius: 12px;
+}
+.service-bubble--user .service-bubble-content { background: var(--leaf-soft); }
+.service-bubble--admin .service-bubble-content { background: #fff; border: 1px solid var(--line); }
+
+.service-reply-box { display: flex; gap: 8px; }
+.service-reply-box textarea {
+  flex: 1; font-family: inherit; font-size: 14px; padding: 10px 12px; color: var(--ink);
+  background: #fbf8f0; border: 1.5px solid var(--line); border-radius: 10px; resize: vertical; min-height: 44px;
+}
+.service-reply-box textarea:focus { outline: none; border-color: var(--leaf-2); background: #fff; }
+.service-reply-box .btn { flex: none; }
+
+/* 加载状态 */
+.service-loading {
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  min-height: 120px; color: var(--muted); font-size: 14px;
+}
+.service-spinner {
+  width: 16px; height: 16px; border: 2px solid var(--line); border-top-color: var(--leaf);
+  border-radius: 50%; display: inline-block; animation: service-spin 0.7s linear infinite;
+}
+@keyframes service-spin { to { transform: rotate(360deg); } }
+
+/* 错误提示 */
+.service-error {
+  display: flex; align-items: center; justify-content: center;
+  min-height: 120px; color: #c0392b; font-size: 14px;
+  background: #fce8e6; border: 1px solid #f5c6c0; border-radius: var(--radius);
+}
+.service-error a { color: var(--leaf); cursor: pointer; text-decoration: underline; margin-left: 4px; }
+.service-inline-error {
+  background: #fce8e6; border: 1px solid #f5c6c0; border-radius: 8px; padding: 8px 12px;
+  margin-bottom: 10px; font-size: 13px; color: #c0392b; line-height: 1.5;
+}
+.admin-login-error {
+  background: #fce8e6; border: 1px solid #f5c6c0; border-radius: 8px; padding: 8px 12px;
+  margin-top: 12px; font-size: 13px; color: #c0392b;
+}
+
+/* 未读标记 */
+.service-ticket-card--unread { border-left: 3px solid var(--leaf-2); }
+.service-unread-dot {
+  position: absolute; top: 10px; right: 10px; width: 8px; height: 8px;
+  background: #e85c3a; border-radius: 50%; flex: none;
+}
+.service-ticket-card { position: relative; }
+
+/* 空状态优化 */
+.service-empty { flex-direction: column; gap: 10px; }
+.service-empty-icon { font-size: 36px; }
+.service-empty-text { font-size: 14px; }
+
+/* 关闭提示 */
+.service-closed-tip { text-align: center; font-size: 13px; color: var(--muted); padding: 10px; background: var(--paper); border-radius: 8px; }
+
+/* 管理端统计 */
+.admin-stat { font-size: 12px; color: var(--muted); margin-right: 12px; }
+.admin-stat strong { color: var(--ink); font-size: 14px; }
+.admin-stat-total { font-size: 12px; color: var(--muted); }
+
+/* 刷新按钮 */
+.service-refresh-btn { font-size: 13px; padding: 6px 12px; }
+
+@media (max-width: 640px) {
+  .service-pane { padding: 16px; }
+  .service-bubble { max-width: 95%; }
+}

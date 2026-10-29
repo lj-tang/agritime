@@ -3,6 +3,7 @@
  * 使用浏览器原生 Web Speech API，不引入第三方 SDK。
  * 功能：语音按钮 → 录音 → 识别 → 填充输入框 → 编辑确认。
  * 降级：浏览器不支持 SpeechRecognition 时隐藏语音按钮。
+ * 非安全上下文（HTTP）下，点击按钮引导用户切换到 HTTPS。
  */
 (function () {
   var DIALECT_MAP = {
@@ -30,6 +31,46 @@
     return 'zh-CN';
   }
 
+  function showHttpsGuide() {
+    var existing = document.getElementById('voice-https-guide');
+    if (existing) { existing.remove(); return; }
+    var overlay = document.createElement('div');
+    overlay.id = 'voice-https-guide';
+    overlay.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:9999;display:flex;align-items:center;justify-content:center;';
+    var box = document.createElement('div');
+    box.style.cssText = 'background:#fff;border-radius:12px;padding:24px;max-width:360px;margin:16px;box-shadow:0 4px 20px rgba(0,0,0,0.15);font-size:14px;line-height:1.6;color:#333;';
+    var title = document.createElement('h3');
+    title.textContent = '🎤 需要切换到 HTTPS 才能使用麦克风';
+    title.style.cssText = 'margin:0 0 12px;font-size:16px;color:#2f6b40;';
+    box.appendChild(title);
+    var p1 = document.createElement('p');
+    p1.textContent = '浏览器出于安全限制，仅在 HTTPS 网站上允许使用麦克风。';
+    p1.style.cssText = 'margin:0 0 12px;';
+    box.appendChild(p1);
+    var p2 = document.createElement('p');
+    p2.textContent = '请点击下方按钮切换到加密访问，首次打开时浏览器会提示证书不安全，点击「高级」→「继续访问」即可。';
+    p2.style.cssText = 'margin:0 0 16px;color:#666;font-size:13px;';
+    box.appendChild(p2);
+    var btnRow = document.createElement('div');
+    btnRow.style.cssText = 'display:flex;gap:8px;';
+    var btnGo = document.createElement('button');
+    btnGo.textContent = '切换到 HTTPS';
+    btnGo.style.cssText = 'flex:1;padding:10px;border:none;border-radius:8px;background:#2f6b40;color:#fff;font-size:14px;cursor:pointer;';
+    btnGo.addEventListener('click', function () {
+      window.location.href = 'https://' + window.location.hostname + window.location.pathname + window.location.search;
+    });
+    btnRow.appendChild(btnGo);
+    var btnClose = document.createElement('button');
+    btnClose.textContent = '关闭';
+    btnClose.style.cssText = 'flex:1;padding:10px;border:1px solid #ddd;border-radius:8px;background:#fff;color:#666;font-size:14px;cursor:pointer;';
+    btnClose.addEventListener('click', function () { overlay.remove(); });
+    btnRow.appendChild(btnClose);
+    box.appendChild(btnRow);
+    overlay.appendChild(box);
+    overlay.addEventListener('click', function (e) { if (e.target === overlay) overlay.remove(); });
+    document.body.appendChild(overlay);
+  }
+
   function createVoiceButton(targetInput, opts) {
     var SR = getRecognition();
     var btn = document.createElement('button');
@@ -37,6 +78,13 @@
     btn.className = 'voice-btn';
     btn.setAttribute('aria-label', '语音输入');
     btn.textContent = '🎤';
+
+    var isSecure = (typeof window !== 'undefined') && (window.isSecureContext || location.protocol === 'https:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1');
+
+    if (!SR && !isSecure) {
+      btn.addEventListener('click', showHttpsGuide);
+      return btn;
+    }
 
     if (!SR) {
       btn.style.display = 'none';
@@ -77,10 +125,13 @@
         }
       };
 
-      recognition.onerror = function () {
+      recognition.onerror = function (event) {
         btn.classList.remove('voice-btn--active');
         btn.textContent = '🎤';
         isRecording = false;
+        if (event && event.error === 'not-allowed') {
+          showHttpsGuide();
+        }
       };
 
       recognition.onend = function () {

@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#f4efe3" />
+  <title>登录 · 知农时</title>
+  <link rel="icon" type="image/svg+xml" href="../assets/img/common-logo.svg" />
+  <link rel="stylesheet" href="../assets/css/common.css" />
+  <link rel="stylesheet" href="../assets/css/auth.css" />
+</head>
+<body class="auth-body">
+
+  <div class="auth-shell">
+
+    <aside class="auth-brand">
+      <div class="auth-brand-top">
+        <img src="../assets/img/common-logo.svg" width="28" height="28" alt="" aria-hidden="true" />
+        <span>知农时</span>
+      </div>
+
+      <div class="auth-brand-main">
+        <h1>会看天的<br />农事日历</h1>
+        <p>把节气、天气和地块放在一起，<br />该浇水还是该等雨，一眼看明白。</p>
+      </div>
+
+      <ul class="auth-brand-points">
+        <li>地块 · 作物 · 日历 一条线</li>
+        <li>未来 30 天天气适宜度</li>
+        <li>病害拍照诊断与用药建议</li>
+      </ul>
+
+      <a class="auth-brand-back" href="./index.html">← 先随便看看</a>
+    </aside>
+
+    <main class="auth-main">
+      <div class="auth-card">
+        <div class="auth-tabs" role="tablist">
+          <button type="button" class="auth-tab is-active" data-tab="login" role="tab">登录</button>
+          <button type="button" class="auth-tab" data-tab="register" role="tab">注册</button>
+        </div>
+
+        <h2 class="auth-title" id="auth-title">欢迎回来</h2>
+        <p class="auth-sub" id="auth-sub">登录后，地块和作物会跟着账号走</p>
+
+        <form id="auth-form" novalidate>
+          <label class="auth-field">
+            <span>用户名</span>
+            <input id="username" name="username" type="text" autocomplete="username"
+                   placeholder="3~20 位，中英文、数字或下划线" />
+          </label>
+
+          <label class="auth-field" id="nickname-field" hidden>
+            <span>昵称<em>选填</em></span>
+            <input id="nickname" name="nickname" type="text" autocomplete="nickname" placeholder="想让我们怎么称呼你" />
+          </label>
+
+          <label class="auth-field">
+            <span>密码</span>
+            <input id="password" name="password" type="password" autocomplete="current-password"
+                   placeholder="至少 6 位" />
+          </label>
+
+          <p class="auth-error" id="auth-error" role="alert" hidden></p>
+
+          <button type="submit" class="auth-submit" id="auth-submit">登录</button>
+        </form>
+
+        <p class="auth-switch" id="auth-switch">
+          还没有账号？<a href="#" data-switch="register">立即注册</a>
+        </p>
+
+        <p class="auth-signed" id="auth-signed" hidden>
+          当前已登录 <strong id="auth-signed-name"></strong>
+          <a href="./index.html">进入主页</a>
+          <button type="button" id="auth-logout">退出</button>
+        </p>
+      </div>
+    </main>
+
+  </div>
+
+  <script src="../assets/js/auth.js"></script>
+</body>
+</html>

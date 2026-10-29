@@ -2,6 +2,9 @@
 backend/build/
 *.class
 
+# 运行时数据（账号库等，含密码摘要，绝不入库）
+backend/var/
+
 # 运行时文件
 *.log
 *.pid

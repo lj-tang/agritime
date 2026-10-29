@@ -1,0 +1,80 @@
+{
+  "category": "common_carp",
+  "name": "鲤鱼",
+  "alias": "红鲤",
+  "type": "淡水鱼类",
+  "growthCycleDays": 200,
+  "waterTempMin": 14,
+  "waterTempMax": 30,
+  "optimalTemp": "20~26°C",
+  "description": "鲤鱼适应性强、耐低氧，杂食性，是北方主要养殖品种",
+  "stages": [
+    {
+      "name": "池塘准备",
+      "dayOffset": 0,
+      "durationDays": 7,
+      "action": "清塘消毒、注水",
+      "detail": "干法清塘生石灰100kg/亩，注水1.2~1.8米，施基肥培水",
+      "weatherTip": "晴好天气清塘，雨天延长消毒时间",
+      "tempMin": 8, "tempMax": 30
+    },
+    {
+      "name": "放苗",
+      "dayOffset": 7,
+      "durationDays": 1,
+      "action": "投放鲤鱼鱼苗",
+      "detail": "选择体长10cm左右健壮鱼苗，每亩投放1000~1500尾，注意温差适应",
+      "weatherTip": "水温14°C以上放苗，避开阴雨大风天",
+      "tempMin": 14, "tempMax": 28
+    },
+    {
+      "name": "适应投喂期",
+      "dayOffset": 8,
+      "durationDays": 12,
+      "action": "驯食定点投喂",
+      "detail": "每日2次，日投喂量1~2%，以颗粒饲料为主，定点定时",
+      "weatherTip": "水温低时午后投喂，水温高时早晚投喂",
+      "tempMin": 14, "tempMax": 30,
+      "feedingGuide": "日投喂量 = 鱼体重 × 1.5%，分2次"
+    },
+    {
+      "name": "旺盛生长期",
+      "dayOffset": 20,
+      "durationDays": 100,
+      "action": "足量投喂、水质管理",
+      "detail": "每日3次，日投喂量3~4%，每10天换水1/3，保持透明度25~30cm",
+      "weatherTip": "暴雨前停喂，高温注意增氧，闷热天防浮头",
+      "tempMin": 20, "tempMax": 30,
+      "feedingGuide": "日投喂量 = 鱼体重 × 3.5%，分3次，早8点、午1点、晚5点"
+    },
+    {
+      "name": "中期调水",
+      "dayOffset": 120,
+      "durationDays": 50,
+      "action": "水质调控、适量投喂",
+      "detail": "每15天换水1/4，定期用生石灰调水（10kg/亩），注意防治竖鳞病",
+      "weatherTip": "温差大时注意防应激，连阴天减少投喂",
+      "tempMin": 16, "tempMax": 28,
+      "feedingGuide": "日投喂量 = 鱼体重 × 2.5%，根据摄食情况调整"
+    },
+    {
+      "name": "育肥越冬准备",
+      "dayOffset": 170,
+      "durationDays": 20,
+      "action": "增加营养、加深水位",
+      "detail": "提高饲料能量，日投喂量2~3，逐渐加深水位至2米",
+      "weatherTip": "寒潮前加深水位，水温低于8°C减少投喂",
+      "tempMin": 5, "tempMax": 20,
+      "feedingGuide": "日投喂量 = 鱼体重 × 2%，高能量饲料"
+    },
+    {
+      "name": "捕捞上市",
+      "dayOffset": 190,
+      "durationDays": 10,
+      "action": "网捕或干塘捕捞",
+      "detail": "规格达1~1.5kg可上市，分批捕捞，大规格先出",
+      "weatherTip": "避开冰冻天捕捞，操作防机械损伤",
+      "tempMin": 0, "tempMax": 20
+    }
+  ]
+}

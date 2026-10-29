@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#f4efe3" />
+  <title>超管后台 · 知农时</title>
+  <link rel="icon" type="image/svg+xml" href="../assets/img/common-logo.svg" />
+  <link rel="stylesheet" href="../assets/css/common.css" />
+  <link rel="stylesheet" href="../assets/css/admin-console.css" />
+</head>
+<body class="admin-body">
+
+  <header class="admin-header">
+    <div class="admin-brand">
+      <img src="../assets/img/common-logo.svg" width="24" height="24" alt="" aria-hidden="true" />
+      <span>知农时 · 超管后台</span>
+    </div>
+    <span class="admin-who" id="admin-who"></span>
+    <a class="admin-back" href="./index.html">返回主页</a>
+  </header>
+
+  <main class="admin-main" id="admin-main">
+
+    <section class="admin-gate" id="admin-gate" hidden>
+      <h1>需要管理员权限</h1>
+      <p id="admin-gate-text">请用超管账号登录后查看。</p>
+      <a class="admin-btn" href="./auth.html?next=admin.html">去登录</a>
+    </section>
+
+    <section class="admin-content" id="admin-content" hidden>
+
+      <nav class="admin-tabs" role="tablist">
+        <button type="button" class="admin-tab is-active" data-tab="overview">概览</button>
+        <button type="button" class="admin-tab" data-tab="users">账号</button>
+        <button type="button" class="admin-tab" data-tab="files">文件</button>
+        <button type="button" class="admin-tab" data-tab="switches">开关</button>
+        <button type="button" class="admin-tab" data-tab="audit">日志</button>
+      </nav>
+
+      <!-- 概览 -->
+      <div class="admin-panel-wrap" data-panel="overview">
+        <div class="admin-stats" id="admin-stats"></div>
+        <p class="admin-tip">超管只做管理，不使用业务子功能；业务页面请用普通账号体验。</p>
+        <p class="admin-tip">
+          客服工单管理在主页的客服面板里：
+          <a class="admin-link" href="./index.html?pane=admin">进入工单后台 →</a>
+        </p>
+      </div>
+
+      <!-- 账号 -->
+      <div class="admin-panel-wrap" data-panel="users" hidden>
+        <div class="admin-panel">
+          <div class="admin-panel-head">
+            <h2>账号列表</h2>
+            <span class="admin-panel-sub" id="admin-count"></span>
+          </div>
+          <div class="admin-table-wrap">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>用户名</th>
+                  <th>昵称</th>
+                  <th>角色</th>
+                  <th>状态</th>
+                  <th>注册时间</th>
+                  <th>最近登录</th>
+                  <th>登录次数</th>
+                  <th>操作</th>
+                </tr>
+              </thead>
+              <tbody id="admin-users-body"></tbody>
+            </table>
+          </div>
+          <p class="admin-empty" id="admin-empty" hidden>还没有账号</p>
+        </div>
+      </div>
+
+      <!-- 文件 -->
+      <div class="admin-panel-wrap" data-panel="files" hidden>
+        <div class="admin-panel">
+          <div class="admin-panel-head">
+            <h2>文件管理</h2>
+            <span class="admin-panel-sub" id="admin-fs-root"></span>
+            <div class="admin-fs-actions">
+              <button type="button" class="admin-mini" id="fs-new-file">新建文件</button>
+              <button type="button" class="admin-mini" id="fs-new-dir">新建目录</button>
+              <button type="button" class="admin-mini" id="fs-refresh">刷新</button>
+            </div>
+          </div>
+          <div class="admin-crumbs" id="admin-crumbs"></div>
+          <div class="admin-table-wrap">
+            <table class="admin-table admin-table--fs">
+              <thead>
+                <tr>
+                  <th>名称</th>
+                  <th>大小</th>
+                  <th>修改时间</th>
+                  <th>操作</th>
+                </tr>
+              </thead>
+              <tbody id="admin-fs-body"></tbody>
+            </table>
+          </div>
+          <p class="admin-empty" id="admin-fs-empty" hidden>这个目录是空的</p>
+        </div>
+      </div>
+
+      <!-- 开关 -->
+      <div class="admin-panel-wrap" data-panel="switches" hidden>
+        <div class="admin-panel">
+          <div class="admin-panel-head">
+            <h2>全站开关</h2>
+            <span class="admin-panel-sub">改完立即生效，所有用户都受影响</span>
+          </div>
+          <div class="admin-switch-list">
+            <label class="admin-switch">
+              <span>
+                <strong>作物搜索</strong>
+                <em>关闭后，所有用户不能再搜索作物，只能从推荐列表里选</em>
+              </span>
+              <input type="checkbox" id="sw-search" />
+            </label>
+            <label class="admin-switch">
+              <span>
+                <strong>大模型生成</strong>
+                <em>关闭后不再调用盘古大模型，规程库没有的作物直接回落本地规则</em>
+              </span>
+              <input type="checkbox" id="sw-llm" />
+            </label>
+          </div>
+          <div class="admin-switch-foot">
+            <button type="button" class="admin-btn" id="sw-save">保存开关</button>
+            <span class="admin-switch-msg" id="sw-msg"></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 操作日志 -->
+      <div class="admin-panel-wrap" data-panel="audit" hidden>
+        <div class="admin-panel">
+          <div class="admin-panel-head">
+            <h2>操作日志</h2>
+            <span class="admin-panel-sub">超管的每一次敏感操作都会留痕，只增不改</span>
+            <div class="admin-fs-actions">
+              <button type="button" class="admin-mini" id="audit-refresh">刷新</button>
+            </div>
+          </div>
+          <div class="admin-audit" id="admin-audit"></div>
+          <p class="admin-empty" id="admin-audit-empty" hidden>还没有操作记录</p>
+        </div>
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- 文件编辑器 -->
+  <div class="admin-editor" id="admin-editor" hidden>
+    <div class="admin-editor-panel">
+      <div class="admin-editor-head">
+        <span id="editor-title">编辑文件</span>
+        <button type="button" class="admin-editor-close" id="editor-close">×</button>
+      </div>
+      <textarea id="editor-text" spellcheck="false"></textarea>
+      <div class="admin-editor-foot">
+        <span class="admin-editor-msg" id="editor-msg"></span>
+        <button type="button" class="admin-mini" id="editor-cancel">取消</button>
+        <button type="button" class="admin-btn" id="editor-save">保存</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="../assets/js/admin-console.js"></script>
+</body>
+</html>

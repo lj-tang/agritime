@@ -21,9 +21,13 @@
 .my-crops-form { max-width: 760px; display: none; background: var(--card); border: 1px solid var(--line); border-radius: var(--radius-sm); padding: 20px; margin-bottom: 20px; }
 .my-crops-form .field { margin-bottom: 12px; }
 .my-crops-form label { display: block; font-size: 14px; color: var(--ink-soft); margin-bottom: 4px; }
-.my-crops-form input, .my-crops-form select, .my-crops-form textarea { width: 100%; padding: 8px; border: 1px solid var(--line); border-radius: var(--radius-sm); font-size: 14px; }
+.my-crops-form input, .my-crops-form select, .my-crops-form textarea { width: 100%; padding: 8px; border: 1px solid var(--line); border-radius: var(--radius-sm); font-size: 14px; box-sizing: border-box; }
+.my-crops-form input:focus, .my-crops-form select:focus, .my-crops-form textarea:focus { outline: none; border-color: var(--leaf-2); box-shadow: 0 0 0 3px rgba(63,143,86,0.1); }
+.my-crops-form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 .my-crops-form-actions { display: flex; gap: 8px; margin-top: 16px; }
+.my-crops-card-photos { font-size: 12px; color: var(--muted); margin-bottom: 8px; padding: 4px 8px; background: var(--paper); border-radius: 6px; }
 @media (max-width: 767px) { .my-crops-cards { grid-template-columns: 1fr; } }
+@media (max-width: 640px) { .my-crops-form-row { grid-template-columns: 1fr; } }
 /* 分组之间用两列排布，避免每组只有一张卡、右侧一片空 */
 #my-crops-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(520px, 1fr)); gap: 20px 24px; align-items: start; }
 .my-crops-group { margin-bottom: 0; }

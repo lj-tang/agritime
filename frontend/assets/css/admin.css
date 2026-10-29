@@ -1,0 +1,63 @@
+/* 管理后台样式（T14） */
+
+.admin-pane { padding: 20px 24px; max-width: 900px; margin: 0 auto; }
+.admin-header { margin-bottom: 18px; }
+.admin-title { font-size: 22px; font-weight: 800; color: var(--ink); }
+.admin-sub { display: block; margin-top: 4px; font-size: 13px; color: var(--muted); }
+
+/* 登录 */
+.admin-login-box {
+  background: var(--card); border: 1px solid var(--line); border-radius: var(--radius);
+  box-shadow: var(--shadow-soft); padding: 28px 24px; max-width: 380px; margin: 40px auto;
+}
+.admin-login-box h3 { margin: 0 0 6px; font-size: 18px; font-weight: 800; color: var(--ink); }
+.admin-login-box p { margin: 0 0 18px; font-size: 13px; color: var(--muted); line-height: 1.6; }
+.admin-login-box .field { margin-bottom: 14px; }
+.admin-login-box .field label { display: block; font-size: 14px; font-weight: 600; color: var(--ink); margin-bottom: 4px; }
+.admin-login-box .field input {
+  width: 100%; font-family: inherit; font-size: 15px; padding: 10px 12px; color: var(--ink);
+  background: #fbf8f0; border: 1.5px solid var(--line); border-radius: 10px; box-sizing: border-box;
+}
+.admin-login-box .field input:focus { outline: none; border-color: var(--leaf-2); background: #fff; box-shadow: 0 0 0 3px rgba(63,143,86,0.14); }
+.admin-login-box .btn { width: 100%; }
+
+/* 管理面板 */
+.admin-toolbar { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+.admin-toolbar select {
+  font-family: inherit; font-size: 14px; padding: 7px 10px; color: var(--ink);
+  background: #fbf8f0; border: 1.5px solid var(--line); border-radius: 8px;
+}
+.admin-count { font-size: 13px; color: var(--muted); margin-left: auto; }
+.admin-logout { font-size: 13px; padding: 6px 14px; }
+
+.admin-empty {
+  display: flex; align-items: center; justify-content: center;
+  min-height: 200px; color: var(--muted); font-size: 14px;
+  background: var(--card); border: 1px dashed var(--line); border-radius: var(--radius);
+}
+
+/* 工单卡片 */
+.admin-ticket-card {
+  background: var(--card); border: 1px solid var(--line); border-radius: var(--radius-sm);
+  padding: 14px 16px; margin-bottom: 10px; cursor: pointer; transition: box-shadow 0.2s, transform 0.2s;
+}
+.admin-ticket-card:hover { box-shadow: var(--shadow); transform: translateY(-1px); }
+.admin-ticket-top { display: flex; align-items: center; gap: 8px; }
+.admin-ticket-id { font-size: 12px; color: var(--muted); font-weight: 600; flex: none; }
+.admin-ticket-subject { font-size: 15px; font-weight: 700; color: var(--ink); flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.admin-ticket-meta { display: flex; gap: 14px; margin-top: 6px; font-size: 12px; color: var(--muted); flex-wrap: wrap; }
+.admin-badge { font-size: 10px; font-weight: 700; color: #fff; background: #e85c3a; border-radius: 999px; padding: 1px 6px; flex: none; }
+
+/* 详情 */
+.admin-detail-head { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
+.admin-detail-back { font-size: 13px; padding: 5px 12px; flex: none; }
+.admin-detail-subject { font-size: 17px; font-weight: 700; color: var(--ink); flex: 1; }
+.admin-detail-meta { font-size: 12px; color: var(--muted); margin-bottom: 14px; }
+.admin-closed-tip { text-align: center; font-size: 13px; color: var(--muted); padding: 12px; }
+
+.admin-detail { margin-top: 10px; }
+
+@media (max-width: 640px) {
+  .admin-pane { padding: 16px; }
+  .admin-ticket-meta { gap: 8px; }
+}

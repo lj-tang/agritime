@@ -5,7 +5,7 @@
 (function () {
   function analyze(onResult, prefer) {
     if (!window.PhotoCapture) {
-      if (6onResult) onResult({ error: '拍照组件未加载' });
+      if (onResult) onResult({ error: '拍照组件未加载' });
       return;
     }
     window.PhotoCapture.open(function (cropName) {
