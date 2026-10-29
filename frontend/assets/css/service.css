@@ -11,6 +11,14 @@
   background: var(--card); border: 1px dashed var(--line); border-radius: var(--radius);
 }
 
+/* 提交成功确认 */
+.service-submitted {
+  background: var(--leaf-soft); border: 1px solid var(--leaf-2); border-radius: var(--radius);
+  padding: 18px 20px; margin-bottom: 16px;
+}
+.service-submitted-title { font-size: 16px; font-weight: 700; color: var(--leaf); margin-bottom: 6px; }
+.service-submitted-sub { font-size: 13px; color: var(--ink-soft); line-height: 1.7; }
+
 /* 工单列表 */
 .service-item {
   background: var(--card); border: 1px solid rgba(228,221,203,0.9); border-radius: var(--radius-sm);

@@ -30,16 +30,41 @@
     get(API + '/tickets')
       .then(function (data) {
         var list = data.data || [];
-        listBox.innerHTML = '';
-        if (!list.length) {
-          listBox.innerHTML = '<div class="service-empty">还没有咨询记录，点「新建咨询」提第一个问题</div>';
-          return;
-        }
-        list.forEach(function (t) { listBox.appendChild(renderTicketItem(t)); });
+        renderList(list);
       })
       .catch(function (e) {
         listBox.innerHTML = '<div class="service-empty">加载失败：' + e.message + '</div>';
       });
+  }
+
+  function renderList(list) {
+    listBox.innerHTML = '';
+    if (!list.length) {
+      // 匿名用户：列表接口不给（保护隐私），但本浏览器提交过的可以逐个查出来
+      var mine = myIds();
+      if (mine.length) {
+        Promise.all(mine.map(function (id) {
+          return get(API + '/ticket?id=' + encodeURIComponent(id)).then(function (d) {
+            return d.data;
+          }).catch(function () { return null; });
+        })).then(function (rows) {
+          var valid = rows.filter(Boolean);
+          if (!valid.length) {
+            listBox.innerHTML = '<div class="service-empty">还没有咨询记录，点「新建咨询」提第一个问题</div>';
+            return;
+          }
+          valid.forEach(function (t) { listBox.appendChild(renderTicketItem(t)); });
+        });
+        return;
+      }
+      listBox.innerHTML = '<div class="service-empty">还没有咨询记录，点「新建咨询」提第一个问题</div>';
+      return;
+    }
+    list.forEach(function (t) { listBox.appendChild(renderTicketItem(t)); });
+  }
+
+  function myIds() {
+    try { return JSON.parse(localStorage.getItem(MINE_KEY) || '[]'); } catch (e) { return []; }
   }
 
   function renderTicketItem(t) {
@@ -145,11 +170,38 @@
     var userName = document.getElementById('service-user-name').value.trim();
     if (!subject || !content) { alert('请填写标题和描述'); return; }
     post(API + '/ticket', { subject: subject, category: category, content: content, userName: userName })
-      .then(function () {
+      .then(function (d) {
         form.reset();
-        loadTickets();
+        rememberMine(d.data.id);
+        // 提交成功后，用 create 接口返回的完整数据直接渲染成确认视图，
+        // 匿名用户无需再查详情接口（详情接口对匿名有隐私边界）
+        renderSubmitted(d.data);
       })
       .catch(function (err) { alert('提交失败：' + err.message); });
+  }
+
+  function renderSubmitted(t) {
+    listBox.style.display = 'none';
+    form.style.display = 'none';
+    backBtn.style.display = 'inline-block';
+    detailBox.style.display = 'block';
+    detailBox.innerHTML = '';
+    var ok = document.createElement('div');
+    ok.className = 'service-submitted';
+    ok.innerHTML = '<div class="service-submitted-title">工单已提交 ✓</div>' +
+      '<div class="service-submitted-sub">客服会尽快回复，你可以在「我的咨询」里查看进展（登录后可在任意设备同步）</div>';
+    detailBox.appendChild(ok);
+    detailBox.appendChild(bubble(t.userName || '访客', t.content, t.createdAt, 'user'));
+  }
+
+  // 匿名用户后端无法稳定识别，前端用 localStorage 记下自己提交过的工单，
+  // 这样同一浏览器里能追溯到自己的咨询
+  var MINE_KEY = 'agritime.my-tickets.v1';
+  function rememberMine(id) {
+    try {
+      var arr = JSON.parse(localStorage.getItem(MINE_KEY) || '[]');
+      if (arr.indexOf(id) === -1) { arr.push(id); localStorage.setItem(MINE_KEY, JSON.stringify(arr)); }
+    } catch (e) { }
   }
 
   // ---------- 工具 ----------
