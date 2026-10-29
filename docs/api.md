@@ -152,6 +152,59 @@
 ] } }
 ```
 
+## 7. /api/auth/*
+
+账号接口。会话是 HttpOnly Cookie（`agritime_token`），前端不接触令牌。
+
+| 方法 | 路径 | 说明 |
+| --- | --- | --- |
+| POST | `/api/auth/register` | 注册并自动登录 |
+| POST | `/api/auth/login` | 登录 |
+| POST | `/api/auth/logout` | 退出（清 Cookie） |
+| GET | `/api/auth/me` | 当前登录用户 |
+
+请求体：`{"username":"...","password":"...","nickname":"..."}`（nickname 选填）
+
+成功响应：
+
+```json
+{ "code": 0, "message": "ok", "data": { "user": {
+  "id": "u_admin", "username": "admin", "nickname": "超级管理员",
+  "role": "admin", "createdAt": "2026-10-29 17:48:29",
+  "lastLoginAt": "2026-10-29 17:48:29", "loginCount": 1
+} } }
+```
+
+错误码：
+
+| code | 场景 |
+| --- | --- |
+| 400 | 用户名/密码不合规（用户名 3~20 位中英文数字下划线，密码 ≥6 位） |
+| 401 | 用户名或密码不正确（不区分「用户不存在」） |
+| 403 | 未开放注册（`auth.allow.register=false`） |
+| 409 | 用户名已被注册 |
+| 429 | 同一用户名连续 5 次密码错误，锁 60 秒 |
+
+## 8. /api/admin/*
+
+超管后台接口，仅 `role=admin` 可访问；未登录 401，非管理员 403。
+
+| 方法 | 路径 | 说明 |
+| --- | --- | --- |
+| GET | `/api/admin/users` | 账号列表（注册时间倒序） |
+| GET | `/api/admin/stats` | 概况：total / newToday / active7d / adminCount |
+
+```json
+{ "code": 0, "message": "ok", "data": {
+  "total": 2, "newToday": 2, "active7d": 2, "adminCount": 1
+} }
+```
+
+### 账号库与超管
+
+账号存 `backend/var/users.json`（已 gitignore），密码用 PBKDF2-SHA256（12 万次迭代）存摘要。
+预置超管 `admin` 只在账号库为空时创建，初始密码取环境变量 `AUTH_ADMIN_PASSWORD`。
+
 ## REST 规范
 
 - 资源命名使用名词复数

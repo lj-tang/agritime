@@ -286,3 +286,6 @@
   .auth-main { padding: 28px 16px; }
   .auth-card { padding: 24px 20px 20px; }
 }
+
+/* [hidden] 是 UA 样式，作者样式里的 display 会盖掉它 —— 显式兜一层 */
+.auth-card [hidden] { display: none !important; }
