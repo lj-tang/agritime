@@ -12,6 +12,7 @@ import com.cropcalendar.api.PlotHandler;
 import com.cropcalendar.api.RecognitionHandler;
 import com.cropcalendar.api.RecommendHandler;
 import com.cropcalendar.api.SiteConfigHandler;
+import com.cropcalendar.api.SupportHandler;
 import com.cropcalendar.api.TimelineHandler;
 import com.cropcalendar.compute.ComputeStub;
 import com.cropcalendar.config.AppConfig;
@@ -51,6 +52,7 @@ public class Server {
         server.createContext("/api/me", new MeHandler());
         server.createContext("/api/site-config", new SiteConfigHandler());
         server.createContext("/api/recommend", new RecommendHandler());
+        server.createContext("/api/support", new SupportHandler());
         server.setExecutor(Executors.newFixedThreadPool(8));
 
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {

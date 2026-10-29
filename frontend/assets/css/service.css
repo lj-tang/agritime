@@ -1,0 +1,76 @@
+/* 客服样式（T14），容器宽度/内边距由 common.css 的 .content-pane 统一控制 */
+.service-header { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 18px; }
+.service-title { display: block; font-size: 22px; font-weight: 800; letter-spacing: 1px; color: var(--ink); }
+.service-sub { display: block; margin-top: 6px; font-size: 13px; color: var(--muted); }
+.service-new-btn { white-space: nowrap; }
+
+.service-empty {
+  display: flex; align-items: center; justify-content: center;
+  min-height: 180px; padding: 32px 20px; text-align: center;
+  color: var(--muted); font-size: 14px; line-height: 1.8;
+  background: var(--card); border: 1px dashed var(--line); border-radius: var(--radius);
+}
+
+/* 工单列表 */
+.service-item {
+  background: var(--card); border: 1px solid rgba(228,221,203,0.9); border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-soft); padding: 14px 16px; margin-bottom: 10px; cursor: pointer;
+  transition: box-shadow .2s ease, transform .2s ease;
+}
+.service-item:hover { box-shadow: var(--shadow); transform: translateY(-1px); }
+.service-item-head { display: flex; align-items: center; gap: 8px; }
+.service-item-subject { font-size: 15.5px; font-weight: 700; color: var(--ink); flex: 1; }
+.service-item-status { flex: none; font-size: 11.5px; font-weight: 600; border-radius: 999px; padding: 2px 10px; }
+.service-status--open { color: #a05a2c; background: #fbeedd; }
+.service-status--replied { color: var(--leaf); background: var(--leaf-soft); }
+.service-status--closed { color: var(--muted); background: var(--paper-2); }
+.service-item-meta { margin-top: 6px; font-size: 12.5px; color: var(--muted); }
+
+/* 表单 */
+.service-form {
+  background: var(--card); border: 1px solid var(--line); border-radius: var(--radius);
+  box-shadow: var(--shadow-soft); padding: 20px; max-width: 720px;
+}
+.service-form .field { margin-bottom: 16px; }
+.service-form .field label { font-size: 14.5px; font-weight: 600; color: var(--ink); }
+.service-form .field .hint { font-size: 12px; font-weight: 400; color: var(--muted); }
+.service-form input, .service-form select, .service-form textarea {
+  width: 100%; font-family: inherit; font-size: 15px; padding: 11px 12px; color: var(--ink);
+  background: #fbf8f0; border: 1.5px solid var(--line); border-radius: 10px; box-sizing: border-box;
+}
+.service-form textarea { resize: vertical; min-height: 80px; line-height: 1.6; }
+.service-form input:focus, .service-form select:focus, .service-form textarea:focus {
+  outline: none; border-color: var(--leaf-2); background: #fff; box-shadow: 0 0 0 3px rgba(63,143,86,0.14);
+}
+.service-form-actions { margin-top: 4px; }
+.service-form-actions .btn { margin-top: 0; width: 100%; }
+
+/* 详情对话 */
+.service-detail-head { margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid var(--line); }
+.service-detail-subject { font-size: 18px; font-weight: 700; color: var(--ink); }
+.service-detail-meta { margin-top: 6px; font-size: 12.5px; color: var(--muted); display: flex; align-items: center; gap: 8px; }
+
+.service-bubble { max-width: 82%; margin-bottom: 12px; }
+.service-bubble--user { margin-right: auto; }
+.service-bubble--admin { margin-left: auto; }
+.service-bubble-who { font-size: 11.5px; color: var(--muted); margin-bottom: 3px; }
+.service-bubble--user .service-bubble-who { text-align: left; }
+.service-bubble--admin .service-bubble-who { text-align: right; }
+.service-bubble-text {
+  padding: 10px 14px; border-radius: 12px; font-size: 14px; line-height: 1.7; white-space: pre-wrap;
+}
+.service-bubble--user .service-bubble-text { background: var(--card); border: 1px solid var(--line); color: var(--ink); }
+.service-bubble--admin .service-bubble-text { background: var(--leaf); color: #fff; }
+
+.service-reply-box { display: flex; gap: 8px; align-items: flex-end; margin-top: 16px; max-width: 720px; }
+.service-reply-box textarea {
+  flex: 1; font-family: inherit; font-size: 14px; padding: 10px 12px; color: var(--ink);
+  background: #fbf8f0; border: 1.5px solid var(--line); border-radius: 10px; resize: vertical; min-height: 44px;
+}
+.service-reply-box textarea:focus { outline: none; border-color: var(--leaf-2); }
+.service-reply-box .btn { margin-top: 0; white-space: nowrap; }
+
+@media (max-width: 640px) {
+  .service-bubble { max-width: 94%; }
+  .service-reply-box { flex-wrap: wrap; }
+}

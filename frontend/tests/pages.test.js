@@ -856,3 +856,27 @@ test('T15 推荐规则库：结构与字段完整', () => {
     assert.ok(c.sowMonths.length >= 1 && c.sowMonths.every((m) => m >= 1 && m <= 12), c.name + ' 月份非法');
   });
 });
+
+// ---------------- T14 客服 ----------------
+const serviceJs = read(path.resolve(__dirname, '..', 'assets', 'js', 'service.js'));
+const adminJs = read(path.resolve(__dirname, '..', 'assets', 'js', 'admin.js'));
+
+test('T14 客服：index.html 集成（service/admin 脚本与样式）', () => {
+  assert.ok(indexHtml.includes('service.js'));
+  assert.ok(indexHtml.includes('admin.js'));
+  assert.ok(indexHtml.includes('service.css'));
+  assert.ok(indexHtml.includes('admin.css'));
+  assert.ok(indexHtml.includes('data-module="service"'));
+});
+
+test('T14 客服：用户端走 /api/support 接口', () => {
+  assert.ok(serviceJs.includes('/api/support'));
+  assert.ok(serviceJs.includes('/ticket'));
+  assert.ok(serviceJs.includes('/reply'));
+});
+
+test('T14 客服：超管端复用账号系统而非独立密码登录', () => {
+  assert.ok(adminJs.includes('/api/auth/me'));
+  assert.ok(adminJs.includes("user.role === 'admin'"));
+  assert.ok(adminJs.includes("'/close'"));
+});
