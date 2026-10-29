@@ -19,49 +19,41 @@
   var displayMap = null;
 
   /**
-   * Leaflet 默认图标依赖 leaflet/images/*.png，但我们只随包带了 leaflet.css 和 leaflet.js，
-   * 那几张图不存在，导致每个标记都打一次 404、地图上也没有图标。
-   * 这里把默认图标换成内联 SVG 的 data URI，尺寸与锚点和原版一致，彻底不依赖图片文件。
+   * 标记图标不走 L.Icon.Default：它依赖 leaflet/images/*.png，而仓库只随包了
+   * leaflet.css / leaflet.js，那几张图不存在，每个标记都会 404 且地图上没有图标。
+   * 这里用 L.divIcon + 内联 SVG —— html 直接渲染，不经过 imagePath 拼接，
+   * 因此既不会 404，也不会像 data-URI 方案那样被拼成
+   * /assets/leaflet/images/data:image/svg+xml... 的畸形地址。
    */
   var MARKER_SVG = "<svg xmlns='http://www.w3.org/2000/svg' width='28' height='40' viewBox='0 0 28 40'>" +
     "<path d='M14 1C7.4 1 2 6.3 2 12.9 2 21.6 14 39 14 39s12-17.4 12-26.1C26 6.3 20.6 1 14 1z' " +
     "fill='#4a7c59' stroke='#ffffff' stroke-width='2'/><circle cx='14' cy='13' r='4.5' fill='#ffffff'/></svg>";
-  var BLANK_SVG = "<svg xmlns='http://www.w3.org/2000/svg' width='1' height='1'></svg>";
+  var markerIcon = null;
 
-  function applyDefaultMarkerIcon() {
-    if (typeof L === 'undefined' || !L.Icon || !L.Icon.Default) return;
-    if (L.Icon.Default.__agritimePatched) return;
-    var icon = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(MARKER_SVG);
-    var blank = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(BLANK_SVG);
-    L.Icon.Default.mergeOptions({
-      iconUrl: icon,
-      iconRetinaUrl: icon,
-      shadowUrl: blank,
+  function getMarkerIcon() {
+    if (markerIcon) return markerIcon;
+    if (typeof L === 'undefined' || !L.divIcon) return null;
+    markerIcon = L.divIcon({
+      className: 'agritime-marker',
+      html: MARKER_SVG,
       iconSize: [28, 40],
       iconAnchor: [14, 40],
-      popupAnchor: [0, -40],
-      shadowSize: [1, 1]
+      popupAnchor: [0, -40]
     });
-    L.Icon.Default.__agritimePatched = true;
-  }
-
-  /** Leaflet 就绪后统一打一次图标补丁，返回 true 供 Promise 使用 */
-  function leafletOk() {
-    applyDefaultMarkerIcon();
-    return true;
+    return markerIcon;
   }
 
   function loadLeaflet() {
     if (leafletReady) return leafletReady;
     leafletReady = new Promise(function (resolve) {
-      if (typeof L !== 'undefined') { resolve(leafletOk()); return; }
+      if (typeof L !== 'undefined') { resolve(true); return; }
       var link = document.createElement('link');
       link.rel = 'stylesheet';
       link.href = LEAFLET_CSS;
       document.head.appendChild(link);
       var script = document.createElement('script');
       script.src = LEAFLET_JS;
-      script.onload = function () { resolve(leafletOk()); };
+      script.onload = function () { resolve(true); };
       script.onerror = function () { resolve(false); };
       document.head.appendChild(script);
       setTimeout(function () { resolve(typeof L !== 'undefined'); }, LOAD_TIMEOUT);
@@ -188,7 +180,7 @@
   function placeMarker(lat, lon) {
     if (!mapInstance || !validateLatLon(lat, lon)) return;
     if (currentMarker) mapInstance.removeLayer(currentMarker);
-    currentMarker = L.marker([lat, lon], { draggable: true }).addTo(mapInstance);
+    currentMarker = L.marker([lat, lon], { icon: getMarkerIcon(), draggable: true }).addTo(mapInstance);
     currentMarker.on('dragend', function (e) {
       var pos = e.target.getLatLng();
       updateInfo(pos.lat, pos.lng);
@@ -305,7 +297,7 @@
       displayMap = L.map(containerId).setView(center, DEFAULT_ZOOM);
       L.tileLayer(OSM_TILE, { subdomains: ['1','2','3','4'], attribution: '© 高德地图', maxZoom: 18 }).addTo(displayMap);
       if (validateLatLon(lat, lon)) {
-        L.marker([lat, lon]).addTo(displayMap);
+        L.marker([lat, lon], { icon: getMarkerIcon() }).addTo(displayMap);
       }
       setTimeout(function () { displayMap.invalidateSize(); }, 100);
     });

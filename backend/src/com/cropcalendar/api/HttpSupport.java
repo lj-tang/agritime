@@ -26,13 +26,24 @@ final class HttpSupport {
         ex.getResponseHeaders().set("Cache-Control", "no-store");
     }
 
-    /** 统一按 UTF-8 写出 JSON */
-    static void write(HttpExchange ex, int status, String body) throws IOException {
+    /**
+     * 统一按 UTF-8 写出 JSON。
+     * 客户端提前断开（刷新、切页、超时取消）时 JDK 会抛 Broken pipe / insufficient bytes，
+     * 这不是服务端错误，静默关闭即可；否则 app.err.log 会被这类堆栈刷满，
+     * 真正的问题反而被淹掉。
+     */
+    static void write(HttpExchange ex, int status, String body) {
         byte[] bytes = body.getBytes(StandardCharsets.UTF_8);
         ex.getResponseHeaders().set("Content-Type", "application/json; charset=utf-8");
-        ex.sendResponseHeaders(status, bytes.length);
-        try (OutputStream os = ex.getResponseBody()) {
-            os.write(bytes);
+        try {
+            ex.sendResponseHeaders(status, bytes.length);
+            try (OutputStream os = ex.getResponseBody()) {
+                os.write(bytes);
+            }
+        } catch (IOException clientGone) {
+            // 连接已断，无需再回写任何内容
+        } finally {
+            ex.close();
         }
     }
 
