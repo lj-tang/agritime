@@ -86,6 +86,12 @@ public final class GeoResolver {
             Place amap = amap(lat, lon, AppConfig.geoAmapKey());
             if (amap != null && amap.known()) place = amap;
         }
+        // 没有 key 也必须有地名：Photon 基于 OpenStreetMap，免注册、免 key，
+        // 实测国内可直连（Nominatim 不行，Photon 可以）。
+        if (place == null || !place.known()) {
+            Place photon = photon(lat, lon);
+            if (photon != null && photon.known()) place = photon;
+        }
         if (place == null) place = Place.unknown();
 
         int ttl = place.known() ? TTL_SECONDS : NEGATIVE_TTL_SECONDS;
@@ -119,7 +125,7 @@ public final class GeoResolver {
             java.util.List<Suggestion> r = amapSearch(kw, n, amapKey);
             if (!r.isEmpty()) return r;
         }
-        return java.util.List.of();
+        return photonSearch(kw, lat, lon, n);
     }
 
     private static java.util.List<Suggestion> tencentSearch(String kw, double lat, double lon, int n, String key) {
@@ -313,6 +319,145 @@ public final class GeoResolver {
         String display = compose(name, township, district, city, province);
         if (display.isBlank()) return null;
         return new Place(display, name, township, district, city, province, level, "amap");
+    }
+
+    // ---------------- Photon（免 key，OpenStreetMap 数据） ----------------
+
+    /** 候选地名：得分越高越像「用户想看到的那个地名」 */
+    private record Cand(String name, int score, String level) {
+    }
+
+    private static final java.util.Set<String> POI_KEYS = java.util.Set.of(
+            "amenity", "shop", "tourism", "leisure", "office", "landuse", "railway", "man_made", "historic");
+
+    /**
+     * Photon 是 Komoot 提供的免费 OSM 检索服务，不需要注册、不需要 key。
+     * 实测国内可直连（Nominatim 同源但被墙），这是目前唯一「零门槛」的中文地名来源。
+     * 数据是 OSM 众包的：城市里小区覆盖尚可，偏远农田常常只有路名，
+     * 所以按「小区 > 片区 > 楼宇 > POI > 道路」打分，再按距离扣分。
+     */
+    private static Place photon(double lat, double lon) {
+        String url = "https://photon.komoot.io/reverse?lat=" + fmt6(lat) + "&lon=" + fmt6(lon)
+                + "&limit=8&radius=2";
+        return parsePhoton(getJson(url), lat, lon);
+    }
+
+    static Place parsePhoton(Map<String, Object> root, double lat, double lon) {
+        List<?> features = list(root, "features");
+        if (features == null || features.isEmpty()) return null;
+
+        Cand best = null;
+        Map<String, Object> bestProps = null;
+        int bestScore = 0;
+
+        for (Object o : features) {
+            if (!(o instanceof Map<?, ?> f)) continue;
+            Map<String, Object> fm = cast(f);
+            Map<String, Object> p = map(fm, "properties");
+            if (p == null) continue;
+
+            Cand c = candidate(p);
+            if (c == null) continue;
+
+            // 距离惩罚：2 公里内每公里扣 8 分，免得为了一个远处的「小区」
+            // 把脚底下这条路的名字丢掉
+            int score = c.score() - (int) Math.round(Math.min(distanceKm(fm, lat, lon), 2.0) * 8);
+            if (score > bestScore) {
+                bestScore = score;
+                best = c;
+                bestProps = p;
+            }
+        }
+        if (best == null) return null;
+
+        String display = compose(best.name(),
+                str(bestProps, "county"), str(bestProps, "district"),
+                str(bestProps, "city"), str(bestProps, "state"));
+        if (display.isBlank()) return null;
+        return new Place(display, best.name(), str(bestProps, "street"),
+                str(bestProps, "district"), str(bestProps, "city"), str(bestProps, "state"),
+                best.level(), "photon");
+    }
+
+    private static Cand candidate(Map<String, Object> p) {
+        String name = str(p, "name");
+        String locality = str(p, "locality");
+        String key = str(p, "osm_key");
+        String val = str(p, "osm_value");
+
+        if ("landuse".equals(key) && "residential".equals(val) && !name.isBlank()) {
+            return new Cand(name, 100, "community");      // 住宅区，最贴近「小区」
+        }
+        if ("place".equals(key) && !name.isBlank()) {
+            return new Cand(name, 95, "community");       // neighbourhood / village 等
+        }
+        if (!locality.isBlank()) {
+            return new Cand(locality, 90, "community");   // 要素所属片区，往往是小区名
+        }
+        if ("building".equals(key) && !name.isBlank()) {
+            return new Cand(name, 60, "building");
+        }
+        if (!name.isBlank() && POI_KEYS.contains(key)) {
+            return new Cand(name, 55, "poi");
+        }
+        if ("highway".equals(key) && !name.isBlank()) {
+            return new Cand(name, 20, "street");
+        }
+        if (!name.isBlank()) {
+            return new Cand(name, 40, "poi");
+        }
+        return null;
+    }
+
+    private static double distanceKm(Map<String, Object> feature, double lat, double lon) {
+        Map<String, Object> geo = map(feature, "geometry");
+        List<?> coords = list(geo, "coordinates");
+        if (coords == null || coords.size() < 2) return 0;
+        double flon = numAt(coords.get(0));
+        double flat = numAt(coords.get(1));
+        if (Double.isNaN(flat) || Double.isNaN(flon)) return 0;
+        double x = Math.toRadians(flon - lon) * Math.cos(Math.toRadians((lat + flat) / 2));
+        double y = Math.toRadians(flat - lat);
+        return Math.sqrt(x * x + y * y) * 6371.0;
+    }
+
+    private static java.util.List<Suggestion> photonSearch(String kw, double lat, double lon, int n) {
+        String url = "https://photon.komoot.io/api/?q=" + enc(kw) + "&limit=" + n;
+        if (lat != 0 || lon != 0) {
+            url += "&lat=" + fmt6(lat) + "&lon=" + fmt6(lon);
+        }
+        Map<String, Object> root = getJson(url);
+        java.util.List<Suggestion> out = new java.util.ArrayList<>();
+        List<?> features = list(root, "features");
+        if (features == null) return out;
+
+        for (Object o : features) {
+            if (!(o instanceof Map<?, ?> f)) continue;
+            Map<String, Object> fm = cast(f);
+            Map<String, Object> p = map(fm, "properties");
+            if (p == null) continue;
+            String title = str(p, "name");
+            if (title.isBlank()) title = str(p, "locality");
+            if (title.isBlank()) continue;
+
+            List<?> c = list(map(fm, "geometry"), "coordinates");
+            if (c == null || c.size() < 2) continue;
+            double lo = numAt(c.get(0));
+            double la = numAt(c.get(1));
+            if (!valid(la, lo)) continue;
+
+            String addr = compose("", str(p, "county"), str(p, "district"), str(p, "city"), str(p, "state"));
+            out.add(new Suggestion(title, addr, la, lo, "photon"));
+        }
+        return out;
+    }
+
+    private static String fmt6(double v) {
+        return String.format(Locale.ROOT, "%.6f", v);
+    }
+
+    private static double numAt(Object o) {
+        return o instanceof Number n ? n.doubleValue() : Double.NaN;
     }
 
     // ---------------- 展示名拼装 ----------------

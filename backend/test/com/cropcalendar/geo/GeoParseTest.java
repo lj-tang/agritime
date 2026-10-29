@@ -44,10 +44,42 @@ public class GeoParseTest {
                         "\"pois\":[{\"title\":\"望京SOHO\"}]}}"),
                 "望京SOHO", "community", "望京SOHO");
 
-        // 5. 上游报错时返回 null，由调用方降级
+        // 5. Photon（免 key）：locality 里的小区名要压过脚底下的路名
+        check("photon-locality",
+                parsePhoton("{\"type\":\"FeatureCollection\",\"features\":[" +
+                        "{\"type\":\"Feature\",\"properties\":{\"osm_key\":\"highway\",\"osm_value\":\"tertiary\"," +
+                        "\"name\":\"太平庄中一街\",\"district\":\"天通苑北街道\",\"city\":\"北京市\",\"state\":\"北京市\"}," +
+                        "\"geometry\":{\"type\":\"Point\",\"coordinates\":[116.4200,40.0700]}}," +
+                        "{\"type\":\"Feature\",\"properties\":{\"osm_key\":\"building\",\"osm_value\":\"yes\"," +
+                        "\"locality\":\"天通北苑二区\",\"district\":\"天通苑北街道\",\"city\":\"北京市\",\"state\":\"北京市\"}," +
+                        "\"geometry\":{\"type\":\"Point\",\"coordinates\":[116.4201,40.0701]}}" +
+                        "]}", 40.0700, 116.4200),
+                "天通北苑二区（天通苑北街道 · 北京市）", "community", "天通北苑二区");
+
+        // 6. Photon：住宅区（landuse=residential）优先于更近的路
+        check("photon-residential",
+                parsePhoton("{\"features\":[" +
+                        "{\"properties\":{\"osm_key\":\"highway\",\"osm_value\":\"service\",\"name\":\"Green Villa 3 Road\"," +
+                        "\"locality\":\"碧云别墅·银杏苑\",\"district\":\"金桥镇\",\"city\":\"浦东新区\",\"state\":\"上海市\"}," +
+                        "\"geometry\":{\"coordinates\":[121.5900,31.2400]}}," +
+                        "{\"properties\":{\"osm_key\":\"landuse\",\"osm_value\":\"residential\",\"name\":\"碧云别墅·银杏苑\"," +
+                        "\"district\":\"金桥镇\",\"city\":\"浦东新区\",\"state\":\"上海市\"}," +
+                        "\"geometry\":{\"coordinates\":[121.5907,31.2407]}}" +
+                        "]}", 31.2400, 121.5900),
+                "碧云别墅·银杏苑（金桥镇 · 浦东新区 · 上海市）", "community", "碧云别墅·银杏苑");
+
+        // 7. Photon：偏远农田只有路名时，退回道路级而不是硬凑一个小区
+        check("photon-road-only",
+                parsePhoton("{\"features\":[{\"properties\":{\"osm_key\":\"highway\",\"osm_value\":\"primary\"," +
+                        "\"name\":\"金城路\",\"district\":\"金乡县\",\"city\":\"济宁市\",\"state\":\"山东省\"}," +
+                        "\"geometry\":{\"coordinates\":[116.2800,35.0500]}}]}", 35.0500, 116.2800),
+                "金城路（金乡县 · 济宁市 · 山东省）", "street", "金城路");
+
+        // 8. 上游报错时返回 null，由调用方降级
         expectNull("amap-error", parseAmap("{\"status\":\"0\",\"info\":\"INVALID_USER_KEY\"}"));
         expectNull("tencent-error", parseTencent("{\"status\":311,\"message\":\"key格式错误\"}"));
         expectNull("amap-null", GeoResolver.parseAmap(null));
+        expectNull("photon-empty", GeoResolver.parsePhoton(null, 0, 0));
 
         System.out.println(fail == 0 ? "ALL PASS" : (fail + " FAILED"));
         if (fail > 0) System.exit(1);
@@ -61,6 +93,11 @@ public class GeoParseTest {
     @SuppressWarnings("unchecked")
     private static GeoResolver.Place parseTencent(String json) {
         return GeoResolver.parseTencent((Map<String, Object>) JsonParser.parse(json));
+    }
+
+    @SuppressWarnings("unchecked")
+    private static GeoResolver.Place parsePhoton(String json, double lat, double lon) {
+        return GeoResolver.parsePhoton((Map<String, Object>) JsonParser.parse(json), lat, lon);
     }
 
     private static void check(String name, GeoResolver.Place p, String display, String level, String poi) {
