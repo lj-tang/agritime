@@ -91,6 +91,22 @@ public final class AppConfig {
         return intOf("llm.timeout.ms", 10000);
     }
 
+    /**
+     * 高德 Web 服务 key（逆地理编码用）。
+     * 留空则地图标点只能拿到 level=unknown —— 国内环境 Nominatim 不可达，
+     * 没有 key 就拿不到任何中文地名，所以这个值要配。
+     */
+    public static String geoAmapKey() {
+        String v = raw("geo.amap.key");
+        return (v != null && !v.isBlank()) ? v.trim() : "";
+    }
+
+    /** 腾讯位置服务 key（可选）。两者都配时优先用腾讯，它的 recommend 字段更贴近小区名。 */
+    public static String geoQqKey() {
+        String v = raw("geo.qq.key");
+        return (v != null && !v.isBlank()) ? v.trim() : "";
+    }
+
     private static String raw(String key) {
         String envKey = key.toUpperCase().replace('.', '_').replace('-', '_');
         String env = System.getenv(envKey);

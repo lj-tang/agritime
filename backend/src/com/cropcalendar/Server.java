@@ -3,6 +3,7 @@ package com.cropcalendar;
 import com.cropcalendar.api.ChartHandler;
 import com.cropcalendar.api.CropsHandler;
 import com.cropcalendar.api.DiseaseHandler;
+import com.cropcalendar.api.GeoHandler;
 import com.cropcalendar.api.HealthHandler;
 import com.cropcalendar.api.PlotHandler;
 import com.cropcalendar.api.RecognitionHandler;
@@ -39,6 +40,7 @@ public class Server {
         server.createContext("/api/chart", new ChartHandler());
         server.createContext("/api/plots", new PlotHandler());
         server.createContext("/api/disease", new DiseaseHandler());
+        server.createContext("/api/geo", new GeoHandler());
         server.setExecutor(Executors.newFixedThreadPool(8));
 
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
@@ -60,6 +62,8 @@ public class Server {
         System.out.println("  上游超时    " + AppConfig.upstreamTimeoutMs() + " ms");
         System.out.println("  缓存 TTL    " + AppConfig.cacheTtlSeconds() + " s");
         System.out.println("  计算层      " + (AppConfig.mockMode() ? "mock（等乙交付）" : "real"));
+        boolean geoReady = !AppConfig.geoQqKey().isBlank() || !AppConfig.geoAmapKey().isBlank();
+        System.out.println("  地图地名    " + (geoReady ? "已配置 key" : "未配置 key（标点只能返回 level=unknown）"));
         System.out.println();
         System.out.println("  按 Ctrl+C 停止");
         System.out.println();

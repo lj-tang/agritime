@@ -7,7 +7,8 @@
   var LEAFLET_CSS = '../assets/leaflet/leaflet.css';
   var LEAFLET_JS = '../assets/leaflet/leaflet.js';
   var OSM_TILE = 'https://webrd0{s}.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=1&style=8&x={x}&y={y}&z={z}';
-  var NOMINATIM_URL = 'https://nominatim.openstreetmap.org';
+  var GEO_API = '/api/geo/reverse';
+  var GEO_SEARCH = '/api/geo/search';
   var LOAD_TIMEOUT = 5000;
   var DEFAULT_CENTER = [39.9042, 116.4074];
   var DEFAULT_ZOOM = 13;
@@ -17,6 +18,9 @@
   var currentMarker = null;
   var pendingCallback = null;
   var displayMap = null;
+  var currentPlace = null;   // 当前标点解析出的中文地名，确认时回填
+  var resolving = false;     // 反向地理编码进行中
+  var geoToken = 0;          // 丢弃过期的识别结果
 
   /**
    * 标记图标不走 L.Icon.Default：它依赖 leaflet/images/*.png，而仓库只随包了
@@ -71,26 +75,36 @@
     return true;
   }
 
+  /**
+   * 逆地理编码走后端 /api/geo/reverse，不再直连 Nominatim：
+   * 国内访问 nominatim.openstreetmap.org 基本是超时，用户只能看到一串经纬度；
+   * 后端接的是国内服务商，能返回到小区/村级的中文地名，key 也不会落到浏览器里。
+   */
   function reverseGeocode(lat, lon, cb) {
-    var controller = new AbortController();
-    var timer = setTimeout(function () { controller.abort(); }, 4000);
-    fetch(NOMINATIM_URL + '/reverse?format=json&lat=' + lat + '&lon=' + lon + '&zoom=18&accept-language=zh', { signal: controller.signal })
-      .then(function (r) { clearTimeout(timer); return r.json(); })
-      .then(function (data) {
-        if (data && data.display_name) cb(data.display_name);
-        else cb(null);
+    var controller = typeof AbortController !== 'undefined' ? new AbortController() : null;
+    var timer = setTimeout(function () { if (controller) controller.abort(); }, 6000);
+    var url = GEO_API + '?lat=' + encodeURIComponent(lat) + '&lon=' + encodeURIComponent(lon);
+    fetch(url, { signal: controller ? controller.signal : undefined })
+      .then(function (r) { clearTimeout(timer); if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+      .then(function (res) {
+        var d = res && res.data;
+        cb(d && d.displayName ? d : null);
       })
       .catch(function () { clearTimeout(timer); cb(null); });
   }
 
+  /** 地点搜索同样走后端，Nominatim 在国内不可达 */
   function searchGeocode(query, cb) {
-    var controller = new AbortController();
-    var timer = setTimeout(function () { controller.abort(); }, 4000);
-    fetch(NOMINATIM_URL + '/search?format=json&q=' + encodeURIComponent(query) + '&limit=10&accept-language=zh', { signal: controller.signal })
-      .then(function (r) { clearTimeout(timer); return r.json(); })
-      .then(function (data) {
-        if (Array.isArray(data)) cb(data);
-        else cb([]);
+    var controller = typeof AbortController !== 'undefined' ? new AbortController() : null;
+    var timer = setTimeout(function () { if (controller) controller.abort(); }, 8000);
+    var center = mapInstance ? mapInstance.getCenter() : null;
+    var url = GEO_SEARCH + '?q=' + encodeURIComponent(query)
+      + (center ? '&lat=' + center.lat.toFixed(6) + '&lon=' + center.lng.toFixed(6) : '');
+    fetch(url, { signal: controller ? controller.signal : undefined })
+      .then(function (r) { clearTimeout(timer); if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+      .then(function (res) {
+        var items = res && res.data && res.data.items;
+        cb(Array.isArray(items) ? items : []);
       })
       .catch(function () { clearTimeout(timer); cb(null); });
   }
@@ -156,6 +170,9 @@
         document.getElementById('map-search-input').addEventListener('keydown', function (e) { if (e.key === 'Enter') doSearch(); });
       }
       overlay.style.display = 'flex';
+      currentPlace = null;
+      resolving = false;
+      setConfirmBusy(false);
       getCurrentLocation().then(function (loc) {
         var center = (loc && validateLatLon(loc.lat, loc.lon)) ? [loc.lat, loc.lon] : DEFAULT_CENTER;
         setTimeout(function () {
@@ -190,13 +207,32 @@
 
   function updateInfo(lat, lon) {
     var info = document.getElementById('map-info');
-    if (info) info.textContent = '经纬度：' + lat.toFixed(4) + ', ' + lon.toFixed(4) + '（正在获取地名…）';
-    reverseGeocode(lat, lon, function (name) {
-      if (info) {
-        if (name) info.textContent = name + '（' + lat.toFixed(4) + ', ' + lon.toFixed(4) + '）';
-        else info.textContent = '经纬度：' + lat.toFixed(4) + ', ' + lon.toFixed(4);
+    currentPlace = null;
+    resolving = true;
+    setConfirmBusy(true);
+    if (info) info.textContent = '正在识别位置…';
+
+    var token = ++geoToken;
+    reverseGeocode(lat, lon, function (place) {
+      if (token !== geoToken) return;   // 拖拽过快时丢弃过期结果
+      resolving = false;
+      currentPlace = place;
+      var el = document.getElementById('map-info');
+      if (place) {
+        if (el) el.textContent = place.displayName;
+      } else if (el) {
+        el.textContent = '该位置暂无法识别地名，可拖动标点重试，或确认后手动补充地点';
       }
+      setConfirmBusy(false);
     });
+  }
+
+  /** 识别期间禁用确认，保证回填的一定是地名而不是「地图选点位置」 */
+  function setConfirmBusy(busy) {
+    var btn = document.getElementById('map-confirm');
+    if (!btn) return;
+    btn.disabled = !!busy;
+    btn.textContent = busy ? '识别位置…' : '确认';
   }
 
   function locateToCurrent() {
@@ -228,7 +264,16 @@
       items.forEach(function (item) {
         var div = document.createElement('div');
         div.className = 'map-search-item';
-        div.textContent = item.display_name || '未知';
+        var title = document.createElement('div');
+        title.className = 'map-search-title';
+        title.textContent = item.title || '未知';
+        div.appendChild(title);
+        if (item.address) {
+          var addr = document.createElement('div');
+          addr.className = 'map-search-addr';
+          addr.textContent = item.address;
+          div.appendChild(addr);
+        }
         div.addEventListener('click', function () {
           if (mapInstance && item.lat && item.lon) {
             mapInstance.setView([Number(item.lat), Number(item.lon)], DEFAULT_ZOOM);
@@ -242,33 +287,46 @@
   }
 
   function confirmSelect() {
-    if (currentMarker && pendingCallback) {
-      var pos = currentMarker.getLatLng();
-      var info = document.getElementById('map-info');
-      var infoText = info ? info.textContent : '';
-      var name = '';
-      if (infoText && infoText.indexOf('经纬度：') !== 0) {
-        name = infoText.split('（')[0].trim();
-      }
-      if (!name) name = pos.lat.toFixed(4) + ', ' + pos.lng.toFixed(4);
-      window.__markerLatLon = { lat: pos.lat, lon: pos.lng };
-      var loc = document.getElementById('location');
-      if (loc) loc.value = name;
-      pendingCallback({ lat: pos.lat, lon: pos.lng, name: name });
-    } else if (currentMarker) {
-      var pos2 = currentMarker.getLatLng();
-      var info2 = document.getElementById('map-info');
-      var infoText2 = info2 ? info2.textContent : '';
-      var name2 = '';
-      if (infoText2 && infoText2.indexOf('经纬度：') !== 0) {
-        name2 = infoText2.split('（')[0].trim();
-      }
-      if (!name2) name2 = pos2.lat.toFixed(4) + ', ' + pos2.lng.toFixed(4);
-      window.__markerLatLon = { lat: pos2.lat, lon: pos2.lng };
-      var loc2 = document.getElementById('location');
-      if (loc2) loc2.value = name2;
+    if (!currentMarker) { close(); return; }
+    if (resolving) return;   // 按钮此时是禁用的，这里再兜一层
+
+    var pos = currentMarker.getLatLng();
+    var name = selectionName();
+
+    // 经纬度保留 6 位小数（约 0.1 米），只交给后端参与计算，界面不展示
+    window.__markerLatLon = { lat: round6(pos.lat), lon: round6(pos.lng) };
+    window.__markerPlace = currentPlace ? {
+      displayName: currentPlace.displayName,
+      name: currentPlace.name,
+      district: currentPlace.district,
+      city: currentPlace.city,
+      level: currentPlace.level
+    } : null;
+
+    var loc = document.getElementById('location');
+    if (loc) loc.value = name;
+
+    var cb = pendingCallback;
+    pendingCallback = null;
+    if (cb) {
+      cb({
+        lat: window.__markerLatLon.lat,
+        lon: window.__markerLatLon.lon,
+        name: name,
+        place: window.__markerPlace
+      });
     }
     close();
+  }
+
+  /** 回填到地点输入框的文本：优先用小区级地名 */
+  function selectionName() {
+    if (currentPlace && currentPlace.displayName) return currentPlace.displayName;
+    return '地图选点位置';
+  }
+
+  function round6(v) {
+    return Math.round(v * 1e6) / 1e6;
   }
 
   function close() {

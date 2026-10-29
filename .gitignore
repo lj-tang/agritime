@@ -12,6 +12,7 @@ backend/build/
 
 # 智能体工作目录（本地记忆，不入库）
 .workbuddy/
+.workbuddy-ai/
 
 # 依赖与系统文件
 node_modules/
