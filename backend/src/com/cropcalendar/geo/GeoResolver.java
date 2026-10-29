@@ -117,15 +117,25 @@ public final class GeoResolver {
 
         String qqKey = AppConfig.geoQqKey();
         if (!qqKey.isBlank()) {
-            java.util.List<Suggestion> r = tencentSearch(kw, lat, lon, n, qqKey);
+            java.util.List<Suggestion> r = dedupe(tencentSearch(kw, lat, lon, n, qqKey));
             if (!r.isEmpty()) return r;
         }
         String amapKey = AppConfig.geoAmapKey();
         if (!amapKey.isBlank()) {
-            java.util.List<Suggestion> r = amapSearch(kw, n, amapKey);
+            java.util.List<Suggestion> r = dedupe(amapSearch(kw, n, amapKey));
             if (!r.isEmpty()) return r;
         }
-        return photonSearch(kw, lat, lon, n);
+        return dedupe(photonSearch(kw, lat, lon, n));
+    }
+
+    /** 同名同址的结果只留第一条：OSM 里一个「望京」能挂着五六个地铁站，不合并会刷屏 */
+    private static java.util.List<Suggestion> dedupe(java.util.List<Suggestion> raw) {
+        java.util.Map<String, Suggestion> seen = new java.util.LinkedHashMap<>();
+        for (Suggestion s : raw) {
+            String key = s.title() + "|" + s.address();
+            seen.putIfAbsent(key, s);
+        }
+        return new java.util.ArrayList<>(seen.values());
     }
 
     private static java.util.List<Suggestion> tencentSearch(String kw, double lat, double lon, int n, String key) {
