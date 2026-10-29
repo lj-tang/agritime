@@ -11,7 +11,7 @@
     { id: 'disease', label: '病害检查', icon: '🔍', implemented: true },
     { id: 'my', label: '我的', icon: '👤', implemented: true, children: [
       { id: 'plots', label: '我的地块', icon: '📍', implemented: true },
-      { id: 'my-crops', label: '我的产品', icon: '🌾', implemented: true }
+      { id: 'my-crops', label: '我的作物', icon: '🌾', implemented: true }
     ]},
     { id: 'service', label: '客服', icon: '💬', implemented: true },
     // 管理后台只给超管看：非管理员连入口都不出现，权限判断仍在服务端
@@ -65,7 +65,14 @@
         });
         nav.appendChild(sub);
       } else {
-        btn.addEventListener('click', function () { switchModule(entry.id); });
+        btn.addEventListener('click', function () {
+          // 「管理后台」是独立控制台（账号/文件/开关/日志），不是页内面板
+          if (entry.id === 'admin') {
+            location.href = './admin.html';
+            return;
+          }
+          switchModule(entry.id);
+        });
         nav.appendChild(btn);
       }
     });
@@ -142,6 +149,8 @@
     renderSidebar();
     var burger = document.getElementById('sidebar-burger');
     if (burger) burger.addEventListener('click', toggleDrawer);
+    var pane = new URLSearchParams(location.search).get('pane');
+    if (pane && findEntry(pane)) currentModule = pane;
     switchModule(currentModule);
     checkAdmin();
   }

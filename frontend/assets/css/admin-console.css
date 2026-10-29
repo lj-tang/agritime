@@ -386,3 +386,6 @@
 }
 .admin-audit-row:last-child { border-bottom: 0; }
 .admin-audit-row:nth-child(odd) { background: var(--paper); }
+
+.admin-link { color: var(--leaf); text-decoration: none; font-weight: 600; }
+.admin-link:hover { text-decoration: underline; }
