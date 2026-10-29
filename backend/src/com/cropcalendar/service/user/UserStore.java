@@ -255,12 +255,12 @@ public final class UserStore {
         if (pwd == null || pwd.isBlank()) {
             pwd = "agritime@2026";
         }
-        User admin = new User("u_admin", "admin", "超级管理员",
+        User admin = new User("u_super_admin", "super_admin", "超级管理员",
                 hash(pwd), "admin", now(), "", 0, false);
         BY_ID.put(admin.id(), admin);
-        ID_BY_NAME.put("admin", admin.id());
+        ID_BY_NAME.put("super_admin", admin.id());
         persist();
-        System.out.println("[user] 已创建预置超管 admin（密码见 auth.admin.password）");
+        System.out.println("[user] 已创建预置超管 super_admin（密码见 auth.admin.password）");
     }
 
     private static void persist() {

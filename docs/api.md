@@ -169,7 +169,7 @@
 
 ```json
 { "code": 0, "message": "ok", "data": { "user": {
-  "id": "u_admin", "username": "admin", "nickname": "超级管理员",
+  "id": "u_super_admin", "username": "super_admin", "nickname": "超级管理员",
   "role": "admin", "createdAt": "2026-10-29 17:48:29",
   "lastLoginAt": "2026-10-29 17:48:29", "loginCount": 1
 } } }
@@ -203,7 +203,7 @@
 ### 账号库与超管
 
 账号存 `backend/var/users.json`（已 gitignore），密码用 PBKDF2-SHA256（12 万次迭代）存摘要。
-预置超管 `admin` 只在账号库为空时创建，初始密码取环境变量 `AUTH_ADMIN_PASSWORD`。
+预置超管 `super_admin` 只在账号库为空时创建，初始密码取环境变量 `AUTH_ADMIN_PASSWORD`。
 
 ## REST 规范
 
