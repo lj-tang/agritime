@@ -489,37 +489,32 @@ public final class GeoResolver {
 
     /**
      * 判断某个点是否适合作为农事地块。
-     * 优先级：中文地名关键字（能精准抓「中央商务区/CBD」这类核心区，而 OSM 往往没有 landuse）
-     *         > OSM 土地分类（Photon 的 landuse/leisure/natural）
-     *         > 名称绿化关键字。
-     * 命中「村/镇/乡」等地名时，即使 OSM 把它标成 residential，也降级为 unknown，避免误伤农村。
+     * 优先级：OSM 面状土地用途（landuse/leisure/natural，最可靠）
+     *         > 中文地名关键字（OSM 没有 landuse 时兜底，能抓「中央商务区/CBD」）。
+     * 命中「村/庄/屯/乡/农场」等地名时，即使 OSM 把它标成 residential，
+     * 也降级为 unknown，避免误伤农村。
      */
     public static Classification classify(double lat, double lon) {
         String key = String.format(Locale.ROOT, "%.4f,%.4f", lat, lon);
         ClassEntry cached = CLASS_CACHE.get(key);
         if (cached != null && cached.expireAtMs() > System.currentTimeMillis()) return cached.c();
 
-        Place p = resolve(lat, lon);
-        String hay = (p.displayName() + " " + p.name() + " " + p.district() + " " + p.city())
-                .toLowerCase(Locale.ROOT);
-
-        Category nameCat = nameCategory(hay);
+        // 面状土地用途优先：OSM 明确标了公园/水体/农田时，附近一个「医院」之类的
+        // POI 名字不应该把整块地判成城市建成区。有定论就不再打第二次 Photon。
         Classification osm = photonClassify(lat, lon);
         Category osmCat = osm != null ? parseCat(osm.category()) : null;
 
-        // 农村地名兜底：OSM 把村庄多边形标成 residential 时，不误判为城市建成区
-        boolean rural = hay.contains("村") || hay.contains("庄") || hay.contains("屯")
-                || hay.contains("乡") || hay.contains("农场") || hay.contains("大队") || hay.contains("寨");
-
-        // 面状土地用途优先于地名：OSM 明确标了公园/水体/农田时，附近一个「医院」
-        // 之类的 POI 名字不应该把整块地判成城市建成区。
+        Place p = null;
         Category finalCat;
         if (osmCat != null && osmCat != Category.UNKNOWN) {
-            finalCat = (osmCat == Category.URBAN && rural) ? Category.UNKNOWN : osmCat;
-        } else if (nameCat != null && nameCat != Category.UNKNOWN) {
-            finalCat = nameCat;
+            finalCat = osmCat;
         } else {
-            finalCat = Category.UNKNOWN;
+            // 没有面状要素时才看地名：中央商务区/CBD 这类核心区、以及公园绿地
+            p = resolve(lat, lon);
+            String hay = (p.displayName() + " " + p.name() + " " + p.district() + " " + p.city())
+                    .toLowerCase(Locale.ROOT);
+            Category nameCat = nameCategory(hay);
+            finalCat = (nameCat != null && nameCat != Category.UNKNOWN) ? nameCat : Category.UNKNOWN;
         }
 
         Classification result = new Classification(
@@ -527,7 +522,7 @@ public final class GeoResolver {
                 osm != null ? osm.osmKey() : "",
                 osm != null ? osm.osmValue() : "",
                 labelFor(finalCat, osm),
-                osm != null ? osm.source() : (p.known() ? "name" : "none"));
+                osm != null ? osm.source() : (p != null && p.known() ? "name" : "none"));
         // 只缓存确定结果；unknown 往往是上游超时/限流导致的，缓存会把偶发失败钉死
         if (finalCat != Category.UNKNOWN) {
             CLASS_CACHE.put(key, new ClassEntry(result, System.currentTimeMillis() + CLASS_TTL_MS));
@@ -576,9 +571,31 @@ public final class GeoResolver {
         // 这些才真正描述「这块地是什么」，而 place=neighbourhood 之类的点状要素
         // 只是大范围片区的近似中心，若参与最近距离比较，会把公园误判成城市。
         Classification best = nearestClassified(features, lat, lon, true);
-        if (best != null) return best;
         // 第二轮：没有面状要素时，才看 POI / 建筑 / 片区点
-        return nearestClassified(features, lat, lon, false);
+        if (best == null) best = nearestClassified(features, lat, lon, false);
+        if (best == null) return null;
+
+        // 农村地名兜底：OSM 常把村庄居民点标成 residential，不能据此把农村判成城市。
+        // 这里直接看 Photon 返回要素的 name/district/city/county，省掉一次 resolve 请求。
+        if ("urban".equals(best.category()) && hasRuralHint(features)) {
+            return new Classification("unknown", best.osmKey(), best.osmValue(), "", "photon");
+        }
+        return best;
+    }
+
+    private static boolean hasRuralHint(List<?> features) {
+        for (Object o : features) {
+            if (!(o instanceof Map<?, ?> f)) continue;
+            Map<String, Object> props = map(cast(f), "properties");
+            if (props == null) continue;
+            String h = str(props, "name") + str(props, "district") + str(props, "city")
+                    + str(props, "county") + str(props, "locality");
+            if (h.contains("村") || h.contains("庄") || h.contains("屯") || h.contains("乡")
+                    || h.contains("农场") || h.contains("大队") || h.contains("寨")) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private static Classification nearestClassified(List<?> features, double lat, double lon, boolean areaOnly) {
