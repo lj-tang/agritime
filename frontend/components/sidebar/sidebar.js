@@ -13,6 +13,7 @@
       { id: 'plots', label: '我的地块', icon: '📍', implemented: true },
       { id: 'my-crops', label: '我的作物', icon: '🌾', implemented: true }
     ]},
+    { id: 'industry', label: '渔业', icon: '🐟', implemented: true },
     { id: 'service', label: '客服', icon: '💬', implemented: true },
     // 管理后台只给超管看：非管理员连入口都不出现，权限判断仍在服务端
     { id: 'admin', label: '管理后台', icon: '⚙️', implemented: true, adminOnly: true }

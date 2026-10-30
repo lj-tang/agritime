@@ -7,6 +7,7 @@ import com.cropcalendar.api.CropsHandler;
 import com.cropcalendar.api.DiseaseHandler;
 import com.cropcalendar.api.GeoHandler;
 import com.cropcalendar.api.HealthHandler;
+import com.cropcalendar.api.IndustryHandler;
 import com.cropcalendar.api.MeHandler;
 import com.cropcalendar.api.PlotHandler;
 import com.cropcalendar.api.RecognitionHandler;
@@ -55,6 +56,7 @@ public class Server {
         server.createContext("/api/recommend", new RecommendHandler());
         server.createContext("/api/sow-window", new SowWindowHandler());
         server.createContext("/api/support", new SupportHandler());
+        server.createContext("/api/industry", new IndustryHandler());
         server.setExecutor(Executors.newFixedThreadPool(8));
 
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {

@@ -16,6 +16,7 @@
   <link rel="stylesheet" href="../assets/css/service.css" />
   <link rel="stylesheet" href="../assets/css/admin.css" />
   <link rel="stylesheet" href="../assets/css/recommend.css" />
+  <link rel="stylesheet" href="../assets/css/industry.css" />
   <link rel="stylesheet" href="../components/floating-ball/floating-ball.css" />
   <link rel="stylesheet" href="../components/location-picker/location-picker.css" />
   <link rel="stylesheet" href="../assets/leaflet/leaflet.css" />
@@ -292,6 +293,33 @@
     </div>
   </div>
 
+  <div class="content-pane" data-module="industry" id="industry-pane">
+    <div class="industry-pane">
+      <div class="pane-head">
+        <div class="pane-head-text">
+          <span class="industry-title">渔业</span>
+          <span class="pane-sub">鱼苗蟹苗当种子，按放养日生成生产日历：放苗 / 投喂 / 换水 / 捕捞</span>
+        </div>
+      </div>
+      <div class="industry-body">
+        <form class="industry-form" id="industry-form">
+          <label class="industry-field">养殖品类
+            <select id="industry-species"></select>
+          </label>
+          <label class="industry-field">放养日期
+            <input type="date" id="industry-date" />
+          </label>
+          <label class="industry-field">地点
+            <input type="text" id="industry-location" value="湖北省荆州市" autocomplete="off" />
+          </label>
+          <button type="submit" class="btn btn-primary">生成生产日历</button>
+          <p class="industry-note">水温尚未接入实测，阶段适宜度用气温近似判断，仅供参考</p>
+        </form>
+        <div id="industry-result"></div>
+      </div>
+    </div>
+  </div>
+
   <div class="content-pane" data-module="service" id="service-pane">
     <div class="service-pane">
       <div class="service-header">
@@ -392,6 +420,7 @@
   <script src="../assets/js/my-plots.js"></script>
   <script src="../assets/js/disease.js"></script>
   <script src="../assets/js/recommend.js"></script>
+  <script src="../assets/js/industry.js"></script>
   <script src="../assets/js/service.js"></script>
   <script src="../assets/js/admin.js"></script>
   <script src="../components/floating-ball/floating-ball.js"></script>

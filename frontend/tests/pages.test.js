@@ -1095,3 +1095,36 @@ test('T04 节点提醒：可设置、可删除、有倒计时', () => {
   assert.ok(timelineHtml.includes('calcCountdown'), '应显示倒计时');
   assert.ok(timelineHtml.includes('reminder-panel'), '应有提醒面板');
 });
+
+// ---------------- T09 渔业试点 ----------------
+test('T09 渔业：3 个品类且阶段覆盖放苗/投喂/换水/捕捞', () => {
+  const lib = JSON.parse(read(path.resolve(__dirname, '..', '..', 'data', 'industries', 'aquaculture', 'species.json')));
+  assert.ok(Array.isArray(lib.species));
+  assert.ok(lib.species.length >= 3, '至少 3 个品类，实际 ' + lib.species.length);
+  const ops = new Set();
+  lib.species.forEach((s) => {
+    assert.ok(s.name && s.stages.length >= 4, s.name + ' 阶段过少');
+    assert.ok(typeof s.waterTempMin === 'number' && typeof s.waterTempMax === 'number', s.name + ' 缺水温区间');
+    s.stages.forEach((st) => {
+      ops.add(st.opType);
+      ['dayOffset', 'opType', 'title', 'detail'].forEach((k) => assert.ok(st[k] !== undefined, s.name + ' 阶段缺 ' + k));
+    });
+  });
+  ['stock', 'feed', 'water', 'harvest'].forEach((k) => assert.ok(ops.has(k), '缺少 ' + k + ' 阶段'));
+});
+
+test('T09 渔业：接口注册与水质口径声明', () => {
+  const srv = read(path.resolve(__dirname, '..', '..', 'backend', 'src', 'com', 'cropcalendar', 'Server.java'));
+  assert.ok(srv.includes('/api/industry'), '接口应注册');
+  const h = read(path.resolve(__dirname, '..', '..', 'backend', 'src', 'com', 'cropcalendar', 'api', 'IndustryHandler.java'));
+  assert.ok(h.includes('tempBasis'), '应声明温度口径');
+  assert.ok(h.includes('气温近似'), '应说明是气温近似而非水温实测');
+  assert.ok(h.includes('fetchWindowWeather'), '应叠加天气适宜度');
+});
+
+test('T09 渔业：前端板块与侧栏入口', () => {
+  assert.ok(indexHtml.includes('data-module="industry"'), '应有渔业板块');
+  assert.ok(indexHtml.includes('industry.js') && indexHtml.includes('industry.css'));
+  const sidebar = read(path.resolve(__dirname, '..', 'components', 'sidebar', 'sidebar.js'));
+  assert.ok(/id: 'industry'[^}]*implemented: true/.test(sidebar), '侧栏入口应可用');
+});
