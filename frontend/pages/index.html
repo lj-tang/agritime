@@ -65,6 +65,7 @@
         <input id="crop" name="crop" type="text" autocomplete="off" />
         <div class="suggestions" id="crop-suggestions"></div>
         <div class="error" id="error-crop">请输入作物品种</div>
+        <p class="voice-hint" id="voice-hint" hidden></p>
       </div>
 
       <div class="field" id="field-sowing-date">
@@ -407,6 +408,7 @@
 
   <script src="../assets/mock/mock-data.js"></script>
   <script src="../shared/utils/date-window.js"></script>
+  <script src="../assets/js/dialect.js"></script>
   <script src="../assets/js/page-url.js"></script>
   <script src="../assets/js/crop-map.js"></script>
   <script src="../shared/utils/storage.js"></script>
@@ -858,6 +860,17 @@
           });
         });
       }
+
+      // T08：语音识别结果经方言词表纠错后，把"听到的"和"识别为"都展示出来
+      document.addEventListener('voice-corrected', function (ev) {
+        var d = ev.detail || {};
+        var hint = document.getElementById('voice-hint');
+        if (!hint || !d.corrections || !d.corrections.length) return;
+        var pairs = d.corrections.map(function (c) { return c.from + ' → ' + c.to; }).join('，');
+        hint.hidden = false;
+        hint.textContent = '听到「' + d.raw + '」，按' + (d.region ? d.region + '词表' : '方言词表')
+          + '识别为「' + d.corrected + '」：' + pairs + '（文本纠错，非方言语音识别）';
+      });
 
       form.addEventListener('submit', function (e) {
         e.preventDefault();

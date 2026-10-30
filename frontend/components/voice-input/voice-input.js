@@ -66,13 +66,34 @@
 
       recognition.onresult = function (event) {
         if (event.results && event.results[0]) {
-          var transcript = event.results[0][0].transcript || '';
-          transcript = transcript.trim();
-          if (transcript && targetInput) {
-            targetInput.value = transcript;
+          var transcript = (event.results[0][0].transcript || '').trim();
+          if (!transcript || !targetInput) return;
+
+          // T08：先过方言词表，把"洋柿子"这类写法纠回标准作物名。
+          // 注意这只是文本纠错，不是方言语音识别——页面上要如实说明。
+          var apply = function (result) {
+            targetInput.value = result.text;
             targetInput.focus();
             targetInput.dispatchEvent(new Event('input', { bubbles: true }));
             targetInput.dispatchEvent(new Event('change', { bubbles: true }));
+            if (result.matched) {
+              document.dispatchEvent(new CustomEvent('voice-corrected', {
+                detail: { raw: transcript, corrected: result.text, corrections: result.corrections, region: result.region }
+              }));
+            }
+          };
+
+          if (window.Dialect) {
+            var addr = '';
+            var locEl = document.getElementById('location');
+            if (locEl) addr = locEl.value || '';
+            window.Dialect.load().then(function () {
+              apply(window.Dialect.correct(transcript, addr));
+            }).catch(function () {
+              apply({ text: transcript, matched: false });
+            });
+          } else {
+            apply({ text: transcript, matched: false });
           }
         }
       };

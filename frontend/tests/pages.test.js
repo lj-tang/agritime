@@ -95,7 +95,7 @@ test('自定义日期选择器：三联动下拉与范围校验', () => {
   assert.match(indexHtml, /id="date-day"/);
   assert.ok(indexHtml.includes('RANGE_BACK_DAYS'));
   assert.ok(indexHtml.includes('播种日期不能早于两年前'));
-  assert.ok(!indexHtml.includes('type="date"'));
+  assert.match(indexHtml, /id="sowingDate"[^>]*type="hidden"/, '主表单播种日期应是隐藏域，由三联动写入');
   assert.ok(indexHtml.includes('id="sowingDate"'));
 });
 test('函数图像模式：切换控件与模式选项', () => {
@@ -386,7 +386,7 @@ test('日期范围：既有断言兼容性复核', () => {
   assert.ok(indexHtml.includes('id="date-month"'));
   assert.ok(indexHtml.includes('id="date-day"'));
   assert.ok(indexHtml.includes('id="sowingDate"'));
-  assert.ok(!indexHtml.includes('type="date"'));
+  assert.match(indexHtml, /id="sowingDate"[^>]*type="hidden"/, '主表单播种日期应是隐藏域，由三联动写入');
 });
 test('T01 天气卡：DOM 结构与脚本引入', () => {
   assert.ok(indexHtml.includes('id="weather-card"'));
@@ -1127,4 +1127,37 @@ test('T09 渔业：前端板块与侧栏入口', () => {
   assert.ok(indexHtml.includes('industry.js') && indexHtml.includes('industry.css'));
   const sidebar = read(path.resolve(__dirname, '..', 'components', 'sidebar', 'sidebar.js'));
   assert.ok(/id: 'industry'[^}]*implemented: true/.test(sidebar), '侧栏入口应可用');
+});
+
+// ---------------- T08 方言词表 ----------------
+test('T08 方言：三方言区词表，且都映射到标准作物名', () => {
+  const lib = JSON.parse(read(path.resolve(__dirname, '..', '..', 'data', 'voice', 'dialect-map.json')));
+  assert.ok(Array.isArray(lib.regions));
+  assert.ok(lib.regions.length >= 3, '至少 3 个方言区');
+  let total = 0;
+  lib.regions.forEach((r) => {
+    assert.ok(r.id && r.name && Array.isArray(r.provinces) && r.provinces.length, r.id + ' 结构不完整');
+    assert.ok(r.words.length >= 8, r.name + ' 词条过少');
+    r.words.forEach((w) => {
+      assert.ok(w.from && w.to, r.name + ' 词条缺 from/to');
+      total++;
+    });
+  });
+  assert.ok(total >= 30, '总词条应 ≥30，实际 ' + total);
+});
+
+test('T08 方言：语音结果先纠错再填入，并标注能力边界', () => {
+  const voice = read(path.resolve(__dirname, '..', 'components', 'voice-input', 'voice-input.js'));
+  assert.ok(voice.includes('Dialect.correct'), '识别结果应走方言纠错');
+  assert.ok(voice.includes('voice-corrected'), '应派发纠错事件');
+  const dialect = read(path.resolve(__dirname, '..', 'assets', 'js', 'dialect.js'));
+  assert.ok(dialect.includes('方言语音'), '应说明不是方言语音识别');
+  assert.ok(indexHtml.includes('dialect.js'));
+  assert.ok(indexHtml.includes('voice-hint'));
+  assert.ok(indexHtml.includes('文本纠错，非方言语音识别'), '界面应写明能力边界');
+});
+
+test('T08 方言：nginx 放行 /data/voice/', () => {
+  const conf = read(path.resolve(__dirname, '..', '..', 'deploy', 'nginx', 'agritime.conf'));
+  assert.ok(conf.includes('/data/voice/'), '浏览器要读词表，nginx 需放行该目录');
 });

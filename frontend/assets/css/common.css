@@ -725,3 +725,14 @@ body[data-layout="app"] .content-pane > * {
   margin-left: auto; border: none; background: none; color: var(--muted);
   cursor: pointer; font-size: 16px; line-height: 1;
 }
+
+/* T08 方言纠错提示 */
+.voice-hint {
+  margin: 8px 0 0;
+  padding: 8px 10px;
+  font-size: 12.5px;
+  line-height: 1.6;
+  color: var(--ink-soft);
+  background: var(--paper-2);
+  border-radius: var(--radius-sm);
+}
