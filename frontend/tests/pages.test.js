@@ -14,8 +14,8 @@ const commonCss = read(path.join(CSS, 'common.css'));
 const timelineCss = read(path.join(CSS, 'timeline.css'));
 const cropMapJs = read(path.resolve(__dirname, '..', 'assets', 'js', 'crop-map.js'));
 const mockJs = read(path.resolve(__dirname, '..', 'assets', 'mock', 'mock-data.js'));
-const timelineLogicJs = read(path.resolve(__dirname, '..', 'assets', 'js', 'timeline-logic.js'));
-const historyStoreJs = read(path.resolve(__dirname, '..', 'assets', 'js', 'history-store.js'));
+const timelineLogicJs = read(path.resolve(__dirname, '..', '..', 'shared', 'utils', 'timeline-logic.js'));
+const historyStoreJs = read(path.resolve(__dirname, '..', '..', 'shared', 'utils', 'storage.js'));
 const chartClientJs = read(path.resolve(__dirname, '..', 'assets', 'js', 'chart-client.js'));
 const weatherVisualJs = read(path.resolve(__dirname, '..', 'assets', 'js', 'weather-visual.js'));
 const sunnySvg = read(path.resolve(__dirname, '..', 'assets', 'weather-bg', 'sunny.svg'));
@@ -242,7 +242,7 @@ test('历史记录：键名 / 上限 / 去重 / 回填', () => {
   assert.match(historyStoreJs, /MAX = 20/);
   assert.match(historyStoreJs, /unshift/);
   assert.match(historyStoreJs, /try/);
-  assert.match(indexHtml, /history-store\.js/);
+  assert.match(indexHtml, /storage\.js/);
   assert.match(indexHtml, /id="history-list"/);
   assert.match(indexHtml, /HistoryStore\.add/);
 });
@@ -269,7 +269,7 @@ test('mock 新字段：null 占位不造假', () => {
 });
 
 test('纯函数与存储：倒计时四态 + 天气映射 + 因子归一化', () => {
-  const TL = require('../assets/js/timeline-logic.js');
+  const TL = require('../../shared/utils/timeline-logic.js');
   const base = new Date(2026, 0, 1);
   assert.deepStrictEqual(TL.calcCountdown('2026-01-11', base), { days: 10, state: 'future' });
   assert.deepStrictEqual(TL.calcCountdown('2026-01-01', base), { days: 0, state: 'today' });
@@ -293,7 +293,7 @@ test('纯函数与存储：倒计时四态 + 天气映射 + 因子归一化', ()
 });
 
 test('历史记录存储：上限 20 / 去重 / 容错', () => {
-  const HS = require('../assets/js/history-store.js');
+  const HS = require('../../shared/utils/storage.js');
   const m = {};
   const s = {
     getItem: (k) => (k in m ? m[k] : null),
@@ -822,7 +822,7 @@ test('地址解析：任何路径都不会拼出 // 开头的协议相对地址'
 });
 
 test('地址解析：index.html 已接入 page-url.js', () => {
-  assert.ok(indexHtml.includes('page-url.js'));
+  assert.ok(indexHtml.includes('src="../assets/js/page-url.js"'), '必须是真的 script 标签，不是注释里提到');
   assert.ok(indexHtml.includes('window.PageUrl.timelineUrl'));
 });
 
@@ -879,4 +879,41 @@ test('T14 客服：超管端复用账号系统而非独立密码登录', () => {
   assert.ok(adminJs.includes('/api/auth/me'));
   assert.ok(adminJs.includes("user.role === 'admin'"));
   assert.ok(adminJs.includes("'/close'"));
+});
+
+// ---------------- T00 共享日期窗口（shared/utils/date-window.js） ----------------
+test('T00 共享日期窗口：窗口计算与边界', () => {
+  const DW = require('../../shared/utils/date-window.js');
+  const today = new Date(2026, 9, 30); // 2026-10-30
+  const win = DW.windowFor(today, 2, 10);
+  assert.strictEqual(win.minISO, '2024-10-30');
+  assert.strictEqual(win.maxISO, '2026-11-09');
+  assert.ok(DW.within('2025-06-01', win));
+  assert.ok(DW.within('2024-10-30', win), '下界应含当天');
+  assert.ok(DW.within('2026-11-09', win), '上界应含当天');
+  assert.ok(!DW.within('2024-10-29', win));
+  assert.ok(!DW.within('2026-11-10', win));
+});
+
+test('T00 共享日期窗口：本地时区格式化不串日期', () => {
+  const DW = require('../../shared/utils/date-window.js');
+  assert.strictEqual(DW.toISO(new Date(2026, 0, 1)), '2026-01-01');
+  assert.strictEqual(DW.toISO(new Date(2026, 11, 31)), '2026-12-31');
+  assert.strictEqual(DW.parseISO('2026-02-29'), null, '2026 不是闰年，应判非法');
+  assert.ok(DW.parseISO('2024-02-29'), '2024 是闰年');
+});
+
+test('T00 共享日期窗口：第 5 天起需标注仅供参考', () => {
+  const DW = require('../../shared/utils/date-window.js');
+  const today = new Date(2026, 9, 30);
+  assert.strictEqual(DW.needsForecastNote(new Date(2026, 10, 3), today), false, '第 4 天不需要');
+  assert.strictEqual(DW.needsForecastNote(new Date(2026, 10, 4), today), true, '第 5 天需要');
+  assert.strictEqual(DW.needsForecastNote(new Date(2026, 10, 9), today), true);
+});
+
+test('T00 共享逻辑已迁到 shared/utils 并被页面引用', () => {
+  assert.ok(indexHtml.includes('../shared/utils/storage.js'), 'index 应引用 shared/utils/storage.js');
+  assert.ok(indexHtml.includes('../shared/utils/date-window.js'), 'index 应引用 shared/utils/date-window.js');
+  assert.ok(timelineHtml.includes('../shared/utils/timeline-logic.js'), 'timeline 应引用 shared/utils/timeline-logic.js');
+  assert.ok(!indexHtml.includes('assets/js/history-store.js'), '旧路径不应残留');
 });

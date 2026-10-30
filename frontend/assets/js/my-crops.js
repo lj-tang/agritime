@@ -143,10 +143,13 @@
     if (!window.CropPhoto) return;
     window.CropPhoto.analyze(function (result) {
       if (result.error) { alert(result.error); return; }
-      if (result.cropName && record) {
-        window.MyCropsStore.update(record.recordId, {});
-        renderList();
-      }
+      if (!result.cropName || !record) return;
+      // 识别结果要写回记录。原实现传的是空对象 {}，等于认了却什么都没存，
+      // 验收「拍照分析结果可更新到记录」过不了。
+      var patch = { cropName: result.cropName };
+      window.MyCropsStore.update(record.recordId, patch);
+      renderList();
+      alert('已识别为「' + result.cropName + '」，记录已更新');
     });
   }
 
