@@ -140,6 +140,13 @@
     if (p.suitability && p.suitability.status === 'caution') {
       var w = document.createElement('span'); w.className = 'my-plots-card-warn'; w.textContent = '城市绿地'; meta.appendChild(w);
     }
+    // 农事适宜度快照（查看详情时回写），直接显示分值
+    if (p.suitability && p.suitability.score != null) {
+      var sc = document.createElement('span');
+      sc.className = 'my-plots-card-suit';
+      sc.textContent = '适宜度 ' + p.suitability.score + '（' + p.suitability.status + '）';
+      meta.appendChild(sc);
+    }
     if (p.terrace) { var t = document.createElement('span'); t.textContent = '梯田'; meta.appendChild(t); }
     card.appendChild(meta);
 
@@ -352,19 +359,110 @@
   }
 
   function fetchEnvironment(plot, container, loading) {
-    var url = '/api/plots/environment?lat=' + plot.lat + '&lon=' + plot.lon + '&type=' + (plot.type || 'farmland');
+    // 地块建模参数一并带上：倾角/坡度/梯田要参与适宜度评分（T06 验收第 5 条）
+    var url = '/api/plots/environment?lat=' + plot.lat + '&lon=' + plot.lon +
+      '&type=' + (plot.type || 'farmland') +
+      '&angle=' + (plot.angle || 0) +
+      '&slope=' + (plot.slope || 0) +
+      '&terrace=' + (plot.terrace ? 1 : 0);
     fetch(url, { method: 'GET' }).then(function (res) {
       if (!res.ok) throw new Error('HTTP ' + res.status);
       return res.json();
     }).then(function (data) {
       loading.remove();
       renderEnvironment(container, plot, data);
+      // 把这次评估结果快照回记录，列表里能看到分值
+      if (data && data.farmingSuitability && window.MyPlotsStore) {
+        window.MyPlotsStore.update(plot.recordId || plot.id, {
+          suitability: {
+            status: data.farmingSuitability.level,
+            score: data.farmingSuitability.score,
+            reason: data.farmingSuitability.summary
+          }
+        });
+      }
     }).catch(function (err) {
       loading.textContent = '环境数据获取失败：' + (err.message || '网络异常') + '，请稍后重试';
     });
   }
 
+  /** 农事适宜度卡片：总分 + 等级 + 各因子分值条（土壤/水质/气候/地形/类型） */
+  function renderSuitability(s) {
+    var box = document.createElement('div');
+    box.className = 'plot-suit plot-suit--' + levelClass(s.level);
+
+    var head = document.createElement('div');
+    head.className = 'plot-suit-head';
+    var score = document.createElement('span');
+    score.className = 'plot-suit-score';
+    score.textContent = s.score;
+    var meta = document.createElement('div');
+    meta.className = 'plot-suit-meta';
+    var level = document.createElement('span');
+    level.className = 'plot-suit-level';
+    level.textContent = s.level;
+    var label = document.createElement('span');
+    label.className = 'plot-suit-label';
+    label.textContent = '农事适宜度';
+    meta.appendChild(level);
+    meta.appendChild(label);
+    head.appendChild(score);
+    head.appendChild(meta);
+    box.appendChild(head);
+
+    if (s.summary) {
+      var sum = document.createElement('p');
+      sum.className = 'plot-suit-summary';
+      sum.textContent = s.summary;
+      box.appendChild(sum);
+    }
+
+    var list = document.createElement('div');
+    list.className = 'plot-suit-factors';
+    (s.factors || []).forEach(function (f) {
+      var row = document.createElement('div');
+      row.className = 'plot-suit-factor';
+
+      var k = document.createElement('span');
+      k.className = 'k';
+      k.textContent = f.label;
+      var v = document.createElement('span');
+      v.className = 'v';
+      v.textContent = f.score;
+
+      var bar = document.createElement('div');
+      bar.className = 'plot-suit-bar';
+      var fill = document.createElement('i');
+      fill.style.width = Math.max(0, Math.min(100, f.score)) + '%';
+      bar.appendChild(fill);
+
+      var note = document.createElement('span');
+      note.className = 'note';
+      note.textContent = f.note + (f.weight ? '（权重 ' + Math.round(f.weight * 100) + '%）' : '');
+
+      row.appendChild(k);
+      row.appendChild(v);
+      row.appendChild(bar);
+      row.appendChild(note);
+      list.appendChild(row);
+    });
+    box.appendChild(list);
+    return box;
+  }
+
+  function levelClass(level) {
+    if (level === '适宜') return 'good';
+    if (level === '较适宜') return 'ok';
+    if (level === '一般') return 'warn';
+    return 'bad';
+  }
+
   function renderEnvironment(container, plot, data) {
+    // 农事适宜度放最前面：它是土壤/水质/气候/地形/类型综合出来的结论
+    if (data.farmingSuitability) {
+      container.appendChild(renderSuitability(data.farmingSuitability));
+    }
+
     var grid = document.createElement('div');
     grid.className = 'my-plots-env-grid';
     function envItem(label, value, unit) {

@@ -54,9 +54,15 @@ public class PlotHandler implements HttpHandler {
         double lon = HttpSupport.parseDouble(q.get("lon"), 116.31);
         String type = HttpSupport.trimToNull(q.get("type"));
         if (type == null) type = "farmland";
+        // 地块建模参数（T06）：倾角/坡度/梯田参与适宜度评分
+        double angle = HttpSupport.parseDouble(q.get("angle"), 0);
+        double slope = HttpSupport.parseDouble(q.get("slope"), 0);
+        boolean terrace = "1".equals(q.get("terrace")) || "true".equalsIgnoreCase(q.get("terrace"));
 
-        // 坐标取到小数点后三位（约 100 米）再拼 key，附近地块能共用一次上游请求
-        String cacheKey = "plot:" + Math.round(lat * 1000) + ":" + Math.round(lon * 1000) + ":" + type;
+        // 坐标取到小数点后三位（约 100 米）再拼 key，附近地块能共用一次上游请求；
+        // 地形参数也要进 key，否则调整坡度后会拿到旧评分
+        String cacheKey = "plot:" + Math.round(lat * 1000) + ":" + Math.round(lon * 1000) + ":" + type
+                + ":" + Math.round(angle) + ":" + Math.round(slope) + ":" + (terrace ? 1 : 0);
         String cached = CACHE.get(cacheKey, String.class);
         if (cached != null) {
             HttpSupport.write(ex, 200, cached);
@@ -110,6 +116,8 @@ public class PlotHandler implements HttpHandler {
             List<String> factorJson = new ArrayList<>();
             for (String f : factors) factorJson.add(Json.str(f));
             parts.add("\"factors\":" + Json.arr(factorJson));
+            // 农事适宜度：土壤 + 水质 + 气候 + 地形 + 地块类型 加权（T06 验收第 5 条）
+            parts.add("\"farmingSuitability\":" + farmingSuitability(wc, soilType, waterGrade, type, angle, slope, terrace));
 
             // parts 里每一项已经是拼好的 "\"key\":value" 片段，直接拼接成对象。
             // 不能再交给 Json.obj()：它接收的是「键, 值」交替参数，
@@ -210,6 +218,200 @@ public class PlotHandler implements HttpHandler {
         }
         result.sort((a, b) -> Double.compare(a.distance, b.distance));
         return result.size() > 4 ? result.subList(0, 4) : result;
+    }
+
+    /**
+     * 农事适宜度（T06 验收第 5 条）：土壤 / 水质 / 气候 / 地形 / 地块类型 加权评分。
+     *
+     * 缺数据的一项不参与（例如附近无监测水体、天气取不到），权重按比例重新归一，
+     * 不用默认值假装有数据 —— 否则"没数据"会被算成一个中间分，等于编造结论。
+     */
+    private String farmingSuitability(WeatherCurrent wc, String soil, String waterGrade,
+                                      String type, double angle, double slope, boolean terrace) {
+        List<String> keys = new ArrayList<>();
+        List<String> labels = new ArrayList<>();
+        List<Double> scores = new ArrayList<>();
+        List<Double> weights = new ArrayList<>();
+        List<String> notes = new ArrayList<>();
+
+        Double climate = climateScore(wc);
+        if (climate != null) {
+            keys.add("climate");
+            labels.add("气候");
+            scores.add(climate);
+            weights.add(0.30);
+            notes.add("气温 " + wc.temp + "℃、湿度 " + wc.humidity + "%");
+        }
+
+        keys.add("soil");
+        labels.add("土壤");
+        scores.add(soilScore(soil));
+        weights.add(0.30);
+        notes.add(soil + "：" + soilDescription(soil));
+
+        Double water = waterScore(waterGrade);
+        if (water != null) {
+            keys.add("water");
+            labels.add("水质");
+            scores.add(water);
+            weights.add(0.20);
+            notes.add("最近水体水质 " + waterGrade);
+        }
+
+        keys.add("terrain");
+        labels.add("地形");
+        scores.add(terrainScore(angle, slope, terrace));
+        weights.add(0.10);
+        notes.add(terrainNote(angle, slope, terrace));
+
+        keys.add("type");
+        labels.add("地块类型");
+        scores.add(typeScore(type, waterGrade));
+        weights.add(0.10);
+        notes.add(typeLabel(type) + (isWaterType(type) && waterGrade == null ? "（附近无水质数据）" : ""));
+
+        double wsum = 0;
+        for (double w : weights) wsum += w;
+        double total = 0;
+        for (int i = 0; i < scores.size(); i++) total += scores.get(i) * weights.get(i) / wsum;
+
+        String level;
+        if (total >= 85) level = "适宜";
+        else if (total >= 70) level = "较适宜";
+        else if (total >= 55) level = "一般";
+        else level = "需注意";
+
+        List<String> fj = new ArrayList<>();
+        for (int i = 0; i < keys.size(); i++) {
+            fj.add(Json.obj(
+                    "key", Json.str(keys.get(i)),
+                    "label", Json.str(labels.get(i)),
+                    "score", Json.num((double) Math.round(scores.get(i))),
+                    "weight", Json.num(Math.round(weights.get(i) / wsum * 100) / 100.0),
+                    "note", Json.str(notes.get(i))));
+        }
+
+        return Json.obj(
+                "score", String.valueOf(Math.round(total)),
+                "level", Json.str(level),
+                "summary", Json.str(suitabilitySummary(level, soil, waterGrade, slope)),
+                "factors", Json.arr(fj));
+    }
+
+    private String suitabilitySummary(String level, String soil, String waterGrade, double slope) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("综合土壤、").append(waterGrade != null ? "水质、" : "").append("气候与地形，当前评定为").append(level);
+        if ("红壤".equals(soil) || "黄绵土".equals(soil)) {
+            sb.append("；该土壤需改良（").append("红壤".equals(soil) ? "偏酸" : "易侵蚀").append("）");
+        }
+        if (slope > 15) sb.append("；坡度较大，建议等高种植或修梯田");
+        return sb.toString();
+    }
+
+    private Double climateScore(WeatherCurrent wc) {
+        if (wc.temp == null && wc.humidity == null) return null;
+        double sum = 0;
+        int n = 0;
+        if (wc.temp != null) {
+            double t = wc.temp;
+            double s;
+            if (t >= 15 && t <= 30) s = 95;
+            else if (t >= 8 && t < 15) s = 75;
+            else if (t > 30 && t <= 35) s = 70;
+            else if (t >= 0 && t < 8) s = 60;
+            else if (t > 35) s = 45;
+            else s = 40;
+            sum += s;
+            n++;
+        }
+        if (wc.humidity != null) {
+            double h = wc.humidity;
+            double s;
+            if (h >= 40 && h <= 75) s = 95;
+            else if (h > 75 && h <= 85) s = 80;
+            else if (h > 85) s = 60;
+            else if (h >= 25) s = 70;
+            else s = 55;
+            sum += s;
+            n++;
+        }
+        return n == 0 ? null : sum / n;
+    }
+
+    private double soilScore(String soil) {
+        return switch (soil) {
+            case "黑土" -> 95;
+            case "潮土" -> 88;
+            case "紫色土" -> 85;
+            case "黄壤" -> 80;
+            case "褐土" -> 76;
+            case "红壤" -> 64;   // 酸性偏强，需改良
+            case "黄绵土" -> 58; // 土质疏松易侵蚀
+            default -> 70;
+        };
+    }
+
+    private Double waterScore(String grade) {
+        if (grade == null) return null;
+        return switch (grade) {
+            case "Ⅰ类" -> 95;
+            case "Ⅱ类" -> 88;
+            case "Ⅲ类" -> 74;
+            case "Ⅳ类" -> 55;
+            case "Ⅴ类" -> 35;
+            default -> null;
+        };
+    }
+
+    private double terrainScore(double angle, double slope, boolean terrace) {
+        double worst = Math.max(Math.abs(angle), Math.abs(slope));
+        double base;
+        if (worst <= 3) base = 95;
+        else if (worst <= 8) base = 85;
+        else if (worst <= 15) base = 72;
+        else if (worst <= 25) base = 55;
+        else base = 38;
+        if (terrace) base = Math.min(100, base + 8); // 梯田能显著缓解坡度影响
+        return base;
+    }
+
+    private String terrainNote(double angle, double slope, boolean terrace) {
+        String s = "倾角 " + fmt(angle) + "°、坡度 " + fmt(slope) + "°";
+        if (terrace) s += "，已修梯田（缓解水土流失）";
+        else if (Math.max(Math.abs(angle), Math.abs(slope)) > 15) s += "，坡度偏大建议修梯田";
+        return s;
+    }
+
+    private String fmt(double v) {
+        return v == Math.rint(v) ? String.valueOf((long) v) : String.valueOf(Math.round(v * 10) / 10.0);
+    }
+
+    private boolean isWaterType(String type) {
+        return "fishpond".equals(type) || "paddy".equals(type);
+    }
+
+    private double typeScore(String type, String waterGrade) {
+        return switch (type) {
+            case "farmland" -> 95;
+            case "economic" -> 90;
+            case "greenhouse" -> 88;
+            case "orchard" -> 88;
+            case "paddy" -> waterGrade == null ? 72 : 90; // 水稻田依赖水源
+            case "fishpond" -> waterGrade == null ? 55 : 92; // 鱼塘没有水质数据就是硬伤
+            default -> 85;
+        };
+    }
+
+    private String typeLabel(String type) {
+        return switch (type) {
+            case "farmland" -> "耕田";
+            case "economic" -> "经济作物田";
+            case "greenhouse" -> "大棚";
+            case "orchard" -> "果园";
+            case "paddy" -> "水稻田";
+            case "fishpond" -> "鱼塘";
+            default -> "其他";
+        };
     }
 
     private List<String> buildFactors(WeatherCurrent wc, String soil, String waterGrade, String type, List<RiverInfo> rivers) {

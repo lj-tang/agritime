@@ -917,3 +917,22 @@ test('T00 共享逻辑已迁到 shared/utils 并被页面引用', () => {
   assert.ok(timelineHtml.includes('../shared/utils/timeline-logic.js'), 'timeline 应引用 shared/utils/timeline-logic.js');
   assert.ok(!indexHtml.includes('assets/js/history-store.js'), '旧路径不应残留');
 });
+
+// ---------------- T06 农事适宜度（土壤/水质参与评分） ----------------
+test('T06 适宜度：地块详情请求带上地形参数', () => {
+  const myPlotsJs = read(path.resolve(__dirname, '..', 'assets', 'js', 'my-plots.js'));
+  assert.ok(myPlotsJs.includes('farmingSuitability'), '详情应消费后端适宜度结果');
+  assert.ok(/angle=' \+ \(plot\.angle/.test(myPlotsJs), '请求应带 angle');
+  assert.ok(/slope=' \+ \(plot\.slope/.test(myPlotsJs), '请求应带 slope');
+  assert.ok(/terrace=' \+ \(plot\.terrace \? 1 : 0\)/.test(myPlotsJs), '请求应带 terrace');
+  assert.ok(myPlotsJs.includes('renderSuitability'), '应有适宜度卡片渲染');
+});
+
+test('T06 适宜度：后端把土壤/水质/地形纳入评分', () => {
+  const plotHandler = read(path.resolve(__dirname, '..', '..', 'backend', 'src', 'com', 'cropcalendar', 'api', 'PlotHandler.java'));
+  ['farmingSuitability', 'soilScore', 'waterScore', 'terrainScore', 'typeScore', 'climateScore'].forEach((k) => {
+    assert.ok(plotHandler.includes(k), 'PlotHandler 缺少 ' + k);
+  });
+  assert.ok(plotHandler.includes('\\"farmingSuitability\\"'), '响应里应输出 farmingSuitability 字段');
+  assert.ok(plotHandler.includes('terrace'), '地形评分应识别梯田');
+});
