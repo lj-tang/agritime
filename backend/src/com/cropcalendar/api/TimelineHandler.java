@@ -6,6 +6,7 @@ import com.cropcalendar.compute.LlmService;
 import com.cropcalendar.orchestration.TimelineOrchestrator;
 import com.cropcalendar.orchestration.TimelineOrchestrator.TimelineResult;
 import com.cropcalendar.orchestration.TimelineOrchestrator.NodeView;
+import com.cropcalendar.service.crop.CropProperties;
 import com.cropcalendar.service.crop.CropRegistry;
 import com.cropcalendar.util.Json;
 import com.cropcalendar.util.JsonParser;
@@ -90,6 +91,7 @@ public class TimelineHandler implements HttpHandler {
             String protocolId = CropRegistry.protocolIdOf(standardName);
             String buildCropId = protocolId != null ? protocolId : standardName;
 
+            CropProperties.Props props = CropProperties.of(buildCropId);
             TimelineResult r = orchestrator.build(buildCropId, sowDate, lat, lon);
 
             if (r.nodes().isEmpty()) {
@@ -98,7 +100,7 @@ public class TimelineHandler implements HttpHandler {
                 return;
             }
 
-            HttpSupport.write(ex, 200, toContractJson(r, standardName, cropId));
+            HttpSupport.write(ex, 200, toContractJson(r, standardName, cropId, props));
 
         } catch (IllegalArgumentException e) {
             HttpSupport.write(ex, 400, errJson("INVALID_INPUT", e.getMessage()));
@@ -112,10 +114,11 @@ public class TimelineHandler implements HttpHandler {
      * 转换成前端契约 v3 格式。
      */
     private static String toContractJson(TimelineResult r) {
-        return toContractJson(r, null, null);
+        return toContractJson(r, null, null, null);
     }
 
-    private static String toContractJson(TimelineResult r, String cropName, String requestedCrop) {
+    private static String toContractJson(TimelineResult r, String cropName, String requestedCrop,
+                                         CropProperties.Props props) {
         String today = LocalDate.now().toString();
         String dataSource = mapDataSource(r.weatherStatus());
         String dataTime = r.dataTime() != null ? r.dataTime() : null;
@@ -184,12 +187,28 @@ public class TimelineHandler implements HttpHandler {
                 // T02：把归一结果回传，前端可显示「输入：西红柿 → 作物：番茄」
                 "cropName", cropName != null ? Json.str(cropName) : "null",
                 "requestedCrop", requestedCrop != null ? Json.str(requestedCrop) : "null",
+                "cropProperties", propsJson(props),
                 "dataSource", Json.str(dataSource),
                 "dataTime", dataTime != null ? Json.str(dataTime) : "null",
                 "weatherSummary", r.weatherSummary() != null ? Json.str(r.weatherSummary()) : "null",
                 "todayConclusion", todayConclusion,
                 "nodes", Json.arr(nodesJson),
                 "reminders", Json.arr(reminders));
+    }
+
+    /** T07：把作物属性带出去，前端可显示熟制与年限，也让"为什么有两季"有据可查 */
+    private static String propsJson(CropProperties.Props p) {
+        if (p == null) return "null";
+        return Json.obj(
+                "displayName", Json.str(p.displayName()),
+                "growthCycle", Json.str(p.growthCycle()),
+                "lifespan", Json.str(p.lifespan()),
+                "croppingSystem", Json.str(p.croppingSystem()),
+                "totalDays", String.valueOf(p.totalDays()),
+                "suitableSeason", Json.str(p.suitableSeason()),
+                "suitableRegion", Json.str(p.suitableRegion()),
+                "tempRequirement", Json.str(p.tempRequirement()),
+                "source", Json.str(p.source()));
     }
 
     private static String mapStatus(String s) {

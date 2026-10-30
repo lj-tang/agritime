@@ -1,6 +1,7 @@
 package com.cropcalendar.compute;
 
 import com.cropcalendar.config.AppConfig;
+import com.cropcalendar.service.crop.CropProperties;
 import com.cropcalendar.util.JsonParser;
 
 import java.net.URI;
@@ -147,6 +148,19 @@ public final class ComputeStub {
      * 验收：5 种作物各 ≥ 8 个节点
      */
     public static List<RawNode> buildNodes(String cropId, String sowDate) {
+        return buildNodes(cropId, sowDate, Double.NaN);
+    }
+
+    /**
+     * 带纬度的版本：T07 的作物属性会据此决定要不要生成第二季
+     * （双季稻只在华南成立，北方传 35.07 就不会多出一轮）。
+     */
+    public static List<RawNode> buildNodes(String cropId, String sowDate, double lat) {
+        List<RawNode> base = buildBaseNodes(cropId);
+        return CropProperties.expand(base, CropProperties.of(cropId), lat);
+    }
+
+    private static List<RawNode> buildBaseNodes(String cropId) {
         // 数据驱动：从项目根目录 crop-protocols.json（契约①的数据载体）读取。
         // 新增一种作物 = 往 crops 数组加一个对象，不改任何 Java 代码。
         // 文件缺失/损坏/作物不支持 → 返回空列表，绝不抛异常（铁律 4）。

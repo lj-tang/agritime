@@ -27,6 +27,7 @@
     <div class="timeline-map-container" id="timeline-map"></div>
 
     <p class="crop-resolved-hint" id="crop-resolved-hint" hidden></p>
+    <p class="crop-props-hint" id="crop-props-hint" hidden></p>
 
     <section class="timeline-header" id="conclusion-card" hidden>
 
@@ -607,6 +608,24 @@
           if (hint) {
             hint.hidden = false;
             hint.textContent = '「' + data.requestedCrop + '」已识别为作物：' + data.cropName;
+          }
+        }
+        // T07：作物属性（熟制/年限）——解释"为什么这个作物会有两季/跨年节点"
+        if (data.cropProperties) {
+          var cp = data.cropProperties;
+          var propsEl = document.getElementById('crop-props-hint');
+          if (propsEl) {
+            propsEl.hidden = false;
+            var parts = [];
+            if (cp.lifespanLabel) parts.push(cp.lifespanLabel);
+            else if (cp.lifespan === 'perennial') parts.push('多年生');
+            if (cp.croppingSystem === 'single') parts.push('一年一熟');
+            else if (cp.croppingSystem === 'double') parts.push('一年多熟');
+            else if (cp.croppingSystem === 'multi') parts.push('一年多茬');
+            if (cp.totalDays) parts.push('全生育期约 ' + cp.totalDays + ' 天');
+            if (cp.suitableSeason) parts.push(cp.suitableSeason);
+            propsEl.textContent = '作物属性：' + parts.join(' · ')
+              + (cp.source === 'category-rule' ? '（属性按类别推定）' : '');
           }
         }
         if (data.nodes.length === 0) {

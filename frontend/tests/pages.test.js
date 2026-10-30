@@ -1005,3 +1005,40 @@ test('T02 前端：联想走后端接口，本地匹配仅作兜底', () => {
   assert.ok(indexHtml.includes('localMatches'), '应保留离线兜底');
   assert.ok(timelineHtml.includes('crop-resolved-hint'), '时间线应提示俗称归一结果');
 });
+
+// ---------------- T07 作物属性 ----------------
+test('T07 属性库：400 种作物全部带周期/年限/熟制，且标注来源', () => {
+  const lib = JSON.parse(read(path.resolve(__dirname, '..', '..', 'data', 'crop-base', 'properties.json')));
+  assert.ok(Array.isArray(lib.crops));
+  assert.ok(lib.crops.length >= 400, '属性应覆盖 400 种作物，实际 ' + lib.crops.length);
+  lib.crops.forEach((c) => {
+    ['cropId', 'displayName', 'growthCycle', 'lifespan', 'croppingSystem', 'totalDays', 'source'].forEach((k) => {
+      assert.ok(c[k] !== undefined, c.displayName + ' 缺字段 ' + k);
+    });
+    assert.ok(['long', 'short'].includes(c.growthCycle), c.displayName + ' growthCycle 非法');
+    assert.ok(['annual', 'perennial'].includes(c.lifespan), c.displayName + ' lifespan 非法');
+    assert.ok(['single', 'double', 'multi'].includes(c.croppingSystem), c.displayName + ' croppingSystem 非法');
+    assert.ok(['manual', 'category-rule'].includes(c.source), c.displayName + ' source 未标注');
+  });
+  const byName = {};
+  lib.crops.forEach((c) => { byName[c.displayName] = c; });
+  assert.strictEqual(byName['苹果'].lifespan, 'perennial');
+  assert.strictEqual(byName['番茄'].croppingSystem, 'double');
+  assert.strictEqual(byName['水稻'].source, 'manual');
+});
+
+test('T07 接入：ComputeStub 按属性扩展节点，编排层传纬度', () => {
+  const cs = read(path.resolve(__dirname, '..', '..', 'backend', 'src', 'com', 'cropcalendar', 'compute', 'ComputeStub.java'));
+  const orch = read(path.resolve(__dirname, '..', '..', 'backend', 'src', 'com', 'cropcalendar', 'orchestration', 'TimelineOrchestrator.java'));
+  const cp = read(path.resolve(__dirname, '..', '..', 'backend', 'src', 'com', 'cropcalendar', 'service', 'crop', 'CropProperties.java'));
+  assert.ok(cs.includes('CropProperties.expand'), '节点生成应调用属性扩展');
+  assert.ok(cs.includes('buildNodes(String cropId, String sowDate, double lat)'), '应支持带纬度调用');
+  assert.ok(orch.includes('buildNodes(cropId, sowDate, lat)'), '编排层应传纬度');
+  assert.ok(cp.includes('perennial'), '应处理多年生');
+  assert.ok(cp.includes('第二季'), '一年多熟应生成第二季节点');
+});
+
+test('T07 前端：时间线展示作物属性', () => {
+  assert.ok(timelineHtml.includes('crop-props-hint'));
+  assert.ok(timelineHtml.includes('data.cropProperties'));
+});

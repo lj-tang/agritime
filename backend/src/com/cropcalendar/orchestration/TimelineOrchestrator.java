@@ -76,7 +76,7 @@ public class TimelineOrchestrator {
         }
 
         // ---- 步骤 1 收集 / 步骤 2 匹配规程 / 步骤 3 生成节点 ----
-        List<RawNode> raw = ComputeStub.buildNodes(cropId, sowDate);
+        List<RawNode> raw = ComputeStub.buildNodes(cropId, sowDate, lat);
         if (raw.isEmpty()) {
             return new TimelineResult(cropId, sowDate, LocalDateTime.now().format(TS),
                     null, "ok", null, null, null, List.of(), List.of());
