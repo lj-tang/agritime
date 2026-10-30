@@ -9,12 +9,12 @@
       "growthCycleLabel": "长周期",
       "lifespan": "annual",
       "lifespanLabel": "一年生",
-      "croppingSystem": "single",
-      "croppingSystemLabel": "一年一熟",
+      "croppingSystem": "double",
+      "croppingSystemLabel": "一年多熟",
       "totalDays": 150,
       "suitableSeason": "春播/夏播",
       "suitableRegion": "华南、长江流域",
-      "tempRequirement": "喜温，≥10℃积温需 2500℃以上",
+      "tempRequirement": "喜温，≥10℃积温需 2500℃以上；华南可双季，北方单季",
       "source": "manual"
     },
     {
