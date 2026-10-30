@@ -1,0 +1,124 @@
+/* 3D 地块框选（MapLibre） */
+.p3d-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 3000;
+  background: rgba(12, 18, 14, 0.72);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.p3d-panel {
+  width: min(1100px, 100%);
+  height: min(760px, 100%);
+  background: #0f1712;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.45);
+}
+
+.p3d-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 18px;
+  color: #f3f6f2;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.p3d-title { font-size: 17px; font-weight: 700; letter-spacing: 0.02em; }
+.p3d-sub { margin-top: 3px; font-size: 12px; color: rgba(243, 246, 242, 0.62); }
+
+.p3d-close {
+  border: 0;
+  background: rgba(255, 255, 255, 0.08);
+  color: #f3f6f2;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+}
+.p3d-close:hover { background: rgba(255, 255, 255, 0.16); }
+
+.p3d-map { flex: 1; min-height: 0; background: #101a14; }
+.p3d-map canvas { display: block; }
+
+.p3d-hud {
+  display: flex;
+  gap: 8px;
+  padding: 10px 14px;
+  background: rgba(255, 255, 255, 0.04);
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  flex-wrap: wrap;
+}
+
+.p3d-stat {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.05);
+  color: #f3f6f2;
+  font-size: 12px;
+}
+.p3d-stat .k { color: rgba(243, 246, 242, 0.55); }
+.p3d-stat .v { font-weight: 600; font-variant-numeric: tabular-nums; }
+
+.p3d-tools {
+  display: flex;
+  gap: 8px;
+  padding: 10px 14px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  flex-wrap: wrap;
+}
+
+.p3d-btn {
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.06);
+  color: #f3f6f2;
+  border-radius: 8px;
+  padding: 7px 14px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+.p3d-btn:hover { background: rgba(255, 255, 255, 0.14); }
+.p3d-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.p3d-btn.primary { background: #3f8f5f; border-color: #3f8f5f; }
+.p3d-btn.primary:hover { background: #4aa26d; }
+.p3d-btn.ghost { background: transparent; }
+
+.p3d-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 16px 16px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.p3d-hint { font-size: 12px; color: rgba(243, 246, 242, 0.62); }
+.p3d-actions { display: flex; gap: 8px; }
+
+.maplibregl-ctrl-attrib { font-size: 10px; }
+.maplibregl-ctrl-group { background: rgba(20, 28, 22, 0.9); }
+.maplibregl-ctrl-group button + button { border-top-color: rgba(255, 255, 255, 0.12); }
+.maplibregl-ctrl-group button span { filter: invert(1); }
+
+@media (max-width: 720px) {
+  .p3d-overlay { padding: 0; }
+  .p3d-panel { width: 100%; height: 100%; border-radius: 0; border: 0; }
+  .p3d-hud { overflow-x: auto; }
+  .p3d-foot { flex-direction: column; align-items: stretch; }
+  .p3d-actions { justify-content: flex-end; }
+  .p3d-hint { order: 2; }
+}

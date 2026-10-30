@@ -27,8 +27,10 @@
   function bindLocationButtons() {
     var autoBtn = document.getElementById('plot-loc-auto');
     var mapBtn = document.getElementById('plot-loc-map');
+    var btn3d = document.getElementById('plot-loc-3d');
     if (autoBtn) autoBtn.addEventListener('click', autoLocate);
     if (mapBtn) mapBtn.addEventListener('click', mapPick);
+    if (btn3d) btn3d.addEventListener('click', mapPick3D);
   }
 
   function autoLocate() {
@@ -56,7 +58,342 @@
     window.LocationPicker.open(function (res) {
       if (!res) return;
       setPlotLocation(res);
+      if (res.mode === 'polygon' && res.polygon) analyzePolygon(res.polygon, res);
     }, { draw: true, mode: 'draw' });
+  }
+
+  /**
+   * 3D 框选：卫星底图 + 地形起伏，按真实地块边界描点。
+   * 与 2D 框选共用同一套回填逻辑，区别是能看到坡向与高低差。
+   */
+  function mapPick3D() {
+    if (!window.Plot3D || !window.Plot3D.open) { alert('3D 地图组件未加载，请刷新页面重试'); return; }
+    var lat = parseFloat(document.getElementById('plot-lat').value);
+    var lon = parseFloat(document.getElementById('plot-lon').value);
+    var existing = null;
+    try {
+      var raw = document.getElementById('plot-polygon').value;
+      var parsed = raw ? JSON.parse(raw) : null;
+      if (Array.isArray(parsed) && parsed.length >= 3) existing = parsed;
+    } catch (e) { existing = null; }
+
+    window.Plot3D.open({
+      center: isFinite(lat) && isFinite(lon) ? { lat: lat, lon: lon } : { lat: 35.07, lon: 116.31 },
+      polygon: existing,
+      onConfirm: function (res) {
+        setPlotLocation(res);
+        analyzePolygon(res.polygon, res);
+      }
+    });
+  }
+
+  /**
+   * 多边形空间分析：面积/坡度/坡向/高程差/评分/适宜作物全部由后端算。
+   * 前端只负责展示，避免"前端自己编一个分数"。
+   */
+  function analyzePolygon(polygon, res) {
+    var box = document.getElementById('plot-analysis-preview');
+    if (box) {
+      box.hidden = false;
+      box.innerHTML = '<div class="plot-analysis-loading">正在分析地形与土壤…</div>';
+    }
+    // 后端直接返回顶层结构（与 /api/plots/environment 一致），不套 data 壳
+    var typeEl = document.querySelector('#my-plots-form [name="plot-type"]');
+    fetch('/api/plots/analyze', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        polygon: polygon,
+        type: (typeEl && typeEl.value) || 'farmland'
+      })
+    }).then(function (r) {
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      return r.json();
+    }).then(function (out) {
+      var d = out && out.error ? null : out;
+      if (!d || d.score == null) throw new Error((out && out.error) || '返回为空');
+      var hidden = document.getElementById('plot-analysis');
+      if (hidden) hidden.value = JSON.stringify(d);
+      if (res) applyAnalysisToForm(d, res);
+      renderAnalysisPreview(box, d);
+    }).catch(function (err) {
+      if (box) box.innerHTML = '<div class="plot-analysis-error">分析失败：' +
+        (err.message || '网络异常') + '，面积已保存，评分稍后重试</div>';
+    });
+  }
+
+  /** 把分析结果回填成表单默认值：形状、坡度、倾角，用户不用自己填 */
+  function applyAnalysisToForm(d, res) {
+    var shapeSelect = document.querySelector('#my-plots-form [name="plot-shape"]');
+    var slopeInput = document.querySelector('#my-plots-form [name="plot-slope"]');
+    var angleInput = document.querySelector('#my-plots-form [name="plot-angle"]');
+    var areaInput = document.querySelector('#my-plots-form [name="plot-area"]');
+    var suitInput = document.getElementById('plot-suitability');
+
+    var g = d.geometry || {};
+    if (areaInput) {
+      if (g.areaMu != null) areaInput.value = g.areaMu;
+      else if (res && res.areaMu) areaInput.value = res.areaMu;
+    }
+    // 形状不再让用户手填：按紧凑度反推，机器判断比人眼选"方形/条状"更准
+    if (shapeSelect && g.compactness != null) {
+      shapeSelect.value = g.compactness >= 0.7 ? 'rectangle'
+        : g.compactness >= 0.45 ? 'strip' : 'irregular';
+    }
+    if (slopeInput && d.terrain && d.terrain.slopeDeg != null) slopeInput.value = Math.round(d.terrain.slopeDeg);
+    // 倾角存的是坡向方位角，跟坡向标签同源，避免两个字段互相矛盾
+    if (angleInput && d.terrain && d.terrain.aspectDeg != null) angleInput.value = Math.round(d.terrain.aspectDeg);
+    if (suitInput) {
+      suitInput.value = JSON.stringify({
+        status: d.level || 'unknown',
+        score: d.score,
+        areaMu: g.areaMu,
+        areaSqm: g.areaM2,
+        slopeDeg: d.terrain && d.terrain.slopeDeg,
+        limits: (d.limits || []).map(function (l) { return l.label; })
+      });
+    }
+  }
+
+  /**
+   * 对已保存地块重新跑一次空间分析并落库。
+   * 老地块是手填参数建的、地形和墒情也会随时间变，所以必须能重算。
+   */
+  function reanalyzePlot(plot, box) {
+    if (!plot.polygon || plot.polygon.length < 3) {
+      alert('这块地还没有框选范围，请先点击「3D 框选地形」描出边界');
+      return;
+    }
+    var holder = document.createElement('div');
+    holder.className = 'plot-analysis-loading';
+    holder.textContent = '正在分析地形与土壤…';
+    box.appendChild(holder);
+    fetch('/api/plots/analyze', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ polygon: plot.polygon, type: plot.type || 'farmland' })
+    }).then(function (r) {
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      return r.json();
+    }).then(function (d) {
+      if (!d || d.score == null) throw new Error((d && d.error) || '分析返回为空');
+      if (window.MyPlotsStore) {
+        window.MyPlotsStore.update(plot.plotId, {
+          analysis: d,
+          analysisAt: new Date().toISOString(),
+          area: (d.geometry && d.geometry.areaMu) || plot.area
+        });
+        plot.analysis = d;
+        plot.area = (d.geometry && d.geometry.areaMu) || plot.area;
+      }
+      holder.remove();
+      var rb = document.createElement('div');
+      rb.className = 'my-plots-analysis';
+      renderAnalysisPreview(rb, d);
+      box.insertBefore(rb, box.querySelector('.my-plots-card-meta') || null);
+      renderList();
+    }).catch(function (err) {
+      holder.className = 'plot-analysis-error';
+      holder.textContent = '分析失败：' + (err.message || '网络异常');
+    });
+  }
+
+  /** 这块地上种了什么、还能种什么 */
+  function renderPlotCrops(plot, detail) {
+    var all = window.MyCropsStore ? window.MyCropsStore.list() : [];
+    var mine = all.filter(function (r) { return r.plotId && r.plotId === plot.plotId; });
+
+    var box = document.createElement('div');
+    box.className = 'my-plots-env-section';
+    var title = document.createElement('div');
+    title.className = 'my-plots-env-section-title';
+    title.textContent = '已种作物';
+    box.appendChild(title);
+
+    if (!mine.length) {
+      var empty = document.createElement('div');
+      empty.className = 'my-plots-card-meta';
+      empty.textContent = '这块地还没有作物记录。在农事日历点「确认已播种」后会自动关联到这里。';
+      box.appendChild(empty);
+    } else {
+      mine.forEach(function (r) {
+        var row = document.createElement('div');
+        row.className = 'my-plots-crop-row';
+        var name = document.createElement('span');
+        name.className = 'my-plots-crop-name';
+        name.textContent = r.cropName || '未命名作物';
+        var meta = document.createElement('span');
+        meta.className = 'my-plots-crop-meta';
+        var bits = [];
+        if (r.sownDate) bits.push('播期 ' + r.sownDate);
+        if (r.sownDate) {
+          var days = Math.floor((Date.now() - new Date(r.sownDate + 'T00:00:00').getTime()) / 86400000);
+          if (days >= 0) bits.push('已种 ' + days + ' 天');
+        }
+        if (r.growthVigor) bits.push('长势 ' + r.growthVigor);
+        meta.textContent = bits.join(' · ');
+        row.appendChild(name);
+        row.appendChild(meta);
+        box.appendChild(row);
+      });
+    }
+
+    var rec = (plot.analysis && plot.analysis.crops) || [];
+    if (rec.length) {
+      var recTitle = document.createElement('div');
+      recTitle.className = 'my-plots-env-section-title';
+      recTitle.textContent = '这块地适合种';
+      box.appendChild(recTitle);
+      var tags = document.createElement('div');
+      tags.className = 'my-plots-crop-tags';
+      rec.slice(0, 5).forEach(function (c) {
+        var btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'my-plots-crop-tag';
+        btn.textContent = c.name + (c.fit ? ' · ' + c.fit : '');
+        btn.addEventListener('click', function () {
+          var input = document.getElementById('crop');
+          if (input) {
+            input.value = c.name;
+            input.dispatchEvent(new Event('input', { bubbles: true }));
+          }
+          if (window.Sidebar && window.Sidebar.switchModule) window.Sidebar.switchModule('calendar');
+        });
+        tags.appendChild(btn);
+      });
+      box.appendChild(tags);
+    }
+    detail.appendChild(box);
+  }
+
+  /**
+   * 渲染后端真实分析结果。字段名必须与 PlotAnalyzeHandler 的返回一一对应，
+   * 前端不自己算分、不自己补默认值 —— 拿不到就显示"未取到"，不编造。
+   */
+  function renderAnalysisPreview(box, d) {
+    if (!box) return;
+    box.innerHTML = '';
+
+    var head = document.createElement('div');
+    head.className = 'plot-analysis-head';
+    var score = document.createElement('span');
+    score.className = 'plot-analysis-score';
+    score.textContent = d.score == null ? '—' : d.score;
+    var meta = document.createElement('div');
+    var level = document.createElement('strong');
+    level.textContent = d.level || '待评估';
+    var label = document.createElement('span');
+    label.className = 'plot-analysis-label';
+    label.textContent = (d.type === 'pond' ? '塘址' : '地块') + '综合适宜度';
+    meta.appendChild(level);
+    meta.appendChild(document.createElement('br'));
+    meta.appendChild(label);
+    head.appendChild(score);
+    head.appendChild(meta);
+    box.appendChild(head);
+
+    // 实测几何与地形：这是"框了真有分析"的直观证据
+    var facts = [];
+    var g = d.geometry || {};
+    var t = d.terrain || {};
+    if (g.areaMu != null) facts.push('面积 ' + g.areaMu + ' 亩');
+    if (g.perimeterM != null) facts.push('周长 ' + g.perimeterM + ' m');
+    if (t.available) {
+      if (t.slopeDeg != null) facts.push('坡度 ' + t.slopeDeg + '°');
+      if (t.relief != null) facts.push('高差 ' + t.relief + ' m');
+      if (t.elevMin != null && t.elevMax != null) facts.push('高程 ' + t.elevMin + '~' + t.elevMax + ' m');
+      if (t.aspectLabel) facts.push('坡向 ' + t.aspectLabel);
+      if (t.sampleCount) facts.push('DEM 采样 ' + t.sampleCount + ' 点');
+    } else {
+      facts.push('地形数据未取到，地形项不计分');
+    }
+    if (d.soil && d.soil.soilType) facts.push('土壤 ' + d.soil.soilType);
+    if (d.region) facts.push('区划 ' + d.region);
+    if (facts.length) {
+      var f = document.createElement('div');
+      f.className = 'plot-analysis-facts';
+      f.textContent = facts.join(' · ');
+      box.appendChild(f);
+    }
+
+    // 分项评分：让用户看见分数是怎么来的
+    if (d.factors && d.factors.length) {
+      var wrap = document.createElement('div');
+      wrap.className = 'my-plots-analysis-factors';
+      d.factors.forEach(function (fa) {
+        var row = document.createElement('div');
+        row.className = 'my-plots-analysis-factor';
+        var k = document.createElement('span');
+        k.textContent = fa.label;
+        var bar = document.createElement('i');
+        var lv = fa.score >= 80 ? '' : fa.score >= 60 ? ' plot-factor-bar--mid' : ' plot-factor-bar--low';
+        bar.className = 'plot-factor-bar' + lv;
+        bar.style.setProperty('--w', Math.max(0, Math.min(100, fa.score)) + '%');
+        var v = document.createElement('b');
+        v.textContent = Math.round(fa.score);
+        row.appendChild(k);
+        row.appendChild(bar);
+        row.appendChild(v);
+        row.title = fa.note || '';
+        wrap.appendChild(row);
+      });
+      box.appendChild(wrap);
+      var note = document.createElement('div');
+      note.className = 'plot-analysis-label';
+      note.textContent = '权重：' + d.factors.map(function (fa) {
+        return fa.label + ' ' + Math.round(fa.weight * 100) + '%';
+      }).join(' · ');
+      box.appendChild(note);
+    }
+
+    // 限制因子
+    if (d.limits && d.limits.length) {
+      var lim = document.createElement('div');
+      lim.className = 'plot-analysis-limit';
+      lim.innerHTML = '<strong>限制因子：</strong>';
+      d.limits.forEach(function (l, i) {
+        var line = document.createElement('div');
+        line.textContent = (i + 1) + '. ' + l.label + '（' +
+          (l.severity === 'high' ? '高' : l.severity === 'mid' ? '中' : '低') + '）— ' + l.detail;
+        lim.appendChild(line);
+      });
+      box.appendChild(lim);
+    }
+
+    // 适宜作物：点一下直接填进日历
+    if (d.suitableCrops && d.suitableCrops.length) {
+      var crops = document.createElement('div');
+      crops.className = 'plot-analysis-crops';
+      var ct = document.createElement('span');
+      ct.className = 'plot-analysis-crops-title';
+      ct.textContent = '推荐种：';
+      crops.appendChild(ct);
+      d.suitableCrops.slice(0, 5).forEach(function (c) {
+        var tag = document.createElement('button');
+        tag.type = 'button';
+        tag.className = 'plot-analysis-crop';
+        tag.textContent = c.name + ' ' + Math.round(c.score) + '分';
+        tag.title = c.reason + '（全生育期约 ' + c.days + ' 天）';
+        tag.addEventListener('click', function () {
+          var input = document.getElementById('crop');
+          if (input) {
+            input.value = c.name;
+            input.dispatchEvent(new Event('input', { bubbles: true }));
+          }
+          if (window.Sidebar && window.Sidebar.switchModule) window.Sidebar.switchModule('calendar');
+        });
+        crops.appendChild(tag);
+      });
+      box.appendChild(crops);
+    }
+
+    if (d.summary) {
+      var s = document.createElement('div');
+      s.className = 'plot-analysis-label';
+      s.style.marginTop = '8px';
+      s.textContent = d.summary;
+      box.appendChild(s);
+    }
   }
 
   /**
@@ -80,7 +417,7 @@
     var areaInput = document.querySelector('#my-plots-form [name="plot-area"]');
     var shapeSelect = document.querySelector('#my-plots-form [name="plot-shape"]');
 
-    if (res.mode === 'polygon' && Array.isArray(res.polygon) && res.polygon.length >= 3) {
+    if (res.mode && res.mode.indexOf('polygon') === 0 && Array.isArray(res.polygon) && res.polygon.length >= 3) {
       if (polyInput) polyInput.value = JSON.stringify(res.polygon);
       if (suitInput) {
         suitInput.value = JSON.stringify({
@@ -232,6 +569,13 @@
       suitability = suitRaw ? JSON.parse(suitRaw) : null;
     } catch (e) { suitability = null; }
 
+    // 多边形分析快照：评分、地形、适宜作物。列表与详情直接读这份，不再重算。
+    var analysis = null;
+    try {
+      var anRaw = f['plot-analysis'] ? f['plot-analysis'].value : '';
+      analysis = anRaw ? JSON.parse(anRaw) : null;
+    } catch (e) { analysis = null; }
+
     var data = {
       name: name,
       type: f['plot-type'].value || 'farmland',
@@ -239,6 +583,7 @@
       lat: lat, lon: lon,
       polygon: polygon,
       suitability: suitability,
+      analysis: analysis,
       shape: f['plot-shape'].value || 'rectangle',
       angle: parseFloat(f['plot-angle'].value) || 0,
       slope: parseFloat(f['plot-slope'].value) || 0,
@@ -287,8 +632,29 @@
       var mapDiv = document.createElement('div');
       mapDiv.id = 'plot-detail-map';
       var hasPolygon = plot.polygon && plot.polygon.length >= 3;
-      mapDiv.style.cssText = 'height:' + (hasPolygon ? 240 : 180) + 'px;border-radius:12px;overflow:hidden;margin-bottom:16px;border:1px solid var(--line);';
+      mapDiv.style.cssText = 'height:' + (hasPolygon ? 240 : 180) + 'px;border-radius:12px;overflow:hidden;margin-bottom:8px;border:1px solid var(--line);';
       detail.appendChild(mapDiv);
+      if (hasPolygon && window.Plot3D) {
+        var view3d = document.createElement('button');
+        view3d.type = 'button';
+        view3d.className = 'my-plots-3d-view';
+        view3d.textContent = '🛰 3D 查看地形起伏';
+        view3d.addEventListener('click', function () {
+          window.Plot3D.open({
+            center: { lat: plot.lat, lon: plot.lon },
+            polygon: plot.polygon,
+            onConfirm: function (res) {
+              // 查看模式下确认只更新表单，不直接改已保存地块
+              var hidden = document.getElementById('plot-polygon');
+              if (hidden && res && res.polygon) hidden.value = JSON.stringify(res.polygon);
+            }
+          });
+        });
+        var viewWrap = document.createElement('div');
+        viewWrap.className = 'my-plots-3d-row';
+        viewWrap.appendChild(view3d);
+        detail.appendChild(viewWrap);
+      }
       setTimeout(function () {
         window.LocationPicker.initDisplay('plot-detail-map', plot.lat, plot.lon, plot.polygon);
       }, 50);
@@ -330,18 +696,47 @@
     shapeSection.className = 'my-plots-env-section';
     var shapeTitle = document.createElement('div');
     shapeTitle.className = 'my-plots-env-section-title';
-    shapeTitle.textContent = '地块建模';
+    var a = plot.analysis;
+    shapeTitle.textContent = a ? '地块空间分析' : '地块建模';
     shapeSection.appendChild(shapeTitle);
-    var shapeMeta = document.createElement('div');
-    shapeMeta.className = 'my-plots-card-meta';
-    var shapeParts = [];
-    shapeParts.push('形状：' + (SHAPE_TYPES[plot.shape] || plot.shape || '未指定'));
-    if (plot.angle) shapeParts.push('倾角：' + plot.angle + '°');
-    if (plot.slope) shapeParts.push('坡度：' + plot.slope + '°');
-    if (plot.terrace) shapeParts.push('梯田');
-    shapeMeta.textContent = shapeParts.join(' · ');
-    shapeSection.appendChild(shapeMeta);
+
+    if (a) {
+      // 与框选预览共用同一套渲染，避免两处字段名各写一份、改一处漏一处
+      var aBox = document.createElement('div');
+      aBox.className = 'my-plots-analysis';
+      renderAnalysisPreview(aBox, a);
+      shapeSection.appendChild(aBox);
+      var reBtn = document.createElement('button');
+      reBtn.type = 'button';
+      reBtn.className = 'my-plots-crop-tag';
+      reBtn.style.marginTop = '8px';
+      reBtn.textContent = '🔄 重新分析（刷新地形与墒情）';
+      reBtn.addEventListener('click', function () { reanalyzePlot(plot, shapeSection); });
+      shapeSection.appendChild(reBtn);
+    } else {
+      var shapeMeta = document.createElement('div');
+      shapeMeta.className = 'my-plots-card-meta';
+      var shapeParts = [];
+      shapeParts.push('形状：' + (SHAPE_TYPES[plot.shape] || plot.shape || '未指定'));
+      if (plot.angle) shapeParts.push('倾角：' + plot.angle + '°');
+      if (plot.slope) shapeParts.push('坡度：' + plot.slope + '°');
+      if (plot.terrace) shapeParts.push('梯田');
+      shapeMeta.textContent = shapeParts.join(' · ');
+      shapeSection.appendChild(shapeMeta);
+      // 老地块是手填参数建的，没有空间分析结果，这里给一个补齐入口
+      if (plot.polygon && plot.polygon.length >= 3) {
+        var anBtn = document.createElement('button');
+        anBtn.type = 'button';
+        anBtn.className = 'my-plots-crop-tag';
+        anBtn.style.marginTop = '8px';
+        anBtn.textContent = '🛰 分析这块地的地形与土壤';
+        anBtn.addEventListener('click', function () { reanalyzePlot(plot, shapeSection); });
+        shapeSection.appendChild(anBtn);
+      }
+    }
     detail.appendChild(shapeSection);
+
+    renderPlotCrops(plot, detail);
 
     var envSection = document.createElement('div');
     envSection.className = 'my-plots-env-section';
@@ -356,6 +751,194 @@
     detail.appendChild(envSection);
 
     fetchEnvironment(plot, envSection, loading);
+
+    // 鱼塘单独一块：水温/溶氧/投喂量/泛塘风险，只有塘才有意义
+    if (plot.type === 'pond' || plot.type === 'fishpond' || plot.type === 'aquaculture') {
+      renderPondPanel(plot, detail);
+    }
+  }
+
+  var POND_SPECIES = ['草鱼', '鲢鱼', '鳙鱼', '鲤鱼', '鲫鱼', '青鱼', '罗非鱼', '南美白对虾', '河蟹'];
+
+  /** 鱼塘水质与投喂面板：数值全部来自 /api/pond-status，前端不做任何估算。 */
+  function renderPondPanel(plot, detail) {
+    var box = document.createElement('div');
+    box.className = 'my-plots-env-section';
+    var title = document.createElement('div');
+    title.className = 'my-plots-env-section-title';
+    title.textContent = '鱼塘水质与投喂';
+    box.appendChild(title);
+
+    var grid = document.createElement('div');
+    grid.className = 'pond-form';
+    function field(labelText, id, defVal, unit) {
+      var wrap = document.createElement('label');
+      wrap.className = 'pond-field';
+      var t = document.createElement('span');
+      t.textContent = labelText + (unit ? '（' + unit + '）' : '');
+      var i = document.createElement('input');
+      i.id = id;
+      i.type = 'number';
+      i.step = 'any';
+      i.value = defVal == null ? '' : defVal;
+      wrap.appendChild(t);
+      wrap.appendChild(i);
+      grid.appendChild(wrap);
+      return i;
+    }
+    var selWrap = document.createElement('label');
+    selWrap.className = 'pond-field';
+    var selT = document.createElement('span');
+    selT.textContent = '养殖品种';
+    var sel = document.createElement('select');
+    sel.id = 'pond-species';
+    POND_SPECIES.forEach(function (n) {
+      var o = document.createElement('option');
+      o.value = n;
+      o.textContent = n;
+      sel.appendChild(o);
+    });
+    selWrap.appendChild(selT);
+    selWrap.appendChild(sel);
+    grid.appendChild(selWrap);
+
+    var areaMu = plot.area || (plot.analysis && plot.analysis.geometry && plot.analysis.geometry.areaMu) || 5;
+    field('水面面积', 'pond-area', areaMu, '亩');
+    field('放养密度', 'pond-density', 1000, '尾/亩');
+    field('当前规格', 'pond-weight', 250, 'g/尾');
+    field('实测 pH', 'pond-ph', '', '选填');
+    field('实测氨氮', 'pond-ammonia', '', 'mg/L，选填');
+    field('实测溶氧', 'pond-do', '', 'mg/L，选填');
+    box.appendChild(grid);
+
+    var btnRow = document.createElement('div');
+    btnRow.className = 'pond-actions';
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'my-plots-3d-view';
+    btn.textContent = '计算水质与投喂量';
+    btnRow.appendChild(btn);
+    box.appendChild(btnRow);
+
+    var out = document.createElement('div');
+    out.className = 'pond-result';
+    out.textContent = '填入存塘情况后计算；实测值优先于模型估算。';
+    box.appendChild(out);
+
+    btn.addEventListener('click', function () {
+      out.textContent = '正在获取水温与天气…';
+      var qs = 'lat=' + encodeURIComponent(plot.lat || 35.07) + '&lon=' + encodeURIComponent(plot.lon || 116.31)
+        + '&species=' + encodeURIComponent(sel.value)
+        + '&areaMu=' + encodeURIComponent(num('pond-area', 5))
+        + '&densityPerMu=' + encodeURIComponent(num('pond-density', 1000))
+        + '&avgWeightG=' + encodeURIComponent(num('pond-weight', 250));
+      var ph = val('pond-ph'), nh = val('pond-ammonia'), dd = val('pond-do');
+      if (ph !== '') qs += '&ph=' + encodeURIComponent(ph);
+      if (nh !== '') qs += '&ammonia=' + encodeURIComponent(nh);
+      if (dd !== '') qs += '&dissolvedOxygen=' + encodeURIComponent(dd);
+      fetch('/api/pond-status?' + qs).then(function (r) {
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        return r.json();
+      }).then(function (d) {
+        if (!d || d.error) throw new Error((d && d.error) || '返回为空');
+        renderPondResult(out, d);
+      }).catch(function (e) {
+        out.className = 'pond-result pond-result--error';
+        out.textContent = '计算失败：' + e.message;
+      });
+    });
+
+    detail.appendChild(box);
+  }
+
+  function val(id) {
+    var el = document.getElementById(id);
+    return el ? String(el.value).trim() : '';
+  }
+
+  function num(id, def) {
+    var v = parseFloat(val(id));
+    return isFinite(v) ? v : def;
+  }
+
+  function renderPondResult(out, d) {
+    out.className = 'pond-result';
+    out.innerHTML = '';
+    var w = d.water || {}, f = d.feeding || {};
+
+    var head = document.createElement('div');
+    head.className = 'pond-head';
+    var feed = document.createElement('strong');
+    feed.className = 'pond-feed';
+    feed.textContent = (f.kgPerDay != null ? f.kgPerDay : '—') + ' kg';
+    var feedLabel = document.createElement('span');
+    feedLabel.textContent = '今日投喂（存塘约 ' + (d.biomassKg != null ? d.biomassKg : '—') + ' kg，日投喂率 '
+      + (f.ratePercent != null ? f.ratePercent : '—') + '%，分 ' + (f.timesPerDay || 2) + ' 次）';
+    head.appendChild(feed);
+    head.appendChild(feedLabel);
+    out.appendChild(head);
+
+    var grid = document.createElement('div');
+    grid.className = 'pond-grid';
+    function metric(label, value, unit, src) {
+      var c = document.createElement('div');
+      c.className = 'pond-metric';
+      var l = document.createElement('span');
+      l.className = 'pond-metric-label';
+      l.textContent = label;
+      var v = document.createElement('b');
+      v.textContent = value == null ? '—' : value + (unit || '');
+      c.appendChild(l);
+      c.appendChild(v);
+      if (src) {
+        var s = document.createElement('i');
+        s.textContent = src;
+        c.appendChild(s);
+      }
+      grid.appendChild(c);
+    }
+    metric('水温', w.tempC, '℃', w.tempSource);
+    metric('溶氧日均', w.dissolvedOxygen, ' mg/L', w.dissolvedOxygenSource);
+    metric('凌晨最低溶氧', w.dissolvedOxygenDawn, ' mg/L', '泛塘高发时段');
+    metric('pH', w.ph, '', w.ph != null ? '实测' : '未填');
+    metric('氨氮', w.ammonia, ' mg/L', w.ammonia != null ? '实测' : '未填');
+    out.appendChild(grid);
+
+    if (w.saturationReason) {
+      var sr = document.createElement('div');
+      sr.className = 'pond-note';
+      sr.textContent = '溶氧推算依据：' + w.saturationReason;
+      out.appendChild(sr);
+    }
+    if (f.basis) {
+      var fb = document.createElement('div');
+      fb.className = 'pond-note';
+      fb.textContent = '投喂依据：' + f.basis;
+      out.appendChild(fb);
+    }
+
+    (d.risks || []).forEach(function (r) {
+      var row = document.createElement('div');
+      row.className = 'pond-risk pond-risk--' + (r.severity || 'low');
+      row.textContent = (r.severity === 'high' ? '⚠ ' : '') + r.label + '：' + r.detail;
+      out.appendChild(row);
+    });
+    if (d.actions && d.actions.length) {
+      var ul = document.createElement('ul');
+      ul.className = 'pond-action-list';
+      d.actions.forEach(function (a) {
+        var li = document.createElement('li');
+        li.textContent = a;
+        ul.appendChild(li);
+      });
+      out.appendChild(ul);
+    }
+    if (d.dataSources && d.dataSources.notice) {
+      var n = document.createElement('div');
+      n.className = 'pond-note pond-note--muted';
+      n.textContent = d.dataSources.notice;
+      out.appendChild(n);
+    }
   }
 
   function fetchEnvironment(plot, container, loading) {

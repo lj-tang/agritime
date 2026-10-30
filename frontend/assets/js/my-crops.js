@@ -70,6 +70,92 @@
     });
   }
 
+  /** 同作物同播期共用一次状态请求，列表重绘时不再重复打后端 */
+  var STATUS_CACHE = {};
+
+  function loadCropStatus(r, box) {
+    var plot = null;
+    if (r.plotId && window.MyPlotsStore && window.MyPlotsStore.getById) {
+      plot = window.MyPlotsStore.getById(r.plotId);
+    }
+    var lat = plot && plot.lat != null ? plot.lat : null;
+    var lon = plot && plot.lon != null ? plot.lon : null;
+    var key = r.cropName + '|' + r.sownDate + '|' + lat + ',' + lon;
+    if (STATUS_CACHE[key] !== undefined) {
+      renderCropStatus(box, STATUS_CACHE[key]);
+      return;
+    }
+    var url = '/api/crop-status?crop=' + encodeURIComponent(r.cropName || '') +
+      '&sowDate=' + encodeURIComponent(r.sownDate) +
+      (lat != null ? '&lat=' + lat + '&lon=' + lon : '');
+    fetch(url).then(function (res) {
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      return res.json();
+    }).then(function (d) {
+      STATUS_CACHE[key] = d && !d.error ? d : null;
+      renderCropStatus(box, STATUS_CACHE[key]);
+    }).catch(function () {
+      STATUS_CACHE[key] = null;
+      renderCropStatus(box, null);
+    });
+  }
+
+  function renderCropStatus(box, d) {
+    box.innerHTML = '';
+    if (!d) {
+      box.className = 'my-crops-status my-crops-status--empty';
+      box.textContent = '生长状态暂未取到，稍后重试';
+      return;
+    }
+    box.className = 'my-crops-status';
+
+    var head = document.createElement('div');
+    head.className = 'my-crops-status-head';
+    var phase = document.createElement('strong');
+    phase.className = 'my-crops-status-phase';
+    phase.textContent = d.phase || '—';
+    head.appendChild(phase);
+    var pct = document.createElement('span');
+    pct.className = 'my-crops-status-pct';
+    pct.textContent = (d.adjustedProgressPct != null ? d.adjustedProgressPct : d.progressPct) + '%';
+    head.appendChild(pct);
+    if (d.dayDelta != null && Math.abs(d.dayDelta) >= 3) {
+      var delta = document.createElement('span');
+      delta.className = 'my-crops-status-delta ' + (d.dayDelta > 0 ? 'is-ahead' : 'is-behind');
+      delta.textContent = (d.dayDelta > 0 ? '提前 ' : '推迟 ') + Math.abs(d.dayDelta) + ' 天';
+      head.appendChild(delta);
+    }
+    box.appendChild(head);
+
+    var bar = document.createElement('div');
+    bar.className = 'my-crops-status-bar';
+    var fill = document.createElement('i');
+    fill.style.width = Math.max(0, Math.min(100, d.adjustedProgressPct || 0)) + '%';
+    bar.appendChild(fill);
+    box.appendChild(bar);
+
+    var meta = document.createElement('div');
+    meta.className = 'my-crops-status-meta';
+    var bits = [];
+    if (d.water) bits.push('水分：' + d.water.status);
+    if (d.gdd && d.gdd.available) bits.push('积温：' + d.gdd.actual + '℃（常年 ' + d.gdd.normal + '℃）');
+    if (d.nextNode) bits.push('下一步：' + d.nextNode.title + '（' + d.nextNode.date + '）');
+    else if (d.daysToHarvest != null) bits.push('距收获约 ' + Math.max(0, d.daysToHarvest) + ' 天');
+    meta.textContent = bits.join(' · ');
+    box.appendChild(meta);
+
+    if (d.weekActions && d.weekActions.length) {
+      var ul = document.createElement('ul');
+      ul.className = 'my-crops-status-actions';
+      d.weekActions.slice(0, 3).forEach(function (a) {
+        var li = document.createElement('li');
+        li.textContent = a;
+        ul.appendChild(li);
+      });
+      box.appendChild(ul);
+    }
+  }
+
   function renderCard(r) {
     var card = document.createElement('div');
     card.className = 'my-crops-card';
@@ -97,6 +183,20 @@
     if (r.remark) lines.push('备注：' + r.remark);
     fields.textContent = lines.join(' | ');
     card.appendChild(fields);
+
+    // 真实状态：阶段、积温校正后的进度、水分、下一步、本周做法
+    // 全部由 /api/crop-status 按实测气象算，前端不自己编进度
+    var statusBox = document.createElement('div');
+    statusBox.className = 'my-crops-status';
+    if (r.sownDate) {
+      statusBox.textContent = '正在获取生长状态…';
+      card.appendChild(statusBox);
+      loadCropStatus(r, statusBox);
+    } else {
+      statusBox.className = 'my-crops-status my-crops-status--empty';
+      statusBox.textContent = '补齐播种日期后可查看生长阶段与本周做法';
+      card.appendChild(statusBox);
+    }
     var actions = document.createElement('div');
     actions.className = 'my-crops-card-actions';
     var editBtn = document.createElement('button');

@@ -10,6 +10,9 @@ import com.cropcalendar.api.HealthHandler;
 import com.cropcalendar.api.IndustryHandler;
 import com.cropcalendar.api.MeHandler;
 import com.cropcalendar.api.PlotHandler;
+import com.cropcalendar.api.PlotAnalyzeHandler;
+import com.cropcalendar.api.CropStatusHandler;
+import com.cropcalendar.api.PondStatusHandler;
 import com.cropcalendar.api.RecognitionHandler;
 import com.cropcalendar.api.RecommendHandler;
 import com.cropcalendar.api.SiteConfigHandler;
@@ -47,6 +50,8 @@ public class Server {
         server.createContext("/api/recognition", new RecognitionHandler());
         server.createContext("/api/chart", new ChartHandler());
         server.createContext("/api/plots", new PlotHandler());
+        // 更长的前缀优先匹配，所以 /api/plots/analyze 会走这里而不是上面的 PlotHandler
+        server.createContext("/api/plots/analyze", new PlotAnalyzeHandler());
         server.createContext("/api/disease", new DiseaseHandler());
         server.createContext("/api/geo", new GeoHandler());
         server.createContext("/api/auth", new AuthHandler());
@@ -57,6 +62,8 @@ public class Server {
         server.createContext("/api/sow-window", new SowWindowHandler());
         server.createContext("/api/support", new SupportHandler());
         server.createContext("/api/industry", new IndustryHandler());
+        server.createContext("/api/crop-status", new CropStatusHandler());
+        server.createContext("/api/pond-status", new PondStatusHandler());
         server.setExecutor(Executors.newFixedThreadPool(8));
 
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {

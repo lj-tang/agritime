@@ -1267,3 +1267,25 @@ test('落地：我的作物联动去重、拍照留痕、来源可见', () => {
   assert.ok(photoJs.includes('onConfirm(crop, c.confidence)'), '候选确认应带置信度');
   assert.ok(timelineHtml.includes('detail.plotId = query.plotId'), 'plotId 应传给父页面');
 });
+
+test('落地：作物状态与地块空间分析接真实接口', () => {
+  const myPlotsJs = read(path.resolve(__dirname, '..', 'assets', 'js', 'my-plots.js'));
+  assert.ok(myCropsJs.includes('/api/crop-status'), '作物卡片应拉取真实生长状态');
+  assert.ok(myCropsJs.includes('STATUS_CACHE'), '同作物同播期应复用状态，避免重复请求');
+  assert.ok(myCropsJs.includes('d.adjustedProgressPct'), '应展示积温校正后的进度而非纯日历进度');
+  assert.ok(myCropsCss.includes('my-crops-status-bar'), '状态条样式应存在');
+  assert.ok(myPlotsJs.includes('/api/plots/analyze'), '地块应调用空间分析接口');
+  assert.ok(myPlotsJs.includes('suitableCrops'), '分析预览应展示后端推荐作物');
+  assert.ok(myPlotsJs.includes('reanalyzePlot'), '已保存地块应能重新分析');
+  assert.ok(myPlotsJs.includes('plot-analysis-preview'), '框选后应有分析结果预览');
+});
+
+test('落地：鱼塘水质与投喂面板接真实计算', () => {
+  const myPlotsJs = read(path.resolve(__dirname, '..', 'assets', 'js', 'my-plots.js'));
+  const myPlotsCss = read(path.resolve(__dirname, '..', 'assets', 'css', 'my-plots.css'));
+  assert.ok(myPlotsJs.includes('/api/pond-status'), '鱼塘应调用水质状态接口');
+  assert.ok(myPlotsJs.includes('renderPondPanel'), '塘类地块应有独立水质面板');
+  assert.ok(myPlotsJs.includes('pond-do'), '应允许用户填入实测溶氧覆盖估算');
+  assert.ok(myPlotsJs.includes('pond-risk--'), '风险应按等级区分展示');
+  assert.ok(myPlotsCss.includes('.pond-metric'), '水质指标样式应存在');
+});
