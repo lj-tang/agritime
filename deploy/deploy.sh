@@ -47,10 +47,21 @@ if [ "${SKIP_PULL:-0}" != "1" ]; then
   TARGET="$(git rev-parse "origin/$BRANCH")"
   if [ "$PREV" = "$TARGET" ]; then
     log "远端无新提交，仍继续重编译"
-  else
+  elif git merge-base --is-ancestor "$TARGET" "$PREV"; then
+    # 本地 HEAD 比 origin 更新：说明有提交没推上去（这台机器到 GitHub 经常断）。
+    # 此时 reset --hard 会把新代码直接抹掉，改成跳过重置、按当前工作区部署。
+    log "警告：本地 ${PREV:0:7} 领先 origin/$BRANCH ${TARGET:0:7}（有提交未推送）"
+    log "警告：跳过 reset，按当前工作区部署；请尽快补推，否则下次正常部署会回退"
+  elif git merge-base --is-ancestor "$PREV" "$TARGET"; then
     log "更新代码 ${PREV:0:7} -> ${TARGET:0:7}"
     # 服务器是纯部署端，本地改动一律丢弃，以仓库为准
     git reset --hard "origin/$BRANCH"
+  else
+    # 双方各有对方没有的提交：自动 reset 会静默丢掉一边，必须人工处理
+    log "严重：本地与 origin/$BRANCH 已分叉，脚本不做自动处理"
+    log "  本地独有：$(git rev-list --count "$TARGET..$PREV") 个提交"
+    log "  远端独有：$(git rev-list --count "$PREV..$TARGET") 个提交"
+    die "分支分叉，请人工处理后重跑（或 SKIP_PULL=1 只部署当前工作区）"
   fi
 fi
 
