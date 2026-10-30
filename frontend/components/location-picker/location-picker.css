@@ -114,3 +114,7 @@
 @media (min-width: 768px) {
   .map-canvas { min-height: 320px; }
 }
+/* T11 移动端：地图标点按钮撑到 44×44 */
+@media (max-width: 767px) {
+  .map-picker-btn { width: 44px; height: 44px; flex: none; }
+}

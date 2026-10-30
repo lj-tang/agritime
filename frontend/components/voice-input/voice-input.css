@@ -27,3 +27,7 @@
 @media (prefers-reduced-motion: reduce) {
   .voice-btn--active { animation: none; }
 }
+/* T11 移动端：32px 在手机上点不中，撑到 44×44（该行高度本就是 44，不影响排版） */
+@media (max-width: 767px) {
+  .voice-btn { width: 44px; height: 44px; flex: none; }
+}
