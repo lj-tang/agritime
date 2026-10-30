@@ -205,14 +205,41 @@
   }
 
   // ---------- 工具 ----------
+  /**
+   * 匿名访客 ID：同一出口 IP 下（校园网、公司 NAT）大家共用一个公网 IP，
+   * 只按 IP 认人会让互不相识的用户看到彼此的工单。这里给每个浏览器一个 ID，
+   * 随请求头带上，后端优先用它区分匿名身份。
+   */
+  var VISITOR_KEY = 'agritime.visitorId';
+  function visitorId() {
+    try {
+      var v = localStorage.getItem(VISITOR_KEY);
+      if (v && /^[A-Za-z0-9_-]{8,64}$/.test(v)) return v;
+      var buf = new Uint8Array(16);
+      (window.crypto || window.msCrypto).getRandomValues(buf);
+      v = Array.prototype.map.call(buf, function (b) { return ('0' + b.toString(16)).slice(-2); }).join('');
+      localStorage.setItem(VISITOR_KEY, v);
+      return v;
+    } catch (e) {
+      return '';
+    }
+  }
+
+  function headers(extra) {
+    var h = extra || {};
+    var vid = visitorId();
+    if (vid) h['X-Visitor-Id'] = vid;
+    return h;
+  }
+
   function get(url) {
-    return fetch(url, { credentials: 'same-origin' }).then(handle);
+    return fetch(url, { credentials: 'same-origin', headers: headers() }).then(handle);
   }
   function post(url, body) {
     return fetch(url, {
       method: 'POST',
       credentials: 'same-origin',
-      headers: { 'Content-Type': 'application/json' },
+      headers: headers({ 'Content-Type': 'application/json' }),
       body: JSON.stringify(body)
     }).then(handle);
   }

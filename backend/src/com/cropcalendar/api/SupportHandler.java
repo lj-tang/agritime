@@ -89,7 +89,9 @@ public class SupportHandler implements HttpHandler {
         }
 
         User u = Auth.current(ex);
-        String userId = u != null ? u.id() : "anon_" + ip(ex);
+        String vid = visitorId(ex);
+        String userId = u != null ? u.id()
+                : (vid != null ? "anon_" + vid : "anon_ip_" + ip(ex));
         String userName = u != null ? (u.nickname().isEmpty() ? u.username() : u.nickname()) : "访客";
 
         Map<String, Object> ticket = new LinkedHashMap<>();
@@ -331,10 +333,55 @@ public class SupportHandler implements HttpHandler {
         }
     }
 
+    /**
+     * 匿名访客标识。
+     *
+     * 之前直接取 X-Forwarded-For 的第一段：nginx 用的是 proxy_add_x_forwarded_for，
+     * 客户端自己带的头会排在前面，所以任何人不改代码就能伪造成别人，读到对方的工单。
+     * 现在优先用 nginx 覆盖写入的 X-Real-IP（$remote_addr，客户端伪造不了）；
+     * 再退到 XFF 的**最后一段**（nginx 追加的那一段），最后才用 socket 地址。
+     */
     private String ip(HttpExchange ex) {
+        String real = ex.getRequestHeaders().getFirst("X-Real-IP");
+        if (isIpLike(real)) return real.trim();
+
         String fwd = ex.getRequestHeaders().getFirst("X-Forwarded-For");
-        if (fwd != null && !fwd.isBlank()) return fwd.split(",")[0].trim();
+        if (fwd != null && !fwd.isBlank()) {
+            String[] parts = fwd.split(",");
+            String last = parts[parts.length - 1].trim();
+            if (isIpLike(last)) return last;
+        }
         return ex.getRemoteAddress() == null ? "unknown" : ex.getRemoteAddress().getAddress().getHostAddress();
+    }
+
+    private boolean isIpLike(String s) {
+        if (s == null) return false;
+        String v = s.trim();
+        if (v.isEmpty() || v.length() > 45) return false;
+        for (int i = 0; i < v.length(); i++) {
+            char c = v.charAt(i);
+            if (!(Character.isDigit(c) || c == '.' || c == ':' || (c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F'))) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * 浏览器侧生成的访客 ID。同一出口 IP（校园网、公司 NAT）下所有人共用一个 IP，
+     * 只按 IP 认定身份会让互不相识的人看到彼此的工单，所以优先用访客 ID。
+     */
+    private String visitorId(HttpExchange ex) {
+        String v = ex.getRequestHeaders().getFirst("X-Visitor-Id");
+        if (v == null) return null;
+        String t = v.trim();
+        if (t.length() < 8 || t.length() > 64) return null;
+        for (int i = 0; i < t.length(); i++) {
+            char c = t.charAt(i);
+            boolean ok = (c >= '0' && c <= '9') || (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || c == '-' || c == '_';
+            if (!ok) return null;
+        }
+        return t;
     }
 
     private static String str(Object o) {

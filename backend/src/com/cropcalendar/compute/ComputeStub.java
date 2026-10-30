@@ -175,10 +175,18 @@ public final class ComputeStub {
         if (llmCached != null) {
             return llmCached;
         }
+        Long until = LLM_NEGATIVE.get(cropId);
+        if (until != null && until > System.currentTimeMillis()) {
+            // 刚失败过，直接返回空，不再打一次 60 秒超时的上游
+            return List.of();
+        }
         System.out.println("[buildNodes] 规程表中无 " + cropId + "，调大模型生成");
         List<RawNode> generated = LlmService.generateCropProcedure(cropId, cropId);
         if (!generated.isEmpty()) {
             LLM_PROC_CACHE.put(cropId, generated);
+            LLM_NEGATIVE.remove(cropId);
+        } else {
+            LLM_NEGATIVE.put(cropId, System.currentTimeMillis() + NEGATIVE_TTL_MS);
         }
         return generated;
     }
@@ -188,6 +196,10 @@ public final class ComputeStub {
      * 填满 LLM_PROC_CACHE，首次请求 34s → ~0.4s（缓存命中）。
      * daemon 线程，不阻塞启动；预热失败不影响服务可用性。
      */
+    /** 大模型生成失败的作物：10 分钟内不再重试，避免用户输入乱码把请求线程卡满 */
+    private static final Map<String, Long> LLM_NEGATIVE = new java.util.concurrent.ConcurrentHashMap<>();
+    private static final long NEGATIVE_TTL_MS = 10 * 60 * 1000L;
+
     private static final List<String> PRELOAD_CROPS = List.of("tomato", "cotton", "chili_pepper");
 
     public static void preloadCommonCrops() {

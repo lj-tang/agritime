@@ -1205,3 +1205,42 @@ test('T11 共享逻辑：小程序通过脚本同步 shared/utils，而不是复
   assert.ok(sync.includes('shared'), '同步脚本应读取 shared/utils');
   assert.ok(sync.includes('date-window.js') && sync.includes('timeline-logic.js'));
 });
+
+// ---------------- 缺陷修复（V5 前置） ----------------
+test('修复：匿名工单身份不可伪造，且同 IP 不串号', () => {
+  const h = read(path.resolve(__dirname, '..', '..', 'backend', 'src', 'com', 'cropcalendar', 'api', 'SupportHandler.java'));
+  assert.ok(h.includes('X-Real-IP'), '应优先用 nginx 写入的 X-Real-IP');
+  assert.ok(h.includes('X-Visitor-Id'), '应支持浏览器访客 ID');
+  assert.ok(!/fwd\.split\(","\)\[0\]/.test(h), '不能再取 XFF 第一段（客户端可伪造）');
+  assert.ok(h.includes('parts[parts.length - 1]'), '应取 XFF 最后一段');
+  const svc = read(path.resolve(__dirname, '..', 'assets', 'js', 'service.js'));
+  assert.ok(svc.includes('agritime.visitorId'), '前端应生成并持久化访客 ID');
+  assert.ok(svc.includes("'X-Visitor-Id'"), '请求应带访客 ID');
+});
+
+test('修复：一年多熟第二季接在第一季之后，不重叠', () => {
+  const cp = read(path.resolve(__dirname, '..', '..', 'backend', 'src', 'com', 'cropcalendar', 'service', 'crop', 'CropProperties.java'));
+  assert.ok(cp.includes('int shift = span + gap'), '第二季应按整个生育期平移');
+  assert.ok(!cp.includes('span / 2'), '不能再用半个生育期');
+});
+
+test('修复：未知作物不会长时间占用线程', () => {
+  const cs = read(path.resolve(__dirname, '..', '..', 'backend', 'src', 'com', 'cropcalendar', 'compute', 'ComputeStub.java'));
+  assert.ok(cs.includes('LLM_NEGATIVE'), '应缓存生成失败的作物');
+  const th = read(path.resolve(__dirname, '..', '..', 'backend', 'src', 'com', 'cropcalendar', 'api', 'TimelineHandler.java'));
+  assert.ok(th.includes('作物名称过长'), '应拦截超长作物名');
+});
+
+test('修复：远期节点用常年同期补位，且不与预报标签同时出现', () => {
+  const orch = read(path.resolve(__dirname, '..', '..', 'backend', 'src', 'com', 'cropcalendar', 'orchestration', 'TimelineOrchestrator.java'));
+  assert.ok(orch.includes('climateNormals'), '应补齐常年同期');
+  assert.ok(orch.includes('minusYears(1)'), '用去年同日');
+  const th = read(path.resolve(__dirname, '..', '..', 'backend', 'src', 'com', 'cropcalendar', 'api', 'TimelineHandler.java'));
+  assert.ok(th.includes('!n.climateNormal()'), '常年同期不应再标预报');
+  assert.ok(timelineHtml.includes('常年同期参考，非预报'));
+});
+
+test('修复：提醒键用标准作物名，过期提醒自动清理', () => {
+  assert.ok(timelineHtml.includes('__cropStandardName'), '提醒键应使用标准名');
+  assert.ok(timelineHtml.includes('pruneReminders'), '应清理过期提醒');
+});

@@ -112,7 +112,12 @@ public final class CropProperties {
             secondCycle = false;
         }
         if (secondCycle) {
-            int shift = "multi".equals(p.croppingSystem()) ? Math.max(45, span / 2) : Math.max(90, span / 2);
+            // 第二季必须接在第一季收完之后，不能按"半个生育期"平移 ——
+            // 那样第二季播种时第一季还没收（番茄 120 天周期、平移 90 天，
+            // 会出现"采收"和"第二季播种"重叠，日历上自相矛盾）。
+            // 留 7 天整地/清园，multi（一年多茬）留 3 天。
+            int gap = "multi".equals(p.croppingSystem()) ? 3 : 7;
+            int shift = span + gap;
             for (RawNode n : base) {
                 out.add(new RawNode(n.cropId(), n.opType(), n.dayOffset() + shift, "第二季·" + n.title()));
             }

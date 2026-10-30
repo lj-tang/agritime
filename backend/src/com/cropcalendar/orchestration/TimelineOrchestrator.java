@@ -14,7 +14,9 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -53,7 +55,8 @@ public class TimelineOrchestrator {
     // ============================================================
 
     public record NodeView(int dayOffset, String date, String opType, String title,
-                           String status, String suggest, String reason, String guidance) {
+                           String status, String suggest, String reason, String guidance,
+                           boolean climateNormal) {
     }
 
     public record TimelineResult(String cropId, String sowDate, String generatedAt,
@@ -95,17 +98,29 @@ public class TimelineOrchestrator {
         // ---- 步骤 4 取天气：唯一有 IO 的一步，带三档降级 ----
         WeatherFetch fetched = fetchWeatherWithFallback(lat, lon, allDates);
 
+        // 超出预报范围的日期（节气推荐的起点可能在 3 个月后）用去年同日补位，
+        // 否则整条远期时间线全是"请人工判断"，等于白生成。
+        WeatherWindow normals = climateNormals(lat, lon, allDates, fetched.window());
+
         // ---- 步骤 5 逐节点打分 ----
         int w = AppConfig.weatherWindowDays();
         List<NodeView> nodes = new ArrayList<>(raw.size());
         for (RawNode n : raw) {
             String date = sow.plusDays(n.dayOffset()).format(DATE);
             WeatherWindow slice = fetched.window().around(date, w, w);
+            boolean climateNormal = false;
+            if (slice.byDate().isEmpty()) {
+                WeatherWindow ns = normals.around(date, w, w);
+                if (!ns.byDate().isEmpty()) {
+                    slice = ns;
+                    climateNormal = true;
+                }
+            }
             ScoreResult score = ComputeStub.scoreNode(n.opType(), slice);
             // T03：四类指导随节点下发，天气窗口用同一份 slice，避免两处天气不一致
             String guidance = GuidanceService.build(n.opType(), slice, cropNameForGuidance);
             nodes.add(new NodeView(n.dayOffset(), date, n.opType(), n.title(),
-                    score.status(), score.suggest(), score.reason(), guidance));
+                    score.status(), score.suggest(), score.reason(), guidance, climateNormal));
         }
 
         // ---- 步骤 6 叠加节气与行情提醒 ----
@@ -178,6 +193,35 @@ public class TimelineOrchestrator {
         } catch (Exception e) {
             return degradeToCache(key, "上游异常 " + e.getClass().getSimpleName());
         }
+    }
+
+    /**
+     * 常年同期：把缺失日期映射到去年同日，一次请求取回后按原日期重建窗口。
+     * 用途是让远期节点有"平均气候"可比，而不是一律返回"取不到天气"。
+     * 返回的 window 里 key 是**原始日期**，调用方无感知。
+     */
+    private WeatherWindow climateNormals(double lat, double lon, List<String> allDates, WeatherWindow have) {
+        List<String> lastYear = new ArrayList<>();
+        Map<String, String> toOriginal = new LinkedHashMap<>();
+        for (String d : allDates) {
+            if (have.byDate().containsKey(d)) continue;
+            try {
+                String ly = LocalDate.parse(d).minusYears(1).toString();
+                lastYear.add(ly);
+                toOriginal.put(ly, d);
+            } catch (Exception ignored) {
+                // 日期非法就跳过
+            }
+        }
+        if (lastYear.isEmpty()) return WeatherWindow.unavailable("无缺失日期");
+        WeatherWindow ly = ComputeStub.fetchWindowWeather(lat, lon, lastYear);
+        if (ly.degraded()) return ly;
+        Map<String, WeatherWindow.Daily> mapped = new LinkedHashMap<>();
+        ly.byDate().forEach((k, v) -> {
+            String orig = toOriginal.get(k);
+            if (orig != null) mapped.put(orig, v);
+        });
+        return new WeatherWindow(mapped, false, null);
     }
 
     private WeatherFetch degradeToCache(String key, String why) {

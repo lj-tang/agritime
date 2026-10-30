@@ -83,6 +83,12 @@ public class TimelineHandler implements HttpHandler {
             HttpSupport.write(ex, 400, errJson("INVALID_INPUT", "缺少必填参数 crop 与 sowingDate"));
             return;
         }
+        // 作物名不可能是一段话。不拦住的话，乱输入会让下游去调大模型生成规程，
+        // 单请求最长阻塞 60 秒，几个并发就能把线程池占满。
+        if (cropId.trim().length() > 20) {
+            HttpSupport.write(ex, 400, errJson("INVALID_INPUT", "作物名称过长，请输入具体作物名（如：番茄）"));
+            return;
+        }
 
         try {
             // T02：无论用户传的是「西红柿」还是「tomato」，先归一到标准名，
@@ -139,7 +145,9 @@ public class TimelineHandler implements HttpHandler {
             // T04：未来第 5 天（含）之后的节点，天气已经是预报值，必须标注"仅供参考"
             boolean forecastNote = false;
             try {
-                forecastNote = LocalDate.parse(n.date()).isAfter(LocalDate.now().plusDays(4));
+                // 常年同期的节点不是预报，两个标签不能同时出现
+                forecastNote = !n.climateNormal()
+                        && LocalDate.parse(n.date()).isAfter(LocalDate.now().plusDays(4));
             } catch (Exception ignored) {
                 // 日期异常就不标注，避免误标
             }
@@ -157,6 +165,7 @@ public class TimelineHandler implements HttpHandler {
                     "reasons", reasons,
                     "guidance", n.guidance() != null ? n.guidance() : "null",
                     "forecastNote", String.valueOf(forecastNote),
+                    "climateNormal", String.valueOf(n.climateNormal()),
                     "rescheduleAdvice", "null",
                     "certainty", Json.str(certainty),
                     "weatherIcon", "null",

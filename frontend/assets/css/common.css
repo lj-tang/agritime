@@ -736,3 +736,6 @@ body[data-layout="app"] .content-pane > * {
   background: var(--paper-2);
   border-radius: var(--radius-sm);
 }
+
+/* 常年同期标注与预报标注区分开：前者不是预报 */
+.tl-climate-note { color: #3d6f8a; background: #e8f1f6; }

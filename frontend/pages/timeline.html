@@ -376,6 +376,13 @@
           fn.textContent = '天气为预测数据，仅供参考';
           card.appendChild(fn);
         }
+        // 超出预报范围时用去年同日补位，必须让用户知道这不是预报
+        if (node.climateNormal) {
+          var cn = document.createElement('span');
+          cn.className = 'tl-forecast-note tl-climate-note';
+          cn.textContent = '常年同期参考，非预报';
+          card.appendChild(cn);
+        }
 
         // T04：关键节点可开启提醒，前端展示倒计时
         if (node.date && node.date >= todayStr()) {
@@ -516,7 +523,8 @@
         try { localStorage.setItem(REMIND_KEY, JSON.stringify(list)); } catch (e) { /* 隐私模式忽略 */ }
       }
       function reminderKey(node) {
-        return (query.cropName || '') + '|' + (node.date || '') + '|' + (node.name || '');
+        var crop = window.__cropStandardName || query.cropName || '';
+        return crop + '|' + (node.date || '') + '|' + (node.name || '');
       }
       function isReminded(node) {
         var k = reminderKey(node);
@@ -530,11 +538,21 @@
         else list.push({ key: k, date: node.date, name: node.name || '', crop: query.cropName || '' });
         saveReminders(list);
       }
+      function pruneReminders(list) {
+        // 节点日期过去 7 天后自动清理，否则提醒面板会越攒越多"已过"
+        var cutoff = new Date();
+        cutoff.setDate(cutoff.getDate() - 7);
+        var cut = cutoff.getFullYear() + '-' + String(cutoff.getMonth() + 1).padStart(2, '0') + '-' + String(cutoff.getDate()).padStart(2, '0');
+        var kept = list.filter(function (r) { return r.date && r.date >= cut; });
+        if (kept.length !== list.length) saveReminders(kept);
+        return kept;
+      }
+
       function renderMyReminders() {
         var panel = document.getElementById('reminder-panel');
         var box = document.getElementById('reminder-list');
         if (!panel || !box) return;
-        var list = loadReminders().filter(function (r) { return r.date; })
+        var list = pruneReminders(loadReminders()).filter(function (r) { return r.date; })
           .sort(function (a, b) { return a.date < b.date ? -1 : 1; });
         box.innerHTML = '';
         if (!list.length) { panel.hidden = true; return; }
@@ -793,6 +811,9 @@
         document.getElementById('loading').hidden = true;
         if (!data || typeof data !== 'object') data = { todayConclusion: {}, nodes: [] };
         if (!Array.isArray(data.nodes)) data = { todayConclusion: data.todayConclusion || {}, nodes: [] };
+        // 提醒键要用标准作物名：否则同一作物用俗称（西红柿）和标准名（番茄）
+        // 各存一条，用户会看到重复提醒
+        if (data.cropName) window.__cropStandardName = data.cropName;
         // T02：后端会把俗称归一到标准名，这里如实告诉用户映射结果
         if (data.cropName && data.requestedCrop && data.cropName !== data.requestedCrop) {
           var hint = document.getElementById('crop-resolved-hint');
