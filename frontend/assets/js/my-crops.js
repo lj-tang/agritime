@@ -15,10 +15,28 @@
     window.addEventListener('agritime:sowing-confirmed', function (e) {
       var d = e.detail || {};
       if (!d.cropName) return;
-      if (window.MyCropsStore) {
-        window.MyCropsStore.add({ cropName: d.cropName, cropId: d.cropId || null, sownDate: d.sownDate || null, plotId: d.plotId || null });
-        renderList();
+      if (!window.MyCropsStore) return;
+      var sownDate = d.sownDate || null;
+      // 同作物同播期视为同一条记录：用户重复点「确认已播种」不应堆出多条。
+      var dup = window.MyCropsStore.list().filter(function (r) {
+        return r.cropName === d.cropName && (r.sownDate || null) === sownDate;
+      })[0];
+      if (dup) {
+        window.MyCropsStore.update(dup.recordId, {
+          location: d.location || dup.location || null,
+          plotId: d.plotId || dup.plotId || null
+        });
+      } else {
+        window.MyCropsStore.add({
+          cropName: d.cropName,
+          cropId: d.cropId || null,
+          sownDate: sownDate,
+          location: d.location || null,
+          plotId: d.plotId || null,
+          source: 'calendar'
+        });
       }
+      renderList();
     });
   }
 
@@ -58,6 +76,12 @@
     var name = document.createElement('div');
     name.className = 'my-crops-card-name';
     name.textContent = r.cropName || '未命名';
+    if (r.source === 'calendar') {
+      var badge = document.createElement('span');
+      badge.className = 'my-crops-source';
+      badge.textContent = '来自日历';
+      name.appendChild(badge);
+    }
     card.appendChild(name);
     var fields = document.createElement('div');
     fields.className = 'my-crops-card-fields';
@@ -66,7 +90,10 @@
     if (r.germinationStatus) lines.push('发芽状况：' + r.germinationStatus);
     if (r.height != null) lines.push('高度：' + r.height + 'cm');
     if (r.growthVigor) lines.push('长势：' + r.growthVigor);
-    if (r.plotId) lines.push('地块：' + r.plotId);
+    if (r.plotId) {
+      var plot = window.MyPlotsStore && window.MyPlotsStore.getById ? window.MyPlotsStore.getById(r.plotId) : null;
+      lines.push('地块：' + (plot && plot.name ? plot.name : '已关联（地块已删除）'));
+    }
     if (r.remark) lines.push('备注：' + r.remark);
     fields.textContent = lines.join(' | ');
     card.appendChild(fields);
@@ -144,12 +171,21 @@
     window.CropPhoto.analyze(function (result) {
       if (result.error) { alert(result.error); return; }
       if (!result.cropName || !record) return;
-      // 识别结果要写回记录。原实现传的是空对象 {}，等于认了却什么都没存，
-      // 验收「拍照分析结果可更新到记录」过不了。
-      var patch = { cropName: result.cropName };
+      // 识别结果要留痕：只写 name 会让 photoHistory 永远是空数组，回看不了长势。
+      var history = (record.photoHistory || []).slice();
+      history.push({
+        at: new Date().toISOString(),
+        crop: result.cropName,
+        confidence: result.confidence == null ? null : result.confidence
+      });
+      var patch = { photoHistory: history, source: record.source || 'photo' };
+      // 已有名称不覆盖：拍一次照不该把用户手填的品种改掉
+      if (!record.cropName) patch.cropName = result.cropName;
       window.MyCropsStore.update(record.recordId, patch);
       renderList();
-      alert('已识别为「' + result.cropName + '」，记录已更新');
+      var msg = '已识别为「' + result.cropName + '」，记录已更新';
+      if (history.length >= 2) msg += '；已累计 ' + history.length + ' 次拍照，可回看长势变化';
+      alert(msg);
     });
   }
 

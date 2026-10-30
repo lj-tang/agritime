@@ -264,15 +264,23 @@
             lat: query.lat,
             lon: query.lon
           };
+          // 地点与地块单独赋值：位置主参数仍是 lat/lon 标量，地名只作展示与归档
+          detail.location = query.location || null;
+          // 从地块详情带过来的 plotId 要一路传下去，否则记录永远关联不上地块
+          detail.plotId = query.plotId || null;
 
           if (window.parent && window.parent !== window) {
             window.parent.postMessage({ type: 'agritime:sowing-confirmed', detail: detail }, '*');
           } else if (window.MyCropsStore) {
-            window.MyCropsStore.add({
+            var rec = {
               cropName: detail.cropName,
               cropId: detail.cropId,
-              sownDate: detail.sownDate
-            });
+              sownDate: detail.sownDate,
+              source: 'calendar'
+            };
+            rec.location = detail.location;
+            rec.plotId = detail.plotId;
+            window.MyCropsStore.add(rec);
           }
 
           btn.disabled = true;

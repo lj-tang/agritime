@@ -15,6 +15,7 @@
 .my-crops-card { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius-sm); padding: 16px; box-shadow: var(--shadow-soft); transition: box-shadow .2s ease, transform .2s ease; }
 .my-crops-card:hover { box-shadow: var(--shadow); transform: translateY(-1px); }
 .my-crops-card-name { font-size: 16px; font-weight: 700; color: var(--leaf); margin-bottom: 8px; }
+.my-crops-source { display: inline-block; margin-left: 8px; padding: 1px 8px; border-radius: 999px; background: var(--leaf-wash, rgba(74, 124, 89, 0.12)); color: var(--leaf); font-size: 11px; font-weight: 500; vertical-align: middle; }
 .my-crops-card-fields { font-size: 13px; color: var(--ink-soft); line-height: 1.6; margin-bottom: 12px; }
 .my-crops-card-actions { display: flex; gap: 8px; }
 .my-crops-card-actions .btn { padding: 4px 12px; font-size: 12px; }

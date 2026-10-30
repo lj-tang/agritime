@@ -8,12 +8,13 @@
       if (onResult) onResult({ error: '拍照组件未加载' });
       return;
     }
-    window.PhotoCapture.open(function (cropName) {
+    window.PhotoCapture.open(function (cropName, confidence) {
       if (!cropName) {
         if (onResult) onResult({ error: '未识别到作物' });
         return;
       }
-      if (onResult) onResult({ cropName: cropName, confirmed: false });
+      // confidence 可能是 null（用户手动输入的兜底路径），不编造数值
+      if (onResult) onResult({ cropName: cropName, confidence: typeof confidence === 'number' ? confidence : null, confirmed: false });
     }, prefer);
   }
 

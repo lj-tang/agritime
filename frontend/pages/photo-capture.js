@@ -138,7 +138,7 @@
       btn.addEventListener('click', function () {
         var crop = c.crop;
         close();
-        if (onConfirm) onConfirm(crop);
+        if (onConfirm) onConfirm(crop, c.confidence);
       });
       candidatesBox.appendChild(btn);
     });
@@ -159,7 +159,7 @@
       var value = input.value.trim();
       if (!value) return;
       close();
-      if (onConfirm) onConfirm(value);
+      if (onConfirm) onConfirm(value, null);
     });
     input.focus();
   }

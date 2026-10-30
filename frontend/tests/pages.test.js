@@ -1255,3 +1255,15 @@ test('修复：大模型生成不再阻塞请求，返回 202 让前端重试', 
   assert.ok(th.includes('20201'), '生成中应返回 202');
   assert.ok(timelineHtml.includes('正在生成'), '前端应显示生成中并重试');
 });
+
+test('落地：我的作物联动去重、拍照留痕、来源可见', () => {
+  assert.ok(myCropsJs.includes('var dup'), '重复确认应查重，不能堆多条');
+  assert.ok(myCropsJs.includes('photoHistory: history'), '拍照结果应写入 photoHistory');
+  assert.ok(myCropsJs.includes("source: 'calendar'"), '来自日历的记录应标来源');
+  assert.ok(myCropsJs.includes('my-crops-source'), '卡片应显示来源徽标');
+  assert.ok(myCropsJs.includes('MyPlotsStore'), '地块应显示名称而非裸 ID');
+  const cp = read(path.resolve(__dirname, '..', 'components', 'crop-photo', 'crop-photo.js'));
+  assert.ok(cp.includes('confidence'), '拍照结果应透传置信度');
+  assert.ok(photoJs.includes('onConfirm(crop, c.confidence)'), '候选确认应带置信度');
+  assert.ok(timelineHtml.includes('detail.plotId = query.plotId'), 'plotId 应传给父页面');
+});
