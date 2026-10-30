@@ -2,6 +2,7 @@ package com.cropcalendar.api;
 
 import com.cropcalendar.compute.ComputeStub;
 import com.cropcalendar.compute.ComputeStub.WeatherWindow;
+import com.cropcalendar.orchestration.CacheStore;
 import com.cropcalendar.util.Json;
 import com.cropcalendar.util.JsonParser;
 import com.sun.net.httpserver.HttpExchange;
@@ -38,6 +39,10 @@ public class IndustryHandler implements HttpHandler {
     };
 
     private static volatile List<Map<String, Object>> speciesCache;
+
+    /** 生产日历缓存：一次要打预报 + 去年历史两个上游，缓存 5 分钟 */
+    private static final CacheStore CACHE = new CacheStore();
+    private static final int CACHE_TTL = 300;
 
     @Override
     public void handle(HttpExchange ex) throws IOException {
@@ -99,6 +104,13 @@ public class IndustryHandler implements HttpHandler {
             return;
         }
 
+        String cacheKey = "industry:" + id + ":" + stockDate + ":" + Math.round(lat * 100) + ":" + Math.round(lon * 100);
+        String cached = CACHE.get(cacheKey, String.class);
+        if (cached != null) {
+            HttpSupport.write(ex, 200, cached);
+            return;
+        }
+
         LocalDate stock;
         try {
             stock = LocalDate.parse(stockDate);
@@ -123,6 +135,18 @@ public class IndustryHandler implements HttpHandler {
                 ? WeatherWindow.unavailable("无节点日期")
                 : ComputeStub.fetchWindowWeather(lat, lon, dateStr);
 
+        // 超出预报范围的远期阶段：用去年同期的历史天气做气候均值，
+        // 总比"无数据"更有参考价值，且必须标明是常年同期而非预报
+        List<String> lastYear = new ArrayList<>();
+        for (LocalDate d : dates) {
+            if (!window.byDate().containsKey(d.toString())) {
+                lastYear.add(d.minusYears(1).toString());
+            }
+        }
+        WeatherWindow normal = lastYear.isEmpty()
+                ? WeatherWindow.unavailable("无远期节点")
+                : ComputeStub.fetchWindowWeather(lat, lon, lastYear);
+
         double tMin = dblOf(sp.get("waterTempMin"), 15);
         double tMax = dblOf(sp.get("waterTempMax"), 30);
 
@@ -134,6 +158,11 @@ public class IndustryHandler implements HttpHandler {
             int off = intOf(m.get("dayOffset"), 0);
             LocalDate d = stock.plusDays(off);
             WeatherWindow.Daily daily = window.byDate().get(d.toString());
+            boolean fromNormal = false;
+            if (daily == null) {
+                daily = normal.byDate().get(d.minusYears(1).toString());
+                fromNormal = daily != null;
+            }
 
             String status = "unknown";
             String advice = "无天气数据，按经验安排";
@@ -152,6 +181,9 @@ public class IndustryHandler implements HttpHandler {
                 }
                 if (daily.rainMm() >= 20) {
                     advice += "；当日降雨约 " + Math.round(daily.rainMm()) + "mm，注意防溢流与水质突变";
+                }
+                if (fromNormal) {
+                    advice = "常年同期参考：" + advice + "（非预报，按去年同日天气估算）";
                 }
             }
 
@@ -182,10 +214,12 @@ public class IndustryHandler implements HttpHandler {
                 "weatherStatus", Json.str(window.degraded() ? "degraded" : "ok"),
                 "nodes", Json.arr(nodes));
 
-        HttpSupport.write(ex, 200, Json.obj(
+        String body = Json.obj(
                 "code", Json.str("0"),
                 "message", Json.str("ok"),
-                "data", data));
+                "data", data);
+        CACHE.put(cacheKey, body, CACHE_TTL);
+        HttpSupport.write(ex, 200, body);
     }
 
     private static List<Map<String, Object>> species() {
