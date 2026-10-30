@@ -627,19 +627,14 @@ body[data-layout="app"] .content-pane > * {
   body[data-layout="app"] .content-pane { margin-left: 0; padding: 58px 14px 40px; }
 }
 /* === T11 移动端触控热区 === */
-/* 32px 的圆形按钮视觉尺寸保持，点击热区扩到 44×44（iOS/Android 建议最小值），
-   否则手机上 VoiceInput / 地图标点这类小按钮很容易点不中 */
-.voice-btn,
-.map-picker-btn {
-  position: relative;
-}
-.voice-btn::after,
-.map-picker-btn::after {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 44px;
-  height: 44px;
-  transform: translate(-50%, -50%);
+/* 语音、地图标点这类圆形按钮原本 32px，手机上容易点不中。
+   先试过用 ::after 扩热区，但相邻输入框会盖住扩展区（命中测试仍判失败），
+   所以移动端直接把按钮做成 44×44 —— 这一行的高度本来就是 44，不会撑坏排版 */
+@media (max-width: 767px) {
+  .voice-btn,
+  .map-picker-btn {
+    width: 44px;
+    height: 44px;
+    flex: none;
+  }
 }
