@@ -652,7 +652,9 @@
         if (!cropInput.value.trim()) { setInvalid('field-crop', true); ok = false; } else { setInvalid('field-crop', false); }
         var dateErr = document.getElementById('error-sowingDate');
         var invalidDate = false;
-        if (sowingInput.value && sowingInput.value > dateToStr(getMaxDate())) {
+        if (sowingInput.value && sowingInput.value === suggestedSowDate) {
+          // 节气推荐的起点可以超出 30 天手选窗口，不按手选范围校验
+        } else if (sowingInput.value && sowingInput.value > dateToStr(getMaxDate())) {
           dateErr.textContent = '播种日期不能晚于今天后 30 天';
           invalidDate = true;
         } else if (sowingInput.value && sowingInput.value < dateToStr(getMinDate())) {
@@ -789,6 +791,16 @@
         xhr.send();
       }
 
+      var suggestedSowDate = '';
+
+      function applySuggestedDate(info) {
+        suggestedSowDate = info.sowDate;
+        // 节气推荐可能超出 30 天手选窗口（如立春在 3 个月后），
+        // 这种情况下日期轮盘没有对应选项，直接写隐藏域并保持轮盘原样
+        try { syncSelectsFromDate(info.sowDate); composeDate(); } catch (e) { /* 轮盘不含该日期时忽略 */ }
+        if (!sowingInput.value) sowingInput.value = info.sowDate;
+      }
+
       function showTermSowHint(info, err) {
         var el = document.getElementById('term-sow-hint');
         if (!el) return;
@@ -811,8 +823,7 @@
           fetchSowWindow(name, function (err, info) {
             if (err) { showTermSowHint(null, err); return; }
             if (window.CropMap && window.CropMap.syncSelectsFromDate) { /* noop */ }
-            syncSelectsFromDate(info.sowDate);
-            composeDate();
+            applySuggestedDate(info);
             showTermSowHint(info);
             showToast('已按节气「' + info.solarTerm + '」填入 ' + info.sowDate, 'info');
           });
@@ -829,8 +840,7 @@
           // 没填日期：先按节气推算，成功后再走同一条跳转逻辑
           fetchSowWindow(cropName, function (err, info) {
             if (err) { showToast('没能推算播种节气：' + err + '，请手动选择日期', 'error'); return; }
-            syncSelectsFromDate(info.sowDate);
-            composeDate();
+            applySuggestedDate(info);
             showTermSowHint(info);
             goTimeline(cropName, location, info.sowDate, info);
           });
