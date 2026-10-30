@@ -107,8 +107,8 @@
 .plot-hyd-trend.down { color: #3d7a52; background: #e8f4ec; }
 .plot-hyd-trend.flat { color: var(--muted); background: var(--paper-2); }
 
-.plot-hyd-bars { display: flex; align-items: flex-end; gap: 6px; height: 72px; margin: 12px 0 6px; }
-.plot-hyd-col { flex: 1; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; height: 100%; gap: 4px; }
+.plot-hyd-bars { display: flex; align-items: flex-end; gap: 8px; height: 68px; margin: 12px 0 4px; }
+.plot-hyd-col { flex: 1; max-width: 64px; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; height: 100%; gap: 4px; }
 .plot-hyd-col > i {
   display: block; width: 100%; border-radius: 3px 3px 1px 1px;
   background: linear-gradient(180deg, #79b0cf, #4a89ad);
@@ -117,4 +117,5 @@
 .plot-hyd-col.today > i { background: linear-gradient(180deg, #2f7ba3, #1f5f80); }
 .plot-hyd-col:hover > i { opacity: .78; }
 .plot-hyd-col > span { font-size: 10.5px; color: var(--muted); white-space: nowrap; }
+.plot-hyd-range { font-size: 11.5px; color: var(--ink-soft); margin-bottom: 2px; }
 .plot-hyd-meta { font-size: 11.5px; color: var(--muted); line-height: 1.6; }

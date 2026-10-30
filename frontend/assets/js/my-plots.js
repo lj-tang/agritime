@@ -493,16 +493,23 @@
 
     var rows = h.forecast || [];
     if (rows.length) {
-      var max = 1;
-      rows.forEach(function (r) { if (r.discharge > max) max = r.discharge; });
+      // 径流量往往在均值附近小幅波动（长江一周内 12049~12473），
+      // 若按 0 基线归一，七根柱子会完全一样高、看不出涨落；
+      // 所以按「区间」归一，并在下方标出真实上下界，避免视觉夸大。
+      var lo = Infinity, hi = -Infinity;
+      rows.forEach(function (r) {
+        if (r.discharge < lo) lo = r.discharge;
+        if (r.discharge > hi) hi = r.discharge;
+      });
+      var base = Math.max(0, lo * 0.9);
+      var span = Math.max(hi - base, 0.1);
       var bars = document.createElement('div');
       bars.className = 'plot-hyd-bars';
       rows.forEach(function (r, i) {
         var col = document.createElement('div');
         col.className = 'plot-hyd-col' + (i === 0 ? ' today' : '');
         var bar = document.createElement('i');
-        // 按峰值归一，最矮留 4%，否则小流量日会完全看不见
-        bar.style.height = Math.max(4, Math.round(r.discharge / max * 100)) + '%';
+        bar.style.height = Math.round(8 + (r.discharge - base) / span * 88) + '%';
         bar.title = r.date + '：' + Math.round(r.discharge) + ' m³/s';
         var lab = document.createElement('span');
         lab.textContent = r.date ? r.date.slice(5) : '';
@@ -511,6 +518,10 @@
         bars.appendChild(col);
       });
       box.appendChild(bars);
+      var range = document.createElement('div');
+      range.className = 'plot-hyd-range';
+      range.textContent = '7 日区间 ' + Math.round(lo).toLocaleString() + ' – ' + Math.round(hi).toLocaleString() + ' m³/s';
+      box.appendChild(range);
     }
 
     var meta = document.createElement('div');
