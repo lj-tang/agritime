@@ -944,3 +944,26 @@ test('T06 实测土壤：消费 Open-Meteo 土壤数据并标注来源', () => {
   assert.ok(myPlotsJs.includes('Open-Meteo 土壤模型'), '应标注数据来源');
   assert.ok(myPlotsJs.includes('非实地采样'), '土壤类型应标注为规则推断');
 });
+
+// ---------------- T06 河川径流量（GloFAS 水文模型） ----------------
+test('T06 径流量：后端按 3×3 网格采样并取最大流量', () => {
+  const plotHandler = read(path.resolve(__dirname, '..', '..', 'backend', 'src', 'com', 'cropcalendar', 'api', 'PlotHandler.java'));
+  assert.ok(plotHandler.includes('fetchHydrology'), '应有 fetchHydrology');
+  assert.ok(plotHandler.includes('flood-api.open-meteo.com'), '应调用 Flood API');
+  assert.ok(plotHandler.includes('HYDRO_TTL_SECONDS'), '水文数据应单独缓存');
+  // GloFAS 0.05° 网格对坐标极敏感，必须多点采样，单点会把支流当干流
+  assert.ok(/double\[\] offs = \{-0\.05, 0, 0\.05\}/.test(plotHandler), '应做 3×3 偏移采样');
+  assert.ok(plotHandler.includes('sampleDistanceKm'), '应返回采样点距离');
+  assert.ok(plotHandler.includes('open-meteo.flood(GloFAS)'), '数据来源标注应含 GloFAS');
+});
+
+test('T06 径流量：前端渲染流量与逐日柱状图', () => {
+  const myPlotsJs = read(path.resolve(__dirname, '..', 'assets', 'js', 'my-plots.js'));
+  assert.ok(myPlotsJs.includes('renderHydrology'), '应有 renderHydrology');
+  assert.ok(myPlotsJs.includes('data.hydrology'), '应消费 hydrology 字段');
+  assert.ok(myPlotsJs.includes('plot-hyd-bars'), '应有逐日柱状图');
+  assert.ok(myPlotsJs.includes('非水文站断面实测'), '应标注非断面实测');
+  const css = read(path.join(CSS, 'my-plots.css'));
+  assert.ok(css.includes('.plot-hyd-bars'), '缺少流量柱状图样式');
+  assert.ok(css.includes('.plot-hyd-value'), '缺少流量数值样式');
+});

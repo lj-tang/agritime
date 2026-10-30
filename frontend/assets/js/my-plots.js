@@ -457,6 +457,68 @@
     return 'bad';
   }
 
+  /** 河川径流量（GloFAS 水文模型）：今日流量 + 未来 7 天柱状图 + 峰值 */
+  function renderHydrology(h) {
+    var box = document.createElement('div');
+    box.className = 'plot-hyd';
+
+    var title = document.createElement('div');
+    title.className = 'my-plots-env-section-title';
+    title.textContent = '河川径流量';
+    box.appendChild(title);
+
+    var head = document.createElement('div');
+    head.className = 'plot-hyd-head';
+    var val = document.createElement('span');
+    val.className = 'plot-hyd-value';
+    val.textContent = Math.round(h.discharge).toLocaleString();
+    var unit = document.createElement('span');
+    unit.className = 'plot-hyd-unit';
+    unit.textContent = 'm³/s';
+    var level = document.createElement('span');
+    level.className = 'plot-hyd-level';
+    level.textContent = h.level;
+    var trend = document.createElement('span');
+    trend.className = 'plot-hyd-trend ' + (h.changePct > 0 ? 'up' : h.changePct < 0 ? 'down' : 'flat');
+    trend.textContent = h.trend + ' ' + (h.changePct > 0 ? '+' : '') + h.changePct + '%';
+    head.appendChild(val);
+    head.appendChild(unit);
+    head.appendChild(level);
+    head.appendChild(trend);
+    box.appendChild(head);
+
+    var rows = h.forecast || [];
+    if (rows.length) {
+      var max = 1;
+      rows.forEach(function (r) { if (r.discharge > max) max = r.discharge; });
+      var bars = document.createElement('div');
+      bars.className = 'plot-hyd-bars';
+      rows.forEach(function (r, i) {
+        var col = document.createElement('div');
+        col.className = 'plot-hyd-col' + (i === 0 ? ' today' : '');
+        var bar = document.createElement('i');
+        // 按峰值归一，最矮留 4%，否则小流量日会完全看不见
+        bar.style.height = Math.max(4, Math.round(r.discharge / max * 100)) + '%';
+        bar.title = r.date + '：' + Math.round(r.discharge) + ' m³/s';
+        var lab = document.createElement('span');
+        lab.textContent = r.date ? r.date.slice(5) : '';
+        col.appendChild(bar);
+        col.appendChild(lab);
+        bars.appendChild(col);
+      });
+      box.appendChild(bars);
+    }
+
+    var meta = document.createElement('div');
+    meta.className = 'plot-hyd-meta';
+    meta.textContent = '峰值 ' + Math.round(h.peak).toLocaleString() + ' m³/s'
+      + (h.peakDate ? '（' + h.peakDate.slice(5) + '）' : '')
+      + '　·　采样点距地块 ' + h.sampleDistanceKm + ' km'
+      + '　·　GloFAS 水文模型日值，非水文站断面实测';
+    box.appendChild(meta);
+    return box;
+  }
+
   function renderEnvironment(container, plot, data) {
     // 农事适宜度放最前面：它是土壤/水质/气候/地形/类型综合出来的结论
     if (data.farmingSuitability) {
@@ -541,6 +603,11 @@
         return r.name + '：约 ' + r.distance + ' km' + (r.waterGrade ? '（水质' + r.waterGrade + '）' : '');
       }).join('<br>');
       container.appendChild(riverDiv);
+    }
+
+    // 河川径流量：GloFAS 水文模型的逐日河道流量，与上面"周边河流"的静态距离互补
+    if (data.hydrology) {
+      container.appendChild(renderHydrology(data.hydrology));
     }
 
     if (data.factors && data.factors.length) {

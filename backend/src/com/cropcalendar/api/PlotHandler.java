@@ -2,6 +2,7 @@ package com.cropcalendar.api;
 
 import com.cropcalendar.orchestration.CacheStore;
 import com.cropcalendar.util.Json;
+import com.cropcalendar.util.JsonParser;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 
@@ -15,6 +16,7 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * /api/plots/environment —— 地块环境感知（T06）
@@ -40,6 +42,13 @@ public class PlotHandler implements HttpHandler {
      */
     private static final CacheStore CACHE = new CacheStore();
     private static final int CACHE_TTL_SECONDS = 300;
+
+    /**
+     * 水文缓存：GloFAS 是日尺度数据，一天之内不会变，
+     * 单独用 1 小时 TTL，避免每个地块详情都去打一次洪水接口。
+     */
+    private static final CacheStore HYDRO_CACHE = new CacheStore();
+    private static final int HYDRO_TTL_SECONDS = 3600;
 
     @Override
     public void handle(HttpExchange ex) throws IOException {
@@ -70,14 +79,21 @@ public class PlotHandler implements HttpHandler {
         }
 
         try {
-            WeatherCurrent wc = fetchCurrentWeather(lat, lon);
+            // 气象与水文互不依赖，并发取，冷启动耗时取两者较大值而不是相加，
+            // 否则每多接一个上游就多堆一次串行延迟，p95 很快会破 2 秒。
+            CompletableFuture<WeatherCurrent> weatherTask =
+                    CompletableFuture.supplyAsync(() -> fetchCurrentWeather(lat, lon));
+            CompletableFuture<Hydrology> hydroTask =
+                    CompletableFuture.supplyAsync(() -> fetchHydrology(lat, lon));
+            WeatherCurrent wc = weatherTask.join();
+            Hydrology hydro = hydroTask.join();
             String soilType = inferSoilType(lat, lon);
             String soilDesc = soilDescription(soilType);
             List<RiverInfo> rivers = findNearbyRivers(lat, lon);
             // 水质等级只认最近水体的实测等级；没有邻近水体就返回 null，
             // 不再用坐标算一个"看起来很像真的"等级糊弄用户。
             String waterGrade = rivers.isEmpty() ? null : rivers.get(0).grade();
-            List<String> factors = buildFactors(wc, soilType, waterGrade, type, rivers);
+            List<String> factors = buildFactors(wc, soilType, waterGrade, type, rivers, hydro);
 
             List<String> parts = new ArrayList<>();
             parts.add("\"temperature\":" + (wc.temp != null ? wc.temp : "null"));
@@ -101,7 +117,10 @@ public class PlotHandler implements HttpHandler {
                     "soil", Json.str(wc.soilMoist0to1() != null || wc.soilTemp0() != null
                             ? "open-meteo.soil" : "region-rule"),
                     "soilType", Json.str("region-rule"),
-                    "waterQuality", Json.str(waterGrade != null ? "river-reference" : "none")));
+                    "waterQuality", Json.str(waterGrade != null ? "river-reference" : "none"),
+                    "hydrology", Json.str(hydro != null ? "open-meteo.flood(GloFAS)" : "none")));
+
+            parts.add("\"hydrology\":" + hydrologyJson(hydro));
 
             List<String> riverJson = new ArrayList<>();
             for (RiverInfo r : rivers) {
@@ -241,6 +260,182 @@ public class PlotHandler implements HttpHandler {
         }
         result.sort((a, b) -> Double.compare(a.distance, b.distance));
         return result.size() > 4 ? result.subList(0, 4) : result;
+    }
+
+    /**
+     * 河川径流量（Open-Meteo Flood API，底层是 GloFAS 全球水文模型）。
+     *
+     * forecast / dates 从今日起逐日，单位 m³/s；
+     * sampleDistanceKm 是采样网格点与地块的距离，前端要标明"这不是断面实测"。
+     */
+    private record Hydrology(double discharge, double peak, String peakDate, String level,
+                             double changePct, String trend, double sampleDistanceKm,
+                             List<String> dates, List<Double> forecast) {}
+
+    /**
+     * 取地块周边的河川径流量。
+     *
+     * GloFAS 是 0.05°（约 5km）网格，对坐标极其敏感：同一个荆州城区，
+     * 30.35,112.15 落在长江干流（12105 m³/s），30.30,112.20 只有 0.06 m³/s（一条小支流）。
+     * 只查单点会把支流当干流，报出来的数字差五个数量级。
+     * 所以一次请求采样 3×3 网格（约 ±5km），取最大者代表"离地块最近的主要河道"，
+     * 并把采样点距离一并返回，让用户知道这个数字对应的是哪条水道。
+     */
+    private Hydrology fetchHydrology(double lat, double lon) {
+        // 0.01° 取整（约 1km）做 key：同一地块反复查看详情不必重复打上游
+        String key = "hydro:" + Math.round(lat * 100) + ":" + Math.round(lon * 100);
+        Hydrology cached = HYDRO_CACHE.get(key, Hydrology.class);
+        if (cached != null) return cached;
+
+        double[] offs = {-0.05, 0, 0.05};
+        StringBuilder lats = new StringBuilder();
+        StringBuilder lons = new StringBuilder();
+        for (double dy : offs) {
+            for (double dx : offs) {
+                if (lats.length() > 0) {
+                    lats.append(',');
+                    lons.append(',');
+                }
+                lats.append(String.format("%.4f", lat + dy));
+                lons.append(String.format("%.4f", lon + dx));
+            }
+        }
+        String url = "https://flood-api.open-meteo.com/v1/flood?latitude=" + lats
+                + "&longitude=" + lons + "&daily=river_discharge&forecast_days=7";
+
+        try {
+            HttpRequest req = HttpRequest.newBuilder()
+                    .uri(URI.create(url))
+                    .timeout(Duration.ofSeconds(4))
+                    .GET().build();
+            HttpResponse<String> resp = HTTP.send(req, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
+            if (resp.statusCode() != 200) return null;
+
+            Object root = JsonParser.parse(resp.body());
+            // 多坐标时返回数组；只传一个坐标时返回对象，这里统一成数组处理
+            List<?> points = (root instanceof List<?> l) ? l : List.of(root);
+
+            List<Double> bestVals = null;
+            List<String> bestDates = null;
+            double bestFirst = -1;
+            double bestDist = 0;
+
+            for (Object o : points) {
+                if (!(o instanceof Map<?, ?> point)) continue;
+                if (!(point.get("daily") instanceof Map<?, ?> daily)) continue;
+                if (!(daily.get("river_discharge") instanceof List<?> rawVals)) continue;
+                if (!(daily.get("time") instanceof List<?> rawDates)) continue;
+
+                List<Double> vals = new ArrayList<>();
+                for (Object v : rawVals) {
+                    Double d = asDouble(v);
+                    if (d != null) vals.add(d);
+                }
+                if (vals.isEmpty()) continue;
+
+                double first = vals.get(0);
+                if (first <= bestFirst) continue;
+
+                List<String> dates = new ArrayList<>();
+                for (Object t : rawDates) dates.add(String.valueOf(t));
+
+                Double pLatObj = asDouble(point.get("latitude"));
+                Double pLonObj = asDouble(point.get("longitude"));
+                double pLat = pLatObj != null ? pLatObj : lat;
+                double pLon = pLonObj != null ? pLonObj : lon;
+
+                bestFirst = first;
+                bestVals = vals;
+                bestDates = dates;
+                bestDist = haversine(lat, lon, pLat, pLon);
+            }
+
+            // 全部网格点都几乎无流量：说明这一带没有模型能解析的河道，
+            // 返回 null 让前端显示"无数据"，而不是拿 0.06 m³/s 硬凑一条"河流"。
+            if (bestVals == null || bestFirst < 1.0) return null;
+
+            double peak = bestFirst;
+            String peakDate = bestDates.isEmpty() ? "" : bestDates.get(0);
+            for (int i = 1; i < bestVals.size(); i++) {
+                if (bestVals.get(i) > peak) {
+                    peak = bestVals.get(i);
+                    if (i < bestDates.size()) peakDate = bestDates.get(i);
+                }
+            }
+
+            // 未来三天均值对比今日，比"末日照今日"稳，不会被单日尖峰带偏
+            double sum = 0;
+            int n = 0;
+            for (int i = 1; i < Math.min(4, bestVals.size()); i++) {
+                sum += bestVals.get(i);
+                n++;
+            }
+            double changePct = n == 0 ? 0 : (sum / n - bestFirst) / Math.max(bestFirst, 0.1) * 100;
+            String trend = changePct >= 10 ? "涨水" : changePct <= -10 ? "回落" : "平稳";
+            String level = hydroLevel(bestFirst, changePct);
+
+            Hydrology h = new Hydrology(bestFirst, peak, peakDate, level,
+                    changePct, trend, bestDist, bestDates, bestVals);
+            HYDRO_CACHE.put(key, h, HYDRO_TTL_SECONDS);
+            return h;
+        } catch (Exception e) {
+            // 水文是加分项，取不到就不返回，绝不能让它拖垮整个地块详情
+            return null;
+        }
+    }
+
+    /**
+     * 汛情等级：只用"流量量级 + 变化趋势"判断，不冒充警戒水位。
+     * 真正的警戒水位需要水文站实测断面数据，公开渠道拿不到，
+     * 所以这里只描述河道本身的丰枯与涨落，措辞上不出现"超警""保证水位"这类结论。
+     */
+    private String hydroLevel(double discharge, double changePct) {
+        if (discharge >= 5000) {
+            if (changePct >= 20) return "干流涨水";
+            if (changePct <= -20) return "干流回落";
+            return "干流平水";
+        }
+        if (discharge >= 500) {
+            if (changePct >= 20) return "支流涨水";
+            if (changePct <= -20) return "支流回落";
+            return "支流平水";
+        }
+        if (changePct >= 30) return "小流量上涨";
+        if (changePct <= -30) return "小流量回落";
+        return "流量平稳";
+    }
+
+    private String hydrologyJson(Hydrology h) {
+        if (h == null) return "null";
+        List<String> days = new ArrayList<>();
+        for (int i = 0; i < h.forecast().size(); i++) {
+            days.add(Json.obj(
+                    "date", Json.str(i < h.dates().size() ? h.dates().get(i) : ""),
+                    "discharge", Json.num(h.forecast().get(i))));
+        }
+        return Json.obj(
+                "discharge", Json.num(h.discharge()),
+                "unit", Json.str("m³/s"),
+                "level", Json.str(h.level()),
+                "trend", Json.str(h.trend()),
+                "changePct", Json.num(Math.round(h.changePct())),
+                "peak", Json.num(h.peak()),
+                "peakDate", Json.str(h.peakDate()),
+                "sampleDistanceKm", Json.num(Math.round(h.sampleDistanceKm() * 10) / 10.0),
+                "forecast", Json.arr(days),
+                "source", Json.str("open-meteo.flood"));
+    }
+
+    private Double asDouble(Object o) {
+        if (o instanceof Number n) return n.doubleValue();
+        if (o instanceof String s) {
+            try {
+                return Double.parseDouble(s);
+            } catch (NumberFormatException e) {
+                return null;
+            }
+        }
+        return null;
     }
 
     /**
@@ -502,7 +697,8 @@ public class PlotHandler implements HttpHandler {
         };
     }
 
-    private List<String> buildFactors(WeatherCurrent wc, String soil, String waterGrade, String type, List<RiverInfo> rivers) {
+    private List<String> buildFactors(WeatherCurrent wc, String soil, String waterGrade,
+                                      String type, List<RiverInfo> rivers, Hydrology hydro) {
         List<String> f = new ArrayList<>();
         f.add("土壤：" + soil);
         if (wc.temp != null) {
@@ -525,6 +721,14 @@ public class PlotHandler implements HttpHandler {
         if ("greenhouse".equals(type)) f.add("大棚地块：关注通风控温");
         if ("paddy".equals(type)) f.add("水稻田：保持水位管理");
         if (!rivers.isEmpty()) f.add("近" + rivers.get(0).name + "（" + rivers.get(0).distance + "km）");
+        if (hydro != null) {
+            f.add("河川径流量 " + Math.round(hydro.discharge()) + " m³/s（" + hydro.trend() + "）");
+            if (hydro.changePct() >= 30) {
+                f.add("未来三天涨水明显，低洼地块注意清沟排水");
+            } else if (hydro.changePct() <= -30) {
+                f.add("径流回落明显，灌溉取水可能受影响");
+            }
+        }
         return f;
     }
 

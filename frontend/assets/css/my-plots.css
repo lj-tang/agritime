@@ -87,3 +87,34 @@
   .plot-suit-score { font-size: 28px; }
 }
 .my-plots-card-suit { color: var(--leaf); background: var(--leaf-soft); border-radius: 999px; padding: 2px 8px; font-size: 12px; font-weight: 600; }
+
+/* === 河川径流量（GloFAS 水文模型）=== */
+.plot-hyd {
+  margin-top: 14px; padding: 14px 16px 12px;
+  background: linear-gradient(180deg, #f4f8fb, #ffffff);
+  border: 1px solid #d9e6ef; border-radius: var(--radius);
+}
+.plot-hyd .my-plots-env-section-title { margin: 0 0 8px; }
+.plot-hyd-head { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+.plot-hyd-value { font-size: 26px; font-weight: 800; line-height: 1.1; color: #2b6a8f; letter-spacing: -0.5px; }
+.plot-hyd-unit { font-size: 12px; color: var(--muted); }
+.plot-hyd-level {
+  font-size: 12px; font-weight: 600; color: #2b6a8f;
+  background: #e4f0f7; border-radius: 999px; padding: 2px 8px;
+}
+.plot-hyd-trend { font-size: 12px; font-weight: 600; border-radius: 999px; padding: 2px 8px; }
+.plot-hyd-trend.up { color: #a8602a; background: #fbeee1; }
+.plot-hyd-trend.down { color: #3d7a52; background: #e8f4ec; }
+.plot-hyd-trend.flat { color: var(--muted); background: var(--paper-2); }
+
+.plot-hyd-bars { display: flex; align-items: flex-end; gap: 6px; height: 72px; margin: 12px 0 6px; }
+.plot-hyd-col { flex: 1; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; height: 100%; gap: 4px; }
+.plot-hyd-col > i {
+  display: block; width: 100%; border-radius: 3px 3px 1px 1px;
+  background: linear-gradient(180deg, #79b0cf, #4a89ad);
+  transition: opacity .2s ease;
+}
+.plot-hyd-col.today > i { background: linear-gradient(180deg, #2f7ba3, #1f5f80); }
+.plot-hyd-col:hover > i { opacity: .78; }
+.plot-hyd-col > span { font-size: 10.5px; color: var(--muted); white-space: nowrap; }
+.plot-hyd-meta { font-size: 11.5px; color: var(--muted); line-height: 1.6; }
