@@ -323,9 +323,11 @@ public class PlotHandler implements HttpHandler {
 
     private String suitabilitySummary(String level, String soil, String waterGrade, double slope) {
         StringBuilder sb = new StringBuilder();
-        sb.append("综合土壤、").append(waterGrade != null ? "水质、" : "").append("气候与地形，当前评定为").append(level);
+        sb.append("综合").append(waterGrade != null ? "水质、" : "").append("土壤墒情、气候与地形，当前评定为").append(level);
+        // 土壤类型是区域规则推断，措辞上不要说得像实测结论
         if ("红壤".equals(soil) || "黄绵土".equals(soil)) {
-            sb.append("；该土壤需改良（").append("红壤".equals(soil) ? "偏酸" : "易侵蚀").append("）");
+            sb.append("；土壤类型按区域规则推断为").append(soil)
+              .append("，").append("红壤".equals(soil) ? "偏酸需改良" : "土质疏松需防侵蚀");
         }
         if (slope > 15) sb.append("；坡度较大，建议等高种植或修梯田");
         return sb.toString();
