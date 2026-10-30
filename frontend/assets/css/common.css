@@ -626,3 +626,20 @@ body[data-layout="app"] .content-pane > * {
   /* 移动端左上角有汉堡按钮（fixed 定位），顶部留出空间避免压住标题 */
   body[data-layout="app"] .content-pane { margin-left: 0; padding: 58px 14px 40px; }
 }
+/* === T11 移动端触控热区 === */
+/* 32px 的圆形按钮视觉尺寸保持，点击热区扩到 44×44（iOS/Android 建议最小值），
+   否则手机上 VoiceInput / 地图标点这类小按钮很容易点不中 */
+.voice-btn,
+.map-picker-btn {
+  position: relative;
+}
+.voice-btn::after,
+.map-picker-btn::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 44px;
+  height: 44px;
+  transform: translate(-50%, -50%);
+}

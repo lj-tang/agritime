@@ -81,7 +81,8 @@
 @media (max-width: 767px) {
   .sidebar { transform: translateX(-100%); width: 240px; }
   .sidebar--open { transform: translateX(0); }
-  .sidebar-burger { display: flex; }
+  /* 触控热区 44×44（T11）：top/left 由 12 收到 8，视觉中心不变 */
+  .sidebar-burger { display: flex; width: 44px; height: 44px; top: 8px; left: 8px; }
   body.sidebar-open .sidebar-burger { display: none; }
 }
 .sidebar-submenu { max-height: 0; overflow: hidden; transition: max-height 0.2s ease; }

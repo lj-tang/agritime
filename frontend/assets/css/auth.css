@@ -289,3 +289,16 @@
 
 /* [hidden] 是 UA 样式，作者样式里的 display 会盖掉它 —— 显式兜一层 */
 .auth-card [hidden] { display: none !important; }
+
+/* T11 触控：移动端把「登录 / 注册」「退出」等胶囊入口撑到 44px 高 */
+@media (max-width: 767px) {
+  .user-chip a,
+  .user-chip button,
+  .user-chip .user-chip-name {
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    padding-top: 0;
+    padding-bottom: 0;
+  }
+}
