@@ -236,6 +236,22 @@
       { "key": "terrain", "label": "地形", "score": 95, "weight": 0.13, "note": "倾角 0°、坡度 0°" },
       { "key": "type",    "label": "地块类型", "score": 95, "weight": 0.13, "note": "耕田" }
     ]
+  },
+  "hydrology": {
+    "discharge": 12105, "unit": "m³/s", "level": "大流量平稳",
+    "trend": "平稳", "changePct": 0,
+    "peak": 12473, "peakDate": "2026-11-04",
+    "sampleDistanceKm": 6.3,
+    "forecast": [
+      { "date": "2026-10-30", "discharge": 12105 },
+      { "date": "2026-10-31", "discharge": 12133 }
+    ],
+    "source": "open-meteo.flood"
+  },
+  "dataSources": {
+    "weather": "open-meteo.forecast", "soil": "open-meteo.soil",
+    "soilType": "region-rule", "waterQuality": "river-reference",
+    "hydrology": "open-meteo.flood(GloFAS)"
   }
 } }
 ```
@@ -254,6 +270,30 @@
 | 地块类型 | 耕田 95 / 经济作物田 90 / 大棚·果园 88；鱼塘·水稻田缺水质数据时降为 55·72 |
 
 等级：≥85 适宜、≥70 较适宜、≥55 一般、其余需注意。
+
+
+### 河川径流量（hydrology）
+
+数据来自 Open-Meteo Flood API（底层 GloFAS 全球水文模型），逐日河道流量，单位 m³/s。
+
+**采样方式**：GloFAS 是 0.05°（约 5km）网格，对坐标极敏感——同一个荆州城区，
+`30.35,112.15` 落在长江干流（12105 m³/s），`30.30,112.20` 只有 0.06 m³/s（一条小支流）。
+只查单点会把支流当干流，数字差五个数量级。因此接口一次请求采样 3×3 网格（约 ±5km），
+取流量最大者代表「离地块最近的主要河道」，并返回 `sampleDistanceKm` 说明采样点距离。
+
+| 字段 | 说明 |
+| --- | --- |
+| discharge | 今日径流量（m³/s） |
+| peak / peakDate | 未来 7 天峰值及日期 |
+| changePct | 未来三天均值相对今日的变化百分比 |
+| trend | 涨水 / 回落 / 平稳；流量 < 50 m³/s 时为「流量过小」，此时百分比不具参考意义 |
+| level | 水量级 + 涨落：大流量（≥5000）/ 中流量（≥500）/ 小流量（≥50）/ 微流量，后缀 上涨/平稳/回落 |
+| sampleDistanceKm | 采样网格点与地块的距离 |
+| forecast | 未来 7 天逐日 {date, discharge} |
+
+**边界**：全网格流量 < 1 m³/s 时返回 `null`（附近没有模型能解析的河道），不拿 0.06 硬凑一条河。
+`level` 只描述流量量级与涨落，不出现「超警戒水位」这类结论——那需要水文站断面实测数据。
+水文数据单独缓存 1 小时；与天气请求并发，冷启动耗时取两者较大值。
 
 ## REST 规范
 
