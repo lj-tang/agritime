@@ -1,0 +1,31 @@
+<view class="page">
+  <view class="hero">
+    <text class="hero-title">知农时</text>
+    <text class="hero-sub">输入作物和播种时间，生成全链条农事日历</text>
+  </view>
+
+  <view class="card">
+    <view class="field">
+      <text class="label">作物品种</text>
+      <input class="input" value="{{crop}}" placeholder="如 番茄 / 水稻 / 大蒜" bindinput="onCrop" />
+    </view>
+
+    <view class="field">
+      <text class="label">播种日期</text>
+      <picker mode="date" value="{{sowDate}}" start="{{today}}" bindchange="onDate">
+        <view class="picker">{{sowDate || '未选择（按节气推荐）'}}</view>
+      </picker>
+      <button class="ghost-btn" size="mini" bindtap="suggestByTerm" loading="{{busy}}">不知道播种时间？按节气推荐</button>
+      <text wx:if="{{hint}}" class="hint">{{hint}}</text>
+    </view>
+
+    <view class="field">
+      <text class="label">所在地</text>
+      <input class="input" value="{{location}}" bindinput="onLocation" />
+    </view>
+
+    <button class="primary-btn" bindtap="submit">生成农事日历</button>
+  </view>
+
+  <view class="tip">小程序端与网页端共用同一套接口，数据一致</view>
+</view>

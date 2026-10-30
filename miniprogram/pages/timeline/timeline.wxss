@@ -1,0 +1,38 @@
+.page { padding: 24rpx; background: #f7f4ec; min-height: 100vh; box-sizing: border-box; }
+.state { padding: 120rpx 0; text-align: center; color: #7a7f78; font-size: 28rpx; }
+
+.head { padding: 8rpx 8rpx 24rpx; }
+.head-title { display: block; font-size: 40rpx; font-weight: 700; color: #2f4f3a; }
+.head-sub { display: block; margin-top: 8rpx; font-size: 24rpx; color: #7a7f78; }
+
+.timeline { position: relative; padding-left: 28rpx; }
+.timeline::before {
+  content: ''; position: absolute; left: 8rpx; top: 16rpx; bottom: 16rpx;
+  width: 2rpx; background: #dfe6dd;
+}
+.node { position: relative; margin-bottom: 20rpx; }
+.dot {
+  position: absolute; left: -26rpx; top: 30rpx; width: 16rpx; height: 16rpx;
+  border-radius: 50%; background: #fff; border: 3rpx solid #2f6b45;
+}
+.node.status-yellow .dot { border-color: #c98a2e; }
+.node.status-red .dot { border-color: #b4523f; }
+
+.card { background: #fff; border-radius: 16rpx; padding: 22rpx; box-shadow: 0 2rpx 10rpx rgba(0,0,0,.04); }
+.row { display: flex; justify-content: space-between; align-items: baseline; }
+.name { font-size: 30rpx; font-weight: 600; color: #2b2f2c; }
+.date { font-size: 22rpx; color: #8b918c; }
+.copy { display: block; margin-top: 10rpx; font-size: 26rpx; color: #5b635c; line-height: 1.6; }
+.forecast {
+  display: inline-block; margin-top: 12rpx; font-size: 22rpx; color: #a8602a;
+  background: #fbeee1; border-radius: 999rpx; padding: 4rpx 14rpx;
+}
+
+.guide { margin-top: 18rpx; padding-top: 16rpx; border-top: 1rpx dashed #e2e5e0; }
+.guide-line { margin-bottom: 10rpx; }
+.guide-tag {
+  display: inline-block; font-size: 20rpx; color: #2f6b45;
+  background: #e9f2ea; border-radius: 8rpx; padding: 2rpx 10rpx; margin-right: 10rpx;
+}
+.guide-text { font-size: 24rpx; color: #5b635c; line-height: 1.7; }
+.guide-empty { font-size: 24rpx; color: #9aa09b; }

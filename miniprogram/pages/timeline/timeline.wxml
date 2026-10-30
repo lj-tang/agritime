@@ -1,0 +1,35 @@
+<view class="page">
+  <view wx:if="{{loading}}" class="state">正在读取农时…</view>
+  <view wx:elif="{{error}}" class="state">{{error}}</view>
+
+  <block wx:else>
+    <view class="head">
+      <text class="head-title">{{cropName}}</text>
+      <text wx:if="{{propsText}}" class="head-sub">{{propsText}}</text>
+    </view>
+
+    <view class="timeline">
+      <view wx:for="{{nodes}}" wx:key="index" class="node status-{{item.status}}">
+        <view class="dot"></view>
+        <view class="card" bindtap="toggle" data-i="{{index}}">
+          <view class="row">
+            <text class="name">{{item.name}}</text>
+            <text class="date">{{item.date}}</text>
+          </view>
+          <text class="copy">{{item.copy}}</text>
+          <text wx:if="{{item.forecastNote}}" class="forecast">天气为预测数据，仅供参考</text>
+
+          <view wx:if="{{item.open}}" class="guide">
+            <block wx:for="{{item.lines}}" wx:for-item="ln" wx:key="text">
+              <view class="guide-line">
+                <text wx:if="{{ln.section}}" class="guide-tag">{{ln.section}}</text>
+                <text class="guide-text">{{ln.text}}</text>
+              </view>
+            </block>
+            <view wx:if="{{item.lines.length === 0}}" class="guide-empty">该节点暂无结构化指导</view>
+          </view>
+        </view>
+      </view>
+    </view>
+  </block>
+</view>

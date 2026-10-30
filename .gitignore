@@ -24,3 +24,6 @@ Thumbs.db
 
 # 本地开发工具与临时脚本（依赖、截图、调试脚本，不入库）
 .dev/
+
+# 小程序构建产物（由 miniprogram/scripts/sync-shared.js 生成）
+miniprogram/utils/shared/

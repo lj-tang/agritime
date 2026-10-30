@@ -1180,3 +1180,28 @@ test('T13 图片：后端按颜色特征排序并如实标注方法', () => {
   assert.ok(h.includes('不是训练模型识别'), '应说明不是模型识别');
   assert.ok(!h.includes('"imageUsed", "false"'), 'imageUsed 不应写死 false');
 });
+
+// ---------------- T11 小程序端 ----------------
+test('T11 小程序：结构完整且复用同一套接口', () => {
+  const root = path.resolve(__dirname, '..', '..', 'miniprogram');
+  const appJson = JSON.parse(read(path.join(root, 'app.json')));
+  assert.ok(Array.isArray(appJson.pages) && appJson.pages.length >= 2, '至少两页');
+  assert.ok(appJson.pages.includes('pages/index/index'));
+  assert.ok(appJson.pages.includes('pages/timeline/timeline'));
+
+  const apiJs = read(path.join(root, 'utils', 'api.js'));
+  assert.ok(apiJs.includes("'/api/timeline'"), '应复用 /api/timeline');
+  assert.ok(apiJs.includes("'/api/sow-window'"), '应复用 /api/sow-window');
+  assert.ok(!/https?:\/\/115\.175/.test(apiJs), '不硬编码服务器 IP');
+
+  ['pages/index/index.wxml', 'pages/timeline/timeline.wxml', 'pages/timeline/timeline.wxss'].forEach((f) => {
+    assert.ok(read(path.join(root, f)).length > 100, f + ' 内容过少');
+  });
+  assert.ok(read(path.join(root, 'README.md')).includes('AppID'), 'README 应说明 AppID 前置条件');
+});
+
+test('T11 共享逻辑：小程序通过脚本同步 shared/utils，而不是复制一份', () => {
+  const sync = read(path.resolve(__dirname, '..', '..', 'miniprogram', 'scripts', 'sync-shared.js'));
+  assert.ok(sync.includes('shared'), '同步脚本应读取 shared/utils');
+  assert.ok(sync.includes('date-window.js') && sync.includes('timeline-logic.js'));
+});

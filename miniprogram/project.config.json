@@ -1,0 +1,14 @@
+{
+  "description": "知农时小程序（T11）。appid 留空，需替换为你自己的小程序 AppID 才能真机预览。",
+  "miniprogramRoot": "./",
+  "compileType": "miniprogram",
+  "appid": "",
+  "projectname": "agritime",
+  "setting": {
+    "urlCheck": false,
+    "es6": true,
+    "enhance": true,
+    "postcss": true,
+    "minified": true
+  }
+}
