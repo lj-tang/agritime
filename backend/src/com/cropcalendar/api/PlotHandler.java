@@ -353,14 +353,17 @@ public class PlotHandler implements HttpHandler {
 
     private Double waterScore(String grade) {
         if (grade == null) return null;
-        return switch (grade) {
+        // 注意：switch 表达式里有 null 分支时整体类型会推断成 Double，
+        // 各分支必须统一返回 double 字面量，否则 int 无法隐式转 Double
+        double v = switch (grade) {
             case "Ⅰ类" -> 95;
             case "Ⅱ类" -> 88;
             case "Ⅲ类" -> 74;
             case "Ⅳ类" -> 55;
             case "Ⅴ类" -> 35;
-            default -> null;
+            default -> -1;
         };
+        return v < 0 ? null : v;
     }
 
     private double terrainScore(double angle, double slope, boolean terrace) {
