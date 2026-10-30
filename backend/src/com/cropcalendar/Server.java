@@ -64,6 +64,8 @@ public class Server {
 
         ComputeStub.preloadCommonCrops();
 
+        startWarmup(port);
+
         String base = "http://localhost:" + port;
         System.out.println();
         System.out.println("  会看天的农事日历 · 后端骨架服务已启动");
@@ -82,5 +84,36 @@ public class Server {
     }
 
     private Server() {
+    }
+
+    /**
+     * 启动预热：重启后的第一个真实用户请求要付三笔"冷账"——
+     * JVM 还没 JIT、到 Open-Meteo 的 TLS 还没握手、缓存是空的。
+     * 实测冷启动 2.29s，踩破 p95<2s 的验收线；预热后同类请求 0.3s。
+     *
+     * 用守护线程异步做，不阻塞启动；失败无所谓，只是少了一次预热。
+     */
+    private static void startWarmup(int port) {
+        Thread t = new Thread(() -> {
+            String[] urls = {
+                    "http://127.0.0.1:" + port + "/api/plots/environment?lat=35.07&lon=116.31&type=farmland",
+                    "http://127.0.0.1:" + port + "/api/plots/environment?lat=30.33&lon=112.24&type=fishpond",
+                    "http://127.0.0.1:" + port + "/api/crops"
+            };
+            for (String u : urls) {
+                try {
+                    java.net.http.HttpClient.newHttpClient().send(
+                            java.net.http.HttpRequest.newBuilder()
+                                    .uri(java.net.URI.create(u))
+                                    .timeout(java.time.Duration.ofSeconds(10))
+                                    .GET().build(),
+                            java.net.http.HttpResponse.BodyHandlers.discarding());
+                } catch (Exception ignored) {
+                    // 预热失败不影响服务，真实请求会自己再试一次
+                }
+            }
+        }, "warmup");
+        t.setDaemon(true);
+        t.start();
     }
 }
