@@ -28,7 +28,7 @@
 .map-panel {
   width: 90%;
   max-width: 600px;
-  max-height: 80vh;
+  max-height: 92vh;
   background: var(--card);
   border-radius: var(--radius-sm);
   box-shadow: 0 8px 32px rgba(0,0,0,0.2);
@@ -36,6 +36,9 @@
   flex-direction: column;
   overflow: hidden;
 }
+/* 固定行不参与收缩，保证「确认/取消」和判定条永远可见 */
+.map-header, .map-mode-switch, .map-search-area, .map-search-results,
+.map-draw-tools, .map-info, .map-verdict, .map-actions { flex-shrink: 0; }
 
 .map-header {
   display: flex;
@@ -60,7 +63,38 @@
 .map-search-addr { font-size: 12px; color: var(--muted); margin-top: 2px; }
 .map-searching, .map-no-result { padding: 12px 16px; color: var(--muted); font-size: 13px; text-align: center; }
 
-.map-canvas { flex: 1; min-height: 300px; }
+/* flex-basis:0 让地图吃掉剩余空间；min-height 不能太大，否则会把底部按钮挤出面板 */
+.map-canvas { flex: 1 1 0; min-height: 220px; }
+
+/* 标点 / 画地块 模式切换 */
+.map-mode-switch { display: flex; gap: 8px; padding: 10px 16px; border-bottom: 1px solid var(--line); }
+.map-mode-btn { flex: 1; font-family: inherit; font-size: 14px; font-weight: 600; padding: 8px 10px; border: 1.5px solid var(--line); border-radius: 8px; background: var(--card); color: var(--ink-soft); cursor: pointer; }
+.map-mode-btn.active { border-color: var(--leaf-2); background: var(--leaf-soft); color: var(--leaf); }
+
+/* 框地工具条 */
+.map-draw-tools { padding: 10px 16px; border-bottom: 1px solid var(--line); background: var(--paper-2); }
+.map-draw-hint { font-size: 12.5px; color: var(--muted); margin-bottom: 8px; line-height: 1.5; }
+.map-draw-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+.map-draw-area { font-size: 13px; font-weight: 700; color: var(--leaf); }
+.map-draw-btns { display: flex; gap: 6px; }
+.map-draw-btns button { font-family: inherit; font-size: 12.5px; font-weight: 600; padding: 6px 10px; border: 1px solid var(--leaf-2); border-radius: 7px; background: var(--card); color: var(--leaf); cursor: pointer; }
+.map-draw-btns button:hover { background: var(--leaf-soft); }
+.map-draw-btns #map-draw-finish { background: var(--leaf); color: #fff; border-color: var(--leaf); }
+
+/* 多边形顶点 */
+.agritime-vertex { background: none; border: 0; }
+.agritime-vertex-dot { display: block; width: 14px; height: 14px; border-radius: 50%; background: #fff; border: 3px solid #3f8f56; box-shadow: 0 1px 3px rgba(0,0,0,.35); box-sizing: border-box; }
+.agritime-vertex-dot.is-first { background: #3f8f56; border-color: #fff; box-shadow: 0 0 0 2px #3f8f56, 0 1px 3px rgba(0,0,0,.35); }
+
+/* 可种植性判定 */
+.map-verdict { padding: 10px 16px; font-size: 13px; line-height: 1.6; border-top: 1px solid var(--line); }
+.map-verdict-suitable { background: rgba(63,143,86,.12); color: #2f6b40; }
+.map-verdict-caution { background: rgba(214,158,46,.16); color: #8a6415; }
+.map-verdict-unsuitable { background: rgba(190,60,50,.14); color: #a33227; font-weight: 600; }
+.map-verdict-unknown { background: var(--paper-2); color: var(--ink-soft); }
+
+/* hidden 属性必须能盖住 flex 布局 */
+.map-panel [hidden] { display: none !important; }
 
 .map-info { padding: 8px 16px; font-size: 13px; color: var(--ink-soft); border-top: 1px solid var(--line); }
 
@@ -74,9 +108,9 @@
 .agritime-marker svg { display: block; filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.25)); }
 
 @media (max-width: 375px) {
-  .map-panel { width: 95%; max-height: 90vh; }
-  .map-canvas { min-height: 200px; }
+  .map-panel { width: 95%; max-height: 94vh; }
+  .map-canvas { min-height: 180px; }
 }
 @media (min-width: 768px) {
-  .map-canvas { min-height: 400px; }
+  .map-canvas { min-height: 320px; }
 }

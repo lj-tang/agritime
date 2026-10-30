@@ -191,16 +191,18 @@
           </select>
         </div>
         <div class="field">
-          <label>所在地 <span class="hint">支持自动定位/地图选点/文字搜索</span></label>
+          <label>所在地 <span class="hint">支持自动定位 / 地图框地 / 文字搜索</span></label>
           <div class="my-plots-loc-row">
-            <input type="text" name="plot-location" id="plot-location" placeholder="点击右侧按钮定位" />
+            <input type="text" name="plot-location" id="plot-location" placeholder="点击右侧按钮定位或框地" />
           </div>
           <div class="my-plots-loc-btns" style="margin-top:8px;">
             <button type="button" id="plot-loc-auto">📍 自动定位</button>
-            <button type="button" id="plot-loc-map">🗺️ 地图选点</button>
+            <button type="button" id="plot-loc-map">✏️ 地图框地</button>
           </div>
           <input type="hidden" name="plot-lat" id="plot-lat" />
           <input type="hidden" name="plot-lon" id="plot-lon" />
+          <input type="hidden" name="plot-polygon" id="plot-polygon" />
+          <input type="hidden" name="plot-suitability" id="plot-suitability" />
         </div>
         <div class="my-plots-form-row">
           <div class="field">
@@ -212,7 +214,7 @@
             </select>
           </div>
           <div class="field">
-            <label>面积（亩）</label>
+            <label>面积（亩） <span class="hint">框地后自动计算</span></label>
             <input type="number" name="plot-area" min="0" step="0.1" placeholder="0" />
           </div>
         </div>

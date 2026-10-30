@@ -32,30 +32,70 @@
   }
 
   function autoLocate() {
-    if (!window.LocationPicker || !window.LocationPicker.getCurrentLocation) return;
+    if (!window.LocationPicker || !window.LocationPicker.getCurrentLocation) {
+      alert('定位组件未加载，请刷新页面重试');
+      return;
+    }
     var btn = document.getElementById('plot-loc-auto');
     if (btn) btn.textContent = '定位中…';
-    window.LocationPicker.getCurrentLocation(function (loc) {
+    var p = window.LocationPicker.getCurrentLocation();
+    if (!p || !p.then) { if (btn) btn.textContent = '📍 自动定位'; return; }
+    p.then(function (loc) {
       if (btn) btn.textContent = '📍 自动定位';
-      if (!loc || !loc.lat) { alert('无法获取定位，请检查权限或使用地图选点'); return; }
-      setPlotLocation(loc.lat, loc.lon, loc.name || (loc.lat.toFixed(4) + ', ' + loc.lon.toFixed(4)));
+      if (!loc || !loc.lat) { alert('无法获取定位，请检查权限或使用地图框地'); return; }
+      setPlotLocation({ lat: loc.lat, lon: loc.lon, name: loc.lat.toFixed(4) + ', ' + loc.lon.toFixed(4) });
+    }).catch(function () {
+      if (btn) btn.textContent = '📍 自动定位';
+      alert('定位失败，请使用地图框地');
     });
   }
 
   function mapPick() {
     if (!window.LocationPicker || !window.LocationPicker.open) { alert('地图组件未加载'); return; }
+    // draw=true：允许在地图上自行框地；默认进入画地块模式
     window.LocationPicker.open(function (res) {
-      if (res && res.lat) setPlotLocation(res.lat, res.lon, res.name || (res.lat.toFixed(4) + ', ' + res.lon.toFixed(4)));
-    });
+      if (!res) return;
+      setPlotLocation(res);
+    }, { draw: true, mode: 'draw' });
   }
 
-  function setPlotLocation(lat, lon, name) {
+  /**
+   * 回填地块位置。兼容两种结果：
+   *   · 标点：{lat, lon, name}
+   *   · 框地：{mode:'polygon', polygon, center, areaSqm, areaMu, name, suitability}
+   */
+  function setPlotLocation(res) {
+    if (!res) return;
+    var lat = res.lat != null ? res.lat : (res.center && res.center.lat);
+    var lon = res.lon != null ? res.lon : (res.center && res.center.lon);
     var latInput = document.getElementById('plot-lat');
     var lonInput = document.getElementById('plot-lon');
     var locInput = document.getElementById('plot-location');
-    if (latInput) latInput.value = lat;
-    if (lonInput) lonInput.value = lon;
-    if (locInput) locInput.value = name;
+    if (latInput) latInput.value = lat != null ? lat : '';
+    if (lonInput) lonInput.value = lon != null ? lon : '';
+    if (locInput && res.name) locInput.value = res.name;
+
+    var polyInput = document.getElementById('plot-polygon');
+    var suitInput = document.getElementById('plot-suitability');
+    var areaInput = document.querySelector('#my-plots-form [name="plot-area"]');
+    var shapeSelect = document.querySelector('#my-plots-form [name="plot-shape"]');
+
+    if (res.mode === 'polygon' && Array.isArray(res.polygon) && res.polygon.length >= 3) {
+      if (polyInput) polyInput.value = JSON.stringify(res.polygon);
+      if (suitInput) {
+        suitInput.value = JSON.stringify({
+          status: res.suitability ? res.suitability.status : 'unknown',
+          reason: res.suitability ? res.suitability.reason : '',
+          areaSqm: res.areaSqm,
+          areaMu: res.areaMu
+        });
+      }
+      if (areaInput && res.areaMu != null) areaInput.value = res.areaMu;
+      if (shapeSelect) shapeSelect.value = 'irregular';
+    } else {
+      if (polyInput) polyInput.value = '';
+      if (suitInput) suitInput.value = '';
+    }
   }
 
   function renderList() {
@@ -91,9 +131,15 @@
     var meta = document.createElement('div');
     meta.className = 'my-plots-card-meta';
     var locSpan = document.createElement('span');
-    locSpan.textContent = '📍 ' + (p.location || (p.lat && p.lon ? p.lat.toFixed(3) + ',' + p.lon.toFixed(3) : '未定位'));
+    locSpan.textContent = '📍 ' + (p.location || (p.lat && p.lon ? Number(p.lat).toFixed(3) + ',' + Number(p.lon).toFixed(3) : '未定位'));
     meta.appendChild(locSpan);
     if (p.area) { var a = document.createElement('span'); a.textContent = '面积：' + p.area + '亩'; meta.appendChild(a); }
+    if (p.polygon && p.polygon.length >= 3) {
+      var g = document.createElement('span'); g.className = 'my-plots-card-range'; g.textContent = '已绘范围'; meta.appendChild(g);
+    }
+    if (p.suitability && p.suitability.status === 'caution') {
+      var w = document.createElement('span'); w.className = 'my-plots-card-warn'; w.textContent = '城市绿地'; meta.appendChild(w);
+    }
     if (p.terrace) { var t = document.createElement('span'); t.textContent = '梯田'; meta.appendChild(t); }
     card.appendChild(meta);
 
@@ -148,6 +194,8 @@
     f['plot-terrace'].checked = record ? !!record.terrace : false;
     f['plot-area'].value = record ? (record.area || '') : '';
     f['plot-remark'].value = record ? (record.remark || '') : '';
+    if (f['plot-polygon']) f['plot-polygon'].value = record && record.polygon ? JSON.stringify(record.polygon) : '';
+    if (f['plot-suitability']) f['plot-suitability'].value = record && record.suitability ? JSON.stringify(record.suitability) : '';
     form.scrollIntoView({ behavior: 'smooth' });
   }
 
@@ -164,11 +212,26 @@
     var lat = parseFloat(f['plot-lat'].value);
     var lon = parseFloat(f['plot-lon'].value);
     if (!isFinite(lat) || !isFinite(lon)) { alert('请通过自动定位或地图选点设置地块位置'); return; }
+    var polygon = null;
+    try {
+      var polyRaw = f['plot-polygon'] ? f['plot-polygon'].value : '';
+      var polyParsed = polyRaw ? JSON.parse(polyRaw) : null;
+      if (Array.isArray(polyParsed) && polyParsed.length >= 3) polygon = polyParsed;
+    } catch (e) { polygon = null; }
+
+    var suitability = null;
+    try {
+      var suitRaw = f['plot-suitability'] ? f['plot-suitability'].value : '';
+      suitability = suitRaw ? JSON.parse(suitRaw) : null;
+    } catch (e) { suitability = null; }
+
     var data = {
       name: name,
       type: f['plot-type'].value || 'farmland',
       location: f['plot-location'].value.trim() || null,
       lat: lat, lon: lon,
+      polygon: polygon,
+      suitability: suitability,
       shape: f['plot-shape'].value || 'rectangle',
       angle: parseFloat(f['plot-angle'].value) || 0,
       slope: parseFloat(f['plot-slope'].value) || 0,
@@ -216,9 +279,44 @@
     if (plot.lat && plot.lon && window.LocationPicker && window.LocationPicker.initDisplay) {
       var mapDiv = document.createElement('div');
       mapDiv.id = 'plot-detail-map';
-      mapDiv.style.cssText = 'height:180px;border-radius:12px;overflow:hidden;margin-bottom:16px;border:1px solid var(--line);';
+      var hasPolygon = plot.polygon && plot.polygon.length >= 3;
+      mapDiv.style.cssText = 'height:' + (hasPolygon ? 240 : 180) + 'px;border-radius:12px;overflow:hidden;margin-bottom:16px;border:1px solid var(--line);';
       detail.appendChild(mapDiv);
-      setTimeout(function () { window.LocationPicker.initDisplay('plot-detail-map', plot.lat, plot.lon); }, 50);
+      setTimeout(function () {
+        window.LocationPicker.initDisplay('plot-detail-map', plot.lat, plot.lon, plot.polygon);
+      }, 50);
+    }
+
+    if (plot.polygon && plot.polygon.length >= 3) {
+      var rangeSection = document.createElement('div');
+      rangeSection.className = 'my-plots-env-section';
+      var rangeTitle = document.createElement('div');
+      rangeTitle.className = 'my-plots-env-section-title';
+      rangeTitle.textContent = '地块范围';
+      rangeSection.appendChild(rangeTitle);
+      var rangeMeta = document.createElement('div');
+      rangeMeta.className = 'my-plots-card-meta';
+      var rangeParts = [];
+      rangeParts.push('面积：' + (plot.area ? plot.area + ' 亩' : '未记录'));
+      rangeParts.push('边界点：' + plot.polygon.length + ' 个');
+      if (plot.suitability && plot.suitability.status) {
+        var statusText = {
+          suitable: '土地类型适宜种植',
+          caution: '城市绿地，需确认使用权限',
+          unsuitable: '城市建成区，不建议种植',
+          unknown: '土地类型未知'
+        };
+        if (statusText[plot.suitability.status]) rangeParts.push(statusText[plot.suitability.status]);
+      }
+      rangeMeta.textContent = rangeParts.join(' · ');
+      rangeSection.appendChild(rangeMeta);
+      if (plot.suitability && plot.suitability.reason) {
+        var reason = document.createElement('div');
+        reason.className = 'my-plots-range-reason';
+        reason.textContent = plot.suitability.reason;
+        rangeSection.appendChild(reason);
+      }
+      detail.appendChild(rangeSection);
     }
 
     var shapeSection = document.createElement('div');

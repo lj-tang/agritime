@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * 逆地理编码：经纬度 → 中文地名（目标精度到小区/村）。
@@ -349,7 +350,7 @@ public final class GeoResolver {
     private static Place photon(double lat, double lon) {
         String url = "https://photon.komoot.io/reverse?lat=" + fmt6(lat) + "&lon=" + fmt6(lon)
                 + "&limit=8&radius=2";
-        return parsePhoton(getJson(url), lat, lon);
+        return parsePhoton(photonGet(url, UPSTREAM_TIMEOUT_MS), lat, lon);
     }
 
     static Place parsePhoton(Map<String, Object> root, double lat, double lon) {
@@ -436,7 +437,7 @@ public final class GeoResolver {
         if (lat != 0 || lon != 0) {
             url += "&lat=" + fmt6(lat) + "&lon=" + fmt6(lon);
         }
-        Map<String, Object> root = getJson(url);
+        Map<String, Object> root = photonGet(url, UPSTREAM_TIMEOUT_MS);
         java.util.List<Suggestion> out = new java.util.ArrayList<>();
         List<?> features = list(root, "features");
         if (features == null) return out;
@@ -470,6 +471,261 @@ public final class GeoResolver {
         return o instanceof Number n ? n.doubleValue() : Double.NaN;
     }
 
+    // ---------------- 地块可种植性分类 ----------------
+
+    /** 地块土地类型分类。前端据此提示「不适合种植 / 谨慎 / 适宜」。 */
+    public enum Category { FARMLAND, GREEN, URBAN, WATER, UNKNOWN }
+
+    /** 单点分类结果。category 为小写枚举名，label 为中文说明。 */
+    public record Classification(String category, String osmKey, String osmValue, String label, String source) {
+    }
+
+    /** classify 结果缓存（坐标按 3 位小数 ≈ 111m 聚合，土地类型在此尺度下不会突变） */
+    private record ClassEntry(Classification c, long expireAtMs) {
+    }
+
+    private static final Map<String, ClassEntry> CLASS_CACHE = new ConcurrentHashMap<>();
+    private static final long CLASS_TTL_MS = 3_600_000L;
+
+    /**
+     * 判断某个点是否适合作为农事地块。
+     * 优先级：中文地名关键字（能精准抓「中央商务区/CBD」这类核心区，而 OSM 往往没有 landuse）
+     *         > OSM 土地分类（Photon 的 landuse/leisure/natural）
+     *         > 名称绿化关键字。
+     * 命中「村/镇/乡」等地名时，即使 OSM 把它标成 residential，也降级为 unknown，避免误伤农村。
+     */
+    public static Classification classify(double lat, double lon) {
+        String key = String.format(Locale.ROOT, "%.4f,%.4f", lat, lon);
+        ClassEntry cached = CLASS_CACHE.get(key);
+        if (cached != null && cached.expireAtMs() > System.currentTimeMillis()) return cached.c();
+
+        Place p = resolve(lat, lon);
+        String hay = (p.displayName() + " " + p.name() + " " + p.district() + " " + p.city())
+                .toLowerCase(Locale.ROOT);
+
+        Category nameCat = nameCategory(hay);
+        Classification osm = photonClassify(lat, lon);
+        Category osmCat = osm != null ? parseCat(osm.category()) : null;
+
+        // 农村地名兜底：OSM 把村庄多边形标成 residential 时，不误判为城市建成区
+        boolean rural = hay.contains("村") || hay.contains("庄") || hay.contains("屯")
+                || hay.contains("乡") || hay.contains("农场") || hay.contains("大队") || hay.contains("寨");
+
+        // 面状土地用途优先于地名：OSM 明确标了公园/水体/农田时，附近一个「医院」
+        // 之类的 POI 名字不应该把整块地判成城市建成区。
+        Category finalCat;
+        if (osmCat != null && osmCat != Category.UNKNOWN) {
+            finalCat = (osmCat == Category.URBAN && rural) ? Category.UNKNOWN : osmCat;
+        } else if (nameCat != null && nameCat != Category.UNKNOWN) {
+            finalCat = nameCat;
+        } else {
+            finalCat = Category.UNKNOWN;
+        }
+
+        Classification result = new Classification(
+                finalCat.name().toLowerCase(Locale.ROOT),
+                osm != null ? osm.osmKey() : "",
+                osm != null ? osm.osmValue() : "",
+                labelFor(finalCat, osm),
+                osm != null ? osm.source() : (p.known() ? "name" : "none"));
+        // 只缓存确定结果；unknown 往往是上游超时/限流导致的，缓存会把偶发失败钉死
+        if (finalCat != Category.UNKNOWN) {
+            CLASS_CACHE.put(key, new ClassEntry(result, System.currentTimeMillis() + CLASS_TTL_MS));
+        }
+        return result;
+    }
+
+    private static Category parseCat(String s) {
+        try { return Category.valueOf(s.toUpperCase(Locale.ROOT)); }
+        catch (IllegalArgumentException e) { return null; }
+    }
+
+    private static Category nameCategory(String hay) {
+        for (String k : URBAN_NAME) {
+            if (hay.contains(k.toLowerCase(Locale.ROOT))) return Category.URBAN;
+        }
+        for (String k : GREEN_NAME) {
+            if (hay.contains(k.toLowerCase(Locale.ROOT))) return Category.GREEN;
+        }
+        return null;
+    }
+
+    /**
+     * 只保留「片区级」的核心区关键词。像「医院」「广场」「商场」「体育馆」这类
+     * 单个 POI 的名字太容易误伤旁边的公园/农田（逆地理编码经常把最近的 POI 当名字），
+     * 交给 OSM 的 landuse 去判断更可靠。
+     */
+    private static final java.util.Set<String> URBAN_NAME = java.util.Set.of(
+            "中央商务区", "商务区", "商业区", "商业中心", "市中心", "金融街", "金融中心",
+            "行政区", "工业区", "高新区", "科技园", "开发区", "商圈", "步行街", "cbd");
+
+    private static final java.util.Set<String> GREEN_NAME = java.util.Set.of(
+            "公园", "绿地", "植物园", "苗圃", "绿化", "湿地", "郊野公园",
+            "森林公园", "园林", "草坪", "公园绿地");
+
+    /** Photon 反向查询（大半径），取最近的、能判定土地类型的要素 */
+    private static Classification photonClassify(double lat, double lon) {
+        String url = "https://photon.komoot.io/reverse?lat=" + fmt6(lat) + "&lon=" + fmt6(lon)
+                + "&limit=20&radius=800";
+        // 土地判定比地名更依赖上游完整性，给 4s；超时仍降级为 unknown，不阻塞确认
+        Map<String, Object> root = photonGet(url, 4000);
+        List<?> features = list(root, "features");
+        if (features == null || features.isEmpty()) return null;
+
+        // 第一轮：面状土地用途（landuse/leisure/natural/waterway）优先。
+        // 这些才真正描述「这块地是什么」，而 place=neighbourhood 之类的点状要素
+        // 只是大范围片区的近似中心，若参与最近距离比较，会把公园误判成城市。
+        Classification best = nearestClassified(features, lat, lon, true);
+        if (best != null) return best;
+        // 第二轮：没有面状要素时，才看 POI / 建筑 / 片区点
+        return nearestClassified(features, lat, lon, false);
+    }
+
+    private static Classification nearestClassified(List<?> features, double lat, double lon, boolean areaOnly) {
+        Classification best = null;
+        double bestDist = Double.MAX_VALUE;
+        for (Object o : features) {
+            if (!(o instanceof Map<?, ?> f)) continue;
+            Map<String, Object> fm = cast(f);
+            Map<String, Object> props = map(fm, "properties");
+            if (props == null) continue;
+            String key = str(props, "osm_key");
+            String val = str(props, "osm_value");
+            if (isAreaKey(key) != areaOnly) continue;
+            Category c = mapCategory(key, val);
+            if (c == null || c == Category.UNKNOWN) continue;
+            double d = distanceKm(fm, lat, lon);
+            if (d < bestDist) {
+                bestDist = d;
+                best = new Classification(c.name().toLowerCase(Locale.ROOT), key, val, "", "photon");
+            }
+        }
+        return best;
+    }
+
+    /** 面状土地用途的 osm_key */
+    private static boolean isAreaKey(String key) {
+        return "landuse".equals(key) || "leisure".equals(key)
+                || "natural".equals(key) || "waterway".equals(key);
+    }
+
+    /**
+     * OSM 标签 → 土地类型。返回 null 表示该要素不参与判定（忽略）。
+     *
+     * 只认「面状土地用途」和明确的城市设施 POI。道路(highway)、电力线(power)、
+     * 行政边界(boundary)、铁路线(railway)、滑雪索道(aerialway) 在农村也大量存在，
+     * 若一并判成城市，会把正常农田误杀，所以一律忽略。
+     */
+    static Category mapCategory(String key, String val) {
+        if (key.isBlank() || val.isBlank()) return null;
+        String k = key.toLowerCase(Locale.ROOT);
+        String v = val.toLowerCase(Locale.ROOT);
+        switch (k) {
+            case "landuse":
+                if (FARM_LANDUSE.contains(v)) return Category.FARMLAND;
+                if (GREEN_LANDUSE.contains(v)) return Category.GREEN;
+                if (URBAN_LANDUSE.contains(v)) return Category.URBAN;
+                if ("forest".equals(v) || "wood".equals(v)) return Category.FARMLAND;
+                return null;
+            case "natural":
+                if ("water".equals(v) || "wetland".equals(v) || "bay".equals(v) || "strait".equals(v)) return Category.WATER;
+                if ("wood".equals(v) || "tree_row".equals(v) || "scrub".equals(v)
+                        || "grassland".equals(v) || "fell".equals(v) || "heath".equals(v)) return Category.FARMLAND;
+                return null;
+            case "waterway":
+                return Category.WATER;
+            case "leisure":
+                if (GREEN_LEISURE.contains(v)) return Category.GREEN;
+                if (URBAN_LEISURE.contains(v)) return Category.URBAN;
+                return null;   // 长椅、健身点等小设施不参与判定
+            case "amenity":
+                return URBAN_AMENITY.contains(v) ? Category.URBAN : null;
+            case "place":
+                if ("city".equals(v) || "suburb".equals(v) || "borough".equals(v)
+                        || "quarter".equals(v) || "neighbourhood".equals(v) || "town".equals(v)) return Category.URBAN;
+                if ("village".equals(v) || "hamlet".equals(v) || "isolated_dwelling".equals(v)) return Category.FARMLAND;
+                return null;
+            case "building":
+            case "office":
+            case "shop":
+                return Category.URBAN;
+            case "man_made":
+                return "works".equals(v) ? Category.URBAN : null;
+            case "tourism":
+                return URBAN_TOURISM.contains(v) ? Category.URBAN : null;
+            default:
+                return null;
+        }
+    }
+
+    private static final java.util.Set<String> FARM_LANDUSE = java.util.Set.of(
+            "farmland", "farm", "farmyard", "orchard", "vineyard", "plant_nursery",
+            "allotments", "meadow", "grassland", "grass", "pasture", "arable",
+            "greenhouse_horticulture");
+    private static final java.util.Set<String> GREEN_LANDUSE = java.util.Set.of(
+            "recreation_ground", "village_green");
+    private static final java.util.Set<String> URBAN_LANDUSE = java.util.Set.of(
+            "residential", "commercial", "industrial", "retail", "construction",
+            "brownfield", "railway", "harbour", "port", "quarry", "landfill", "cemetery",
+            "military", "depot", "garages");
+    private static final java.util.Set<String> GREEN_LEISURE = java.util.Set.of(
+            "park", "garden", "pitch", "golf_course", "nature_reserve", "playground",
+            "dog_park", "mini_golf", "common", "picnic_table");
+    private static final java.util.Set<String> URBAN_LEISURE = java.util.Set.of(
+            "swimming_pool", "sports_centre", "stadium", "water_park",
+            "fitness_station", "track", "ice_rink", "bowling_alley");
+    private static final java.util.Set<String> URBAN_AMENITY = java.util.Set.of(
+            "hospital", "clinic", "doctors", "dentist", "pharmacy", "school", "university",
+            "college", "kindergarten", "bank", "atm", "restaurant", "fast_food", "cafe",
+            "bar", "pub", "food_court", "fuel", "parking", "marketplace", "townhall",
+            "courthouse", "police", "fire_station", "post_office", "prison", "bus_station",
+            "theatre", "cinema", "library", "community_centre", "conference_centre",
+            "exhibition_centre", "place_of_worship", "social_facility", "nursing_home",
+            "childcare", "driving_school", "car_rental", "car_wash", "charging_station");
+    private static final java.util.Set<String> URBAN_TOURISM = java.util.Set.of(
+            "attraction", "theme_park", "zoo", "museum", "aquarium", "hotel", "motel",
+            "hostel", "guest_house", "apartment", "chalet", "resort", "information");
+
+    private static String labelFor(Category c, Classification osm) {
+        String extra = (osm != null && !osm.osmValue().isBlank()) ? "（" + osm.osmValue() + "）" : "";
+        switch (c) {
+            case FARMLAND: return "农田/耕地/林地" + extra + "，适宜农业种植";
+            case GREEN:    return "城市绿地" + extra + "，可用于种植但需确认合法使用权限";
+            case URBAN:    return "城市建成区/核心区" + extra + "，不建议农业种植";
+            case WATER:    return "水体" + extra + "，适合鱼塘等水产养殖";
+            default:       return "未知土地类型，请自行判断是否符合种植与用地规定";
+        }
+    }
+
+    // ---------------- 球面多边形工具（面积 / 质心） ----------------
+
+    /** 球面多边形面积（平方米）。ring 为 [lat,lon] 数组，至少 3 个点；自动闭合。 */
+    public static double polygonAreaSqm(java.util.List<double[]> ring) {
+        int n = ring.size();
+        if (n < 3) return 0;
+        double R = 6_378_137.0;
+        double area = 0;
+        for (int i = 0; i < n; i++) {
+            double[] p1 = ring.get(i);
+            double[] p2 = ring.get((i + 1) % n);
+            double lat1 = Math.toRadians(p1[0]);
+            double lon1 = Math.toRadians(p1[1]);
+            double lat2 = Math.toRadians(p2[0]);
+            double lon2 = Math.toRadians(p2[1]);
+            area += (lon2 - lon1) * (2 + Math.sin(lat1) + Math.sin(lat2));
+        }
+        area = area * R * R / 2.0;
+        return Math.abs(area);
+    }
+
+    /** 多边形顶点平均质心 [lat,lon]，用于采样与回填中心点。 */
+    public static double[] ringCentroid(java.util.List<double[]> ring) {
+        double la = 0, lo = 0;
+        for (double[] p : ring) { la += p[0]; lo += p[1]; }
+        int n = Math.max(1, ring.size());
+        return new double[]{ la / n, lo / n };
+    }
+
     // ---------------- 展示名拼装 ----------------
 
     /**
@@ -500,10 +756,48 @@ public final class GeoResolver {
 
     // ---------------- HTTP / JSON 小工具 ----------------
 
+    /**
+     * Photon 公共实例的官方限制是「每秒最多 1 次」，并发打过去会被限流/封 IP
+     * （实测直接 429 或长时间超时）。这里做两件事：
+     *   · 全局串行闸门，保证两次请求至少间隔 1.1s；
+     *   · 连续失败 3 次后熔断 60s，避免上游挂了还把每个确认请求拖到超时。
+     */
+    private static final Object PHOTON_GATE = new Object();
+    private static long photonLastAt = 0;
+    private static final long PHOTON_MIN_INTERVAL_MS = 1100;
+    private static final AtomicInteger PHOTON_FAILS = new AtomicInteger();
+    private static volatile long photonBlockedUntil = 0;
+
+    private static Map<String, Object> photonGet(String url, int timeoutMs) {
+        if (System.currentTimeMillis() < photonBlockedUntil) return null;
+        synchronized (PHOTON_GATE) {
+            long wait = photonLastAt + PHOTON_MIN_INTERVAL_MS - System.currentTimeMillis();
+            if (wait > 0) {
+                try { Thread.sleep(wait); }
+                catch (InterruptedException e) { Thread.currentThread().interrupt(); }
+            }
+            photonLastAt = System.currentTimeMillis();
+        }
+        Map<String, Object> root = getJson(url, timeoutMs);
+        if (root == null) {
+            if (PHOTON_FAILS.incrementAndGet() >= 3) {
+                photonBlockedUntil = System.currentTimeMillis() + 60_000L;
+                PHOTON_FAILS.set(0);
+            }
+        } else {
+            PHOTON_FAILS.set(0);
+        }
+        return root;
+    }
+
     private static Map<String, Object> getJson(String url) {
+        return getJson(url, UPSTREAM_TIMEOUT_MS);
+    }
+
+    private static Map<String, Object> getJson(String url, int timeoutMs) {
         try {
             HttpRequest req = HttpRequest.newBuilder(URI.create(url))
-                    .timeout(Duration.ofMillis(UPSTREAM_TIMEOUT_MS))
+                    .timeout(Duration.ofMillis(timeoutMs))
                     .header("User-Agent", "agritime/1.0")
                     .GET()
                     .build();

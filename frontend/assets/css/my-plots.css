@@ -54,4 +54,7 @@
 .my-plots-env-factor { font-size: 13px; background: var(--leaf-soft); color: var(--leaf); border-radius: 999px; padding: 4px 12px; }
 .my-plots-env-river { font-size: 13.5px; color: var(--ink-soft); line-height: 1.8; }
 .my-plots-back { font-family: inherit; font-size: 14px; color: var(--leaf); background: none; border: none; cursor: pointer; margin-bottom: 12px; padding: 0; }
+.my-plots-card-range { font-size: 12px; font-weight: 600; color: var(--leaf); background: var(--leaf-soft); border-radius: 999px; padding: 2px 9px; }
+.my-plots-card-warn { font-size: 12px; font-weight: 600; color: #8a6415; background: rgba(214,158,46,.16); border-radius: 999px; padding: 2px 9px; }
+.my-plots-range-reason { font-size: 12.5px; color: var(--muted); margin-top: 6px; line-height: 1.6; }
 @media (max-width: 767px) { .my-plots-cards { grid-template-columns: 1fr; } .my-plots-form-row { flex-direction: column; gap: 0; } }
