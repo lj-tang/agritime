@@ -479,8 +479,12 @@
     level.className = 'plot-hyd-level';
     level.textContent = h.level;
     var trend = document.createElement('span');
-    trend.className = 'plot-hyd-trend ' + (h.changePct > 0 ? 'up' : h.changePct < 0 ? 'down' : 'flat');
-    trend.textContent = h.trend + ' ' + (h.changePct > 0 ? '+' : '') + h.changePct + '%';
+    // 流量只有几个 m³/s 时，翻一倍也没有农事意义，不显示百分比
+    var tiny = h.trend === '流量过小';
+    trend.className = 'plot-hyd-trend ' + (tiny ? 'flat' : h.changePct > 0 ? 'up' : h.changePct < 0 ? 'down' : 'flat');
+    trend.textContent = tiny
+      ? '流量过小，趋势不具参考性'
+      : h.trend + ' ' + (h.changePct > 0 ? '+' : '') + h.changePct + '%';
     head.appendChild(val);
     head.appendChild(unit);
     head.appendChild(level);

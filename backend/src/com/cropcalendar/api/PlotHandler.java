@@ -371,7 +371,9 @@ public class PlotHandler implements HttpHandler {
                 n++;
             }
             double changePct = n == 0 ? 0 : (sum / n - bestFirst) / Math.max(bestFirst, 0.1) * 100;
-            String trend = changePct >= 10 ? "涨水" : changePct <= -10 ? "回落" : "平稳";
+            // 流量本身只有几个 m³/s 时，翻一倍也没有农事意义，别报成"涨水 101%"
+            String trend = bestFirst < 50 ? "流量过小"
+                    : changePct >= 10 ? "涨水" : changePct <= -10 ? "回落" : "平稳";
             String level = hydroLevel(bestFirst, changePct);
 
             Hydrology h = new Hydrology(bestFirst, peak, peakDate, level,
@@ -385,24 +387,18 @@ public class PlotHandler implements HttpHandler {
     }
 
     /**
-     * 汛情等级：只用"流量量级 + 变化趋势"判断，不冒充警戒水位。
-     * 真正的警戒水位需要水文站实测断面数据，公开渠道拿不到，
-     * 所以这里只描述河道本身的丰枯与涨落，措辞上不出现"超警""保证水位"这类结论。
+     * 水量级 + 涨落：只按流量量级分档，不根据大小去猜"干流/支流"。
+     * 郑州段黄河 2465 m³/s 会被按流量归到中流量，它确实不是支流，
+     * 但系统拿不到河网拓扑，就不能硬安一个身份。
+     * 同样不出现"超警戒水位"——那需要水文站断面实测，公开渠道没有。
      */
     private String hydroLevel(double discharge, double changePct) {
-        if (discharge >= 5000) {
-            if (changePct >= 20) return "干流涨水";
-            if (changePct <= -20) return "干流回落";
-            return "干流平水";
-        }
-        if (discharge >= 500) {
-            if (changePct >= 20) return "支流涨水";
-            if (changePct <= -20) return "支流回落";
-            return "支流平水";
-        }
-        if (changePct >= 30) return "小流量上涨";
-        if (changePct <= -30) return "小流量回落";
-        return "流量平稳";
+        String size = discharge >= 5000 ? "大流量"
+                : discharge >= 500 ? "中流量"
+                : discharge >= 50 ? "小流量" : "微流量";
+        if (discharge < 50) return size;
+        String move = changePct >= 10 ? "上涨" : changePct <= -10 ? "回落" : "平稳";
+        return size + move;
     }
 
     private String hydrologyJson(Hydrology h) {
@@ -722,11 +718,13 @@ public class PlotHandler implements HttpHandler {
         if ("paddy".equals(type)) f.add("水稻田：保持水位管理");
         if (!rivers.isEmpty()) f.add("近" + rivers.get(0).name + "（" + rivers.get(0).distance + "km）");
         if (hydro != null) {
-            f.add("河川径流量 " + Math.round(hydro.discharge()) + " m³/s（" + hydro.trend() + "）");
-            if (hydro.changePct() >= 30) {
-                f.add("未来三天涨水明显，低洼地块注意清沟排水");
-            } else if (hydro.changePct() <= -30) {
-                f.add("径流回落明显，灌溉取水可能受影响");
+            f.add("河川径流量 " + Math.round(hydro.discharge()) + " m³/s（" + hydro.level() + "）");
+            if (hydro.discharge() >= 50) {
+                if (hydro.changePct() >= 30) {
+                    f.add("未来三天涨水明显，低洼地块注意清沟排水");
+                } else if (hydro.changePct() <= -30) {
+                    f.add("径流回落明显，灌溉取水可能受影响");
+                }
             }
         }
         return f;
