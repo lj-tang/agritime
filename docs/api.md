@@ -295,6 +295,77 @@
 `level` 只描述流量量级与涨落，不出现「超警戒水位」这类结论——那需要水文站断面实测数据。
 水文数据单独缓存 1 小时；与天气请求并发，冷启动耗时取两者较大值。
 
+## 10. GET /api/crops（含搜索）
+
+| 参数 | 必填 | 说明 |
+| --- | --- | --- |
+| q | 否 | 作物关键词。支持标准名、俗名、拼音、错别字；不传则返回有农事规程的作物 |
+
+带 `q` 时返回 Top8，`matchedBy` 说明命中方式：
+
+```json
+{ "total": 1, "query": "西红柿", "standardName": "番茄",
+  "crops": [{ "cropId": "C031", "name": "番茄", "displayName": "番茄",
+              "matchedBy": "alias", "hasProtocol": false, "nodeCount": 0,
+              "aliases": ["C031","番茄","西红柿","洋柿子","番茄果"],
+              "pinyin": ["fanqie","xihongshi","tomato"] }] }
+```
+
+`matchedBy` 取值：`exact`（标准名）/ `alias`（别名）/ `pinyin`（拼音）/
+`contains`（包含）/ `fuzzy`（编辑距离，首字必须相同）。
+
+---
+
+## 11. GET /api/sow-window（节气推荐播种起点）
+
+用户不填播种日期时，按「作物 + 今天」推算最近一个适宜播种的节气。
+
+| 参数 | 必填 | 说明 |
+| --- | --- | --- |
+| crop | 是 | 作物名，支持俗称（内部会归一） |
+
+```json
+{ "code": "0", "message": "ok", "data": {
+  "crop": "番茄", "standardName": "番茄",
+  "sowDate": "2027-02-04", "solarTerm": "立春", "daysFromToday": 97,
+  "source": "solar-term-season",
+  "basis": "番茄适宜春茬/秋茬，取最近的立春" } }
+```
+
+`source` 三级判定，越靠前越贴合作物本身：
+
+| 取值 | 含义 |
+| --- | --- |
+| `solar-term-crop` | 节气表里点名了该作物 |
+| `solar-term-season` | 未点名，但作物适宜季节与节气月份匹配 |
+| `nearest-term` | 都没匹配上，取最近节气兜底，提示结合当地经验 |
+
+节气日期由太阳黄经计算，不是查表，逐年逐日都准。
+
+---
+
+## 12. GET /api/industry/species
+
+渔业品类清单（草鱼 / 鲤鱼 / 大闸蟹），含适宜水温区间与放养规格。
+
+## 13. GET /api/industry/timeline
+
+| 参数 | 必填 | 说明 |
+| --- | --- | --- |
+| species | 是 | 品类 id 或名称，如 `grass_carp` / `草鱼` |
+| stockDate | 是 | 放苗日期 yyyy-MM-dd |
+| lat / lon | 否 | 放养点位，默认荆州 |
+
+放苗日 + 阶段天数 = 具体日期，叠加该点位天气判断当天适不适合操作。
+
+**温度口径**：Open-Meteo 不提供养殖水体温度，判定用**气温近似**，
+响应固定带 `"tempBasis": "air"` 与 `"tempNote"`，不冒充水温实测。
+
+超出预报范围的远期阶段，用**去年同日天气**估算，`advice` 前缀「常年同期参考」并注明非预报。
+生产日历缓存 5 分钟（一次请求要打预报 + 历史两个上游）。
+
+---
+
 ## REST 规范
 
 - 资源命名使用名词复数
