@@ -37,6 +37,54 @@
     showMessage('在左侧写下症状，点「开始判断」，这里会给出最可能的三条判断和应对策略');
   }
 
+  /**
+   * 从图片里提取颜色特征（T13）。
+   *
+   * 说明：这里做的是像素颜色统计，不是病害识别模型——
+   * 缩到 64×64 后统计褐斑/黄化/白粉的占比，作为"看图"的辅助信号交给后端排序。
+   * 之所以不用大模型，是因为当前环境的 openPangu 是纯文本模型，不收图像输入。
+   */
+  function extractColorFeatures(file, cb) {
+    var url = URL.createObjectURL(file);
+    var img = new Image();
+    img.onload = function () {
+      try {
+        var size = 64;
+        var canvas = document.createElement('canvas');
+        canvas.width = size;
+        canvas.height = size;
+        var ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, size, size);
+        var data = ctx.getImageData(0, 0, size, size).data;
+        var brown = 0, yellow = 0, white = 0, green = 0, total = 0;
+        for (var i = 0; i < data.length; i += 4) {
+          var r = data[i], g = data[i + 1], b = data[i + 2], a = data[i + 3];
+          if (a < 32) continue;
+          total++;
+          var max = Math.max(r, g, b), min = Math.min(r, g, b);
+          var sat = max === 0 ? 0 : (max - min) / max;
+          if (r > 195 && g > 195 && b > 185 && sat < 0.12) white++;
+          else if (r > 110 && r < 205 && g > 80 && g < 165 && b < 100 && sat > 0.22) brown++;
+          else if (r > 150 && g > 140 && b < 115 && sat > 0.22) yellow++;
+          else if (g > 80 && g >= r * 1.03 && g >= b * 1.03) green++;
+        }
+        if (!total) { cb(null); return; }
+        cb({
+          brown: Math.round(brown / total * 1000) / 1000,
+          yellow: Math.round(yellow / total * 1000) / 1000,
+          white: Math.round(white / total * 1000) / 1000,
+          green: Math.round(green / total * 1000) / 1000
+        });
+      } catch (e) {
+        cb(null);
+      } finally {
+        URL.revokeObjectURL(url);
+      }
+    };
+    img.onerror = function () { URL.revokeObjectURL(url); cb(null); };
+    img.src = url;
+  }
+
   function onSubmit(e) {
     e.preventDefault();
     var q = (textInput.value || '').trim();
@@ -45,9 +93,26 @@
       showMessage('请先描述症状，或者拍照上传');
       return;
     }
+    var file = hasImage ? (photoInput.files && photoInput.files[0]) : null;
+
+    // 有图就先提颜色特征，再带着特征去查；提不出来就只按文字查
+    if (file) {
+      photoName.textContent = '正在分析图片颜色…';
+      extractColorFeatures(file, function (f) { run(f); });
+    } else {
+      run(null);
+    }
+    return;
+
+    function run(f) {
     var url = API + '?crop=' + encodeURIComponent(cropSel.value || '') +
       '&q=' + encodeURIComponent(q) +
       '&hasImage=' + (hasImage ? '1' : '0');
+    if (f) {
+      url += '&brown=' + f.brown + '&yellow=' + f.yellow + '&white=' + f.white;
+      photoName.textContent = '已选图片：' + file.name + '（褐斑 ' + Math.round(f.brown * 100)
+        + '% · 黄化 ' + Math.round(f.yellow * 100) + '% · 白粉 ' + Math.round(f.white * 100) + '%）';
+    }
 
     showLoading();
     var controller = typeof AbortController !== 'undefined' ? new AbortController() : null;
@@ -65,6 +130,7 @@
         var msg = err && err.name === 'AbortError' ? '请求超时，请稍后重试' : '查询失败：' + (err.message || '网络异常');
         showMessage(msg);
       });
+    }
   }
 
   function showLoading() {

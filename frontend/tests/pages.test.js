@@ -1161,3 +1161,22 @@ test('T08 方言：nginx 放行 /data/voice/', () => {
   const conf = read(path.resolve(__dirname, '..', '..', 'deploy', 'nginx', 'agritime.conf'));
   assert.ok(conf.includes('/data/voice/'), '浏览器要读词表，nginx 需放行该目录');
 });
+
+// ---------------- T13 病害图片输入 ----------------
+test('T13 图片：前端提取颜色特征并随请求发送', () => {
+  const d = read(path.resolve(__dirname, '..', 'assets', 'js', 'disease.js'));
+  assert.ok(d.includes('extractColorFeatures'), '应有颜色特征提取');
+  assert.ok(d.includes('getImageData'), '应读取像素');
+  assert.ok(d.includes("'&brown='"), '应把褐斑占比传给后端');
+  assert.ok(d.includes("'&yellow='"), '应把黄化占比传给后端');
+  assert.ok(d.includes("'&white='"), '应把白粉占比传给后端');
+});
+
+test('T13 图片：后端按颜色特征排序并如实标注方法', () => {
+  const h = read(path.resolve(__dirname, '..', '..', 'backend', 'src', 'com', 'cropcalendar', 'api', 'DiseaseHandler.java'));
+  assert.ok(h.includes('dominantFeature'), '应判定主导颜色特征');
+  assert.ok(h.includes('hintBonus'), '应按症状词加分');
+  assert.ok(h.includes('color-feature'), '应返回识别方法');
+  assert.ok(h.includes('不是训练模型识别'), '应说明不是模型识别');
+  assert.ok(!h.includes('"imageUsed", "false"'), 'imageUsed 不应写死 false');
+});
