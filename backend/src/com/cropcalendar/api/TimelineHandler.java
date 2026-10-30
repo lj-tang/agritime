@@ -136,6 +136,14 @@ public class TimelineHandler implements HttpHandler {
                     ? Json.arr(List.of(Json.str(n.reason())))
                     : "[]";
 
+            // T04：未来第 5 天（含）之后的节点，天气已经是预报值，必须标注"仅供参考"
+            boolean forecastNote = false;
+            try {
+                forecastNote = LocalDate.parse(n.date()).isAfter(LocalDate.now().plusDays(4));
+            } catch (Exception ignored) {
+                // 日期异常就不标注，避免误标
+            }
+
             String nodeJson = Json.obj(
                     "nodeId", Json.str(String.valueOf(seq)),
                     "nodeSeq", String.valueOf(seq),
@@ -148,6 +156,7 @@ public class TimelineHandler implements HttpHandler {
                     "copy", Json.str(n.suggest()),
                     "reasons", reasons,
                     "guidance", n.guidance() != null ? n.guidance() : "null",
+                    "forecastNote", String.valueOf(forecastNote),
                     "rescheduleAdvice", "null",
                     "certainty", Json.str(certainty),
                     "weatherIcon", "null",

@@ -68,13 +68,15 @@
 
       <div class="field" id="field-sowing-date">
         <label>播种日期</label>
-        <div class="date-picker" id="date-picker" title="可选范围：两年前至今天后 10 天" aria-label="可选范围：两年前至今天后 10 天">
+        <div class="date-picker" id="date-picker" title="可选范围：两年前至今天后 30 天" aria-label="可选范围：两年前至今天后 30 天">
           <select id="date-year" aria-label="年"></select>
           <select id="date-month" aria-label="月"></select>
           <select id="date-day" aria-label="日"></select>
           <input id="sowingDate" name="sowingDate" type="hidden" />
         </div>
-        <p class="date-range-hint" id="date-range-hint">请选择两年前至今天后 10 天的日期</p>
+        <p class="date-range-hint" id="date-range-hint">请选择两年前至今天后 30 天的日期；不选则按节气推荐播种起点</p>
+        <button type="button" class="term-sow-btn" id="term-sow-btn">不知道播种时间？按节气推荐</button>
+        <p class="term-sow-hint" id="term-sow-hint" hidden></p>
         <div class="error" id="error-sowingDate">播种日期不能晚于今天</div>
       </div>
 
@@ -427,9 +429,9 @@
 
       var RANGE_BACK_DAYS = 730; /* @deprecated 改用 MIN_YEAR_OFFSET，保留以兼容既有测试断言 */
       var MIN_YEAR_OFFSET = 2;
-      var MAX_FUTURE_DAYS = 10;
-      var RANGE_HINT_TEXT = '请选择两年前至今天后 10 天的日期';
-      var RANGE_HINT_TITLE = '可选范围：两年前至今天后 10 天';
+      var MAX_FUTURE_DAYS = 30;
+      var RANGE_HINT_TEXT = '请选择两年前至今天后 30 天的日期；不选则按节气推荐播种起点';
+      var RANGE_HINT_TITLE = '可选范围：两年前至今天后 30 天';
       var DEFAULT_BACK_DAYS = 150;
       var SUGGEST_DEBOUNCE_MS = 80;
       var yearSel = document.getElementById('date-year');
@@ -650,13 +652,10 @@
         if (!cropInput.value.trim()) { setInvalid('field-crop', true); ok = false; } else { setInvalid('field-crop', false); }
         var dateErr = document.getElementById('error-sowingDate');
         var invalidDate = false;
-        if (!sowingInput.value) {
-          dateErr.textContent = '请选择播种日期';
+        if (sowingInput.value && sowingInput.value > dateToStr(getMaxDate())) {
+          dateErr.textContent = '播种日期不能晚于今天后 30 天';
           invalidDate = true;
-        } else if (sowingInput.value > dateToStr(getMaxDate())) {
-          dateErr.textContent = '播种日期不能晚于今天后 10 天';
-          invalidDate = true;
-        } else if (sowingInput.value < dateToStr(getMinDate())) {
+        } else if (sowingInput.value && sowingInput.value < dateToStr(getMinDate())) {
           dateErr.textContent = '播种日期不能早于两年前';
           invalidDate = true;
         }
@@ -774,12 +773,73 @@
         return params.toString();
       }
 
+      // T04 双模式播种：不填日期时按节气推荐起点（方式A），填了就用用户给的（方式B）
+      function fetchSowWindow(cropName, cb) {
+        var xhr = new XMLHttpRequest();
+        xhr.open('GET', '/api/sow-window?crop=' + encodeURIComponent(cropName), true);
+        xhr.timeout = 8000;
+        xhr.onload = function () {
+          try {
+            var body = JSON.parse(xhr.responseText);
+            if (xhr.status === 200 && body.data && body.data.sowDate) { cb(null, body.data); return; }
+            cb(body.message || '节气推算失败');
+          } catch (err) { cb('返回格式异常'); }
+        };
+        xhr.onerror = xhr.ontimeout = function () { cb('网络异常'); };
+        xhr.send();
+      }
+
+      function showTermSowHint(info, err) {
+        var el = document.getElementById('term-sow-hint');
+        if (!el) return;
+        el.hidden = false;
+        if (err) {
+          el.textContent = '节气推荐不可用：' + err + '，请手动选择日期';
+          el.classList.add('is-error');
+          return;
+        }
+        el.classList.remove('is-error');
+        el.textContent = '按节气推荐：' + info.solarTerm + ' · ' + info.sowDate
+          + '（距今 ' + info.daysFromToday + ' 天）—— ' + info.basis;
+      }
+
+      var termBtn = document.getElementById('term-sow-btn');
+      if (termBtn) {
+        termBtn.addEventListener('click', function () {
+          var name = cropInput.value.trim();
+          if (!name) { showToast('先输入作物品种', 'error'); return; }
+          fetchSowWindow(name, function (err, info) {
+            if (err) { showTermSowHint(null, err); return; }
+            if (window.CropMap && window.CropMap.syncSelectsFromDate) { /* noop */ }
+            syncSelectsFromDate(info.sowDate);
+            composeDate();
+            showTermSowHint(info);
+            showToast('已按节气「' + info.solarTerm + '」填入 ' + info.sowDate, 'info');
+          });
+        });
+      }
+
       form.addEventListener('submit', function (e) {
         e.preventDefault();
         if (!validate()) { showToast('请先补全并检查表单', 'error'); return; }
         var cropName = cropInput.value.trim();
         var location = locationInput.value.trim();
         var sowDate = sowingInput.value;
+        if (!sowDate) {
+          // 没填日期：先按节气推算，成功后再走同一条跳转逻辑
+          fetchSowWindow(cropName, function (err, info) {
+            if (err) { showToast('没能推算播种节气：' + err + '，请手动选择日期', 'error'); return; }
+            syncSelectsFromDate(info.sowDate);
+            composeDate();
+            showTermSowHint(info);
+            goTimeline(cropName, location, info.sowDate, info);
+          });
+          return;
+        }
+        goTimeline(cropName, location, sowDate, null);
+      });
+
+      function goTimeline(cropName, location, sowDate, termInfo) {
         var hit = findCrop(cropName);
         if (window.HistoryStore) {
           window.HistoryStore.add({ cropName: cropName, sowDate: sowDate, location: location });
@@ -804,7 +864,7 @@
           }
         } catch (err) { /* 降级回退整页跳转 */ }
         window.location.href = resolveTimelineUrl() + '?' + query;
-      });
+      }
 
       fillYears();
       renderRuler();

@@ -53,6 +53,11 @@
       <button type="button" class="mode-tab" data-mode="chart">函数图像</button>
     </div>
 
+    <div class="reminder-panel" id="reminder-panel" hidden>
+      <h3>我的农事提醒</h3>
+      <div id="reminder-list"></div>
+    </div>
+
     <section class="timeline" id="timeline" hidden></section>
 
     <section class="chart-wrap" id="chart" hidden></section>
@@ -364,6 +369,34 @@
 
         renderWeather(card, node);
 
+        // T04：未来第 5 天起标注天气为预报值
+        if (node.forecastNote) {
+          var fn = document.createElement('span');
+          fn.className = 'tl-forecast-note';
+          fn.textContent = '天气为预测数据，仅供参考';
+          card.appendChild(fn);
+        }
+
+        // T04：关键节点可开启提醒，前端展示倒计时
+        if (node.date && node.date >= todayStr()) {
+          var rb = document.createElement('button');
+          rb.type = 'button';
+          rb.className = 'tl-remind';
+          var key = reminderKey(node);
+          var on = isReminded(node);
+          rb.textContent = on ? '🔔 已设提醒' : '🔔 设提醒';
+          if (on) rb.classList.add('on');
+          rb.addEventListener('click', function (ev) {
+            ev.stopPropagation();
+            toggleReminder(node);
+            var now = isReminded(node);
+            rb.textContent = now ? '🔔 已设提醒' : '🔔 设提醒';
+            rb.classList.toggle('on', now);
+            renderMyReminders();
+          });
+          card.appendChild(rb);
+        }
+
         var detail = document.createElement('div');
         detail.className = 'tl-detail';
         var desc = document.createElement('p');
@@ -467,6 +500,75 @@
         }
 
         host.appendChild(box);
+      }
+
+      // ---------------- T04 节点提醒（localStorage，刷新不丢） ----------------
+      var REMIND_KEY = 'agritime.reminders.v1';
+
+      function todayStr() {
+        var d = new Date();
+        return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+      }
+      function loadReminders() {
+        try { return JSON.parse(localStorage.getItem(REMIND_KEY) || '[]'); } catch (e) { return []; }
+      }
+      function saveReminders(list) {
+        try { localStorage.setItem(REMIND_KEY, JSON.stringify(list)); } catch (e) { /* 隐私模式忽略 */ }
+      }
+      function reminderKey(node) {
+        return (query.cropName || '') + '|' + (node.date || '') + '|' + (node.name || '');
+      }
+      function isReminded(node) {
+        var k = reminderKey(node);
+        return loadReminders().some(function (r) { return r.key === k; });
+      }
+      function toggleReminder(node) {
+        var list = loadReminders();
+        var k = reminderKey(node);
+        var idx = list.findIndex(function (r) { return r.key === k; });
+        if (idx >= 0) list.splice(idx, 1);
+        else list.push({ key: k, date: node.date, name: node.name || '', crop: query.cropName || '' });
+        saveReminders(list);
+      }
+      function renderMyReminders() {
+        var panel = document.getElementById('reminder-panel');
+        var box = document.getElementById('reminder-list');
+        if (!panel || !box) return;
+        var list = loadReminders().filter(function (r) { return r.date; })
+          .sort(function (a, b) { return a.date < b.date ? -1 : 1; });
+        box.innerHTML = '';
+        if (!list.length) { panel.hidden = true; return; }
+        panel.hidden = false;
+        list.forEach(function (r) {
+          var row = document.createElement('div');
+          row.className = 'reminder-row';
+          var cd = window.TimelineLogic && window.TimelineLogic.calcCountdown
+            ? window.TimelineLogic.calcCountdown(r.date) : { state: 'future', days: 0 };
+          var day = document.createElement('span');
+          day.className = 'cd-day';
+          day.textContent = cd.state === 'today' ? '今天' : (cd.state === 'past' ? '已过' : '还有 ' + cd.days + ' 天');
+          var label = document.createElement('span');
+          label.textContent = r.date + ' · ' + (r.crop ? r.crop + ' ' : '') + r.name;
+          var del = document.createElement('button');
+          del.className = 'del';
+          del.type = 'button';
+          del.textContent = '×';
+          del.setAttribute('aria-label', '删除提醒');
+          del.addEventListener('click', function () {
+            var all = loadReminders().filter(function (x) { return x.key !== r.key; });
+            saveReminders(all);
+            renderMyReminders();
+            if (cachedData && cachedData.nodes) {
+              var tl = document.getElementById('timeline');
+              tl.innerHTML = '';
+              cachedData.nodes.forEach(function (n) { tl.appendChild(renderNode(n)); });
+            }
+          });
+          row.appendChild(day);
+          row.appendChild(label);
+          row.appendChild(del);
+          box.appendChild(row);
+        });
       }
 
       function renderReminder(r) {
@@ -737,7 +839,10 @@
         document.getElementById('footer').hidden = false;
       }
 
-      getData().then(render);
+      getData().then(function (data) {
+        render(data);
+        renderMyReminders();
+      });
     })();
   </script>
 </body>

@@ -324,13 +324,13 @@ test('日期范围：具名常量与最大边界函数', () => {
 
 test('日期范围：提示文案与实际范围一致', () => {
   assert.ok(indexHtml.includes('两年前'));
-  assert.ok(indexHtml.includes('10 天'));
+  assert.ok(indexHtml.includes('30 天'), 'V5 起未来范围改为 30 天');
   assert.ok(indexHtml.includes('date-range-hint'));
   assert.ok(commonCss.includes('.date-range-hint'));
 });
 
 test('日期范围：最大边界文案更新', () => {
-  assert.ok(indexHtml.includes('播种日期不能晚于今天后 10 天'));
+  assert.ok(indexHtml.includes('播种日期不能晚于今天后 30 天'));
   assert.ok(indexHtml.includes('播种日期不能晚于今天'));
 });
 
@@ -1062,4 +1062,36 @@ test('T03 指导：前端可展开四类内容', () => {
   assert.ok(timelineHtml.includes('tl-guide-tools'), '应渲染农具');
   assert.ok(timelineHtml.includes('tl-guide-pest'), '应渲染病虫害');
   assert.ok(commonCss.includes('.tl-guide-title'), '缺少指导样式');
+});
+
+// ---------------- T04 时间体系 ----------------
+test('T04 日期范围：未来 30 天，且不再强制填日期', () => {
+  assert.ok(indexHtml.includes('var MAX_FUTURE_DAYS = 30;'), '未来范围应为 30 天');
+  assert.ok(indexHtml.includes('今天后 30 天'), '提示文案应同步');
+  assert.ok(!indexHtml.includes("dateErr.textContent = '请选择播种日期'"), '不填日期不应报错');
+});
+
+test('T04 双模式播种：不填日期按节气推荐', () => {
+  assert.ok(indexHtml.includes('/api/sow-window'), '前端应调用播种窗口接口');
+  assert.ok(indexHtml.includes('term-sow-btn'), '应有「按节气推荐」按钮');
+  const sow = read(path.resolve(__dirname, '..', '..', 'backend', 'src', 'com', 'cropcalendar', 'service', 'crop', 'SowAdvisor.java'));
+  assert.ok(sow.includes('solar-term-crop'), '应优先按作物匹配节气');
+  assert.ok(sow.includes('solar-term-season'), '其次按适宜季节匹配');
+  assert.ok(sow.includes('nearest-term'), '都不匹配时要标注为兜底');
+  const srv = read(path.resolve(__dirname, '..', '..', 'backend', 'src', 'com', 'cropcalendar', 'Server.java'));
+  assert.ok(srv.includes('/api/sow-window'), '接口应已注册');
+});
+
+test('T04 第 5 天起标注仅供参考', () => {
+  const th = read(path.resolve(__dirname, '..', '..', 'backend', 'src', 'com', 'cropcalendar', 'api', 'TimelineHandler.java'));
+  assert.ok(th.includes('forecastNote'), '后端应标注 forecastNote');
+  assert.ok(th.includes('plusDays(4)'), '第 5 天起（今天+4 之后的日期）才标注');
+  assert.ok(timelineHtml.includes('天气为预测数据，仅供参考'), '前端应显示该标注');
+});
+
+test('T04 节点提醒：可设置、可删除、有倒计时', () => {
+  assert.ok(timelineHtml.includes('REMIND_KEY'), '提醒应持久化');
+  assert.ok(timelineHtml.includes('toggleReminder'), '应可开关提醒');
+  assert.ok(timelineHtml.includes('calcCountdown'), '应显示倒计时');
+  assert.ok(timelineHtml.includes('reminder-panel'), '应有提醒面板');
 });
