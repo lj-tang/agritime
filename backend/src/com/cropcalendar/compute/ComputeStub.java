@@ -2,6 +2,7 @@ package com.cropcalendar.compute;
 
 import com.cropcalendar.config.AppConfig;
 import com.cropcalendar.service.crop.CropProperties;
+import com.cropcalendar.util.Json;
 import com.cropcalendar.util.JsonParser;
 
 import java.net.URI;
@@ -171,6 +172,7 @@ public final class ComputeStub {
         if (cached != null) {
             return cached;
         }
+        ensureLlmCacheLoaded();
         List<RawNode> llmCached = LLM_PROC_CACHE.get(cropId);
         if (llmCached != null) {
             return llmCached;
@@ -185,6 +187,7 @@ public final class ComputeStub {
         if (!generated.isEmpty()) {
             LLM_PROC_CACHE.put(cropId, generated);
             LLM_NEGATIVE.remove(cropId);
+            persistLlmCache();
         } else {
             LLM_NEGATIVE.put(cropId, System.currentTimeMillis() + NEGATIVE_TTL_MS);
         }
@@ -215,6 +218,7 @@ public final class ComputeStub {
                     List<RawNode> nodes = LlmService.generateCropProcedure(crop, crop);
                     if (!nodes.isEmpty()) {
                         LLM_PROC_CACHE.put(crop, nodes);
+                        persistLlmCache();
                         ok++;
                         System.out.println("[preload] " + crop + " 完成: " + nodes.size() + " 节点");
                     } else {
@@ -613,6 +617,77 @@ public final class ComputeStub {
     private static volatile Map<String, List<RawNode>> PROTOCOLS;
 
     private static final ConcurrentHashMap<String, List<RawNode>> LLM_PROC_CACHE = new ConcurrentHashMap<>();
+
+    /**
+     * 大模型生成的规程落盘缓存。
+     *
+     * 原先只存内存：服务一重启，苹果/番茄这类非预设作物要重新调一次大模型，
+     * 实测冷启动单请求 35 秒，直接踩破 p95<2s。落盘后重启只需读文件。
+     */
+    private static final String LLM_CACHE_FILE = "../var/llm-proc-cache.json";
+    private static volatile boolean llmCacheLoaded = false;
+
+    /** 懒加载磁盘上的大模型规程缓存（只读一次） */
+    private static void ensureLlmCacheLoaded() {
+        if (llmCacheLoaded) return;
+        synchronized (ComputeStub.class) {
+            if (llmCacheLoaded) return;
+            try {
+                Path path = Path.of(LLM_CACHE_FILE);
+                if (Files.isReadable(path)) {
+                    Object root = JsonParser.parse(Files.readString(path, StandardCharsets.UTF_8));
+                    if (root instanceof Map<?, ?> rm && rm.get("crops") instanceof List<?> crops) {
+                        for (Object o : crops) {
+                            if (!(o instanceof Map<?, ?> c)) continue;
+                            String id = nonBlank(c.get("cropId"));
+                            if (id == null || !(c.get("nodes") instanceof List<?> list)) continue;
+                            List<RawNode> nodes = new ArrayList<>();
+                            for (Object n : list) {
+                                if (!(n instanceof Map<?, ?> node)) continue;
+                                String op = nonBlank(node.get("opType"));
+                                String title = nonBlank(node.get("title"));
+                                if (op == null || title == null) continue;
+                                nodes.add(new RawNode(id, op, (int) dayOffsetOf(node.get("dayOffset")), title));
+                            }
+                            if (!nodes.isEmpty()) LLM_PROC_CACHE.put(id, nodes);
+                        }
+                    }
+                }
+            } catch (Exception e) {
+                System.err.println("[compute] 读取大模型规程缓存失败：" + e.getMessage());
+            }
+            llmCacheLoaded = true;
+        }
+    }
+
+    /** 把内存里的大模型规程写回磁盘；失败只打日志，不影响请求 */
+    private static synchronized void persistLlmCache() {
+        try {
+            Path path = Path.of(LLM_CACHE_FILE);
+            Path dir = path.toAbsolutePath().getParent();
+            if (dir != null) Files.createDirectories(dir);
+            StringBuilder sb = new StringBuilder("{\"crops\":[");
+            boolean first = true;
+            for (Map.Entry<String, List<RawNode>> e : LLM_PROC_CACHE.entrySet()) {
+                if (!first) sb.append(',');
+                first = false;
+                sb.append("{\"cropId\":").append(Json.str(e.getKey())).append(",\"nodes\":[");
+                boolean f2 = true;
+                for (RawNode n : e.getValue()) {
+                    if (!f2) sb.append(',');
+                    f2 = false;
+                    sb.append("{\"opType\":").append(Json.str(n.opType()))
+                      .append(",\"dayOffset\":").append(n.dayOffset())
+                      .append(",\"title\":").append(Json.str(n.title())).append('}');
+                }
+                sb.append("]}");
+            }
+            sb.append("]}");
+            Files.writeString(path, sb.toString(), StandardCharsets.UTF_8);
+        } catch (Exception e) {
+            System.err.println("[compute] 写入大模型规程缓存失败：" + e.getMessage());
+        }
+    }
 
     private static Map<String, List<RawNode>> loadProtocols() {
         Map<String, List<RawNode>> cached = PROTOCOLS;
