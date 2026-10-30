@@ -205,6 +205,56 @@
 账号存 `backend/var/users.json`（已 gitignore），密码用 PBKDF2-SHA256（12 万次迭代）存摘要。
 预置超管 `super_admin` 只在账号库为空时创建，初始密码取环境变量 `AUTH_ADMIN_PASSWORD`。
 
+## 9. GET /api/plots/environment
+
+地块实时环境 + 农事适宜度。缓存 5 分钟（key 含坐标、地块类型与地形参数）。
+
+### 请求参数
+
+| 参数 | 必填 | 说明 |
+| --- | --- | --- |
+| lat / lon | 是 | 地块坐标 |
+| type | 否 | farmland / economic / greenhouse / orchard / paddy / fishpond，默认 farmland |
+| angle | 否 | 地块倾角（度） |
+| slope | 否 | 地块坡度（度） |
+| terrace | 否 | 1 表示已修梯田 |
+
+### 响应结构
+
+```json
+{ "code": 0, "message": "ok", "data": {
+  "temperature": 21.8, "humidity": 22, "windSpeed": 9.4, "weatherCode": 3,
+  "soilType": "潮土", "soilDescription": "土层深厚，肥力中等，宜种小麦玉米大蒜",
+  "nearbyRivers": [], "waterQualityGrade": null, "waterQuality": null,
+  "factors": ["土壤：潮土", "气温适宜（21.8°C）"],
+  "farmingSuitability": {
+    "score": 85, "level": "较适宜",
+    "summary": "综合土壤、气候与地形，当前评定为较适宜",
+    "factors": [
+      { "key": "climate", "label": "气候", "score": 75, "weight": 0.38, "note": "气温 21.8℃、湿度 22%" },
+      { "key": "soil",    "label": "土壤", "score": 88, "weight": 0.38, "note": "潮土：土层深厚…" },
+      { "key": "terrain", "label": "地形", "score": 95, "weight": 0.13, "note": "倾角 0°、坡度 0°" },
+      { "key": "type",    "label": "地块类型", "score": 95, "weight": 0.13, "note": "耕田" }
+    ]
+  }
+} }
+```
+
+### 适宜度口径
+
+环境 30% + 土壤 30% + 水质 20% + 地形 10% + 地块类型 10%，缺数据的一项**不参与**、
+权重按比例重新归一（附近无监测水体时不会用默认值凑分）：
+
+| 因子 | 分档 |
+| --- | --- |
+| 气候 | 气温 15~30℃ 记 95；湿度 40~75% 记 95，>85% 记 60 |
+| 土壤 | 黑土 95 / 潮土 88 / 紫色土 85 / 黄壤 80 / 褐土 76 / 红壤 64 / 黄绵土 58 |
+| 水质 | Ⅰ类 95 / Ⅱ类 88 / Ⅲ类 74 / Ⅳ类 55 / Ⅴ类 35；无数据则不计入 |
+| 地形 | 倾角坡度取大者：≤3° 95、≤8° 85、≤15° 72、≤25° 55、>25° 38；修梯田 +8 |
+| 地块类型 | 耕田 95 / 经济作物田 90 / 大棚·果园 88；鱼塘·水稻田缺水质数据时降为 55·72 |
+
+等级：≥85 适宜、≥70 较适宜、≥55 一般、其余需注意。
+
 ## REST 规范
 
 - 资源命名使用名词复数
