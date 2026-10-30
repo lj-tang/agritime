@@ -626,3 +626,14 @@ body[data-layout="app"] .content-pane > * {
   /* 移动端左上角有汉堡按钮（fixed 定位），顶部留出空间避免压住标题 */
   body[data-layout="app"] .content-pane { margin-left: 0; padding: 58px 14px 40px; }
 }
+
+/* T02：俗称归一提示（如「西红柿」识别为「番茄」） */
+.crop-resolved-hint {
+  margin: 10px 0 0;
+  padding: 8px 12px;
+  font-size: 13px;
+  color: var(--leaf);
+  background: var(--leaf-soft);
+  border-radius: var(--radius-sm);
+  display: inline-block;
+}

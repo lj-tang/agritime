@@ -967,3 +967,41 @@ test('T06 径流量：前端渲染流量与逐日柱状图', () => {
   assert.ok(css.includes('.plot-hyd-bars'), '缺少流量柱状图样式');
   assert.ok(css.includes('.plot-hyd-value'), '缺少流量数值样式');
 });
+
+// ---------------- T02 作物名称标准化 ----------------
+test('T02 别名库：常见作物带真实俗名与拼音，不是空壳', () => {
+  const lib = JSON.parse(read(path.resolve(__dirname, '..', '..', 'data', 'crop-base', 'alias.json')));
+  const byName = {};
+  lib.mappings.forEach((m) => { byName[m.displayName] = m; });
+  assert.ok(lib.mappings.length >= 400, '作物库应有 400 条');
+  const withAlias = lib.mappings.filter((m) => m.aliases.length > 2);
+  assert.ok(withAlias.length >= 60, '带真实别名的作物应 ≥60，实际 ' + withAlias.length);
+  assert.ok(byName['番茄'].aliases.includes('西红柿'));
+  assert.ok(byName['番茄'].pinyin.includes('tomato'));
+  assert.ok(byName['马铃薯'].aliases.includes('土豆'));
+  assert.ok(byName['玉米'].aliases.includes('苞谷'));
+  // 没填别名的条目必须是「只有 canonical + 标准名」，不能是编的
+  lib.mappings.forEach((m) => {
+    assert.ok(m.aliases.includes(m.canonical), m.displayName + ' 的 aliases 应含 canonical');
+    assert.ok(m.aliases.includes(m.displayName), m.displayName + ' 的 aliases 应含标准名');
+  });
+});
+
+test('T02 后端：CropsHandler 支持 q、返回标准名与命中方式', () => {
+  const src = read(path.resolve(__dirname, '..', '..', 'backend', 'src', 'com', 'cropcalendar', 'api', 'CropsHandler.java'));
+  assert.ok(src.includes('CropRegistry.search'), '查询应走 CropRegistry');
+  assert.ok(src.includes('matchedBy'), '应返回命中方式');
+  assert.ok(src.includes('hasProtocol'), '应标识是否能进时间线');
+});
+
+test('T02 后端：时间线把俗称归一到标准名', () => {
+  const src = read(path.resolve(__dirname, '..', '..', 'backend', 'src', 'com', 'cropcalendar', 'api', 'TimelineHandler.java'));
+  assert.ok(src.includes('CropRegistry.standardName'), '时间线应归一作物名');
+  assert.ok(src.includes('"cropName"'), '响应应回传标准名');
+});
+
+test('T02 前端：联想走后端接口，本地匹配仅作兜底', () => {
+  assert.ok(indexHtml.includes('/api/crops?q='), '联想应调用 /api/crops?q=');
+  assert.ok(indexHtml.includes('localMatches'), '应保留离线兜底');
+  assert.ok(timelineHtml.includes('crop-resolved-hint'), '时间线应提示俗称归一结果');
+});

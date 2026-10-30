@@ -26,6 +26,8 @@
 
     <div class="timeline-map-container" id="timeline-map"></div>
 
+    <p class="crop-resolved-hint" id="crop-resolved-hint" hidden></p>
+
     <section class="timeline-header" id="conclusion-card" hidden>
 
       <div class="conclusion" id="conclusion"></div>
@@ -599,6 +601,14 @@
         document.getElementById('loading').hidden = true;
         if (!data || typeof data !== 'object') data = { todayConclusion: {}, nodes: [] };
         if (!Array.isArray(data.nodes)) data = { todayConclusion: data.todayConclusion || {}, nodes: [] };
+        // T02：后端会把俗称归一到标准名，这里如实告诉用户映射结果
+        if (data.cropName && data.requestedCrop && data.cropName !== data.requestedCrop) {
+          var hint = document.getElementById('crop-resolved-hint');
+          if (hint) {
+            hint.hidden = false;
+            hint.textContent = '「' + data.requestedCrop + '」已识别为作物：' + data.cropName;
+          }
+        }
         if (data.nodes.length === 0) {
           document.getElementById('empty-state').hidden = false;
           return;

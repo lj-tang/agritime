@@ -6,6 +6,7 @@ import com.cropcalendar.compute.LlmService;
 import com.cropcalendar.orchestration.TimelineOrchestrator;
 import com.cropcalendar.orchestration.TimelineOrchestrator.TimelineResult;
 import com.cropcalendar.orchestration.TimelineOrchestrator.NodeView;
+import com.cropcalendar.service.crop.CropRegistry;
 import com.cropcalendar.util.Json;
 import com.cropcalendar.util.JsonParser;
 import com.sun.net.httpserver.HttpExchange;
@@ -83,7 +84,13 @@ public class TimelineHandler implements HttpHandler {
         }
 
         try {
-            TimelineResult r = orchestrator.build(cropId, sowDate, lat, lon);
+            // T02：无论用户传的是「西红柿」还是「tomato」，先归一到标准名，
+            // 再映射到规程 id；没有规程的作物交给下游按标准名处理。
+            String standardName = CropRegistry.standardName(cropId);
+            String protocolId = CropRegistry.protocolIdOf(standardName);
+            String buildCropId = protocolId != null ? protocolId : standardName;
+
+            TimelineResult r = orchestrator.build(buildCropId, sowDate, lat, lon);
 
             if (r.nodes().isEmpty()) {
                 HttpSupport.write(ex, 422, errJson("UNSUPPORTED_CROP",
@@ -91,7 +98,7 @@ public class TimelineHandler implements HttpHandler {
                 return;
             }
 
-            HttpSupport.write(ex, 200, toContractJson(r));
+            HttpSupport.write(ex, 200, toContractJson(r, standardName, cropId));
 
         } catch (IllegalArgumentException e) {
             HttpSupport.write(ex, 400, errJson("INVALID_INPUT", e.getMessage()));
@@ -105,6 +112,10 @@ public class TimelineHandler implements HttpHandler {
      * 转换成前端契约 v3 格式。
      */
     private static String toContractJson(TimelineResult r) {
+        return toContractJson(r, null, null);
+    }
+
+    private static String toContractJson(TimelineResult r, String cropName, String requestedCrop) {
         String today = LocalDate.now().toString();
         String dataSource = mapDataSource(r.weatherStatus());
         String dataTime = r.dataTime() != null ? r.dataTime() : null;
@@ -170,6 +181,9 @@ public class TimelineHandler implements HttpHandler {
 
         return Json.obj(
                 "apiVersion", Json.str("v1"),
+                // T02：把归一结果回传，前端可显示「输入：西红柿 → 作物：番茄」
+                "cropName", cropName != null ? Json.str(cropName) : "null",
+                "requestedCrop", requestedCrop != null ? Json.str(requestedCrop) : "null",
                 "dataSource", Json.str(dataSource),
                 "dataTime", dataTime != null ? Json.str(dataTime) : "null",
                 "weatherSummary", r.weatherSummary() != null ? Json.str(r.weatherSummary()) : "null",

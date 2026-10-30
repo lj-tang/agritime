@@ -1,6 +1,6 @@
 {
   "version": "0.2.0",
-  "comment": "作物栽培规程表（契约①的数据载体）。新增一种作物：往 crops 数组里加一个对象即可，不需要改任何 Java 代码。opType 只能是 sowing/irrigation/fertilize/pesticide/harvest 五值之一；dayOffset 是相对播种日的天数（0 = 播种当天），必须单调递增；reviewStatus 为 pending_review 的内容属占位/推测，须经农技人员复核后才能当作事实（铁律 8：农艺数据必须可溯源）。",
+  "comment": "作物栽培规程表（契约①的数据载体）。新增一种作物：往 crops 数组里加一个对象即可，不需要改任何 Java 代码。opType 只能是 sowing/irrigation/fertilize/pesticide/harvest 五值之一；dayOffset 是相对播种日的天数（0 = 播种当天），必须单调递增；reviewStatus 为 pending_review 的内容属占位/推测，须经农技人员复核后才能当作事实（铁律 8：农艺数据必须可溯源）。 ｜ V5：每项新增 standardName（标准作物名），供 CropRegistry 把俗称归一到规程。",
   "crops": [
     {
       "cropId": "dry_garlic",
@@ -8,16 +8,62 @@
       "source": "节点骨架（opType/dayOffset/title）取自 00-项目总纲.md 第七节的团队内部口径；desc 为常识性占位描述",
       "reviewStatus": "pending_review",
       "nodes": [
-        { "opType": "sowing",     "dayOffset": 0,   "title": "播种下地",       "desc": "按株距下地覆土，浇透底墒水" },
-        { "opType": "irrigation", "dayOffset": 12,  "title": "出苗水",         "desc": "出苗期小水轻浇，保持土壤湿润" },
-        { "opType": "fertilize",  "dayOffset": 30,  "title": "苗期追肥",       "desc": "以氮肥为主，促苗壮不促旺" },
-        { "opType": "irrigation", "dayOffset": 55,  "title": "越冬前灌水",     "desc": "封冻前浇越冬水，稳地温防冻害" },
-        { "opType": "fertilize",  "dayOffset": 90,  "title": "返青肥",         "desc": "返青期追氮肥，配合中耕提地温" },
-        { "opType": "fertilize",  "dayOffset": 120, "title": "蒜薹伸长期追肥", "desc": "薹期需水需肥量大，水肥齐攻" },
-        { "opType": "pesticide",  "dayOffset": 140, "title": "抽薹前防病",     "desc": "抽薹前喷药预防叶枯病与疫病" },
-        { "opType": "fertilize",  "dayOffset": 165, "title": "蒜头膨大期追肥", "desc": "膨大期补钾肥，控氮防叶片早衰" },
-        { "opType": "harvest",    "dayOffset": 190, "title": "采收窗口开启",   "desc": "假茎变软、叶片大半枯黄即可采收，避开雨天" }
-      ]
+        {
+          "opType": "sowing",
+          "dayOffset": 0,
+          "title": "播种下地",
+          "desc": "按株距下地覆土，浇透底墒水"
+        },
+        {
+          "opType": "irrigation",
+          "dayOffset": 12,
+          "title": "出苗水",
+          "desc": "出苗期小水轻浇，保持土壤湿润"
+        },
+        {
+          "opType": "fertilize",
+          "dayOffset": 30,
+          "title": "苗期追肥",
+          "desc": "以氮肥为主，促苗壮不促旺"
+        },
+        {
+          "opType": "irrigation",
+          "dayOffset": 55,
+          "title": "越冬前灌水",
+          "desc": "封冻前浇越冬水，稳地温防冻害"
+        },
+        {
+          "opType": "fertilize",
+          "dayOffset": 90,
+          "title": "返青肥",
+          "desc": "返青期追氮肥，配合中耕提地温"
+        },
+        {
+          "opType": "fertilize",
+          "dayOffset": 120,
+          "title": "蒜薹伸长期追肥",
+          "desc": "薹期需水需肥量大，水肥齐攻"
+        },
+        {
+          "opType": "pesticide",
+          "dayOffset": 140,
+          "title": "抽薹前防病",
+          "desc": "抽薹前喷药预防叶枯病与疫病"
+        },
+        {
+          "opType": "fertilize",
+          "dayOffset": 165,
+          "title": "蒜头膨大期追肥",
+          "desc": "膨大期补钾肥，控氮防叶片早衰"
+        },
+        {
+          "opType": "harvest",
+          "dayOffset": 190,
+          "title": "采收窗口开启",
+          "desc": "假茎变软、叶片大半枯黄即可采收，避开雨天"
+        }
+      ],
+      "standardName": "大蒜"
     },
     {
       "cropId": "wheat_winter",
@@ -25,15 +71,56 @@
       "source": "常识性农事节点骨架（播种→越冬→返青→拔节→抽穗→灌浆→采收），具体天数待农技人员复核",
       "reviewStatus": "pending_review",
       "nodes": [
-        { "opType": "sowing",     "dayOffset": 0,   "title": "播种下地",     "desc": "适播期播种，深度 3-5cm，播后镇压保墒" },
-        { "opType": "irrigation", "dayOffset": 10,  "title": "出苗水",       "desc": "出苗期轻浇，确保苗齐苗壮" },
-        { "opType": "irrigation", "dayOffset": 40,  "title": "越冬前灌水",   "desc": "封冻前浇越冬水，防冻保苗安全越冬" },
-        { "opType": "fertilize",  "dayOffset": 130, "title": "返青肥",       "desc": "返青期追氮肥，促苗早发，配合中耕" },
-        { "opType": "fertilize",  "dayOffset": 160, "title": "拔节期追肥",   "desc": "拔节期重施氮肥，攻大穗" },
-        { "opType": "pesticide",  "dayOffset": 180, "title": "抽穗扬花期防病", "desc": "预防赤霉病和蚜虫，扬花期前后喷药" },
-        { "opType": "irrigation", "dayOffset": 200, "title": "灌浆水",       "desc": "灌浆期保证水分供应，增粒重" },
-        { "opType": "harvest",    "dayOffset": 230, "title": "采收",         "desc": "蜡熟末期至完熟期收割，避开雨天" }
-      ]
+        {
+          "opType": "sowing",
+          "dayOffset": 0,
+          "title": "播种下地",
+          "desc": "适播期播种，深度 3-5cm，播后镇压保墒"
+        },
+        {
+          "opType": "irrigation",
+          "dayOffset": 10,
+          "title": "出苗水",
+          "desc": "出苗期轻浇，确保苗齐苗壮"
+        },
+        {
+          "opType": "irrigation",
+          "dayOffset": 40,
+          "title": "越冬前灌水",
+          "desc": "封冻前浇越冬水，防冻保苗安全越冬"
+        },
+        {
+          "opType": "fertilize",
+          "dayOffset": 130,
+          "title": "返青肥",
+          "desc": "返青期追氮肥，促苗早发，配合中耕"
+        },
+        {
+          "opType": "fertilize",
+          "dayOffset": 160,
+          "title": "拔节期追肥",
+          "desc": "拔节期重施氮肥，攻大穗"
+        },
+        {
+          "opType": "pesticide",
+          "dayOffset": 180,
+          "title": "抽穗扬花期防病",
+          "desc": "预防赤霉病和蚜虫，扬花期前后喷药"
+        },
+        {
+          "opType": "irrigation",
+          "dayOffset": 200,
+          "title": "灌浆水",
+          "desc": "灌浆期保证水分供应，增粒重"
+        },
+        {
+          "opType": "harvest",
+          "dayOffset": 230,
+          "title": "采收",
+          "desc": "蜡熟末期至完熟期收割，避开雨天"
+        }
+      ],
+      "standardName": "小麦"
     },
     {
       "cropId": "corn_summer",
@@ -41,15 +128,56 @@
       "source": "常识性农事节点骨架（播种→出苗→拔节→大喇叭口→抽雄→灌浆→采收），具体天数待农技人员复核",
       "reviewStatus": "pending_review",
       "nodes": [
-        { "opType": "sowing",     "dayOffset": 0,   "title": "播种下地",       "desc": "麦后抢墒播种，深度 3-5cm" },
-        { "opType": "irrigation", "dayOffset": 7,   "title": "出苗水",         "desc": "出苗期轻浇，保苗齐" },
-        { "opType": "fertilize",  "dayOffset": 25,  "title": "苗期追肥",       "desc": "苗期轻施氮肥，促根壮苗" },
-        { "opType": "fertilize",  "dayOffset": 40,  "title": "拔节期追肥",     "desc": "拔节期重施氮肥，攻秆促穗" },
-        { "opType": "fertilize",  "dayOffset": 55,  "title": "大喇叭口期追肥", "desc": "大喇叭口期追穗肥，决定穗粒数" },
-        { "opType": "irrigation", "dayOffset": 65,  "title": "抽雄期灌溉",     "desc": "抽雄开花期需水临界期，保证供水" },
-        { "opType": "irrigation", "dayOffset": 80,  "title": "灌浆期灌溉",     "desc": "灌浆期保持土壤湿润，增粒重" },
-        { "opType": "harvest",    "dayOffset": 105, "title": "采收",           "desc": "苞叶发白、籽粒乳线消失时收获" }
-      ]
+        {
+          "opType": "sowing",
+          "dayOffset": 0,
+          "title": "播种下地",
+          "desc": "麦后抢墒播种，深度 3-5cm"
+        },
+        {
+          "opType": "irrigation",
+          "dayOffset": 7,
+          "title": "出苗水",
+          "desc": "出苗期轻浇，保苗齐"
+        },
+        {
+          "opType": "fertilize",
+          "dayOffset": 25,
+          "title": "苗期追肥",
+          "desc": "苗期轻施氮肥，促根壮苗"
+        },
+        {
+          "opType": "fertilize",
+          "dayOffset": 40,
+          "title": "拔节期追肥",
+          "desc": "拔节期重施氮肥，攻秆促穗"
+        },
+        {
+          "opType": "fertilize",
+          "dayOffset": 55,
+          "title": "大喇叭口期追肥",
+          "desc": "大喇叭口期追穗肥，决定穗粒数"
+        },
+        {
+          "opType": "irrigation",
+          "dayOffset": 65,
+          "title": "抽雄期灌溉",
+          "desc": "抽雄开花期需水临界期，保证供水"
+        },
+        {
+          "opType": "irrigation",
+          "dayOffset": 80,
+          "title": "灌浆期灌溉",
+          "desc": "灌浆期保持土壤湿润，增粒重"
+        },
+        {
+          "opType": "harvest",
+          "dayOffset": 105,
+          "title": "采收",
+          "desc": "苞叶发白、籽粒乳线消失时收获"
+        }
+      ],
+      "standardName": "玉米"
     },
     {
       "cropId": "rice",
@@ -57,15 +185,56 @@
       "source": "常识性农事节点骨架（插秧→返青→分蘖→拔节→抽穗→灌浆→采收），具体天数待农技人员复核",
       "reviewStatus": "pending_review",
       "nodes": [
-        { "opType": "sowing",     "dayOffset": 0,   "title": "插秧",         "desc": "秧苗移栽，浅插匀插，行距 25-30cm" },
-        { "opType": "fertilize",  "dayOffset": 7,   "title": "返青肥",       "desc": "插秧后追返青肥，促早发新根" },
-        { "opType": "fertilize",  "dayOffset": 18,  "title": "分蘖期追肥",   "desc": "分蘖期施氮肥，促有效分蘖" },
-        { "opType": "irrigation", "dayOffset": 30,  "title": "晒田",         "desc": "分蘖末期晒田控蘖，壮秆防倒伏" },
-        { "opType": "fertilize",  "dayOffset": 40,  "title": "拔节期追肥",   "desc": "拔节期施穗肥，攻大穗" },
-        { "opType": "pesticide",  "dayOffset": 55,  "title": "抽穗期防病",   "desc": "预防稻瘟病和稻飞虱，破口期前后喷药" },
-        { "opType": "irrigation", "dayOffset": 70,  "title": "灌浆期管理",   "desc": "灌浆期干湿交替，保根护叶" },
-        { "opType": "harvest",    "dayOffset": 105, "title": "采收",         "desc": "黄熟期收割，适时晒干" }
-      ]
+        {
+          "opType": "sowing",
+          "dayOffset": 0,
+          "title": "插秧",
+          "desc": "秧苗移栽，浅插匀插，行距 25-30cm"
+        },
+        {
+          "opType": "fertilize",
+          "dayOffset": 7,
+          "title": "返青肥",
+          "desc": "插秧后追返青肥，促早发新根"
+        },
+        {
+          "opType": "fertilize",
+          "dayOffset": 18,
+          "title": "分蘖期追肥",
+          "desc": "分蘖期施氮肥，促有效分蘖"
+        },
+        {
+          "opType": "irrigation",
+          "dayOffset": 30,
+          "title": "晒田",
+          "desc": "分蘖末期晒田控蘖，壮秆防倒伏"
+        },
+        {
+          "opType": "fertilize",
+          "dayOffset": 40,
+          "title": "拔节期追肥",
+          "desc": "拔节期施穗肥，攻大穗"
+        },
+        {
+          "opType": "pesticide",
+          "dayOffset": 55,
+          "title": "抽穗期防病",
+          "desc": "预防稻瘟病和稻飞虱，破口期前后喷药"
+        },
+        {
+          "opType": "irrigation",
+          "dayOffset": 70,
+          "title": "灌浆期管理",
+          "desc": "灌浆期干湿交替，保根护叶"
+        },
+        {
+          "opType": "harvest",
+          "dayOffset": 105,
+          "title": "采收",
+          "desc": "黄熟期收割，适时晒干"
+        }
+      ],
+      "standardName": "水稻"
     },
     {
       "cropId": "soybean",
@@ -73,14 +242,50 @@
       "source": "常识性农事节点骨架（播种→出苗→分枝→开花→结荚→鼓粒→采收），具体天数待农技人员复核",
       "reviewStatus": "pending_review",
       "nodes": [
-        { "opType": "sowing",     "dayOffset": 0,   "title": "播种下地",     "desc": "适期播种，深度 3-5cm，合理密植" },
-        { "opType": "irrigation", "dayOffset": 7,   "title": "出苗水",       "desc": "出苗期轻浇，保苗齐" },
-        { "opType": "fertilize",  "dayOffset": 20,  "title": "苗期追肥",     "desc": "苗期施磷钾肥，促根壮苗" },
-        { "opType": "fertilize",  "dayOffset": 45,  "title": "花期追肥",     "desc": "初花期追氮肥，保花增荚" },
-        { "opType": "pesticide",  "dayOffset": 55,  "title": "结荚期防虫",   "desc": "防治豆荚螟和食心虫" },
-        { "opType": "irrigation", "dayOffset": 70,  "title": "鼓粒期管理",   "desc": "鼓粒期保证水分供应，增粒重" },
-        { "opType": "harvest",    "dayOffset": 100, "title": "采收",         "desc": "叶片大部落黄、荚呈黄褐色时收获" }
-      ]
+        {
+          "opType": "sowing",
+          "dayOffset": 0,
+          "title": "播种下地",
+          "desc": "适期播种，深度 3-5cm，合理密植"
+        },
+        {
+          "opType": "irrigation",
+          "dayOffset": 7,
+          "title": "出苗水",
+          "desc": "出苗期轻浇，保苗齐"
+        },
+        {
+          "opType": "fertilize",
+          "dayOffset": 20,
+          "title": "苗期追肥",
+          "desc": "苗期施磷钾肥，促根壮苗"
+        },
+        {
+          "opType": "fertilize",
+          "dayOffset": 45,
+          "title": "花期追肥",
+          "desc": "初花期追氮肥，保花增荚"
+        },
+        {
+          "opType": "pesticide",
+          "dayOffset": 55,
+          "title": "结荚期防虫",
+          "desc": "防治豆荚螟和食心虫"
+        },
+        {
+          "opType": "irrigation",
+          "dayOffset": 70,
+          "title": "鼓粒期管理",
+          "desc": "鼓粒期保证水分供应，增粒重"
+        },
+        {
+          "opType": "harvest",
+          "dayOffset": 100,
+          "title": "采收",
+          "desc": "叶片大部落黄、荚呈黄褐色时收获"
+        }
+      ],
+      "standardName": "大豆"
     }
   ]
 }

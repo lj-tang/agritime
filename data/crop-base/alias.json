@@ -1,366 +1,570 @@
 {
-  "version": "2.0.0",
-  "comment": "作物别名映射库 V2.0 - 400+作物",
+  "version": "2.1.0",
+  "comment": "作物别名映射库 V2.1 —— 400 条作物；常见作物补入真实俗名与拼音，其余条目仅含 canonical 与标准名（不造假数据）。由 backend CropRegistry 加载，任何接口收到俗称都先归一到 displayName。",
   "mappings": [
     {
       "canonical": "C001",
       "displayName": "水稻",
       "aliases": [
         "C001",
-        "水稻"
+        "水稻",
+        "稻",
+        "稻谷",
+        "稻子"
       ],
-      "pinyin": []
+      "pinyin": [
+        "shuidao",
+        "dao"
+      ]
     },
     {
       "canonical": "C002",
       "displayName": "小麦",
       "aliases": [
         "C002",
-        "小麦"
+        "小麦",
+        "麦",
+        "麦子"
       ],
-      "pinyin": []
+      "pinyin": [
+        "xiaomai",
+        "mai"
+      ]
     },
     {
       "canonical": "C003",
       "displayName": "玉米",
       "aliases": [
         "C003",
-        "玉米"
+        "玉米",
+        "苞谷",
+        "苞米",
+        "玉蜀黍",
+        "棒子",
+        "玉米棒"
       ],
-      "pinyin": []
+      "pinyin": [
+        "yumi",
+        "baogu"
+      ]
     },
     {
       "canonical": "C004",
       "displayName": "大豆",
       "aliases": [
         "C004",
-        "大豆"
+        "大豆",
+        "黄豆",
+        "毛豆",
+        "大豆粒"
       ],
-      "pinyin": []
+      "pinyin": [
+        "dadou",
+        "huangdou"
+      ]
     },
     {
       "canonical": "C005",
       "displayName": "棉花",
       "aliases": [
         "C005",
-        "棉花"
+        "棉花",
+        "棉",
+        "棉花朵"
       ],
-      "pinyin": []
+      "pinyin": [
+        "mianhua",
+        "mian"
+      ]
     },
     {
       "canonical": "C006",
       "displayName": "油菜",
       "aliases": [
         "C006",
-        "油菜"
+        "油菜",
+        "油菜籽",
+        "菜籽",
+        "芸苔"
       ],
-      "pinyin": []
+      "pinyin": [
+        "youcai",
+        "caizi"
+      ]
     },
     {
       "canonical": "C007",
       "displayName": "花生",
       "aliases": [
         "C007",
-        "花生"
+        "花生",
+        "落花生",
+        "长生果",
+        "花生米"
       ],
-      "pinyin": []
+      "pinyin": [
+        "huasheng",
+        "luohuasheng"
+      ]
     },
     {
       "canonical": "C008",
       "displayName": "芝麻",
       "aliases": [
         "C008",
-        "芝麻"
+        "芝麻",
+        "胡麻",
+        "脂麻"
       ],
-      "pinyin": []
+      "pinyin": [
+        "zhima"
+      ]
     },
     {
       "canonical": "C009",
       "displayName": "向日葵",
       "aliases": [
         "C009",
-        "向日葵"
+        "向日葵",
+        "葵花",
+        "葵花籽",
+        "瓜子"
       ],
-      "pinyin": []
+      "pinyin": [
+        "xiangrikui",
+        "kuihua"
+      ]
     },
     {
       "canonical": "C010",
       "displayName": "高粱",
       "aliases": [
         "C010",
-        "高粱"
+        "高粱",
+        "蜀黍",
+        "红粮"
       ],
-      "pinyin": []
+      "pinyin": [
+        "gaoliang",
+        "shushu"
+      ]
     },
     {
       "canonical": "C011",
       "displayName": "谷子",
       "aliases": [
         "C011",
-        "谷子"
+        "谷子",
+        "小米",
+        "粟",
+        "粟米"
       ],
-      "pinyin": []
+      "pinyin": [
+        "guzi",
+        "xiaomi",
+        "su"
+      ]
     },
     {
       "canonical": "C012",
       "displayName": "红薯",
       "aliases": [
         "C012",
-        "红薯"
+        "红薯",
+        "地瓜",
+        "番薯",
+        "甘薯",
+        "山芋"
       ],
-      "pinyin": []
+      "pinyin": [
+        "hongshu",
+        "digua",
+        "ganshu"
+      ]
     },
     {
       "canonical": "C013",
       "displayName": "马铃薯",
       "aliases": [
         "C013",
-        "马铃薯"
+        "马铃薯",
+        "土豆",
+        "洋芋",
+        "山药蛋"
       ],
-      "pinyin": []
+      "pinyin": [
+        "malingshu",
+        "tudou",
+        "yangyu"
+      ]
     },
     {
       "canonical": "C014",
       "displayName": "甘蔗",
       "aliases": [
         "C014",
-        "甘蔗"
+        "甘蔗",
+        "蔗",
+        "糖蔗"
       ],
-      "pinyin": []
+      "pinyin": [
+        "ganzhe",
+        "zhe"
+      ]
     },
     {
       "canonical": "C015",
       "displayName": "甜菜",
       "aliases": [
         "C015",
-        "甜菜"
+        "甜菜",
+        "糖萝卜"
       ],
-      "pinyin": []
+      "pinyin": [
+        "tiancai"
+      ]
     },
     {
       "canonical": "C016",
       "displayName": "烟草",
       "aliases": [
         "C016",
-        "烟草"
+        "烟草",
+        "烟叶",
+        "烤烟"
       ],
-      "pinyin": []
+      "pinyin": [
+        "yancao",
+        "yanye"
+      ]
     },
     {
       "canonical": "C017",
       "displayName": "茶",
       "aliases": [
         "C017",
-        "茶"
+        "茶",
+        "茶叶",
+        "茶树"
       ],
-      "pinyin": []
+      "pinyin": [
+        "cha",
+        "chaye"
+      ]
     },
     {
       "canonical": "C018",
       "displayName": "桑",
       "aliases": [
         "C018",
-        "桑"
+        "桑",
+        "桑树",
+        "蚕桑"
       ],
-      "pinyin": []
+      "pinyin": [
+        "sang",
+        "sangshu"
+      ]
     },
     {
       "canonical": "C019",
       "displayName": "苎麻",
       "aliases": [
         "C019",
-        "苎麻"
+        "苎麻",
+        "白麻"
       ],
-      "pinyin": []
+      "pinyin": [
+        "zhuma"
+      ]
     },
     {
       "canonical": "C020",
       "displayName": "亚麻",
       "aliases": [
         "C020",
-        "亚麻"
+        "亚麻",
+        "胡麻"
       ],
-      "pinyin": []
+      "pinyin": [
+        "yama"
+      ]
     },
     {
       "canonical": "C021",
       "displayName": "大白菜",
       "aliases": [
         "C021",
-        "大白菜"
+        "大白菜",
+        "白菜",
+        "结球白菜"
       ],
-      "pinyin": []
+      "pinyin": [
+        "dabaicai",
+        "baicai"
+      ]
     },
     {
       "canonical": "C022",
       "displayName": "小白菜",
       "aliases": [
         "C022",
-        "小白菜"
+        "小白菜",
+        "青菜",
+        "油菜秧"
       ],
-      "pinyin": []
+      "pinyin": [
+        "xiaobaicai",
+        "qingcai"
+      ]
     },
     {
       "canonical": "C023",
       "displayName": "菠菜",
       "aliases": [
         "C023",
-        "菠菜"
+        "菠菜",
+        "波斯菜",
+        "红根菜"
       ],
-      "pinyin": []
+      "pinyin": [
+        "bocai"
+      ]
     },
     {
       "canonical": "C024",
       "displayName": "芹菜",
       "aliases": [
         "C024",
-        "芹菜"
+        "芹菜",
+        "旱芹",
+        "药芹"
       ],
-      "pinyin": []
+      "pinyin": [
+        "qincai"
+      ]
     },
     {
       "canonical": "C025",
       "displayName": "生菜",
       "aliases": [
         "C025",
-        "生菜"
+        "生菜",
+        "叶用莴苣",
+        "鹅仔菜"
       ],
-      "pinyin": []
+      "pinyin": [
+        "shengcai"
+      ]
     },
     {
       "canonical": "C026",
       "displayName": "空心菜",
       "aliases": [
         "C026",
-        "空心菜"
+        "空心菜",
+        "蕹菜",
+        "通菜",
+        "竹叶菜"
       ],
-      "pinyin": []
+      "pinyin": [
+        "kongxincai",
+        "wengcai"
+      ]
     },
     {
       "canonical": "C027",
       "displayName": "韭菜",
       "aliases": [
         "C027",
-        "韭菜"
+        "韭菜",
+        "韭",
+        "韭菜叶"
       ],
-      "pinyin": []
+      "pinyin": [
+        "jiucai",
+        "jiu"
+      ]
     },
     {
       "canonical": "C028",
       "displayName": "蒜苗",
       "aliases": [
         "C028",
-        "蒜苗"
+        "蒜苗",
+        "蒜薹",
+        "青蒜"
       ],
-      "pinyin": []
+      "pinyin": [
+        "suanmiao",
+        "suanhuang"
+      ]
     },
     {
       "canonical": "C029",
       "displayName": "花椰菜",
       "aliases": [
         "C029",
-        "花椰菜"
+        "花椰菜",
+        "菜花",
+        "花菜"
       ],
-      "pinyin": []
+      "pinyin": [
+        "huayecai",
+        "caihua"
+      ]
     },
     {
       "canonical": "C030",
       "displayName": "西兰花",
       "aliases": [
         "C030",
-        "西兰花"
+        "西兰花",
+        "青花菜",
+        "绿花菜"
       ],
-      "pinyin": []
+      "pinyin": [
+        "xilanhua"
+      ]
     },
     {
       "canonical": "C031",
       "displayName": "番茄",
       "aliases": [
         "C031",
-        "番茄"
+        "番茄",
+        "西红柿",
+        "洋柿子",
+        "番茄果"
       ],
-      "pinyin": []
+      "pinyin": [
+        "fanqie",
+        "xihongshi",
+        "tomato"
+      ]
     },
     {
       "canonical": "C032",
       "displayName": "茄子",
       "aliases": [
         "C032",
-        "茄子"
+        "茄子",
+        "矮瓜",
+        "落苏"
       ],
-      "pinyin": []
+      "pinyin": [
+        "qiezi"
+      ]
     },
     {
       "canonical": "C033",
       "displayName": "辣椒",
       "aliases": [
         "C033",
-        "辣椒"
+        "辣椒",
+        "青椒",
+        "尖椒",
+        "海椒",
+        "辣子"
       ],
-      "pinyin": []
+      "pinyin": [
+        "lajiao",
+        "qingjiao",
+        "haijiao"
+      ]
     },
     {
       "canonical": "C034",
       "displayName": "黄瓜",
       "aliases": [
         "C034",
-        "黄瓜"
+        "黄瓜",
+        "青瓜",
+        "胡瓜"
       ],
-      "pinyin": []
+      "pinyin": [
+        "huanggua",
+        "qinggua"
+      ]
     },
     {
       "canonical": "C035",
       "displayName": "冬瓜",
       "aliases": [
         "C035",
-        "冬瓜"
+        "冬瓜",
+        "白瓜",
+        "枕瓜"
       ],
-      "pinyin": []
+      "pinyin": [
+        "donggua"
+      ]
     },
     {
       "canonical": "C036",
       "displayName": "南瓜",
       "aliases": [
         "C036",
-        "南瓜"
+        "南瓜",
+        "倭瓜",
+        "饭瓜",
+        "金瓜"
       ],
-      "pinyin": []
+      "pinyin": [
+        "nangua",
+        "wogua"
+      ]
     },
     {
       "canonical": "C037",
       "displayName": "丝瓜",
       "aliases": [
         "C037",
-        "丝瓜"
+        "丝瓜",
+        "水瓜",
+        "天罗"
       ],
-      "pinyin": []
+      "pinyin": [
+        "sigua"
+      ]
     },
     {
       "canonical": "C038",
       "displayName": "苦瓜",
       "aliases": [
         "C038",
-        "苦瓜"
+        "苦瓜",
+        "凉瓜"
       ],
-      "pinyin": []
+      "pinyin": [
+        "kugua"
+      ]
     },
     {
       "canonical": "C039",
       "displayName": "西葫芦",
       "aliases": [
         "C039",
-        "西葫芦"
+        "西葫芦",
+        "角瓜",
+        "茭瓜"
       ],
-      "pinyin": []
+      "pinyin": [
+        "xihulu"
+      ]
     },
     {
       "canonical": "C040",
       "displayName": "西瓜",
       "aliases": [
         "C040",
-        "西瓜"
+        "西瓜",
+        "夏瓜",
+        "寒瓜"
       ],
-      "pinyin": []
+      "pinyin": [
+        "xigua"
+      ]
     },
     {
       "canonical": "C041",
@@ -376,27 +580,43 @@
       "displayName": "豇豆",
       "aliases": [
         "C042",
-        "豇豆"
+        "豇豆",
+        "长豆角",
+        "豆角",
+        "带豆"
       ],
-      "pinyin": []
+      "pinyin": [
+        "jiangdou",
+        "doujiao"
+      ]
     },
     {
       "canonical": "C043",
       "displayName": "豌豆",
       "aliases": [
         "C043",
-        "豌豆"
+        "豌豆",
+        "荷兰豆",
+        "青豆",
+        "豌豆粒"
       ],
-      "pinyin": []
+      "pinyin": [
+        "wandou",
+        "helandou"
+      ]
     },
     {
       "canonical": "C044",
       "displayName": "蚕豆",
       "aliases": [
         "C044",
-        "蚕豆"
+        "蚕豆",
+        "胡豆",
+        "罗汉豆"
       ],
-      "pinyin": []
+      "pinyin": [
+        "candou"
+      ]
     },
     {
       "canonical": "C045",
@@ -412,72 +632,113 @@
       "displayName": "洋葱",
       "aliases": [
         "C046",
-        "洋葱"
+        "洋葱",
+        "圆葱",
+        "球葱"
       ],
-      "pinyin": []
+      "pinyin": [
+        "yangcong",
+        "yuancong"
+      ]
     },
     {
       "canonical": "C047",
       "displayName": "大蒜",
       "aliases": [
         "C047",
-        "大蒜"
+        "大蒜",
+        "蒜",
+        "蒜头",
+        "大蒜头"
       ],
-      "pinyin": []
+      "pinyin": [
+        "dasuan",
+        "suan"
+      ]
     },
     {
       "canonical": "C048",
       "displayName": "甘蓝",
       "aliases": [
         "C048",
-        "甘蓝"
+        "甘蓝",
+        "卷心菜",
+        "包菜",
+        "圆白菜"
       ],
-      "pinyin": []
+      "pinyin": [
+        "ganlan",
+        "juancai",
+        "baocai"
+      ]
     },
     {
       "canonical": "C049",
       "displayName": "苋菜",
       "aliases": [
         "C049",
-        "苋菜"
+        "苋菜",
+        "汉菜",
+        "苋"
       ],
-      "pinyin": []
+      "pinyin": [
+        "xiancai"
+      ]
     },
     {
       "canonical": "C050",
       "displayName": "茼蒿",
       "aliases": [
         "C050",
-        "茼蒿"
+        "茼蒿",
+        "蓬蒿",
+        "皇帝菜"
       ],
-      "pinyin": []
+      "pinyin": [
+        "tonghao"
+      ]
     },
     {
       "canonical": "C051",
       "displayName": "萝卜",
       "aliases": [
         "C051",
-        "萝卜"
+        "萝卜",
+        "白萝卜",
+        "莱菔"
       ],
-      "pinyin": []
+      "pinyin": [
+        "luobo",
+        "laifu"
+      ]
     },
     {
       "canonical": "C052",
       "displayName": "胡萝卜",
       "aliases": [
         "C052",
-        "胡萝卜"
+        "胡萝卜",
+        "红萝卜",
+        "丁香萝卜"
       ],
-      "pinyin": []
+      "pinyin": [
+        "huluobo",
+        "hongluobo"
+      ]
     },
     {
       "canonical": "C053",
       "displayName": "莲藕",
       "aliases": [
         "C053",
-        "莲藕"
+        "莲藕",
+        "藕",
+        "莲菜"
       ],
-      "pinyin": []
+      "pinyin": [
+        "lianou",
+        "ou"
+      ]
     },
     {
       "canonical": "C054",
@@ -493,63 +754,96 @@
       "displayName": "芋头",
       "aliases": [
         "C055",
-        "芋头"
+        "芋头",
+        "芋艿",
+        "毛芋"
       ],
-      "pinyin": []
+      "pinyin": [
+        "yutou",
+        "yuna"
+      ]
     },
     {
       "canonical": "C056",
       "displayName": "山药",
       "aliases": [
         "C056",
-        "山药"
+        "山药",
+        "淮山",
+        "薯蓣"
       ],
-      "pinyin": []
+      "pinyin": [
+        "shanyao",
+        "huaishan"
+      ]
     },
     {
       "canonical": "C057",
       "displayName": "生姜",
       "aliases": [
         "C057",
-        "生姜"
+        "生姜",
+        "姜",
+        "老姜"
       ],
-      "pinyin": []
+      "pinyin": [
+        "shengjiang",
+        "jiang"
+      ]
     },
     {
       "canonical": "C058",
       "displayName": "莴笋",
       "aliases": [
         "C058",
-        "莴笋"
+        "莴笋",
+        "莴苣",
+        "青笋"
       ],
-      "pinyin": []
+      "pinyin": [
+        "wosun",
+        "woju"
+      ]
     },
     {
       "canonical": "C059",
       "displayName": "苹果",
       "aliases": [
         "C059",
-        "苹果"
+        "苹果",
+        "pingguo"
       ],
-      "pinyin": []
+      "pinyin": [
+        "pingguo"
+      ]
     },
     {
       "canonical": "C060",
       "displayName": "梨",
       "aliases": [
         "C060",
-        "梨"
+        "梨",
+        "梨子",
+        "白梨"
       ],
-      "pinyin": []
+      "pinyin": [
+        "li",
+        "lizi"
+      ]
     },
     {
       "canonical": "C061",
       "displayName": "桃",
       "aliases": [
         "C061",
-        "桃"
+        "桃",
+        "桃子",
+        "水蜜桃"
       ],
-      "pinyin": []
+      "pinyin": [
+        "tao",
+        "taozi"
+      ]
     },
     {
       "canonical": "C062",
@@ -583,27 +877,40 @@
       "displayName": "草莓",
       "aliases": [
         "C065",
-        "草莓"
+        "草莓",
+        "士多啤梨",
+        "草莓果"
       ],
-      "pinyin": []
+      "pinyin": [
+        "caomei"
+      ]
     },
     {
       "canonical": "C066",
       "displayName": "葡萄",
       "aliases": [
         "C066",
-        "葡萄"
+        "葡萄",
+        "提子"
       ],
-      "pinyin": []
+      "pinyin": [
+        "putao",
+        "tizi"
+      ]
     },
     {
       "canonical": "C067",
       "displayName": "柑橘",
       "aliases": [
         "C067",
-        "柑橘"
+        "柑橘",
+        "橘子",
+        "桔子"
       ],
-      "pinyin": []
+      "pinyin": [
+        "ganju",
+        "juzi"
+      ]
     },
     {
       "canonical": "C068",
@@ -637,9 +944,14 @@
       "displayName": "甜瓜",
       "aliases": [
         "C071",
-        "甜瓜"
+        "甜瓜",
+        "香瓜",
+        "哈密瓜"
       ],
-      "pinyin": []
+      "pinyin": [
+        "tiangua",
+        "xianggua"
+      ]
     },
     {
       "canonical": "C072",
@@ -682,18 +994,26 @@
       "displayName": "枣",
       "aliases": [
         "C076",
-        "枣"
+        "枣",
+        "红枣",
+        "大枣"
       ],
-      "pinyin": []
+      "pinyin": [
+        "zao",
+        "hongzao"
+      ]
     },
     {
       "canonical": "C077",
       "displayName": "芒果",
       "aliases": [
         "C077",
-        "芒果"
+        "芒果",
+        "杧果"
       ],
-      "pinyin": []
+      "pinyin": [
+        "mangguo"
+      ]
     },
     {
       "canonical": "C078",
@@ -736,9 +1056,12 @@
       "displayName": "枸杞",
       "aliases": [
         "C082",
-        "枸杞"
+        "枸杞",
+        "枸杞子"
       ],
-      "pinyin": []
+      "pinyin": [
+        "gouqi"
+      ]
     },
     {
       "canonical": "C083",
@@ -817,27 +1140,38 @@
       "displayName": "荞麦",
       "aliases": [
         "C091",
-        "荞麦"
+        "荞麦",
+        "三角麦"
       ],
-      "pinyin": []
+      "pinyin": [
+        "qiaomai"
+      ]
     },
     {
       "canonical": "C092",
       "displayName": "燕麦",
       "aliases": [
         "C092",
-        "燕麦"
+        "燕麦",
+        "莜麦",
+        "燕麦片"
       ],
-      "pinyin": []
+      "pinyin": [
+        "yanmai",
+        "youmai"
+      ]
     },
     {
       "canonical": "C093",
       "displayName": "大麦",
       "aliases": [
         "C093",
-        "大麦"
+        "大麦",
+        "麦仁"
       ],
-      "pinyin": []
+      "pinyin": [
+        "damai"
+      ]
     },
     {
       "canonical": "C094",
@@ -853,9 +1187,12 @@
       "displayName": "绿豆",
       "aliases": [
         "C095",
-        "绿豆"
+        "绿豆",
+        "青小豆"
       ],
-      "pinyin": []
+      "pinyin": [
+        "lvdou"
+      ]
     },
     {
       "canonical": "C096",
@@ -907,9 +1244,14 @@
       "displayName": "大葱",
       "aliases": [
         "C101",
-        "大葱"
+        "大葱",
+        "葱",
+        "葱白"
       ],
-      "pinyin": []
+      "pinyin": [
+        "dacong",
+        "cong"
+      ]
     },
     {
       "canonical": "C102",
@@ -952,9 +1294,13 @@
       "displayName": "芥菜",
       "aliases": [
         "C106",
-        "芥菜"
+        "芥菜",
+        "雪里蕻",
+        "盖菜"
       ],
-      "pinyin": []
+      "pinyin": [
+        "jiecai"
+      ]
     },
     {
       "canonical": "C107",
@@ -1393,18 +1739,28 @@
       "displayName": "板栗",
       "aliases": [
         "C155",
-        "板栗"
+        "板栗",
+        "栗子",
+        "栗"
       ],
-      "pinyin": []
+      "pinyin": [
+        "banli",
+        "lizi"
+      ]
     },
     {
       "canonical": "C156",
       "displayName": "核桃",
       "aliases": [
         "C156",
-        "核桃"
+        "核桃",
+        "胡桃",
+        "核桃仁"
       ],
-      "pinyin": []
+      "pinyin": [
+        "hetao",
+        "hutao"
+      ]
     },
     {
       "canonical": "C157",
@@ -1492,9 +1848,12 @@
       "displayName": "荔枝",
       "aliases": [
         "C166",
-        "荔枝"
+        "荔枝",
+        "离枝"
       ],
-      "pinyin": []
+      "pinyin": [
+        "lizhi"
+      ]
     },
     {
       "canonical": "C167",
@@ -1789,9 +2148,12 @@
       "displayName": "菱角",
       "aliases": [
         "C199",
-        "菱角"
+        "菱角",
+        "菱"
       ],
-      "pinyin": []
+      "pinyin": [
+        "lingjiao"
+      ]
     },
     {
       "canonical": "C200",
@@ -2896,9 +3258,14 @@
       "displayName": "菜豆",
       "aliases": [
         "C322",
-        "菜豆"
+        "菜豆",
+        "四季豆",
+        "芸豆"
       ],
-      "pinyin": []
+      "pinyin": [
+        "caidou",
+        "sijidou"
+      ]
     },
     {
       "canonical": "C323",
@@ -3427,9 +3794,13 @@
       "displayName": "花椒",
       "aliases": [
         "C381",
-        "花椒"
+        "花椒",
+        "川椒",
+        "秦椒"
       ],
-      "pinyin": []
+      "pinyin": [
+        "huajiao"
+      ]
     },
     {
       "canonical": "C382",
@@ -3463,9 +3834,13 @@
       "displayName": "胡椒",
       "aliases": [
         "C385",
-        "胡椒"
+        "胡椒",
+        "白胡椒",
+        "黑胡椒"
       ],
-      "pinyin": []
+      "pinyin": [
+        "hujiao"
+      ]
     },
     {
       "canonical": "C386",

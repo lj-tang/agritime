@@ -565,12 +565,52 @@
         suggestHits = [];
         suggestActive = -1;
         if (!kw) { suggestions.classList.remove('show'); return; }
-        var matches = (window.CropMap && window.CropMap.matchCrop) ? window.CropMap.matchCrop(kw) : [];
-        if (matches.length === 0) {
-          var fallback = CROPS.filter(function (c) { return c.name.indexOf(kw) !== -1; });
-          matches = fallback.map(function (c) { return c.name; });
+        // T02：联想走后端 /api/crops?q=，别名/拼音/模糊由 CropRegistry 统一处理；
+        // 网络失败时退回本地 matchCrop，保证离线也能打字。
+        requestCropSuggestions(kw, function (matches) {
+          renderSuggestionList(matches, kw);
+        });
+      }
+
+      var suggestTimer = null;
+      var suggestSeq = 0;
+
+      function requestCropSuggestions(kw, done) {
+        if (suggestTimer) clearTimeout(suggestTimer);
+        suggestTimer = setTimeout(function () {
+          var seq = ++suggestSeq;
+          var xhr = new XMLHttpRequest();
+          xhr.open('GET', '/api/crops?q=' + encodeURIComponent(kw), true);
+          xhr.timeout = 2500;
+          xhr.onload = function () {
+            if (seq !== suggestSeq) return;           // 丢弃过期响应，避免后到的旧结果覆盖新结果
+            if (xhr.status !== 200) { done(localMatches(kw)); return; }
+            try {
+              var body = JSON.parse(xhr.responseText);
+              var list = (body.crops || []).map(function (c) { return c.displayName || c.name; });
+              done(list.length ? list : localMatches(kw));
+            } catch (e) { done(localMatches(kw)); }
+          };
+          xhr.onerror = xhr.ontimeout = function () {
+            if (seq === suggestSeq) done(localMatches(kw));
+          };
+          xhr.send();
+        }, 160);
+      }
+
+      function localMatches(kw) {
+        var list = (window.CropMap && window.CropMap.matchCrop) ? window.CropMap.matchCrop(kw) : [];
+        if (!list.length) {
+          list = CROPS.filter(function (c) { return c.name.indexOf(kw) !== -1; })
+                      .map(function (c) { return c.name; });
         }
-        if (matches.length === 0) { suggestions.classList.remove('show'); return; }
+        return list;
+      }
+
+      function renderSuggestionList(matches, kw) {
+        suggestions.innerHTML = '';
+        suggestActive = -1;
+        if (!matches.length) { suggestions.classList.remove('show'); return; }
         suggestHits = matches.map(function (name) {
           var hit = findCrop(name);
           return { name: name, city: hit ? hit.city : '', lat: hit ? hit.lat : 35.07, lng: hit ? hit.lng : 116.31 };
