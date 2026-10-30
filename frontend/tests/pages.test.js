@@ -936,3 +936,11 @@ test('T06 适宜度：后端把土壤/水质/地形纳入评分', () => {
   assert.ok(plotHandler.includes('\\"farmingSuitability\\"'), '响应里应输出 farmingSuitability 字段');
   assert.ok(plotHandler.includes('terrace'), '地形评分应识别梯田');
 });
+
+test('T06 实测土壤：消费 Open-Meteo 土壤数据并标注来源', () => {
+  const myPlotsJs = read(path.resolve(__dirname, '..', 'assets', 'js', 'my-plots.js'));
+  assert.ok(myPlotsJs.includes('data.soil'), '应消费后端 soil 字段');
+  assert.ok(myPlotsJs.includes('土壤墒情（实测）'), '应有实测墒情分区');
+  assert.ok(myPlotsJs.includes('Open-Meteo 土壤模型'), '应标注数据来源');
+  assert.ok(myPlotsJs.includes('非实地采样'), '土壤类型应标注为规则推断');
+});

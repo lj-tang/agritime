@@ -87,6 +87,22 @@ public class PlotHandler implements HttpHandler {
             parts.add("\"soilType\":" + Json.str(soilType));
             parts.add("\"soilDescription\":" + Json.str(soilDesc));
 
+            // 真实土壤数据（Open-Meteo 土壤模型）：地温与表层含水率，逐小时更新
+            parts.add("\"soil\":" + Json.obj(
+                    "temperature0cm", wc.soilTemp0() != null ? String.valueOf(wc.soilTemp0()) : "null",
+                    "temperature6cm", wc.soilTemp6() != null ? String.valueOf(wc.soilTemp6()) : "null",
+                    "moisture0to1cm", wc.soilMoist0to1() != null ? String.valueOf(wc.soilMoist0to1()) : "null",
+                    "moisturePct", wc.soilMoist0to1() != null ? String.valueOf(Math.round(wc.soilMoist0to1() * 100)) : "null",
+                    "status", wc.soilMoist0to1() != null ? Json.str(moistureLabel(wc.soilMoist0to1())) : "null",
+                    "source", Json.str("open-meteo.soil")));
+            // 数据来源标注：哪些是实测/模型数据、哪些是规则推断，避免演示时说不清
+            parts.add("\"dataSources\":" + Json.obj(
+                    "weather", Json.str("open-meteo.forecast"),
+                    "soil", Json.str(wc.soilMoist0to1() != null || wc.soilTemp0() != null
+                            ? "open-meteo.soil" : "region-rule"),
+                    "soilType", Json.str("region-rule"),
+                    "waterQuality", Json.str(waterGrade != null ? "river-reference" : "none")));
+
             List<String> riverJson = new ArrayList<>();
             for (RiverInfo r : rivers) {
                 riverJson.add(Json.obj(
@@ -130,11 +146,14 @@ public class PlotHandler implements HttpHandler {
         }
     }
 
-    private record WeatherCurrent(Double temp, Integer humidity, Double wind, Integer code) {}
+    private record WeatherCurrent(Double temp, Integer humidity, Double wind, Integer code,
+                               Double soilTemp0, Double soilTemp6, Double soilMoist0to1) {}
 
     private WeatherCurrent fetchCurrentWeather(double lat, double lon) {
         String url = String.format(
-                "https://api.open-meteo.com/v1/forecast?latitude=%.4f&longitude=%.4f&current=temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m",
+                "https://api.open-meteo.com/v1/forecast?latitude=%.4f&longitude=%.4f"
+                        + "&current=temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m"
+                        + ",soil_temperature_0cm,soil_temperature_6cm,soil_moisture_0_to_1cm",
                 lat, lon);
         try {
             HttpRequest req = HttpRequest.newBuilder()
@@ -142,24 +161,28 @@ public class PlotHandler implements HttpHandler {
                     .timeout(Duration.ofSeconds(5))
                     .GET().build();
             HttpResponse<String> resp = HTTP.send(req, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
-            if (resp.statusCode() != 200) return new WeatherCurrent(null, null, null, null);
+            if (resp.statusCode() != 200) return new WeatherCurrent(null, null, null, null, null, null, null);
             String body = resp.body();
             return parseCurrent(body);
         } catch (Exception e) {
-            return new WeatherCurrent(null, null, null, null);
+            return new WeatherCurrent(null, null, null, null, null, null, null);
         }
     }
 
     private WeatherCurrent parseCurrent(String body) {
         Double temp = null; Integer humidity = null; Double wind = null; Integer code = null;
         int curIdx = body.indexOf("\"current\":");
-        if (curIdx < 0) return new WeatherCurrent(null, null, null, null);
+        if (curIdx < 0) return new WeatherCurrent(null, null, null, null, null, null, null);
         String cur = body.substring(curIdx);
         temp = extractDouble(cur, "\"temperature_2m\":");
         humidity = extractInt(cur, "\"relative_humidity_2m\":");
         wind = extractDouble(cur, "\"wind_speed_10m\":");
         code = extractInt(cur, "\"weather_code\":");
-        return new WeatherCurrent(temp, humidity, wind, code);
+        // 真实土壤温湿度（Open-Meteo 土壤模型，0cm/6cm 地温与 0-1cm 体积含水率）
+        Double st0 = extractDouble(cur, "\"soil_temperature_0cm\":");
+        Double st6 = extractDouble(cur, "\"soil_temperature_6cm\":");
+        Double sm01 = extractDouble(cur, "\"soil_moisture_0_to_1cm\":");
+        return new WeatherCurrent(temp, humidity, wind, code, st0, st6, sm01);
     }
 
     private Double extractDouble(String s, String key) {
@@ -245,9 +268,9 @@ public class PlotHandler implements HttpHandler {
 
         keys.add("soil");
         labels.add("土壤");
-        scores.add(soilScore(soil));
+        scores.add(soilScore(wc, soil));
         weights.add(0.30);
-        notes.add(soil + "：" + soilDescription(soil));
+        notes.add(soilNote(wc, soil));
 
         Double water = waterScore(waterGrade);
         if (water != null) {
@@ -338,7 +361,67 @@ public class PlotHandler implements HttpHandler {
         return n == 0 ? null : sum / n;
     }
 
-    private double soilScore(String soil) {
+    /**
+     * 土壤分：优先用真实土壤数据（0-1cm 体积含水率 + 0cm 地温，Open-Meteo 土壤模型），
+     * 两项都没有时才降级到区域规则推断的土壤类型。
+     */
+    private double soilScore(WeatherCurrent wc, String soil) {
+        double sum = 0;
+        int n = 0;
+        if (wc.soilMoist0to1() != null) {
+            double m = wc.soilMoist0to1();
+            double v;
+            if (m < 0.10) v = 45;        // 严重偏干
+            else if (m < 0.18) v = 65;   // 偏干
+            else if (m <= 0.32) v = 95;  // 墒情适宜
+            else if (m <= 0.42) v = 72;  // 偏湿
+            else v = 50;                 // 过湿，易沤根
+            sum += v;
+            n++;
+        }
+        if (wc.soilTemp0() != null) {
+            double t = wc.soilTemp0();
+            double v;
+            if (t < 0) v = 40;
+            else if (t < 10) v = 65;
+            else if (t <= 25) v = 95;
+            else if (t <= 32) v = 80;
+            else v = 60;
+            sum += v;
+            n++;
+        }
+        if (n == 0) return soilTypeScore(soil); // 三档降级：没有实测就用区域规则
+        return sum / n;
+    }
+
+    private String soilNote(WeatherCurrent wc, String soil) {
+        StringBuilder sb = new StringBuilder();
+        if (wc.soilMoist0to1() != null) {
+            sb.append("0-1cm 含水率 ").append(Math.round(wc.soilMoist0to1() * 100))
+              .append("%（").append(moistureLabel(wc.soilMoist0to1())).append("）");
+        }
+        if (wc.soilTemp0() != null) {
+            if (sb.length() > 0) sb.append("、");
+            sb.append("地表温度 ").append(wc.soilTemp0()).append("℃");
+        }
+        if (sb.length() == 0) {
+            sb.append("无实测土壤数据，按区域规则推断为").append(soil);
+        } else {
+            sb.append("；土壤类型（区域规则）：").append(soil);
+        }
+        return sb.toString();
+    }
+
+    private String moistureLabel(double m) {
+        if (m < 0.10) return "严重偏干";
+        if (m < 0.18) return "偏干";
+        if (m <= 0.32) return "墒情适宜";
+        if (m <= 0.42) return "偏湿";
+        return "过湿";
+    }
+
+    /** 区域规则推断的土壤类型基准分，仅在无实测数据时兜底 */
+    private double soilTypeScore(String soil) {
         return switch (soil) {
             case "黑土" -> 95;
             case "潮土" -> 88;

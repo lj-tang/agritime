@@ -480,6 +480,27 @@
     grid.appendChild(envItem('风速', data.windSpeed, 'm/s'));
     container.appendChild(grid);
 
+    // 土壤墒情（真实数据：Open-Meteo 土壤模型，逐小时更新）
+    if (data.soil && (data.soil.temperature0cm != null || data.soil.moisturePct != null)) {
+      var soilEnvTitle = document.createElement('div');
+      soilEnvTitle.className = 'my-plots-env-section-title';
+      soilEnvTitle.textContent = '土壤墒情（实测）';
+      container.appendChild(soilEnvTitle);
+
+      var soilGrid = document.createElement('div');
+      soilGrid.className = 'my-plots-env-grid';
+      soilGrid.appendChild(envItem('地表温度', data.soil.temperature0cm, '°C'));
+      soilGrid.appendChild(envItem('6cm 地温', data.soil.temperature6cm, '°C'));
+      soilGrid.appendChild(envItem('表层含水率', data.soil.moisturePct, '%'));
+      soilGrid.appendChild(envItem('墒情', data.soil.status, ''));
+      container.appendChild(soilGrid);
+
+      var soilSrc = document.createElement('div');
+      soilSrc.className = 'my-plots-card-meta';
+      soilSrc.textContent = '数据来源：Open-Meteo 土壤模型，逐小时更新';
+      container.appendChild(soilSrc);
+    }
+
     if (plot.type === 'fishpond' && data.waterQuality) {
       var wqTitle = document.createElement('div');
       wqTitle.className = 'my-plots-env-section-title'; wqTitle.textContent = '水质数据';
@@ -494,7 +515,8 @@
       if (data.waterQuality.estimated) {
         var wqNote = document.createElement('div');
         wqNote.className = 'my-plots-card-meta';
-        wqNote.textContent = 'pH／溶解氧／浊度为模型估算值，非实测数据';
+        wqNote.textContent = '水质等级为邻近水体公开等级参考值（非断面实时监测）；'
+          + 'pH／溶解氧／浊度为模型估算值，非实测数据';
         container.appendChild(wqNote);
       }
     }
@@ -504,7 +526,9 @@
     container.appendChild(soilTitle);
     var soilMeta = document.createElement('div');
     soilMeta.className = 'my-plots-card-meta';
-    soilMeta.textContent = '土壤类型：' + (data.soilType || '未知') + (data.soilDescription ? '（' + data.soilDescription + '）' : '');
+    soilMeta.textContent = '土壤类型：' + (data.soilType || '未知') +
+      (data.soilDescription ? '（' + data.soilDescription + '）' : '') +
+      '　·　按经纬度区域规则推断，非实地采样';
     container.appendChild(soilMeta);
 
     if (data.nearbyRivers && data.nearbyRivers.length) {
