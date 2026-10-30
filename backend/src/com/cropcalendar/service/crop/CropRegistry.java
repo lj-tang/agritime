@@ -49,6 +49,8 @@ public final class CropRegistry {
     private static volatile List<Entry> entries;
     /** displayName → 规程 cropId（dry_garlic 这类） */
     private static volatile Map<String, String> protocolByDisplay;
+    /** 规程 cropId → displayName，用于把 dry_garlic 这类 id 显示成中文 */
+    private static volatile Map<String, String> displayByProtocol;
 
     private CropRegistry() {
     }
@@ -97,6 +99,7 @@ public final class CropRegistry {
         synchronized (CropRegistry.class) {
             if (protocolByDisplay != null) return protocolByDisplay;
             Map<String, String> map = new LinkedHashMap<>();
+            Map<String, String> reverse = new LinkedHashMap<>();
             String text = readFirst(PROTOCOL_PATHS);
             if (text != null) {
                 try {
@@ -109,7 +112,10 @@ public final class CropRegistry {
                             // 用 name 兜底但去掉产地前缀，避免把"山东金乡大蒜"当成标准名。
                             String std = str(c.get("standardName"));
                             if (std == null) std = stripOrigin(str(c.get("name")));
-                            if (id != null && std != null) map.put(std, id);
+                            if (id != null && std != null) {
+                                map.put(std, id);
+                                reverse.put(id, std);
+                            }
                         }
                     }
                 } catch (Exception e) {
@@ -117,6 +123,7 @@ public final class CropRegistry {
                 }
             }
             protocolByDisplay = map;
+            displayByProtocol = reverse;
             return map;
         }
     }
@@ -128,6 +135,10 @@ public final class CropRegistry {
         if (input == null) return null;
         String q = input.trim();
         if (q.isEmpty()) return q;
+        // 传进来的可能是规程 id（dry_garlic / rice），先翻成中文再走归一
+        protocols();
+        String byId = displayByProtocol.get(q);
+        if (byId != null) return byId;
         Match m = best(q);
         return m == null ? q : m.entry().displayName();
     }
@@ -192,14 +203,27 @@ public final class CropRegistry {
         }
         if (kw.length() >= 2) {
             int d = distance(kw, name);
-            if (d <= 2) return 10 + d;
+            if (allowFuzzy(kw, name, d)) return 10 + d;
             for (String a : e.aliases()) {
                 if (a.length() < 2) continue;
                 int da = distance(kw, a);
-                if (da <= 2) return 10 + da;
+                if (allowFuzzy(kw, a, da)) return 10 + da;
             }
         }
         return -1;
+    }
+
+    /**
+     * 模糊匹配的闸门：首字必须相同，且编辑距离不超过（长篇容 2、短篇只容 1）。
+     *
+     * 不加这个限制，"西红柿"会带出"红枣/番红花"、"土豆"会带出"大豆/刀豆"——
+     * 中文两字作物里差一个字就是另一个物种，宁可少给候选，也不能给错。
+     */
+    private static boolean allowFuzzy(String kw, String candidate, int dist) {
+        if (candidate.isEmpty() || kw.isEmpty()) return false;
+        if (kw.charAt(0) != candidate.charAt(0)) return false;
+        int limit = kw.length() >= 4 ? 2 : 1;
+        return dist <= limit && candidate.length() >= 2;
     }
 
     private static String matchedBy(Entry e, String kw, String lower, int score) {
