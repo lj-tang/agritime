@@ -647,7 +647,9 @@ public final class ComputeStub {
                                 String op = nonBlank(node.get("opType"));
                                 String title = nonBlank(node.get("title"));
                                 if (op == null || title == null) continue;
-                                nodes.add(new RawNode(id, op, (int) dayOffsetOf(node.get("dayOffset")), title));
+                                Double dOff = dayOffsetOf(node.get("dayOffset"));
+                                if (dOff == null) continue;
+                                nodes.add(new RawNode(id, op, (int) (double) dOff, title));
                             }
                             if (!nodes.isEmpty()) LLM_PROC_CACHE.put(id, nodes);
                         }
