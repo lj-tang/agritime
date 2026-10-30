@@ -182,16 +182,38 @@ public final class ComputeStub {
             // 刚失败过，直接返回空，不再打一次 60 秒超时的上游
             return List.of();
         }
-        System.out.println("[buildNodes] 规程表中无 " + cropId + "，调大模型生成");
-        List<RawNode> generated = LlmService.generateCropProcedure(cropId, cropId);
-        if (!generated.isEmpty()) {
-            LLM_PROC_CACHE.put(cropId, generated);
-            LLM_NEGATIVE.remove(cropId);
-            persistLlmCache();
-        } else {
-            LLM_NEGATIVE.put(cropId, System.currentTimeMillis() + NEGATIVE_TTL_MS);
+
+        // 后台生成：同一个作物并发请求只触发一次
+        java.util.concurrent.CompletableFuture<List<RawNode>> f = PENDING.computeIfAbsent(cropId, k -> {
+            System.out.println("[buildNodes] 规程表中无 " + k + "，后台调大模型生成");
+            return java.util.concurrent.CompletableFuture.supplyAsync(() -> {
+                try {
+                    List<RawNode> g = LlmService.generateCropProcedure(k, k);
+                    if (!g.isEmpty()) {
+                        LLM_PROC_CACHE.put(k, g);
+                        LLM_NEGATIVE.remove(k);
+                        persistLlmCache();
+                    } else {
+                        LLM_NEGATIVE.put(k, System.currentTimeMillis() + NEGATIVE_TTL_MS);
+                    }
+                    return g;
+                } catch (Exception e) {
+                    LLM_NEGATIVE.put(k, System.currentTimeMillis() + NEGATIVE_TTL_MS);
+                    return List.<RawNode>of();
+                } finally {
+                    PENDING.remove(k);
+                }
+            }, LLM_POOL);
+        });
+
+        try {
+            return f.get(LLM_WAIT_MS, java.util.concurrent.TimeUnit.MILLISECONDS);
+        } catch (java.util.concurrent.TimeoutException e) {
+            // 还在生成：本次先返回空，由调用方回 202，让前端过几秒重试
+            return List.of();
+        } catch (Exception e) {
+            return List.of();
         }
-        return generated;
     }
 
     /**
@@ -239,6 +261,13 @@ public final class ComputeStub {
     public record CropInfo(String cropId, String name, int nodeCount) {}
 
     /** 返回预设作物列表（含 LLM 缓存中已生成的作物） */
+    /** 该作物的规程是否正在后台生成（用于把"暂不支持"和"稍后再试"区分开） */
+    public static boolean isGenerating(String cropId) {
+        if (cropId == null) return false;
+        var f = PENDING.get(cropId);
+        return f != null && !f.isDone();
+    }
+
     public static List<CropInfo> listCropInfos() {
         List<CropInfo> infos = new ArrayList<>();
         Map<String, List<RawNode>> presets = loadProtocols();
@@ -625,6 +654,21 @@ public final class ComputeStub {
      * 实测冷启动单请求 35 秒，直接踩破 p95<2s。落盘后重启只需读文件。
      */
     private static final String LLM_CACHE_FILE = "../var/llm-proc-cache.json";
+
+    /**
+     * 正在生成中的作物。大模型一次要 30 秒上下，同步等会把请求线程和 p95 一起拖垮，
+     * 所以改成后台跑：这次请求先返回"生成中"，生成的 Future 留在表里，
+     * 下次请求直接命中缓存。前端看到 202 会自动重试。
+     */
+    private static final java.util.concurrent.ConcurrentHashMap<String, java.util.concurrent.CompletableFuture<List<RawNode>>> PENDING
+            = new java.util.concurrent.ConcurrentHashMap<>();
+    private static final java.util.concurrent.ExecutorService LLM_POOL = java.util.concurrent.Executors.newFixedThreadPool(2, r -> {
+        Thread t = new Thread(r, "llm-proc");
+        t.setDaemon(true);
+        return t;
+    });
+    /** 单次请求最多等这么久，超时就先返回"生成中" */
+    private static final long LLM_WAIT_MS = 2500;
     private static volatile boolean llmCacheLoaded = false;
 
     /** 懒加载磁盘上的大模型规程缓存（只读一次） */

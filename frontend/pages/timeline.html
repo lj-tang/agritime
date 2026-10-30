@@ -139,10 +139,25 @@
       }
 
       function getData() {
-        var controller = new AbortController();
-        var timer = setTimeout(function () { controller.abort(); }, CONFIG.TIMELINE_TIMEOUT_MS);
-        return fetch(buildTimelineUrl(query), { method: 'GET', signal: controller.signal })
+        var tries = 0;
+        // 规程由大模型生成时，后端会先回 202（约 30 秒才生成完）。
+        // 这里自动等几秒重试，比直接把用户甩到错误页体验好；最多重试 3 次。
+        function attempt() {
+          var controller = new AbortController();
+          var timer = setTimeout(function () { controller.abort(); }, CONFIG.TIMELINE_TIMEOUT_MS);
+          return fetch(buildTimelineUrl(query), { method: 'GET', signal: controller.signal })
           .then(function (res) {
+            if (res.status === 202) {
+              clearTimeout(timer);
+              if (tries < 3) {
+                tries++;
+                var lt = document.getElementById('loading-text');
+                if (lt) lt.textContent = '该作物的农事规程正在生成，请稍候（第 ' + tries + ' 次重试）…';
+                return new Promise(function (r) { setTimeout(r, 5000); }).then(attempt);
+              }
+              degradedSource = 'generating';
+              throw new Error('规程生成超时');
+            }
             if (!res.ok) { degradedSource = 'http'; throw new Error('接口返回 ' + res.status); }
             return res.json();
           })
@@ -161,6 +176,8 @@
             }
             return window.MOCK_TIMELINE;
           });
+        }
+        return attempt();
       }
 
       function badge(status) {

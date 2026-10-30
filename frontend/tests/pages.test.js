@@ -1244,3 +1244,14 @@ test('修复：提醒键用标准作物名，过期提醒自动清理', () => {
   assert.ok(timelineHtml.includes('__cropStandardName'), '提醒键应使用标准名');
   assert.ok(timelineHtml.includes('pruneReminders'), '应清理过期提醒');
 });
+
+test('修复：大模型生成不再阻塞请求，返回 202 让前端重试', () => {
+  const cs = read(path.resolve(__dirname, '..', '..', 'backend', 'src', 'com', 'cropcalendar', 'compute', 'ComputeStub.java'));
+  assert.ok(cs.includes('LLM_WAIT_MS'), '应有最大等待时间');
+  assert.ok(cs.includes('isGenerating'), '应能区分"生成中"与"不支持"');
+  assert.ok(cs.includes('PENDING'), '同一作物并发只触发一次生成');
+  assert.ok(cs.includes('persistLlmCache'), '生成结果应落盘');
+  const th = read(path.resolve(__dirname, '..', '..', 'backend', 'src', 'com', 'cropcalendar', 'api', 'TimelineHandler.java'));
+  assert.ok(th.includes('20201'), '生成中应返回 202');
+  assert.ok(timelineHtml.includes('正在生成'), '前端应显示生成中并重试');
+});

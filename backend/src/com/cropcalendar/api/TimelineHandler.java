@@ -1,5 +1,6 @@
 package com.cropcalendar.api;
 
+import com.cropcalendar.compute.ComputeStub;
 import com.cropcalendar.compute.ComputeStub.MarketHint;
 import com.cropcalendar.compute.ComputeStub.TermHint;
 import com.cropcalendar.compute.LlmService;
@@ -101,6 +102,16 @@ public class TimelineHandler implements HttpHandler {
             TimelineResult r = orchestrator.build(buildCropId, sowDate, lat, lon);
 
             if (r.nodes().isEmpty()) {
+                // 大模型生成要 30 秒上下，不能同步等：先告诉前端"在生成，稍后再来"，
+                // 生成的 Future 留在后台，下次请求直接命中缓存。
+                if (ComputeStub.isGenerating(buildCropId)) {
+                    HttpSupport.write(ex, 202, Json.obj(
+                            "code", Json.str("20201"),
+                            "message", Json.str("该作物的农事规程正在生成，请稍后重试"),
+                            "data", "null",
+                            "retryAfter", String.valueOf(4)));
+                    return;
+                }
                 HttpSupport.write(ex, 422, errJson("UNSUPPORTED_CROP",
                         "暂不支持该作物品种"));
                 return;
