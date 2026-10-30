@@ -3,6 +3,8 @@ package com.cropcalendar.orchestration;
 import com.cropcalendar.compute.ComputeStub;
 import com.cropcalendar.compute.ComputeStub.MarketHint;
 import com.cropcalendar.compute.ComputeStub.RawNode;
+import com.cropcalendar.service.crop.CropRegistry;
+import com.cropcalendar.service.guidance.GuidanceService;
 import com.cropcalendar.compute.ComputeStub.ScoreResult;
 import com.cropcalendar.compute.ComputeStub.TermHint;
 import com.cropcalendar.compute.ComputeStub.WeatherWindow;
@@ -51,7 +53,7 @@ public class TimelineOrchestrator {
     // ============================================================
 
     public record NodeView(int dayOffset, String date, String opType, String title,
-                           String status, String suggest, String reason) {
+                           String status, String suggest, String reason, String guidance) {
     }
 
     public record TimelineResult(String cropId, String sowDate, String generatedAt,
@@ -76,6 +78,7 @@ public class TimelineOrchestrator {
         }
 
         // ---- 步骤 1 收集 / 步骤 2 匹配规程 / 步骤 3 生成节点 ----
+        String cropNameForGuidance = CropRegistry.standardName(cropId);
         List<RawNode> raw = ComputeStub.buildNodes(cropId, sowDate, lat);
         if (raw.isEmpty()) {
             return new TimelineResult(cropId, sowDate, LocalDateTime.now().format(TS),
@@ -99,8 +102,10 @@ public class TimelineOrchestrator {
             String date = sow.plusDays(n.dayOffset()).format(DATE);
             WeatherWindow slice = fetched.window().around(date, w, w);
             ScoreResult score = ComputeStub.scoreNode(n.opType(), slice);
+            // T03：四类指导随节点下发，天气窗口用同一份 slice，避免两处天气不一致
+            String guidance = GuidanceService.build(n.opType(), slice, cropNameForGuidance);
             nodes.add(new NodeView(n.dayOffset(), date, n.opType(), n.title(),
-                    score.status(), score.suggest(), score.reason()));
+                    score.status(), score.suggest(), score.reason(), guidance));
         }
 
         // ---- 步骤 6 叠加节气与行情提醒 ----

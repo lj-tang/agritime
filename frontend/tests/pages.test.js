@@ -1042,3 +1042,24 @@ test('T07 前端：时间线展示作物属性', () => {
   assert.ok(timelineHtml.includes('crop-props-hint'));
   assert.ok(timelineHtml.includes('data.cropProperties'));
 });
+
+// ---------------- T03 农事指导 ----------------
+test('T03 指导：后端四类内容随节点下发，浇水按天气调整', () => {
+  const gs = read(path.resolve(__dirname, '..', '..', 'backend', 'src', 'com', 'cropcalendar', 'service', 'guidance', 'GuidanceService.java'));
+  assert.ok(gs.includes('guidance.json'), '应读取 guidance.json');
+  assert.ok(gs.includes('"watering"') && gs.includes('"fertilize"') && gs.includes('"pest"') && gs.includes('"tools"'),
+    '四类内容都应输出');
+  assert.ok(gs.includes('rain >= 10'), '有雨应切换到暂停灌溉');
+  assert.ok(gs.includes('rain < 2 && maxTemp >= 30'), '高温少雨应加量灌溉');
+  const orch = read(path.resolve(__dirname, '..', '..', 'backend', 'src', 'com', 'cropcalendar', 'orchestration', 'TimelineOrchestrator.java'));
+  assert.ok(orch.includes('GuidanceService.build'), '编排层应为每个节点生成指导');
+  const th = read(path.resolve(__dirname, '..', '..', 'backend', 'src', 'com', 'cropcalendar', 'api', 'TimelineHandler.java'));
+  assert.ok(th.includes('"guidance"'), '响应应包含 guidance');
+});
+
+test('T03 指导：前端可展开四类内容', () => {
+  assert.ok(timelineHtml.includes('renderGuidance'), '应有 renderGuidance');
+  assert.ok(timelineHtml.includes('tl-guide-tools'), '应渲染农具');
+  assert.ok(timelineHtml.includes('tl-guide-pest'), '应渲染病虫害');
+  assert.ok(commonCss.includes('.tl-guide-title'), '缺少指导样式');
+});

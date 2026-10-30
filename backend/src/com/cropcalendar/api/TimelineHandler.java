@@ -147,6 +147,7 @@ public class TimelineHandler implements HttpHandler {
                     "status", Json.str(status),
                     "copy", Json.str(n.suggest()),
                     "reasons", reasons,
+                    "guidance", n.guidance() != null ? n.guidance() : "null",
                     "rescheduleAdvice", "null",
                     "certainty", Json.str(certainty),
                     "weatherIcon", "null",

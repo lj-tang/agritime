@@ -374,10 +374,99 @@
           node.reasons.forEach(function (r) { var li = document.createElement('li'); li.textContent = r; ul.appendChild(li); });
           detail.appendChild(ul);
         }
+        renderGuidance(detail, node.guidance);
         card.appendChild(detail);
 
         wrap.appendChild(card);
         return wrap;
+      }
+
+      // T03：四类农事指导（浇水/施肥/病虫害/农具）+ 天气调整依据
+      function renderGuidance(host, g) {
+        if (!g) return;
+        var box = document.createElement('div');
+        box.className = 'tl-guide';
+
+        function section(titleText) {
+          var h = document.createElement('div');
+          h.className = 'tl-guide-title';
+          h.textContent = titleText;
+          box.appendChild(h);
+        }
+        function line(label, value) {
+          if (!value) return;
+          var p = document.createElement('p');
+          p.className = 'tl-guide-line';
+          var b = document.createElement('b');
+          b.textContent = label;
+          p.appendChild(b);
+          p.appendChild(document.createTextNode(' ' + value));
+          box.appendChild(p);
+        }
+
+        if (g.watering) {
+          section('浇水');
+          line(g.watering.method || '方式', [g.watering.duration, g.watering.waterPerMu].filter(Boolean).join(' · '));
+          if (g.watering.tips) line('要点', g.watering.tips);
+          if (g.watering.basis) {
+            var basis = document.createElement('p');
+            basis.className = 'tl-guide-basis';
+            basis.textContent = '依据：' + g.watering.basis;
+            box.appendChild(basis);
+          }
+        }
+
+        if (g.fertilize && g.fertilize.type) {
+          section('施肥');
+          line(g.fertilize.type, 'N-P-K ' + (g.fertilize.npk || '—') + ' · ' + (g.fertilize.amount || ''));
+          if (g.fertilize.method) line('方法', g.fertilize.method);
+          if (g.fertilize.tips) line('要点', g.fertilize.tips);
+        }
+
+        if (g.pest && g.pest.length) {
+          section('病虫害');
+          g.pest.forEach(function (p) {
+            var item = document.createElement('div');
+            item.className = 'tl-guide-pest';
+            var n = document.createElement('b'); n.textContent = p.name || '';
+            item.appendChild(n);
+            if (p.symptom) item.appendChild(document.createTextNode('：' + p.symptom));
+            if (p.solution) {
+              var s = document.createElement('span');
+              s.className = 'tl-guide-med';
+              s.textContent = '用药：' + p.solution + (p.dosage ? '（' + p.dosage + '）' : '');
+              item.appendChild(s);
+            }
+            box.appendChild(item);
+          });
+          if (g.pestSource) {
+            var src = document.createElement('p');
+            src.className = 'tl-guide-basis';
+            src.textContent = '来源：' + g.pestSource;
+            box.appendChild(src);
+          }
+        }
+
+        if (g.tools && g.tools.length) {
+          section('农具');
+          var chips = document.createElement('div');
+          chips.className = 'tl-guide-tools';
+          g.tools.forEach(function (t) {
+            var c = document.createElement('span');
+            c.textContent = t;
+            chips.appendChild(c);
+          });
+          box.appendChild(chips);
+        }
+
+        if (g.notes && g.notes.length) {
+          section('提示');
+          var ul = document.createElement('ul');
+          g.notes.forEach(function (n) { var li = document.createElement('li'); li.textContent = n; ul.appendChild(li); });
+          box.appendChild(ul);
+        }
+
+        host.appendChild(box);
       }
 
       function renderReminder(r) {
