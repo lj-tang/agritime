@@ -64,8 +64,11 @@ public class PlotHandler implements HttpHandler {
         String type = HttpSupport.trimToNull(q.get("type"));
         if (type == null) type = "farmland";
         // 地块建模参数（T06）：倾角/坡度/梯田参与适宜度评分
-        double angle = HttpSupport.parseDouble(q.get("angle"), 0);
-        double slope = HttpSupport.parseDouble(q.get("slope"), 0);
+        // 倾角是坡面与水平面的夹角，物理上不会超过 90°。早期版本把坡向（0-360）
+        // 误存进了这个字段，读出来先归一到合法区间，否则一个 200° 的"倾角"
+        // 会让地形分直接判死。
+        double angle = normalizeSlope(HttpSupport.parseDouble(q.get("angle"), 0));
+        double slope = normalizeSlope(HttpSupport.parseDouble(q.get("slope"), 0));
         boolean terrace = "1".equals(q.get("terrace")) || "true".equalsIgnoreCase(q.get("terrace"));
 
         // 坐标取到小数点后三位（约 100 米）再拼 key，附近地块能共用一次上游请求；
@@ -640,6 +643,16 @@ public class PlotHandler implements HttpHandler {
             default -> -1;
         };
         return v < 0 ? null : v;
+    }
+
+    /**
+     * 把倾角/坡度归一到 0-90。超过 90° 的只可能是坡向（0-360）被误存进这两个字段，
+     * 这时按 0 处理让另一项主导评分，而不是把它截成 90° 直接判成最差地形。
+     */
+    private static double normalizeSlope(double v) {
+        if (Double.isNaN(v)) return 0;
+        double a = Math.abs(v);
+        return a > 90 ? 0 : a;
     }
 
     private double terrainScore(double angle, double slope, boolean terrace) {

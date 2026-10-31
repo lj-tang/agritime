@@ -122,27 +122,34 @@
     });
   }
 
-  /** 把分析结果回填成表单默认值：形状、坡度、倾角，用户不用自己填 */
+  /** 把分析结果回填成表单默认值：形状、坡度、坡向，用户不用自己填 */
   function applyAnalysisToForm(d, res) {
     var shapeSelect = document.querySelector('#my-plots-form [name="plot-shape"]');
     var slopeInput = document.querySelector('#my-plots-form [name="plot-slope"]');
-    var angleInput = document.querySelector('#my-plots-form [name="plot-angle"]');
+    var aspectOut = document.getElementById('plot-aspect');
     var areaInput = document.querySelector('#my-plots-form [name="plot-area"]');
     var suitInput = document.getElementById('plot-suitability');
 
     var g = d.geometry || {};
     if (areaInput) {
-      if (g.areaMu != null) areaInput.value = g.areaMu;
-      else if (res && res.areaMu) areaInput.value = res.areaMu;
+      if (g.areaMu != null) areaInput.value = fmtMu(g.areaMu);
+      else if (res && res.areaMu) areaInput.value = fmtMu(res.areaMu);
     }
     // 形状不再让用户手填：按紧凑度反推，机器判断比人眼选"方形/条状"更准
     if (shapeSelect && g.compactness != null) {
       shapeSelect.value = g.compactness >= 0.7 ? 'rectangle'
         : g.compactness >= 0.45 ? 'strip' : 'irregular';
     }
-    if (slopeInput && d.terrain && d.terrain.slopeDeg != null) slopeInput.value = Math.round(d.terrain.slopeDeg);
-    // 倾角存的是坡向方位角，跟坡向标签同源，避免两个字段互相矛盾
-    if (angleInput && d.terrain && d.terrain.aspectDeg != null) angleInput.value = Math.round(d.terrain.aspectDeg);
+    if (slopeInput && d.terrain && d.terrain.slopeDeg != null) {
+      // 保留 1 位：缓冲区的缓坡实际是 0.2°，四舍五入成 0 会与分析结论对不上
+      slopeInput.value = Math.round(d.terrain.slopeDeg * 10) / 10;
+    }
+    // 坡向是 0-360 的方位角，不是倾角。之前把它填进「倾角（0-90）」输入框，
+    // 于是框完地会看到"倾角 213°"这种不可能的值。改成独立只读展示。
+    if (aspectOut) {
+      var t = d.terrain || {};
+      aspectOut.textContent = t.aspectLabel || (t.available ? '平地' : '未取到高程');
+    }
     if (suitInput) {
       suitInput.value = JSON.stringify({
         status: d.level || 'unknown',
@@ -150,9 +157,20 @@
         areaMu: g.areaMu,
         areaSqm: g.areaM2,
         slopeDeg: d.terrain && d.terrain.slopeDeg,
+        aspect: d.terrain && d.terrain.aspectLabel,
         limits: (d.limits || []).map(function (l) { return l.label; })
       });
     }
+  }
+
+  /**
+   * 面积统一保留 1 位小数：0.1 亩 ≈ 67 m²，GPS 描点本身也没这个精度。
+   * 不足 1 亩时留 2 位，否则小菜园会显示成 0.0 亩。
+   */
+  function fmtMu(v) {
+    var n = Number(v);
+    if (!isFinite(n)) return '';
+    return n >= 1 ? (Math.round(n * 10) / 10).toFixed(1) : (Math.round(n * 100) / 100).toFixed(2);
   }
 
   /**
@@ -296,7 +314,7 @@
     var facts = [];
     var g = d.geometry || {};
     var t = d.terrain || {};
-    if (g.areaMu != null) facts.push('面积 ' + g.areaMu + ' 亩');
+    if (g.areaMu != null) facts.push('面积 ' + fmtMu(g.areaMu) + ' 亩');
     if (g.perimeterM != null) facts.push('周长 ' + g.perimeterM + ' m');
     if (t.available) {
       if (t.slopeDeg != null) facts.push('坡度 ' + t.slopeDeg + '°');
@@ -470,7 +488,7 @@
     var locSpan = document.createElement('span');
     locSpan.textContent = '📍 ' + (p.location || (p.lat && p.lon ? Number(p.lat).toFixed(3) + ',' + Number(p.lon).toFixed(3) : '未定位'));
     meta.appendChild(locSpan);
-    if (p.area) { var a = document.createElement('span'); a.textContent = '面积：' + p.area + '亩'; meta.appendChild(a); }
+    if (p.area) { var a = document.createElement('span'); a.textContent = '面积：' + fmtMu(p.area) + ' 亩'; meta.appendChild(a); }
     if (p.polygon && p.polygon.length >= 3) {
       var g = document.createElement('span'); g.className = 'my-plots-card-range'; g.textContent = '已绘范围'; meta.appendChild(g);
     }
@@ -492,8 +510,10 @@
       shape.className = 'my-plots-card-shape';
       var parts = [];
       if (p.shape) parts.push('形状：' + (SHAPE_TYPES[p.shape] || p.shape));
-      if (p.angle) parts.push('倾角：' + p.angle + '°');
-      if (p.slope) parts.push('坡度：' + p.slope + '°');
+      // 倾角与坡度同源（坡面与水平面夹角），只展示一个；
+      // 老数据里 angle 可能存了坡向（0-360），这种情况直接跳过
+      var shownSlope = p.slope || (p.angle && Math.abs(p.angle) <= 90 ? p.angle : 0);
+      if (shownSlope) parts.push('坡度：' + shownSlope + '°');
       shape.textContent = parts.join(' · ');
       card.appendChild(shape);
     }
@@ -533,8 +553,11 @@
     f['plot-lat'].value = record ? (record.lat || '') : '';
     f['plot-lon'].value = record ? (record.lon || '') : '';
     f['plot-shape'].value = record ? (record.shape || 'rectangle') : 'rectangle';
-    f['plot-angle'].value = record ? (record.angle || 0) : 0;
     f['plot-slope'].value = record ? (record.slope || 0) : 0;
+    var aspectOut = document.getElementById('plot-aspect');
+    if (aspectOut) {
+      aspectOut.textContent = (record && record.aspectLabel) || '框选后自动识别';
+    }
     f['plot-terrace'].checked = record ? !!record.terrace : false;
     f['plot-area'].value = record ? (record.area || '') : '';
     f['plot-remark'].value = record ? (record.remark || '') : '';
@@ -585,7 +608,9 @@
       suitability: suitability,
       analysis: analysis,
       shape: f['plot-shape'].value || 'rectangle',
-      angle: parseFloat(f['plot-angle'].value) || 0,
+      // 倾角与坡度是同一个物理量（坡面与水平面夹角），只留一个输入框；
+      // 两个参数仍照旧传给后端，保持接口兼容
+      angle: parseFloat(f['plot-slope'].value) || 0,
       slope: parseFloat(f['plot-slope'].value) || 0,
       terrace: f['plot-terrace'].checked,
       area: f['plot-area'].value ? parseFloat(f['plot-area'].value) : null,
@@ -623,7 +648,7 @@
     sub.className = 'my-plots-detail-sub';
     var subParts = [PLOT_TYPES[plot.type] || plot.type || '未分类'];
     if (plot.location) subParts.push(plot.location);
-    if (plot.area) subParts.push(plot.area + '亩');
+    if (plot.area) subParts.push(fmtMu(plot.area) + ' 亩');
     if (plot.terrace) subParts.push('梯田');
     sub.textContent = subParts.join(' · ');
     detail.appendChild(sub);
@@ -670,7 +695,7 @@
       var rangeMeta = document.createElement('div');
       rangeMeta.className = 'my-plots-card-meta';
       var rangeParts = [];
-      rangeParts.push('面积：' + (plot.area ? plot.area + ' 亩' : '未记录'));
+      rangeParts.push('面积：' + (plot.area ? fmtMu(plot.area) + ' 亩' : '未记录'));
       rangeParts.push('边界点：' + plot.polygon.length + ' 个');
       if (plot.suitability && plot.suitability.status) {
         var statusText = {
@@ -718,8 +743,8 @@
       shapeMeta.className = 'my-plots-card-meta';
       var shapeParts = [];
       shapeParts.push('形状：' + (SHAPE_TYPES[plot.shape] || plot.shape || '未指定'));
-      if (plot.angle) shapeParts.push('倾角：' + plot.angle + '°');
-      if (plot.slope) shapeParts.push('坡度：' + plot.slope + '°');
+      var shownSlope2 = plot.slope || (plot.angle && Math.abs(plot.angle) <= 90 ? plot.angle : 0);
+      if (shownSlope2) shapeParts.push('坡度：' + shownSlope2 + '°');
       if (plot.terrace) shapeParts.push('梯田');
       shapeMeta.textContent = shapeParts.join(' · ');
       shapeSection.appendChild(shapeMeta);
@@ -1251,7 +1276,7 @@
     // 地块建模参数一并带上：倾角/坡度/梯田要参与适宜度评分（T06 验收第 5 条）
     var url = '/api/plots/environment?lat=' + plot.lat + '&lon=' + plot.lon +
       '&type=' + (plot.type || 'farmland') +
-      '&angle=' + (plot.angle || 0) +
+      '&angle=' + (Math.abs(plot.angle || 0) <= 90 ? (plot.angle || 0) : 0) +
       '&slope=' + (plot.slope || 0) +
       '&terrace=' + (plot.terrace ? 1 : 0);
     fetch(url, { method: 'GET' }).then(function (res) {

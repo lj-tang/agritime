@@ -922,7 +922,8 @@ test('T00 共享逻辑已迁到 shared/utils 并被页面引用', () => {
 test('T06 适宜度：地块详情请求带上地形参数', () => {
   const myPlotsJs = read(path.resolve(__dirname, '..', 'assets', 'js', 'my-plots.js'));
   assert.ok(myPlotsJs.includes('farmingSuitability'), '详情应消费后端适宜度结果');
-  assert.ok(/angle=' \+ \(plot\.angle/.test(myPlotsJs), '请求应带 angle');
+  // 倾角超过 90° 只可能是坡向被误存，请求里要归零，不能拿去打分
+  assert.ok(/angle=' \+ \(Math\.abs\(plot\.angle/.test(myPlotsJs), '请求应带 angle 并过滤超 90° 的历史值');
   assert.ok(/slope=' \+ \(plot\.slope/.test(myPlotsJs), '请求应带 slope');
   assert.ok(/terrace=' \+ \(plot\.terrace \? 1 : 0\)/.test(myPlotsJs), '请求应带 terrace');
   assert.ok(myPlotsJs.includes('renderSuitability'), '应有适宜度卡片渲染');
@@ -1436,4 +1437,28 @@ test('移动端抽屉：汉堡让位且点外部可关闭', () => {
   assert.ok(sidebarJs.includes('body.classList.remove') || sidebarJs.includes("classList.remove('sidebar-open')"),
     '关闭抽屉要清掉 body 类');
   assert.ok(sidebarCss.includes('body.sidebar-open .sidebar-burger'), '打开时汉堡应隐藏');
+});
+
+test('地块：倾角不超 90°、面积保留一位小数', () => {
+  const myPlotsJs = read(path.resolve(__dirname, '..', 'assets', 'js', 'my-plots.js'));
+  const analyze = read(path.resolve(__dirname, '..', '..', 'backend', 'src', 'com', 'cropcalendar', 'api', 'PlotAnalyzeHandler.java'));
+  const plotHandler = read(path.resolve(__dirname, '..', '..', 'backend', 'src', 'com', 'cropcalendar', 'api', 'PlotHandler.java'));
+  const myPlotsCss = read(path.resolve(__dirname, '..', 'assets', 'css', 'my-plots.css'));
+
+  // 倾角：不得再拿坡向（0-360）回填，表单里只留坡度输入 + 坡向只读
+  assert.ok(!myPlotsJs.includes("angleInput.value = Math.round(d.terrain.aspectDeg"),
+    '不能把坡向方位角当倾角回填');
+  assert.ok(!indexHtml.includes('name="plot-angle"'), '表单不应再有倾角输入框');
+  assert.ok(indexHtml.includes('id="plot-aspect"'), '坡向应独立只读展示');
+  assert.ok(myPlotsCss.includes('.my-plots-readonly'), '只读样式应存在');
+  assert.match(myPlotsJs, /Math\.abs\(p\.angle\) <= 90/, '卡片应过滤超 90° 的历史倾角');
+
+  // 后端：读取时归一化，超过 90° 按 0 处理而不是截成 90 判死
+  assert.ok(plotHandler.includes('normalizeSlope'), '后端应归一化倾角/坡度');
+  assert.match(plotHandler, /a > 90 \? 0 : a/, '超过 90° 应归零而非截断');
+
+  // 面积：亩保留 1 位小数（不足 1 亩保留 2 位）
+  assert.match(analyze, /mu >= 1 \? Math\.round\(mu \* 10\)/, '面积应按 1 位小数输出');
+  assert.ok(myPlotsJs.includes('function fmtMu'), '前端应有统一的面积格式化');
+  assert.match(myPlotsJs, /n >= 1 \? \(Math\.round\(n \* 10\)/, 'fmtMu 应对齐后端口径');
 });

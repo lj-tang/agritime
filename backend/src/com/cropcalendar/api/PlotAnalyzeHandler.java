@@ -289,9 +289,13 @@ public class PlotAnalyzeHandler implements HttpHandler {
     }
 
     private String geometryJson(Geometry g) {
+        // 面积给 1 位小数就够用（0.1 亩 ≈ 67 m²，GPS 描点本身也没这个精度）；
+        // 不足 1 亩时保留 2 位，否则小菜园会显示成 0.0 亩。
+        double mu = g.mu();
+        double muOut = mu >= 1 ? Math.round(mu * 10) / 10.0 : Math.round(mu * 100) / 100.0;
         return Json.obj(
                 "areaM2", Json.num((double) Math.round(g.areaM2)),
-                "areaMu", Json.num(Math.round(g.mu() * 100) / 100.0),
+                "areaMu", Json.num(muOut),
                 "perimeterM", Json.num((double) Math.round(g.perimeterM)),
                 "vertexCount", Json.num((double) g.vertexCount),
                 "compactness", Json.num(Math.round(g.compactness * 100) / 100.0),

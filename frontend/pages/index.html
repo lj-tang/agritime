@@ -231,16 +231,16 @@
           <summary>地形参数（框选后自动推导，可手动修正）</summary>
           <div class="my-plots-form-row">
             <div class="field">
-              <label>倾角（°）</label>
-              <input type="number" name="plot-angle" min="0" max="90" step="1" value="0" />
+              <label>坡度（°） <span class="hint">框选后按 DEM 自动算</span></label>
+              <input type="number" name="plot-slope" min="0" max="90" step="0.1" value="0" />
             </div>
             <div class="field">
-              <label>坡度（°）</label>
-              <input type="number" name="plot-slope" min="0" max="90" step="1" value="0" />
+              <label>坡向 <span class="hint">0-360°，由地形推导</span></label>
+              <div class="my-plots-readonly" id="plot-aspect">—</div>
             </div>
           </div>
           <div class="field">
-            <label><input type="checkbox" name="plot-terrace" style="width:auto;margin-right:6px;" /> 梯田</label>
+            <label class="my-plots-check"><input type="checkbox" name="plot-terrace" /> 梯田</label>
           </div>
         </details>
         <div class="field">
