@@ -1352,4 +1352,9 @@ test('V5 任务书：与 V4 同体例，编号自 T16 续接', () => {
   assert.ok(tb.includes('## 四、三人分工建议'), '应保留分工章节');
   assert.ok(tb.includes('## 五、开发与认领规则'), '应保留认领规则');
   assert.ok(tb.includes('## 六、最终验收标准'), '应保留最终验收');
+  // 任务书只列未完成任务，不把已完成项写进来占编号
+  assert.ok(!/\*\*状态\*\*：已完成/.test(tb), '不应出现"已完成"状态标记');
+  const prio = tb.match(/\*\*优先级\*\*：P\d/g) || [];
+  assert.equal(prio.length, 15, '每个任务都应有优先级');
+  assert.ok(!tb.includes('commit') && !tb.includes('350259d'), '不写提交号，避免把已完成记录混进待办');
 });
