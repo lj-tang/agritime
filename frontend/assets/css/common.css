@@ -1,57 +1,55 @@
 /*
  * 知农时 · 基础样式与设计系统
  *
- * 视觉语言对齐 WorkBuddy（取值来自其 tokens 的 IDE Light 段）：
- *   · 底色 #f2f2f2，卡片纯白，分隔线 #e6e6e6 / #ebebeb
- *   · 圆角克制：卡片 12px，控件 8px，标签 6px
- *   · 字号偏小：正文 14px，标签 12.5px，辅助 12px
- *   · 阴影极淡：0 16px 32px -8px rgba(0,0,0,.03)
- *   · 主操作按钮用近黑 #191919，品牌色只做点缀
+ * 布局与尺度对齐 WorkBuddy：侧栏 216px、内容区 860px、卡片 12px 圆角、
+ * 正文 14px、控件 38px 高、行高 1.55。
+ * 配色沿用 V4 的暖色田园色板：底色 #f4efe3、卡片 #fffdf7、主色叶片绿 #2f6b40，
+ * 主按钮仍是绿色渐变。改版只动骨架与密度，不动颜色。
  *
- * 旧变量名（--paper / --leaf / --radius ...）全部保留并映射到新色板，
- * 各功能模块的 CSS 不用改一行也能跟着变。
+ * 旧变量名（--paper / --leaf / --radius ...）全部保留，模块 CSS 无需改动。
  */
 
 :root {
-  /* ---- WorkBuddy 语义色 ---- */
-  --bg: #f2f2f2;
-  --surface: #ffffff;
-  --surface-2: #f7f8fa;
-  --surface-3: #ebebeb;
+  /* ---- 暖色田园色板：沿用 V4 的取值，不换色 ---- */
+  --bg: #f4efe3;
+  --surface: #fffdf7;
+  --surface-2: #f7f2e6;
+  --surface-3: #ece5d6;
 
-  --ink: #191919;
-  --ink-soft: #5d5d5d;
-  --muted: #8a9099;
+  --ink: #23301f;
+  --ink-soft: #55634e;
+  --muted: #8b9382;
 
-  --line: #e6e6e6;
-  --line-soft: #efefef;
+  --line: #e4ddcb;
+  --line-soft: #ece5d6;
 
-  /* 品牌青绿：brand-8 太浅，白底文字用 brand-9 */
-  --brand: #009273;
-  --brand-hover: #00a884;
-  --brand-soft: #e6faf5;
-  --brand-line: #bff0e6;
+  /* 主色：叶片绿 */
+  --brand: #2f6b40;
+  --brand-hover: #3f8f56;
+  --brand-soft: #e6f0e3;
+  --brand-line: #cfe0c9;
 
-  /* ---- 兼容旧变量名（模块 CSS 依赖） ---- */
-  --paper: #f2f2f2;
-  --paper-2: #ebebeb;
-  --card: #ffffff;
-  --leaf: #009273;
-  --leaf-2: #00a884;
-  --leaf-soft: #e6faf5;
-  --leaf-wash: rgba(0, 146, 115, 0.06);
-  --sun: #c2410c;
-  --sun-soft: #ffeddf;
-  --rain: #3370ff;
-  --rain-soft: #eaf2ff;
-  --red: #b42c3f;
-  --red-soft: #fce8e8;
+  /* ---- 旧变量名（模块 CSS 依赖），值与本段一致 ---- */
+  --paper: #f4efe3;
+  --paper-2: #ece5d6;
+  --card: #fffdf7;
+  --leaf: #2f6b40;
+  --leaf-2: #3f8f56;
+  --leaf-soft: #e6f0e3;
+  --leaf-wash: rgba(47, 107, 64, 0.06);
+  --sun: #d99b2b;
+  --sun-soft: #fbf0d8;
+  --rain: #3d6f96;
+  --rain-soft: #e8f0f6;
+  --red: #c65547;
+  --red-soft: #f8e7e3;
 
+  /* 圆角与间距沿用新版尺度（形状不动），阴影色换回暖调 */
   --radius: 12px;
   --radius-sm: 8px;
   --radius-xs: 6px;
-  --shadow: 0 16px 32px -8px rgba(0, 0, 0, 0.06);
-  --shadow-soft: 0 16px 32px -8px rgba(0, 0, 0, 0.03);
+  --shadow: 0 14px 34px -16px rgba(43, 58, 38, 0.28);
+  --shadow-soft: 0 6px 18px -10px rgba(43, 58, 38, 0.22);
 }
 
 * { box-sizing: border-box; }
@@ -86,7 +84,6 @@ body[data-layout="app"] {
      所以留白必须加在 body 上；加在 .app-main 上会把面板挤到视口下面 */
   padding-left: 216px;
   background: var(--bg);
-  background-image: none;
 }
 
 body[data-layout="app"] .sidebar {
@@ -105,7 +102,8 @@ body[data-layout="app"] .sidebar {
 
 body[data-layout="app"] .app-main {
   min-height: 100vh;
-  background: var(--bg);
+  /* 透明才能露出 body 上的暖色光晕；这里若填 --bg 会把光晕整块盖掉 */
+  background: transparent;
 }
 
 body[data-layout="app"] .page--home {
@@ -113,7 +111,14 @@ body[data-layout="app"] .page--home {
   width: 100%;
   max-width: 860px;
   margin: 0 auto;
+  /* 撑满视口高度，否则内容不足一屏时背景块会在中部留下可见的矩形边缘 */
+  min-height: 100vh;
   padding: 26px 28px calc(64px + env(safe-area-inset-bottom));
+  /* V4 的两团暖色光晕：收在内容列内，宽屏上才不会糊成一片 */
+  background:
+    radial-gradient(620px 300px at 92% -12%, rgba(217, 155, 43, 0.14), transparent 62%),
+    radial-gradient(480px 260px at -8% 2%, rgba(63, 143, 86, 0.12), transparent 64%);
+  background-repeat: no-repeat;
 }
 
 body[data-layout="app"].pane-mode .app-main {
@@ -223,22 +228,60 @@ body[data-layout="app"] .content-pane > * {
   inset: 0;
   pointer-events: none;
   z-index: 0;
-  /* 旧皮肤是整屏插画，放到中性灰底上会发紫发脏；
-     这里压到极淡并去饱和，只留一点天气氛围 */
-  opacity: 0.08;
-  filter: saturate(0.5);
+  opacity: 0.14;
   background-size: cover;
   background-position: center top;
-  -webkit-mask-image: linear-gradient(to bottom, #000 0%, rgba(0, 0, 0, 0.35) 45%, transparent 72%);
-  mask-image: linear-gradient(to bottom, #000 0%, rgba(0, 0, 0, 0.35) 45%, transparent 72%);
-  transition: opacity 0.4s ease;
+  background-repeat: no-repeat;
+  background-image: none;
+  /* 只在页面上半部透出，向下渐隐；不这么做宽屏上会糊成一整片灰 */
+  -webkit-mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.55) 0%, rgba(0, 0, 0, 0.38) 34%, transparent 62%);
+  mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.55) 0%, rgba(0, 0, 0, 0.38) 34%, transparent 62%);
+  transition: opacity 0.6s ease;
 }
 
+.page--home[data-weather="sunny"] .weather-bg-layer,
+.page--home[data-weather="rain"] .weather-bg-layer,
+.page--home[data-weather="cloudy"] .weather-bg-layer,
+.page--home[data-weather="snow"] .weather-bg-layer { opacity: 0.2; }
+
+/* 四类天气的叠加层：雨丝、日晕、云影、雪点 */
 .weather-bg-layer::after {
   content: "";
   position: absolute;
   inset: 0;
-  background: radial-gradient(900px 380px at 78% -10%, rgba(0, 146, 115, 0.06), transparent 62%);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
+
+.page--home[data-weather="rain"] .weather-bg-layer::after {
+  opacity: 0.4;
+  background: repeating-linear-gradient(180deg, transparent 0, transparent 18px,
+    rgba(160, 180, 210, 0.3) 19px, rgba(160, 180, 210, 0.3) 20px, transparent 21px);
+  animation: weather-rain 24s linear infinite;
+}
+
+.page--home[data-weather="sunny"] .weather-bg-layer::after {
+  opacity: 0.15;
+  background: radial-gradient(circle at 80% 20%, rgba(255, 220, 100, 0.4), transparent 40%);
+  animation: weather-sunny 12s ease-in-out infinite;
+}
+
+.page--home[data-weather="cloudy"] .weather-bg-layer::after {
+  opacity: 0.2;
+  background:
+    radial-gradient(ellipse 200px 80px at 30% 30%, rgba(255, 255, 255, 0.4), transparent 60%),
+    radial-gradient(ellipse 250px 100px at 70% 50%, rgba(255, 255, 255, 0.3), transparent 60%);
+  animation: weather-cloudy 18s ease-in-out infinite;
+}
+
+.page--home[data-weather="snow"] .weather-bg-layer::after {
+  opacity: 0.3;
+  background-image:
+    radial-gradient(circle, rgba(255, 255, 255, 0.6) 1.5px, transparent 2px),
+    radial-gradient(circle, rgba(255, 255, 255, 0.4) 1px, transparent 1.5px);
+  background-size: 30px 30px, 50px 50px;
+  animation: weather-snow 30s linear infinite;
 }
 
 .weather-card {
@@ -263,19 +306,6 @@ body[data-layout="app"] .content-pane > * {
 .weather-temp { font-size: 13px; font-weight: 600; color: var(--ink); font-variant-numeric: tabular-nums; }
 .weather-desc { color: var(--ink-soft); }
 .weather-extra { color: var(--muted); font-size: 12px; }
-
-.page--home[data-weather="sunny"] .weather-bg-layer::after {
-  background: radial-gradient(900px 380px at 78% -10%, rgba(255, 132, 32, 0.1), transparent 62%);
-}
-.page--home[data-weather="rain"] .weather-bg-layer::after {
-  background: radial-gradient(900px 380px at 78% -10%, rgba(51, 112, 255, 0.09), transparent 62%);
-}
-.page--home[data-weather="cloudy"] .weather-bg-layer::after {
-  background: radial-gradient(900px 380px at 78% -10%, rgba(120, 130, 140, 0.09), transparent 62%);
-}
-.page--home[data-weather="snow"] .weather-bg-layer::after {
-  background: radial-gradient(900px 380px at 78% -10%, rgba(140, 180, 220, 0.1), transparent 62%);
-}
 
 .weather-fx-overlay { display: none; }
 
@@ -396,7 +426,7 @@ body[data-layout="app"] .content-pane > * {
   background: var(--surface);
   border: 1px solid var(--line);
   border-radius: var(--radius-sm);
-  box-shadow: 0 12px 28px -12px rgba(0, 0, 0, 0.18);
+  box-shadow: 0 12px 28px -12px rgba(43, 58, 38, 0.18);
   max-height: 260px;
   overflow-y: auto;
 }
@@ -473,24 +503,35 @@ body[data-layout="app"] .content-pane > * {
 
 .btn svg { width: 16px; height: 16px; }
 
+/* 主按钮沿用 V4 的绿色渐变；尺寸/圆角按新尺度收小 */
 .btn-primary {
-  background: var(--ink);
+  background: linear-gradient(155deg, var(--leaf-2), var(--leaf));
   color: #fff;
-  border-color: var(--ink);
+  border-color: transparent;
+  box-shadow: 0 12px 22px -12px rgba(47, 107, 64, 0.65);
 }
 
-.btn-primary:hover { background: #333; border-color: #333; }
-.btn-primary:active { background: #000; }
-.btn-primary:disabled { background: var(--surface-3); border-color: var(--surface-3); color: var(--muted); cursor: not-allowed; }
+.btn-primary:hover {
+  background: linear-gradient(155deg, #47a05f, #2f6b40);
+  border-color: transparent;
+}
+.btn-primary:active { background: linear-gradient(155deg, var(--leaf), #285c37); }
+.btn-primary:disabled {
+  background: var(--surface-3);
+  border-color: var(--surface-3);
+  color: var(--muted);
+  box-shadow: none;
+  cursor: not-allowed;
+}
 
 .btn-ghost {
-  background: var(--surface);
-  color: var(--ink);
-  border-color: var(--line);
+  background: transparent;
+  color: var(--leaf);
+  border-color: rgba(63, 143, 86, 0.45);
 }
 
-.btn-ghost:hover { background: var(--surface-2); }
-.btn-ghost:active { background: var(--surface-3); }
+.btn-ghost:hover { background: var(--leaf-soft); border-color: var(--leaf-2); }
+.btn-ghost:active { background: var(--leaf-soft); }
 
 .photo-entry {
   margin: 10px 0 0;
@@ -528,14 +569,16 @@ body[data-layout="app"] .content-pane > * {
   padding: 9px 14px;
   font-size: 13px;
   border-radius: var(--radius-sm);
-  background: #262626;
-  color: #fff;
-  box-shadow: 0 12px 28px -12px rgba(0, 0, 0, 0.4);
+  /* 沿用 V4 的浅底彩字，不用深色胶囊 */
+  background: var(--leaf-soft);
+  color: var(--leaf);
+  border: 1px solid var(--brand-line);
+  box-shadow: var(--shadow);
 }
 
 .toast.show { display: block; animation: wb-toast-in 0.18s ease forwards; }
-.toast.error { background: var(--red); color: #fff; }
-.toast.info { background: #262626; color: #fff; }
+.toast.error { background: var(--red-soft); color: var(--red); border-color: #eec9c3; }
+.toast.info { background: var(--leaf-soft); color: var(--leaf); }
 
 @keyframes wb-toast-in {
   from { opacity: 0; transform: translate(-50%, 16px); }
@@ -826,15 +869,15 @@ body.split-active .home-pane-back { display: inline-flex; align-items: center; }
   line-height: 1.6;
 }
 
-.sow-check--block { border-color: #f0c9cd; background: #fdf4f5; }
-.sow-check--warn { border-color: #f2ddc2; background: #fffaf2; }
+.sow-check--block { border-color: #f0c9cd; background: #fdf6f6; }
+.sow-check--warn { border-color: #f2ddc2; background: #fdf3e6; }
 .sow-check--ok { border-color: var(--brand-line); background: #f3fbf8; }
 
 .sow-check-head { font-size: 13px; font-weight: 600; margin-bottom: 8px; color: var(--ink); }
 .sow-check--block .sow-check-head { color: var(--red); }
 .sow-check--warn .sow-check-head { color: var(--sun); }
 
-.sow-check-item { padding: 7px 0; border-top: 1px solid rgba(0, 0, 0, 0.05); }
+.sow-check-item { padding: 7px 0; border-top: 1px solid rgba(43, 58, 38, 0.05); }
 .sow-check-item:first-of-type { border-top: 0; padding-top: 0; }
 .sow-check-item strong { display: block; font-size: 12.5px; font-weight: 600; color: var(--ink); }
 .sow-check-item p { margin: 2px 0 0; font-size: 12px; color: var(--ink-soft); }
@@ -880,7 +923,7 @@ body.split-active .home-pane-back { display: inline-flex; align-items: center; }
   body[data-layout="app"] .sidebar {
     transform: translateX(-100%);
     width: 248px;
-    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.06), 20px 0 40px -24px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 0 0 1px rgba(43, 58, 38, 0.06), 20px 0 40px -24px rgba(43, 58, 38, 0.3);
   }
   body[data-layout="app"] .sidebar.sidebar--open { transform: translateX(0); }
   body[data-layout="app"] { padding-left: 0; }
@@ -921,7 +964,7 @@ body.split-active .home-pane-back { display: inline-flex; align-items: center; }
   font-weight: 400 !important;
 }
 
-/* 模块主按钮：从绿色渐变改为近黑实心，与新主色一致 */
+/* 模块主按钮：只统一尺寸，颜色各自沿用原配色 */
 .my-plots-add,
 .my-crops-add {
   height: 32px !important;
@@ -929,9 +972,6 @@ body.split-active .home-pane-back { display: inline-flex; align-items: center; }
   font-family: inherit;
   font-size: 12.5px !important;
   font-weight: 500 !important;
-  color: #fff !important;
-  background: var(--ink) !important;
-  border: 1px solid var(--ink) !important;
   border-radius: var(--radius-sm) !important;
   box-shadow: none !important;
   display: inline-flex;
@@ -941,8 +981,21 @@ body.split-active .home-pane-back { display: inline-flex; align-items: center; }
   cursor: pointer;
 }
 
-.my-plots-add:hover,
-.my-crops-add:hover { background: #333 !important; border-color: #333 !important; }
+/* 我的地块：绿色渐变实心（与 V4 一致） */
+.my-plots-add {
+  color: #fff !important;
+  background: linear-gradient(155deg, var(--leaf-2), var(--leaf)) !important;
+  border: 1px solid transparent !important;
+}
+.my-plots-add:hover { background: linear-gradient(155deg, #47a05f, var(--leaf)) !important; }
+
+/* 我的作物：叶绿浅底描边（与 V4 一致） */
+.my-crops-add {
+  color: var(--leaf) !important;
+  background: var(--leaf-soft) !important;
+  border: 1px solid var(--leaf-2) !important;
+}
+.my-crops-add:hover { background: var(--leaf) !important; color: #fff !important; }
 
 /* 卡片统一细边框 + 小圆角 */
 .my-plots-card,
@@ -991,72 +1044,71 @@ body.split-active .home-pane-back { display: inline-flex; align-items: center; }
 }
 .date-picker > .voice-btn:hover { background: var(--surface-2); border-color: transparent; }
 
-/* 节气刻度尺收敛：细一点、淡一点，别像进度条 */
-.term-ruler { height: 18px; margin-bottom: 12px; }
-.term-ruler i { height: 4px; border-radius: 2px; background: #e3e4e6; }
-.term-ruler i.hi { background: var(--brand); opacity: 0.32; }
+/* 节气刻度尺：保留 V4 的暖色渐变柱 */
+.term-ruler { height: 20px; margin-bottom: 16px; }
+.term-ruler i { flex: 1; height: 100%; background: linear-gradient(to top, var(--line), transparent); border-radius: 2px 2px 0 0; }
+.term-ruler i.hi { background: linear-gradient(to top, var(--sun), transparent); }
 
 
 /* ============================================================
-   天气氛围（保留四类天气 / 昼夜 / 时段的动效，幅度压到极小）
-   旧皮肤靠整屏插画+大幅动画营造氛围，在工具型界面里太吵；
-   这里保留"会动"这件事，但把位移与透明度控制在 1-2% 量级。
+   天气氛围：四类天气的叠加层动画 + 时段呼吸
+   动画只作用在 ::after 叠加层上，不动整层，避免背景图整体漂移
    ============================================================ */
 
 @keyframes weather-sunny {
-  0%, 100% { transform: translateY(0) scale(1); }
-  50% { transform: translateY(-4px) scale(1.006); }
+  0%, 100% { transform: scale(1); opacity: 0.15; }
+  50% { transform: scale(1.1); opacity: 0.25; }
 }
 
 @keyframes weather-rain {
-  0% { background-position: 0 0; }
-  100% { background-position: 0 96px; }
+  from { background-position-y: 0; }
+  to { background-position-y: 40px; }
 }
 
 @keyframes weather-cloudy {
-  0%, 100% { transform: translateX(0); }
-  50% { transform: translateX(6px); }
+  from { transform: translateX(-50px); }
+  to { transform: translateX(50px); }
 }
 
 @keyframes weather-snow {
-  0% { background-position: 0 0; }
-  100% { background-position: 18px 120px; }
+  from { background-position-y: 0, 0; }
+  to { background-position-y: 30px, 50px; }
 }
 
 @keyframes tea-morning {
-  0%, 100% { opacity: 0.07; }
-  50% { opacity: 0.1; }
+  0%, 100% { opacity: 0.1; }
+  50% { opacity: 0.14; }
 }
 
 @keyframes tea-forenoon {
-  0%, 100% { opacity: 0.08; }
-  50% { opacity: 0.11; }
+  0%, 100% { opacity: 0.11; }
+  50% { opacity: 0.15; }
 }
 
 @keyframes tea-noon {
+  0%, 100% { opacity: 0.12; }
+  50% { opacity: 0.16; }
+}
+
+@keyframes tea-afternoon {
+  0%, 100% { opacity: 0.11; }
+  50% { opacity: 0.15; }
+}
+
+@keyframes tea-evening {
   0%, 100% { opacity: 0.09; }
   50% { opacity: 0.13; }
 }
 
-@keyframes tea-afternoon {
-  0%, 100% { opacity: 0.08; }
-  50% { opacity: 0.12; }
-}
-
-@keyframes tea-evening {
-  0%, 100% { opacity: 0.06; }
-  50% { opacity: 0.09; }
-}
-
 @keyframes tea-night {
-  0%, 100% { opacity: 0.05; }
-  50% { opacity: 0.07; }
+  0%, 100% { opacity: 0.07; }
+  50% { opacity: 0.1; }
 }
 
-.page--home[data-weather="sunny"] .weather-bg-layer { animation: weather-sunny 12s ease-in-out infinite; }
-.page--home[data-weather="rain"] .weather-bg-layer { animation: weather-rain 24s linear infinite; }
-.page--home[data-weather="cloudy"] .weather-bg-layer { animation: weather-cloudy 18s ease-in-out infinite; }
-.page--home[data-weather="snow"] .weather-bg-layer { animation: weather-snow 30s linear infinite; }
+.page--home[data-weather="sunny"] .weather-bg-layer::after { animation-duration: 3s; }
+.page--home[data-weather="rain"] .weather-bg-layer::after { animation-duration: 0.6s; }
+.page--home[data-weather="cloudy"] .weather-bg-layer::after { animation-duration: 15s; }
+.page--home[data-weather="snow"] .weather-bg-layer::after { animation-duration: 4s; }
 
 [data-timeperiod="morning"] .weather-bg-layer { animation: tea-morning 16s ease-in-out infinite; }
 [data-timeperiod="forenoon"] .weather-bg-layer { animation: tea-forenoon 16s ease-in-out infinite; }
@@ -1067,8 +1119,8 @@ body.split-active .home-pane-back { display: inline-flex; align-items: center; }
 
 /* 夜间：整层再压暗压淡，与白天的中性灰区分开 */
 [data-daynight="night"] .weather-bg-layer {
-  opacity: 0.05;
-  filter: saturate(0.35) brightness(0.92);
+  /* 夜间只是把天气图压淡，不做去饱和——去饱和会让暖底色发灰 */
+  opacity: 0.07;
 }
 
 /* ============================================================
@@ -1082,6 +1134,21 @@ body.split-active .home-pane-back { display: inline-flex; align-items: center; }
 @media (min-width: 1024px) {
   body[data-layout="app"] .page--home { max-width: 900px; }
   body[data-layout="app"] .content-pane > * { max-width: 1120px; }
+}
+
+/* 桌面宽屏上天气插画会被拉伸成一块灰绿雾，和暖米黄底冲突；
+   氛围只保留在手机端，桌面用纯暖底 + 内容列微光 */
+@media (min-width: 768px) {
+  .weather-bg-layer { display: none; }
+}
+
+@media (max-width: 767px) {
+  /* 手机端也压到几乎不可见：灰绿天空压在暖米黄标题上会显脏 */
+  .weather-bg-layer {
+    opacity: 0.05;
+    -webkit-mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.5) 0%, transparent 45%);
+    mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.5) 0%, transparent 45%);
+  }
 }
 
 @media (max-width: 375px) {

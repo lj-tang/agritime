@@ -1,7 +1,6 @@
 /*
- * 左侧栏 · 对齐 WorkBuddy 的导航栏
- * 白底、1px 右边线、34px 行高、6px 圆角、选中态浅灰底 + 深色文字。
- * 不用竖条高亮，也不用品牌绿铺底 —— 那会让整个侧栏变"重"。
+ * 左侧栏：骨架按 WorkBuddy（216px、34px 行高、6px 圆角），
+ * 配色沿用 V4 —— 暖白底、叶绿 hover 与选中态。
  */
 
 .sidebar {
@@ -10,8 +9,8 @@
   top: 0;
   bottom: 0;
   width: 216px;
-  background: var(--surface, #fff);
-  border-right: 1px solid var(--line-soft, #efefef);
+  background: var(--surface, #fffdf7);
+  border-right: 1px solid var(--line, #e4ddcb);
   display: flex;
   flex-direction: column;
   z-index: 100;
@@ -26,7 +25,7 @@
   height: 52px;
   padding: 0 14px;
   flex-shrink: 0;
-  border-bottom: 1px solid var(--line-soft, #efefef);
+  border-bottom: 1px solid var(--line-soft, #ece5d6);
 }
 
 .sidebar-logo {
@@ -38,10 +37,10 @@
 }
 
 .sidebar-name {
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--ink, #191919);
-  letter-spacing: -0.01em;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--leaf, #2f6b40);
+  letter-spacing: 0.01em;
   white-space: nowrap;
 }
 
@@ -57,7 +56,7 @@
 
 .sidebar-nav::-webkit-scrollbar { width: 6px; }
 .sidebar-nav::-webkit-scrollbar-thumb {
-  background: var(--surface-3, #ebebeb);
+  background: var(--line, #e4ddcb);
   border-radius: 999px;
 }
 
@@ -75,25 +74,25 @@
   font-family: inherit;
   font-size: 13px;
   line-height: 1.4;
-  color: var(--ink-soft, #5d5d5d);
+  color: var(--ink-soft, #55634e);
   text-align: left;
   transition: background 0.12s ease, color 0.12s ease;
 }
 
 .sidebar-item:hover {
-  background: var(--surface-2, #f7f8fa);
-  color: var(--ink, #191919);
+  background: var(--leaf-soft, #e6f0e3);
+  color: var(--leaf, #2f6b40);
 }
 
-.sidebar-item:active { background: var(--surface-3, #ebebeb); }
+.sidebar-item:active { background: var(--leaf-soft, #e6f0e3); }
 
 .sidebar-item--active {
-  background: var(--surface-3, #ebebeb);
-  color: var(--ink, #191919);
-  font-weight: 500;
+  background: var(--leaf-soft, #e6f0e3);
+  color: var(--leaf, #2f6b40);
+  font-weight: 600;
 }
 
-.sidebar-item--active:hover { background: var(--surface-3, #ebebeb); }
+.sidebar-item--active:hover { background: var(--leaf-soft, #e6f0e3); }
 
 .sidebar-icon {
   width: 18px;
@@ -103,13 +102,11 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  /* 彩色 emoji 在克制的工具型界面里太跳，灰化后接近线性图标的观感 */
-  filter: grayscale(1);
-  opacity: 0.62;
+  opacity: 0.9;
   transition: opacity 0.12s ease;
 }
 
-.sidebar-item:hover .sidebar-icon { opacity: 0.85; }
+.sidebar-item:hover .sidebar-icon { opacity: 1; }
 .sidebar-item--active .sidebar-icon { opacity: 1; }
 
 .sidebar-label {
@@ -145,15 +142,15 @@
   z-index: 101;
   width: 36px;
   height: 36px;
-  border: 1px solid var(--line, #e6e6e6);
+  border: 1px solid var(--line, #e4ddcb);
   border-radius: 8px;
-  background: var(--surface, #fff);
-  color: var(--ink, #191919);
+  background: var(--surface, #fffdf7);
+  color: var(--ink, #23301f);
   cursor: pointer;
   font-size: 16px;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+  box-shadow: 0 1px 2px rgba(43, 58, 38, 0.04);
 }
 
 /* 板块容器是 body 的 flex 子项，必须给 flex:1，
@@ -165,7 +162,7 @@
   display: none;
   padding: 48px 20px;
   text-align: center;
-  color: var(--muted, #8a9099);
+  color: var(--muted, #8b9382);
   font-size: 13px;
 }
 

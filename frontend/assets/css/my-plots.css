@@ -26,7 +26,7 @@
 .my-plots-form h3 { margin: 0 0 16px; font-size: 18px; font-weight: 800; }
 .my-plots-form .field { margin-bottom: 18px; }
 .my-plots-form .field label { font-size: 15px; }
-.my-plots-form .field input, .my-plots-form .field select, .my-plots-form .field textarea { width: 100%; font-family: inherit; font-size: 16px; padding: 12px 12px; color: var(--ink); background: #f7f8fa; border: 1.5px solid var(--line); border-radius: 10px; }
+.my-plots-form .field input, .my-plots-form .field select, .my-plots-form .field textarea { width: 100%; font-family: inherit; font-size: 16px; padding: 12px 12px; color: var(--ink); background: #f7f2e6; border: 1.5px solid var(--line); border-radius: 10px; }
 .my-plots-form .field input:focus, .my-plots-form .field select:focus, .my-plots-form .field textarea:focus { outline: none; border-color: var(--leaf-2); background: #fff; box-shadow: 0 0 0 3px rgba(63,143,86,0.14); }
 .my-plots-form .field textarea { resize: vertical; min-height: 60px; }
 .my-plots-form-row { display: flex; gap: 12px; }
@@ -60,10 +60,10 @@
 @media (max-width: 767px) { .my-plots-cards { grid-template-columns: 1fr; } .my-plots-form-row { flex-direction: column; gap: 0; } }
 /* === 农事适宜度卡片（T06 验收第 5 条）=== */
 .plot-suit { border-radius: var(--radius); padding: 16px 18px; margin-bottom: 16px; border: 1px solid var(--line); background: var(--card); }
-.plot-suit--good { background: linear-gradient(180deg, #f2f9f2, #ffffff); border-color: #cfe6d4; }
-.plot-suit--ok { background: linear-gradient(180deg, #f6f9f0, #ffffff); border-color: #dde7c9; }
-.plot-suit--warn { background: linear-gradient(180deg, #fdf8ec, #ffffff); border-color: #f0e2bd; }
-.plot-suit--bad { background: linear-gradient(180deg, #fdf1ef, #ffffff); border-color: #f0cdc6; }
+.plot-suit--good { background: linear-gradient(180deg, #f2f9f2, #fffdf7); border-color: #cfe6d4; }
+.plot-suit--ok { background: linear-gradient(180deg, #f6f9f0, #fffdf7); border-color: #dde7c9; }
+.plot-suit--warn { background: linear-gradient(180deg, #fdf8ec, #fffdf7); border-color: #f0e2bd; }
+.plot-suit--bad { background: linear-gradient(180deg, #fdf1ef, #fffdf7); border-color: #f0cdc6; }
 
 .plot-suit-head { display: flex; align-items: center; gap: 12px; }
 .plot-suit-score { font-size: 34px; font-weight: 800; line-height: 1; color: var(--leaf); letter-spacing: -1px; }
@@ -91,7 +91,7 @@
 /* === 河川径流量（GloFAS 水文模型）=== */
 .plot-hyd {
   margin-top: 14px; padding: 14px 16px 12px;
-  background: linear-gradient(180deg, #f4f8fb, #ffffff);
+  background: linear-gradient(180deg, #f4f8fb, #fffdf7);
   border: 1px solid #d9e6ef; border-radius: var(--radius);
 }
 .plot-hyd .my-plots-env-section-title { margin: 0 0 8px; }
@@ -168,7 +168,7 @@
   margin-top: 8px;
   padding: 8px 10px;
   border-radius: 8px;
-  background: #fffaf2;
+  background: #fdf3e6;
   color: #8a5a2a;
   font-size: 12.5px;
   line-height: 1.6;
@@ -188,7 +188,7 @@
 .my-plots-analysis-line { font-size: 13px; color: var(--ink-soft); margin-bottom: 8px; }
 .my-plots-analysis-factors { display: flex; flex-direction: column; gap: 6px; margin-bottom: 8px; }
 .my-plots-analysis-factor { display: grid; grid-template-columns: 64px 1fr 32px; align-items: center; gap: 8px; font-size: 12px; color: var(--ink-soft); }
-.my-plots-analysis-factor i { height: 7px; border-radius: 999px; background: var(--paper-2, #ebebeb); position: relative; overflow: hidden; }
+.my-plots-analysis-factor i { height: 7px; border-radius: 999px; background: var(--paper-2, #ece5d6); position: relative; overflow: hidden; }
 .my-plots-analysis-factor i::after {
   content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: var(--w, 0%); border-radius: 999px;
   background: var(--leaf-2);
@@ -249,7 +249,7 @@
 .pond-note--muted { color: var(--muted); }
 .pond-risk { margin: 6px 0; padding: 8px 10px; border-radius: 8px; font-size: 12.5px; line-height: 1.6; }
 .pond-risk--high { background: #fdecec; color: #a32b2b; }
-.pond-risk--mid { background: #fffaf2; color: #8a5a2a; }
+.pond-risk--mid { background: #fdf3e6; color: #8a5a2a; }
 .pond-risk--low { background: #eaf5ec; color: #2f7a45; }
 .pond-action-list { margin: 6px 0 0; padding-left: 18px; }
 .pond-action-list li { font-size: 12.5px; line-height: 1.7; color: var(--ink-soft); }

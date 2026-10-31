@@ -22,7 +22,7 @@
   display: none;
   align-items: center;
   justify-content: center;
-  background: rgba(0,0,0,0.4);
+  background: rgba(43, 58, 38,0.4);
 }
 
 .map-panel {
@@ -31,7 +31,7 @@
   max-height: 92vh;
   background: var(--card);
   border-radius: var(--radius-sm);
-  box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+  box-shadow: 0 8px 32px rgba(43, 58, 38,0.2);
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -83,8 +83,8 @@
 
 /* 多边形顶点 */
 .agritime-vertex { background: none; border: 0; }
-.agritime-vertex-dot { display: block; width: 14px; height: 14px; border-radius: 50%; background: #fff; border: 3px solid #3f8f56; box-shadow: 0 1px 3px rgba(0,0,0,.35); box-sizing: border-box; }
-.agritime-vertex-dot.is-first { background: #3f8f56; border-color: #fff; box-shadow: 0 0 0 2px #3f8f56, 0 1px 3px rgba(0,0,0,.35); }
+.agritime-vertex-dot { display: block; width: 14px; height: 14px; border-radius: 50%; background: #fff; border: 3px solid #3f8f56; box-shadow: 0 1px 3px rgba(43, 58, 38,.35); box-sizing: border-box; }
+.agritime-vertex-dot.is-first { background: #3f8f56; border-color: #fff; box-shadow: 0 0 0 2px #3f8f56, 0 1px 3px rgba(43, 58, 38,.35); }
 
 /* 可种植性判定 */
 .map-verdict { padding: 10px 16px; font-size: 13px; line-height: 1.6; border-top: 1px solid var(--line); }
@@ -105,7 +105,7 @@
 
 /* 自定义标记：divIcon + 内联 SVG，去掉 leaflet-div-icon 默认的白底方块与边框 */
 .agritime-marker { background: none; border: 0; }
-.agritime-marker svg { display: block; filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.25)); }
+.agritime-marker svg { display: block; filter: drop-shadow(0 2px 3px rgba(43, 58, 38, 0.25)); }
 
 @media (max-width: 375px) {
   .map-panel { width: 95%; max-height: 94vh; }

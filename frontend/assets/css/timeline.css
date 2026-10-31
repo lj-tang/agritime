@@ -434,7 +434,7 @@
 }
 
 /* ---------- 远期计划节点：虚线、无天气结论 ---------- */
-.badge.plan { background: var(--paper-2, #ebebeb); color: var(--muted); }
+.badge.plan { background: var(--paper-2, #ece5d6); color: var(--muted); }
 .tl-node.seasonal .tl-dot {
   border-color: var(--line);
   background: var(--paper, #fff);
@@ -477,15 +477,15 @@
 
 .tl-action .date { font-size: 12px; }
 
-/* 决策行：从"大色块"改成"中性底 + 状态色左边线" */
+/* 决策行：沿用 V4 的浅绿底 + 左侧色条，只把字号收小 */
 .tl-decision {
   margin-top: 8px;
   padding: 8px 10px;
   border-radius: 8px;
-  border-left: 2px solid var(--brand);
-  background: var(--surface-2);
+  border-left: 3px solid var(--leaf-2);
+  background: var(--leaf-soft);
   font-size: 13.5px;
-  font-weight: 500;
+  font-weight: 600;
   line-height: 1.55;
   letter-spacing: 0;
   color: var(--ink);
@@ -493,18 +493,18 @@
 
 .tl-node.status-yellow .tl-decision {
   border-left-color: var(--sun);
-  background: #fffaf2;
+  background: var(--sun-soft);
 }
 
 .tl-node.status-red .tl-decision {
   border-left-color: var(--red);
-  background: #fdf4f5;
+  background: var(--red-soft);
 }
 
 .tl-advice {
   font-size: 12.5px;
-  font-weight: 500;
-  color: var(--brand);
+  font-weight: 600;
+  color: var(--leaf);
 }
 
 .tl-node.certain::before { border-left-color: var(--line); }
@@ -513,13 +513,13 @@
 .mode-tab {
   font-size: 13px;
   font-weight: 500;
-  background: var(--surface-2);
+  background: var(--paper-2);
 }
 
 .mode-tab.active {
-  font-weight: 600;
-  color: var(--ink);
-  box-shadow: inset 0 -2px 0 var(--ink);
+  font-weight: 700;
+  color: var(--leaf);
+  box-shadow: inset 0 -2px 0 var(--leaf-2);
 }
 
 /* 远期节点保持虚线卡片，但底色跟整体一致 */

@@ -5,15 +5,15 @@
   width: 44px;
   height: 44px;
   border-radius: 50%;
-  background: var(--ink, #191919);
-  color: #fff;
+  background: var(--leaf, #2f6b40);
+  color: var(--paper, #f4efe3);
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 28px;
   cursor: pointer;
   z-index: 1000;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  box-shadow: 0 4px 12px rgba(43, 58, 38,0.2);
   transition: transform 0.2s ease;
 }
 .floating-ball:hover { transform: scale(1.1); }
@@ -27,7 +27,7 @@
   background: var(--card);
   border: 1px solid var(--line);
   border-radius: var(--radius-sm);
-  box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+  box-shadow: 0 8px 24px rgba(43, 58, 38,0.15);
   z-index: 1001;
   display: none;
   flex-direction: column;
