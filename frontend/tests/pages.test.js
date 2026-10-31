@@ -1408,3 +1408,32 @@ test('UI 重写：骨架改版但配色保持 V4 暖色', () => {
   assert.ok(sidebarCss.includes('var(--leaf-soft'), '侧栏选中态应用叶绿浅底');
   assert.ok(!sidebarCss.includes('grayscale(1)'), '图标不应灰化');
 });
+
+test('账号入口固定在侧栏左下角', () => {
+  const authCss = read(path.resolve(__dirname, '..', 'assets', 'css', 'auth.css'));
+  const userChipJs = read(path.resolve(__dirname, '..', 'assets', 'js', 'user-chip.js'));
+
+  // 结构：账号区在导航之后，靠 flex 贴到侧栏底部
+  assert.ok(indexHtml.includes('id="sidebar-footer"'), '侧栏应有底部账号区');
+  assert.ok(indexHtml.indexOf('id="sidebar-nav"') < indexHtml.indexOf('id="sidebar-footer"'),
+    '账号区应排在导航之后');
+  assert.match(sidebarCss, /\.sidebar-footer\s*\{[^}]*flex-shrink: 0/);
+
+  // 逻辑：优先挂侧栏底部，找不到才退回页头
+  assert.ok(userChipJs.includes('sidebar-footer'), '账号入口应优先挂到侧栏底部');
+  assert.ok(userChipJs.indexOf('sidebar-footer') < userChipJs.indexOf("querySelector('.brand-row')"),
+    '应先找侧栏底部，页头只作兜底');
+  assert.ok(userChipJs.includes('user-chip--sidebar'), '侧栏变体应有独立类名');
+
+  // 样式：整行入口与导航项同构，登录后是头像+昵称+操作
+  assert.ok(authCss.includes('.user-chip-entry'), '未登录应是整行可点入口');
+  assert.ok(authCss.includes('.user-chip-avatar'), '登录后应显示头像字母');
+  assert.ok(authCss.includes('.user-chip--sidebar .user-chip-name'), '昵称应可省略不撑破侧栏');
+});
+
+test('移动端抽屉：汉堡让位且点外部可关闭', () => {
+  assert.ok(sidebarJs.includes("classList.toggle('sidebar-open'"), '抽屉状态要同步到 body');
+  assert.ok(sidebarJs.includes('body.classList.remove') || sidebarJs.includes("classList.remove('sidebar-open')"),
+    '关闭抽屉要清掉 body 类');
+  assert.ok(sidebarCss.includes('body.sidebar-open .sidebar-burger'), '打开时汉堡应隐藏');
+});

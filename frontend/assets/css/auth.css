@@ -283,6 +283,108 @@
   white-space: nowrap;
 }
 
+/* ---------- 侧栏左下角的账号入口 ---------- */
+.user-chip--sidebar {
+  margin-left: 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  font-size: 12.5px;
+}
+
+/* 未登录：整行可点的入口，样式与导航项一致而不是独立胶囊 */
+.user-chip a.user-chip-entry {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  flex: 1;
+  min-width: 0;
+  min-height: 34px;
+  padding: 6px 9px;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--ink-soft);
+  text-decoration: none;
+  cursor: pointer;
+  transition: background 0.12s ease, color 0.12s ease;
+}
+
+.user-chip a.user-chip-entry:hover { background: var(--leaf-soft); color: var(--leaf); }
+
+.user-chip-entry .user-chip-label {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.user-chip-icon {
+  width: 18px;
+  flex-shrink: 0;
+  font-size: 14px;
+  line-height: 1;
+  text-align: center;
+  opacity: 0.9;
+}
+
+/* 已登录：圆形头像字母 + 昵称 + 后台/退出 */
+.user-chip-avatar {
+  /* 与未登录时整行入口的图标左沿对齐（footer 8 + 入口内距 9 + 边框 1） */
+  margin-left: 10px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--leaf-soft);
+  color: var(--leaf);
+  font-size: 11px;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 1;
+}
+
+.user-chip--sidebar .user-chip-name {
+  flex: 1;
+  min-width: 0;
+  max-width: none;
+  padding: 0 2px;
+  border-radius: 0;
+  background: transparent;
+  color: var(--ink);
+  font-weight: 600;
+  font-size: 12.5px;
+  line-height: 1.2;
+}
+
+/* 只作用于登录后的「后台 / 退出」；未登录的整行入口是 a，要排除掉，
+   否则会被这里的 justify-content: center 和 padding 拉成居中胶囊 */
+.user-chip--sidebar > a:not(.user-chip-entry),
+.user-chip--sidebar > button {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 26px;
+  padding: 3px 7px;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--muted);
+  font-size: 11.5px;
+  line-height: 1.4;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.user-chip--sidebar > a:not(.user-chip-entry):hover,
+.user-chip--sidebar > button:hover {
+  background: var(--leaf-soft);
+  border-color: transparent;
+  color: var(--leaf);
+}
+
 @media (max-width: 860px) {
   .auth-shell { grid-template-columns: 1fr; }
   .auth-brand { display: none; }

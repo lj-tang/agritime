@@ -115,6 +115,15 @@
   text-overflow: ellipsis;
 }
 
+/* 底部账号区：固定在左下角，不随导航滚动 */
+.sidebar-footer {
+  flex-shrink: 0;
+  padding: 8px 8px calc(8px + env(safe-area-inset-bottom));
+  border-top: 1px solid var(--line-soft, #ece5d6);
+}
+
+.sidebar-footer:empty { display: none; }
+
 /* 二级菜单 */
 .sidebar-submenu {
   max-height: 0;

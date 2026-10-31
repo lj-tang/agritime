@@ -147,19 +147,43 @@
       var ph2 = document.getElementById('module-placeholder');
       if (ph2) ph2.style.display = 'none';
     }
-    var drawer = document.getElementById('sidebar');
-    if (drawer) drawer.classList.remove('sidebar--open');
+    closeDrawer();
+  }
+
+  /**
+   * 抽屉的开关状态要同时反映到 body 上：
+   * CSS 里有 `body.sidebar-open .sidebar-burger { display: none }`，
+   * 只 toggle .sidebar--open 的话汉堡按钮不会让位，会压住品牌名。
+   */
+  function closeDrawer() {
+    var sidebar = document.getElementById('sidebar');
+    if (!sidebar) return;
+    sidebar.classList.remove('sidebar--open');
+    document.body.classList.remove('sidebar-open');
   }
 
   function toggleDrawer() {
     var sidebar = document.getElementById('sidebar');
-    if (sidebar) sidebar.classList.toggle('sidebar--open');
+    if (!sidebar) return;
+    var open = sidebar.classList.toggle('sidebar--open');
+    document.body.classList.toggle('sidebar-open', open);
   }
 
   function init() {
     renderSidebar();
     var burger = document.getElementById('sidebar-burger');
-    if (burger) burger.addEventListener('click', toggleDrawer);
+    if (burger) burger.addEventListener('click', function (e) {
+      e.stopPropagation();
+      toggleDrawer();
+    });
+
+    // 点抽屉外部收起：移动端没有遮罩层，用户习惯点空白处关闭
+    document.addEventListener('click', function (e) {
+      var sidebar = document.getElementById('sidebar');
+      if (!sidebar || !sidebar.classList.contains('sidebar--open')) return;
+      if (sidebar.contains(e.target) || (burger && burger.contains(e.target))) return;
+      closeDrawer();
+    });
     var pane = new URLSearchParams(location.search).get('pane');
     if (pane && findEntry(pane)) currentModule = pane;
     switchModule(currentModule);
