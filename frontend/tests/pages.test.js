@@ -1339,3 +1339,17 @@ test('V5.3 去重：共享层已抽取', () => {
     assert.ok(!pond.includes('"' + n + '"'), '不应再硬编码鱼种「' + n + '」');
   });
 });
+
+test('V5 任务书：与 V4 同体例，编号自 T16 续接', () => {
+  const tb = read(path.resolve(__dirname, '..', '..', 'docs', 'taskbook-v5.md'));
+  assert.ok(tb.includes('**任务编号：T16**'), '首个任务应为 T16，与 V4 的 T00-T15 续接');
+  assert.ok(tb.includes('**任务编号：T30**'), '应覆盖到 T30');
+  const ids = tb.match(/\*\*任务编号：T\d+\*\*/g) || [];
+  assert.equal(ids.length, 15, '应有 15 个任务，与 V4 数量一致');
+  ['任务描述', '验收标准', '对应目录'].forEach(k => {
+    assert.ok(tb.includes('**' + k + '**') || tb.includes('- **' + k + '**'), '每个任务应含「' + k + '」');
+  });
+  assert.ok(tb.includes('## 四、三人分工建议'), '应保留分工章节');
+  assert.ok(tb.includes('## 五、开发与认领规则'), '应保留认领规则');
+  assert.ok(tb.includes('## 六、最终验收标准'), '应保留最终验收');
+});
