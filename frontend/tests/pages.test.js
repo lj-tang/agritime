@@ -1383,3 +1383,26 @@ test('V5 T16 推荐：地点真参与计算，地块真参与打分', () => {
   assert.ok(indexHtml.includes('recommend-resolve-btn'), '推荐页应有地点解析按钮');
   assert.ok(indexHtml.includes("params.set('plotId'"), '日历跳转应带上 plotId');
 });
+
+test('UI 重写：对齐 WorkBuddy 视觉体系', () => {
+  // 取值来自 WorkBuddy tokens 的 IDE Light 段，不是凭印象挑的颜色
+  assert.ok(commonCss.includes('--bg: #f2f2f2'), '底色应为中性灰 #f2f2f2');
+  assert.ok(commonCss.includes('--surface: #ffffff'), '卡片应为纯白');
+  assert.ok(commonCss.includes('--ink: #191919'), '主文字应为 #191919');
+  assert.ok(commonCss.includes('--muted: #8a9099'), '次要文字应为 #8a9099');
+  assert.ok(commonCss.includes('--line-soft: #efefef'), '分隔线应为 #efefef');
+  assert.ok(commonCss.includes('--radius: 12px'), '卡片圆角 12px');
+  assert.ok(commonCss.includes('--radius-sm: 8px'), '控件圆角 8px');
+  // 旧变量名必须保留，否则各模块 CSS 会集体失效
+  ['--paper:', '--card:', '--leaf:', '--shadow:', '--sun:'].forEach(v => {
+    assert.ok(commonCss.includes(v), '应保留旧变量 ' + v);
+  });
+  // 主按钮用近黑，不再用绿色渐变
+  assert.match(commonCss, /\.btn-primary\s*\{[^}]*background: var\(--ink\)/);
+  // 面板是与 .app-main 平级的 body 子节点，留白必须加在 body 上
+  assert.match(commonCss, /body\[data-layout="app"\]\s*\{[^}]*padding-left: 216px/);
+  assert.ok(sidebarCss.includes('--surface, #fff'), '侧栏应为白底');
+  assert.ok(sidebarCss.includes('grayscale(1)'), 'emoji 图标应灰化以贴近线性图标');
+  // 关键交互控件的实际尺寸（WorkBuddy 风格：38px 高）
+  assert.match(commonCss, /\.field input\s*\{[^}]*height: 38px/);
+});

@@ -28,7 +28,7 @@
   justify-content: space-between;
   gap: 12px;
   padding: 14px 18px;
-  color: #f3f6f2;
+  color: #f7f8fa;
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 
@@ -38,7 +38,7 @@
 .p3d-close {
   border: 0;
   background: rgba(255, 255, 255, 0.08);
-  color: #f3f6f2;
+  color: #f7f8fa;
   width: 32px;
   height: 32px;
   border-radius: 8px;
@@ -67,7 +67,7 @@
   padding: 4px 10px;
   border-radius: 8px;
   background: rgba(255, 255, 255, 0.05);
-  color: #f3f6f2;
+  color: #f7f8fa;
   font-size: 12px;
 }
 .p3d-stat .k { color: rgba(243, 246, 242, 0.55); }
@@ -84,7 +84,7 @@
 .p3d-btn {
   border: 1px solid rgba(255, 255, 255, 0.18);
   background: rgba(255, 255, 255, 0.06);
-  color: #f3f6f2;
+  color: #f7f8fa;
   border-radius: 8px;
   padding: 7px 14px;
   font-size: 13px;

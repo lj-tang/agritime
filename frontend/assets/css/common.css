@@ -1,23 +1,57 @@
+/*
+ * 知农时 · 基础样式与设计系统
+ *
+ * 视觉语言对齐 WorkBuddy（取值来自其 tokens 的 IDE Light 段）：
+ *   · 底色 #f2f2f2，卡片纯白，分隔线 #e6e6e6 / #ebebeb
+ *   · 圆角克制：卡片 12px，控件 8px，标签 6px
+ *   · 字号偏小：正文 14px，标签 12.5px，辅助 12px
+ *   · 阴影极淡：0 16px 32px -8px rgba(0,0,0,.03)
+ *   · 主操作按钮用近黑 #191919，品牌色只做点缀
+ *
+ * 旧变量名（--paper / --leaf / --radius ...）全部保留并映射到新色板，
+ * 各功能模块的 CSS 不用改一行也能跟着变。
+ */
+
 :root {
-  --ink: #23301f;
-  --ink-soft: #55634e;
-  --muted: #8b9382;
-  --paper: #f4efe3;
-  --paper-2: #ece5d6;
-  --card: #fffdf7;
-  --line: #e4ddcb;
-  --leaf: #2f6b40;
-  --leaf-2: #3f8f56;
-  --leaf-soft: #e6f0e3;
-  --sun: #d99b2b;
-  --sun-soft: #fbf0d8;
-  --rain: #3d6f96;
-  --red: #c65547;
-  --red-soft: #f8e7e3;
-  --radius: 18px;
-  --radius-sm: 12px;
-  --shadow: 0 14px 34px -16px rgba(43, 58, 38, 0.32);
-  --shadow-soft: 0 6px 18px -10px rgba(43, 58, 38, 0.3);
+  /* ---- WorkBuddy 语义色 ---- */
+  --bg: #f2f2f2;
+  --surface: #ffffff;
+  --surface-2: #f7f8fa;
+  --surface-3: #ebebeb;
+
+  --ink: #191919;
+  --ink-soft: #5d5d5d;
+  --muted: #8a9099;
+
+  --line: #e6e6e6;
+  --line-soft: #efefef;
+
+  /* 品牌青绿：brand-8 太浅，白底文字用 brand-9 */
+  --brand: #009273;
+  --brand-hover: #00a884;
+  --brand-soft: #e6faf5;
+  --brand-line: #bff0e6;
+
+  /* ---- 兼容旧变量名（模块 CSS 依赖） ---- */
+  --paper: #f2f2f2;
+  --paper-2: #ebebeb;
+  --card: #ffffff;
+  --leaf: #009273;
+  --leaf-2: #00a884;
+  --leaf-soft: #e6faf5;
+  --leaf-wash: rgba(0, 146, 115, 0.06);
+  --sun: #c2410c;
+  --sun-soft: #ffeddf;
+  --rain: #3370ff;
+  --rain-soft: #eaf2ff;
+  --red: #b42c3f;
+  --red-soft: #fce8e8;
+
+  --radius: 12px;
+  --radius-sm: 8px;
+  --radius-xs: 6px;
+  --shadow: 0 16px 32px -8px rgba(0, 0, 0, 0.06);
+  --shadow-soft: 0 16px 32px -8px rgba(0, 0, 0, 0.03);
 }
 
 * { box-sizing: border-box; }
@@ -30,761 +64,1035 @@ html, body {
 }
 
 body {
-  font-family: -apple-system, "PingFang SC", "Noto Sans SC", "Microsoft YaHei", "Helvetica Neue", Arial, sans-serif;
-  font-size: 17px;
-  line-height: 1.6;
+  font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Noto Sans SC",
+    "Microsoft YaHei", "Helvetica Neue", Arial, sans-serif;
+  font-size: 14px;
+  line-height: 1.55;
   color: var(--ink);
-  background:
-    radial-gradient(1100px 420px at 82% -8%, rgba(217, 155, 43, 0.16), transparent 60%),
-    radial-gradient(820px 380px at -12% 6%, rgba(63, 143, 86, 0.16), transparent 62%),
-    var(--paper);
+  background: var(--bg);
   -webkit-text-size-adjust: 100%;
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-.page {
-  max-width: 460px;
+/* ============================================================
+   应用外壳
+   ============================================================ */
+
+body[data-layout="app"] {
+  display: block;
+  min-height: 100vh;
+  /* 面板（.content-pane）是与 .app-main 平级的 body 子节点，
+     所以留白必须加在 body 上；加在 .app-main 上会把面板挤到视口下面 */
+  padding-left: 216px;
+  background: var(--bg);
+  background-image: none;
+}
+
+body[data-layout="app"] .sidebar {
+  position: fixed;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 216px;
+  background: var(--surface);
+  border-right: 1px solid var(--line-soft);
+  display: flex;
+  flex-direction: column;
+  z-index: 100;
+  transition: transform 0.24s ease;
+}
+
+body[data-layout="app"] .app-main {
+  min-height: 100vh;
+  background: var(--bg);
+}
+
+body[data-layout="app"] .page--home {
+  flex: 1;
+  width: 100%;
+  max-width: 860px;
   margin: 0 auto;
-  padding: 22px 16px calc(44px + env(safe-area-inset-bottom));
+  padding: 26px 28px calc(64px + env(safe-area-inset-bottom));
+}
+
+body[data-layout="app"].pane-mode .app-main {
+  min-height: 0;
+}
+
+body[data-layout="app"]:not(.pane-mode) .content-pane {
+  display: none;
+}
+
+body[data-layout="app"] .content-pane {
+  flex: 1;
+  min-width: 0;
+  padding: 22px 24px 48px;
+  overflow-y: auto;
+}
+
+body[data-layout="app"] .content-pane > * {
+  max-width: 1080px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* 兼容旧结构 */
+.page {
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 26px 28px calc(64px + env(safe-area-inset-bottom));
   min-height: 100vh;
 }
 
-/* 品牌头 */
-.brand { margin-bottom: 20px; }
+.page--home { padding-top: 26px; position: relative; z-index: 1; }
+
+/* ============================================================
+   页头
+   ============================================================ */
+
+.home-top { margin-bottom: 16px; }
 
 .brand-row {
   display: flex;
-  align-items: center;
-  gap: 11px;
+  align-items: flex-start;
+  gap: 12px;
+  justify-content: space-between;
 }
 
-.brand-mark {
-  width: 42px;
-  height: 42px;
-  flex: none;
-  display: grid;
-  place-items: center;
-  background: linear-gradient(150deg, var(--leaf-2), var(--leaf));
-  border-radius: 13px;
-  box-shadow: 0 8px 18px -8px rgba(47, 107, 64, 0.7);
+.home-heading { min-width: 0; }
+
+.home-title {
+  margin: 0;
+  font-size: 20px;
+  line-height: 1.35;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--ink);
 }
 
-.brand-mark svg, .brand-mark img { width: 24px; height: 24px; display: block; }
-
-.brand-name {
-  font-size: 24px;
-  font-weight: 800;
-  letter-spacing: 4px;
-  line-height: 1.1;
-}
-
-.brand-sub {
-  font-size: 12px;
-  letter-spacing: 3px;
+.home-sub {
+  margin: 4px 0 0;
+  font-size: 12.5px;
   color: var(--muted);
-  margin-top: 2px;
 }
 
-.tagline {
+/* 旧品牌结构保留，避免其它页面引用时丢样式 */
+.brand { margin-bottom: 16px; }
+.brand-mark { display: inline-flex; align-items: center; justify-content: center; }
+.brand-mark svg, .brand-mark img { width: 22px; height: 22px; display: block; }
+.brand-name { font-size: 15px; font-weight: 600; color: var(--ink); }
+.brand-sub { font-size: 12px; color: var(--muted); margin-top: 2px; }
+.tagline { font-size: 12.5px; color: var(--muted); margin: 0 0 14px; }
+.tagline strong { color: var(--brand); font-weight: 600; }
+
+/* 账号入口（user-chip.js 动态插入） */
+.user-chip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12.5px;
   color: var(--ink-soft);
-  font-size: 15px;
-  margin: 16px 0 18px;
+  flex-shrink: 0;
+}
+.user-chip a {
+  color: var(--ink-soft);
+  text-decoration: none;
+  padding: 4px 8px;
+  border-radius: var(--radius-xs);
+}
+.user-chip a:hover { background: var(--surface-2); color: var(--ink); }
+.user-chip button {
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--ink-soft);
+  font-size: 12px;
+  padding: 3px 8px;
+  border-radius: var(--radius-xs);
+  cursor: pointer;
+}
+.user-chip button:hover { background: var(--surface-2); }
+.user-chip-name { color: var(--ink); font-weight: 500; }
+
+/* ============================================================
+   天气：从大卡片改为一行状态条
+   ============================================================ */
+
+.weather-bg-layer {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  /* 旧皮肤是整屏插画，放到中性灰底上会发紫发脏；
+     这里压到极淡并去饱和，只留一点天气氛围 */
+  opacity: 0.08;
+  filter: saturate(0.5);
+  background-size: cover;
+  background-position: center top;
+  -webkit-mask-image: linear-gradient(to bottom, #000 0%, rgba(0, 0, 0, 0.35) 45%, transparent 72%);
+  mask-image: linear-gradient(to bottom, #000 0%, rgba(0, 0, 0, 0.35) 45%, transparent 72%);
+  transition: opacity 0.4s ease;
 }
 
-.tagline strong { color: var(--leaf); font-weight: 700; }
+.weather-bg-layer::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(900px 380px at 78% -10%, rgba(0, 146, 115, 0.06), transparent 62%);
+}
 
-/* 节气刻度装饰 */
+.weather-card {
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin: 0 0 14px;
+  padding: 6px 12px;
+  background: var(--surface);
+  border: 1px solid var(--line-soft);
+  border-radius: var(--radius-sm);
+  font-size: 12.5px;
+  color: var(--ink-soft);
+  box-shadow: none;
+}
+
+.weather-card[hidden] { display: none; }
+.weather-loc { font-weight: 500; color: var(--ink); }
+.weather-temp { font-size: 13px; font-weight: 600; color: var(--ink); font-variant-numeric: tabular-nums; }
+.weather-desc { color: var(--ink-soft); }
+.weather-extra { color: var(--muted); font-size: 12px; }
+
+.page--home[data-weather="sunny"] .weather-bg-layer::after {
+  background: radial-gradient(900px 380px at 78% -10%, rgba(255, 132, 32, 0.1), transparent 62%);
+}
+.page--home[data-weather="rain"] .weather-bg-layer::after {
+  background: radial-gradient(900px 380px at 78% -10%, rgba(51, 112, 255, 0.09), transparent 62%);
+}
+.page--home[data-weather="cloudy"] .weather-bg-layer::after {
+  background: radial-gradient(900px 380px at 78% -10%, rgba(120, 130, 140, 0.09), transparent 62%);
+}
+.page--home[data-weather="snow"] .weather-bg-layer::after {
+  background: radial-gradient(900px 380px at 78% -10%, rgba(140, 180, 220, 0.1), transparent 62%);
+}
+
+.weather-fx-overlay { display: none; }
+
+/* ============================================================
+   节气刻度尺
+   ============================================================ */
+
 .term-ruler {
   display: flex;
   align-items: flex-end;
   gap: 3px;
-  height: 20px;
-  margin: 0 2px 20px;
+  height: 26px;
+  margin: 0 0 14px;
+  padding: 0 2px;
 }
 
 .term-ruler i {
   flex: 1;
-  background: linear-gradient(to top, var(--line), transparent);
-  border-radius: 2px 2px 0 0;
+  display: block;
+  height: 8px;
+  border-radius: 2px;
+  background: var(--surface-3);
 }
 
-.term-ruler i.hi { background: linear-gradient(to top, var(--sun), transparent); }
+.term-ruler i.hi { background: var(--brand); opacity: 0.55; }
 
-/* 卡片 */
+/* ============================================================
+   卡片
+   ============================================================ */
+
 .card {
-  background: var(--card);
-  border: 1px solid rgba(228, 221, 203, 0.9);
+  position: relative;
+  background: var(--surface);
+  border: 1px solid var(--line-soft);
   border-radius: var(--radius);
-  box-shadow: var(--shadow);
-  padding: 22px 18px;
+  padding: 20px;
+  box-shadow: var(--shadow-soft);
 }
 
-/* 表单 */
-.field { position: relative; margin-bottom: 22px; }
+/* ============================================================
+   表单
+   ============================================================ */
+
+.field { position: relative; margin-bottom: 16px; }
 
 .field > label {
-  display: flex;
-  align-items: baseline;
-  gap: 8px;
-  font-size: 17px;
-  font-weight: 700;
-  letter-spacing: 0.5px;
-  margin-bottom: 10px;
+  display: block;
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--ink-soft);
+  margin-bottom: 6px;
 }
 
 .field .hint {
-  color: var(--muted);
-  font-size: 12.5px;
   font-weight: 400;
-  letter-spacing: 0;
+  color: var(--muted);
+  margin-left: 4px;
+  font-size: 12px;
 }
 
 .field input {
   width: 100%;
+  height: 38px;
+  padding: 0 12px;
+  font-size: 14px;
   font-family: inherit;
-  font-size: 18px;
-  padding: 15px 14px;
   color: var(--ink);
-  background: #fbf8f0;
-  border: 1.5px solid var(--line);
+  background: var(--surface);
+  border: 1px solid var(--line);
   border-radius: var(--radius-sm);
-  transition: border-color 0.18s, box-shadow 0.18s, background 0.18s;
-}
-
-.field input::placeholder { color: #b3b8a8; }
-
-.field input:focus {
   outline: none;
-  border-color: var(--leaf-2);
-  background: #fff;
-  box-shadow: 0 0 0 4px rgba(63, 143, 86, 0.14);
+  transition: border-color 0.15s ease, background 0.15s ease;
 }
 
-.field.invalid input {
-  border-color: var(--red);
-  background: var(--red-soft);
-}
+.field input::placeholder { color: var(--muted); }
+
+.field input:focus { border-color: var(--ink); }
+
+.field.invalid input { border-color: var(--red); }
 
 .field .error {
   display: none;
+  margin-top: 5px;
+  font-size: 12px;
   color: var(--red);
-  font-size: 13.5px;
-  margin-top: 7px;
-  padding-left: 2px;
 }
 
 .field.invalid .error { display: block; }
 
-/* 输入联想 */
+/* 语音按钮由 voice-input.js 追加到 .field 末尾，默认会独占一行，
+   把「作物品种」「所在地」两个字段撑出 30px 的多余高度。
+   这里让它悬浮在输入框右侧，并用 padding-right 让文字避让。 */
+.field { position: relative; }
+.field > .voice-btn {
+  position: absolute;
+  right: 5px;
+  top: 29px;
+  margin-left: 0;
+  border-color: transparent;
+  background: transparent;
+  color: var(--muted);
+}
+.field > .voice-btn:hover {
+  background: var(--surface-2);
+  border-color: transparent;
+  color: var(--ink);
+}
+.field:has(> .voice-btn) input { padding-right: 42px; }
+
+/* 联想下拉 */
 .suggestions {
   position: absolute;
-  top: calc(100% + 6px);
   left: 0;
   right: 0;
-  z-index: 20;
-  background: var(--card);
+  top: calc(100% - 14px);
+  z-index: 30;
+  display: none;
+  background: var(--surface);
   border: 1px solid var(--line);
   border-radius: var(--radius-sm);
-  box-shadow: var(--shadow);
-  overflow: hidden;
-  display: none;
+  box-shadow: 0 12px 28px -12px rgba(0, 0, 0, 0.18);
+  max-height: 260px;
+  overflow-y: auto;
 }
 
 .suggestions.show { display: block; }
 
 .suggestions button {
-  display: flex;
-  align-items: center;
-  gap: 10px;
+  display: block;
   width: 100%;
-  text-align: left;
-  padding: 13px 14px;
-  font-family: inherit;
-  font-size: 16px;
-  color: var(--ink);
-  background: none;
+  padding: 9px 12px;
   border: none;
-  border-bottom: 1px solid var(--line);
+  border-bottom: 1px solid var(--line-soft);
+  background: var(--surface);
+  text-align: left;
+  font-size: 13px;
+  font-family: inherit;
+  color: var(--ink);
+  cursor: pointer;
 }
 
 .suggestions button:last-child { border-bottom: none; }
+.suggestions button::before { content: none; }
+.suggestions button:hover, .suggestions button.active { background: var(--surface-2); }
+.suggestions button:active { background: var(--surface-3); }
+.suggestions button .hl { color: var(--brand); font-weight: 600; }
 
-.suggestions button::before {
-  content: "";
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: var(--leaf-2);
-  flex: none;
+/* 日期轮盘 */
+.date-picker { display: flex; gap: 8px; }
+
+.date-picker select {
+  height: 38px;
+  padding: 0 26px 0 10px;
+  font-size: 13.5px;
+  font-family: inherit;
+  color: var(--ink);
+  background-color: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  outline: none;
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%238a9099' stroke-width='1.4' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
 }
 
-.suggestions button:active { background: var(--leaf-soft); }
+#date-year { flex: 1.3 1 0; }
+.date-picker select + select { flex: 1 1 0; }
+.date-picker select:focus { border-color: var(--ink); }
+.date-picker option:disabled { color: var(--muted); }
+.date-range-hint { font-size: 12px; color: var(--muted); margin: 6px 0 0; line-height: 1.5; }
+.field.invalid .date-picker select { border-color: var(--red); }
 
-/* 按钮 */
+/* ============================================================
+   按钮
+   ============================================================ */
+
 .btn {
-  display: flex;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
   width: 100%;
+  height: 38px;
+  padding: 0 16px;
   font-family: inherit;
-  font-size: 18.5px;
-  font-weight: 700;
-  letter-spacing: 1px;
-  padding: 16px;
-  border-radius: 14px;
-  border: none;
+  font-size: 13.5px;
+  font-weight: 500;
+  border-radius: var(--radius-sm);
+  border: 1px solid transparent;
   cursor: pointer;
-  transition: transform 0.12s, box-shadow 0.18s, background 0.18s;
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
 }
 
-.btn svg { width: 20px; height: 20px; }
+.btn svg { width: 16px; height: 16px; }
 
 .btn-primary {
+  background: var(--ink);
   color: #fff;
-  background: linear-gradient(155deg, var(--leaf-2), var(--leaf));
-  box-shadow: 0 14px 26px -12px rgba(47, 107, 64, 0.8);
-  margin-top: 6px;
+  border-color: var(--ink);
 }
 
-.btn-primary:active { transform: translateY(1px) scale(0.99); }
+.btn-primary:hover { background: #333; border-color: #333; }
+.btn-primary:active { background: #000; }
+.btn-primary:disabled { background: var(--surface-3); border-color: var(--surface-3); color: var(--muted); cursor: not-allowed; }
 
 .btn-ghost {
-  color: var(--leaf);
-  background: transparent;
-  border: 1.5px dashed rgba(63, 143, 86, 0.5);
-  margin-top: 12px;
-  font-weight: 600;
+  background: var(--surface);
+  color: var(--ink);
+  border-color: var(--line);
 }
 
-.btn-ghost:active { background: var(--leaf-soft); }
+.btn-ghost:hover { background: var(--surface-2); }
+.btn-ghost:active { background: var(--surface-3); }
 
 .photo-entry {
-  margin-top: 12px;
+  margin: 10px 0 0;
+  font-size: 12px;
+  color: var(--muted);
   text-align: center;
-  color: var(--muted);
-  font-size: 13px;
-  letter-spacing: 1px;
 }
 
-/* 提示 */
+.photo-channels { display: flex; gap: 8px; margin-top: 12px; }
+
+.photo-channels .btn {
+  width: auto;
+  flex: 1;
+  height: 34px;
+  font-size: 12.5px;
+  border-color: var(--line);
+  background: var(--surface);
+  color: var(--ink-soft);
+}
+
+.photo-channels .btn:hover { background: var(--surface-2); color: var(--ink); }
+
+/* ============================================================
+   提示条
+   ============================================================ */
+
 .toast {
-  margin-top: 16px;
-  padding: 13px 15px;
-  border-radius: var(--radius-sm);
-  font-size: 15px;
+  position: fixed;
+  left: 50%;
+  bottom: 32px;
+  transform: translate(-50%, 12px);
+  z-index: 300;
   display: none;
-  animation: rise 0.28s ease;
-}
-
-.toast.show { display: block; }
-.toast.error { background: var(--red-soft); color: var(--red); }
-.toast.info { background: var(--leaf-soft); color: var(--leaf); }
-
-@keyframes rise {
-  from { opacity: 0; transform: translateY(6px); }
-  to { opacity: 1; transform: none; }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after { animation: none !important; transition: none !important; }
-}
-/* 首页背景（仅输入页） */
-.page--home {
-  background-image: url('../img/index-bg.png');
-  background-size: cover;
-  background-position: top center;
-  background-repeat: no-repeat;
-  background-color: var(--paper);
-}
-/* 自定义日期选择器 */
-.date-picker {
-  display: flex;
-  gap: 8px;
-  width: 100%;
-}
-
-.date-picker select {
-  flex: 1 1 0;
-  min-width: 0;
-  font-family: inherit;
-  font-size: 18px;
-  padding: 15px 14px;
-  color: var(--ink);
-  background-color: #fbf8f0;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%238b9382' stroke-width='1.6' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 14px center;
-  border: 1.5px solid var(--line);
+  max-width: min(420px, calc(100vw - 40px));
+  padding: 9px 14px;
+  font-size: 13px;
   border-radius: var(--radius-sm);
-  transition: border-color 0.18s, box-shadow 0.18s, background-color 0.18s;
-  appearance: none;
-  -webkit-appearance: none;
-  padding-right: 34px;
+  background: #262626;
+  color: #fff;
+  box-shadow: 0 12px 28px -12px rgba(0, 0, 0, 0.4);
 }
 
-#date-year { flex: 1.3 1 0; }
+.toast.show { display: block; animation: wb-toast-in 0.18s ease forwards; }
+.toast.error { background: var(--red); color: #fff; }
+.toast.info { background: #262626; color: #fff; }
 
-.date-picker select:focus {
-  outline: none;
-  border-color: var(--leaf-2);
-  background-color: #fff;
-  box-shadow: 0 0 0 4px rgba(63, 143, 86, 0.14);
+@keyframes wb-toast-in {
+  from { opacity: 0; transform: translate(-50%, 16px); }
+  to { opacity: 1; transform: translate(-50%, 0); }
 }
 
-.date-picker option:disabled {
-  color: var(--muted);
-  opacity: 0.5;
-  cursor: not-allowed;
-}
+/* ============================================================
+   历史记录
+   ============================================================ */
 
-.date-range-hint { font-size: 13px; color: var(--muted); margin-top: 6px; line-height: 1.4; }
-
-.field.invalid .date-picker select {
-  border-color: var(--red);
-  background-color: var(--red-soft);
-}
-/* 搜索联想增强：匹配高亮与键盘选中 */
-.suggestions button .hl { color: var(--leaf); font-weight: 800; }
-.suggestions button.active { background: var(--leaf-soft); }
-
-/* 历史记录区块 */
-.history {
-  margin-top: 18px;
-  background: var(--card);
-  border: 1px solid rgba(228, 221, 203, 0.9);
-  border-radius: var(--radius-sm);
-  box-shadow: var(--shadow-soft);
-  padding: 14px 16px;
-}
-
+.history { margin-top: 20px; }
 .history.hidden { display: none; }
 
 .history-head {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 10px;
+  margin-bottom: 8px;
 }
 
-.history-title {
-  font-size: 14px;
-  font-weight: 700;
-  letter-spacing: 1px;
-  color: var(--ink-soft);
-}
+.history-title { font-size: 12.5px; font-weight: 500; color: var(--muted); }
 
 .history-clear {
-  font-family: inherit;
-  font-size: 13px;
-  color: var(--muted);
-  background: none;
   border: none;
+  background: none;
+  font-size: 12px;
+  color: var(--muted);
   cursor: pointer;
-  padding: 4px 6px;
+  padding: 2px 6px;
+  border-radius: var(--radius-xs);
 }
 
-.history-list {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
+.history-clear:hover { background: var(--surface-2); color: var(--ink); }
+
+.history-list { display: flex; flex-direction: column; gap: 4px; }
 
 .history-item {
-  font-family: inherit;
-  font-size: 13.5px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 8px 10px;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  font-size: 13px;
   color: var(--ink-soft);
-  background: var(--paper-2);
-  border: 1px solid var(--line);
-  border-radius: 999px;
-  padding: 6px 12px;
   cursor: pointer;
-  max-width: 100%;
+}
+
+.history-item:hover { background: var(--surface-2); border-color: var(--line-soft); color: var(--ink); }
+.history-item:active { background: var(--surface-3); }
+
+.history-row { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.history-item > span, .history-row > span {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-.history-item:active { background: var(--leaf-soft); border-color: var(--leaf-2); }
+.history-del {
+  flex-shrink: 0;
+  width: 22px;
+  height: 22px;
+  border: none;
+  background: none;
+  color: var(--muted);
+  font-size: 15px;
+  cursor: pointer;
+  border-radius: var(--radius-xs);
+  line-height: 1;
+}
 
-.history-row { display: flex; align-items: center; gap: 8px; }
-.history-del { flex-shrink: 0; width: 24px; height: 24px; border: none; background: none; color: var(--muted); font-size: 18px; cursor: pointer; border-radius: 4px; line-height: 1; }
 .history-del:hover { background: var(--red-soft); color: var(--red); }
 
-/* 拍照 / 上传双通道按钮组 */
-.photo-channels {
-  display: flex;
-  gap: 10px;
-  margin-top: 12px;
-}
+/* ============================================================
+   时间线分屏
+   ============================================================ */
 
-.photo-channels .btn { margin-top: 0; }
+body.split-active .page--home { display: none; }
 
-/* 响应式适配 */
-@media (min-width: 768px) {
-  .page { max-width: 680px; padding-left: 24px; padding-right: 24px; }
-  .suggestions { max-width: 100%; }
-}
+.timeline-pane { display: none; flex: 1; min-width: 0; padding: 0; }
+body.split-active .timeline-pane { display: block; }
 
-@media (min-width: 1024px) {
-  .page { max-width: 860px; }
-}
-/* === T01: 天气视觉动态适配 === */
-
-.weather-bg-layer {
-  position: fixed;
-  inset: 0;
-  z-index: 0;
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  background-image: none;
-  opacity: 0.1;
-  transition: opacity 0.6s ease;
-  pointer-events: none;
-}
-.page--home[data-weather="sunny"] .weather-bg-layer,
-.page--home[data-weather="rain"] .weather-bg-layer,
-.page--home[data-weather="cloudy"] .weather-bg-layer,
-.page--home[data-weather="snow"] .weather-bg-layer { opacity: 0.15; }
-
-.weather-card {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  flex-wrap: wrap;
-  padding: 10px 16px;
-  margin-bottom: 12px;
-  border-radius: var(--radius-sm);
-  background: var(--card);
-  box-shadow: var(--shadow-soft);
-  font-size: 14px;
-  color: var(--ink-soft);
-}
-.weather-card[hidden] { display: none; }
-.weather-loc { font-weight: 600; color: var(--ink); }
-.weather-temp { font-size: 20px; font-weight: 700; color: var(--leaf); }
-.weather-desc { color: var(--ink-soft); }
-.weather-extra { color: var(--muted); font-size: 12px; }
-
-.page--home[data-weather="sunny"] { --leaf: #d99b2b; --leaf-soft: #fbf0d8; }
-.page--home[data-weather="rain"] { --leaf: #3d6f96; --leaf-soft: #d6e4f0; }
-.page--home[data-weather="cloudy"] { --leaf: #6b8aa5; --leaf-soft: #e0e8f0; }
-.page--home[data-weather="snow"] { --leaf: #7b9ab0; --leaf-soft: #e8eef5; }
-
-@keyframes weather-sunny { 0%,100% { opacity: 0.35; } 50% { opacity: 0.45; } }
-@keyframes weather-rain { 0% { background-position-y: 0; } 100% { background-position-y: 20px; } }
-@keyframes weather-cloudy { 0%,100% { transform: translateX(0); } 50% { transform: translateX(8px); } }
-@keyframes weather-snow { 0% { background-position-y: 0; } 100% { background-position-y: 15px; } }
-
-.page--home[data-weather="sunny"] .weather-bg-layer { animation: weather-sunny 4s ease-in-out infinite; }
-.page--home[data-weather="rain"] .weather-bg-layer { animation: weather-rain 1.5s linear infinite; }
-.page--home[data-weather="cloudy"] .weather-bg-layer { animation: weather-cloudy 6s ease-in-out infinite; }
-.page--home[data-weather="snow"] .weather-bg-layer { animation: weather-snow 3s linear infinite; }
-
-.weather-bg-layer::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  opacity: 0;
-  transition: opacity 0.5s ease;
-}
-.page--home[data-weather="rain"] .weather-bg-layer::after {
-  opacity: 0.4;
-  background: repeating-linear-gradient(180deg, transparent 0, transparent 18px, rgba(160,180,210,0.3) 19px, rgba(160,180,210,0.3) 20px, transparent 21px);
-  animation: rain-fall 0.6s linear infinite;
-}
-@keyframes rain-fall { from { background-position-y: 0; } to { background-position-y: 40px; } }
-
-.page--home[data-weather="sunny"] .weather-bg-layer::after {
-  opacity: 0.15;
-  background: radial-gradient(circle at 80% 20%, rgba(255,220,100,0.4), transparent 40%);
-  animation: sun-glow 3s ease-in-out infinite;
-}
-@keyframes sun-glow { 0%,100% { transform: scale(1); opacity: 0.15; } 50% { transform: scale(1.1); opacity: 0.25; } }
-
-.page--home[data-weather="cloudy"] .weather-bg-layer::after {
-  opacity: 0.2;
-  background: radial-gradient(ellipse 200px 80px at 30% 30%, rgba(255,255,255,0.4), transparent 60%), radial-gradient(ellipse 250px 100px at 70% 50%, rgba(255,255,255,0.3), transparent 60%);
-  animation: cloud-drift 15s linear infinite;
-}
-@keyframes cloud-drift { from { transform: translateX(-50px); } to { transform: translateX(50px); } }
-
-.page--home[data-weather="snow"] .weather-bg-layer::after {
-  opacity: 0.3;
-  background-image: radial-gradient(circle, rgba(255,255,255,0.6) 1.5px, transparent 2px), radial-gradient(circle, rgba(255,255,255,0.4) 1px, transparent 1.5px);
-  background-size: 30px 30px, 50px 50px;
-  animation: snow-fall 4s linear infinite;
-}
-@keyframes snow-fall { from { background-position-y: 0, 0; } to { background-position-y: 30px, 50px; } }
-
-@media (prefers-reduced-motion: reduce) {
-  .weather-bg-layer { animation: none !important; transition: opacity 0.3s ease !important; }
-}
-
-@media (max-width: 375px) {
-  .weather-card { font-size: 12px; padding: 8px 12px; gap: 6px; }
-  .weather-temp { font-size: 16px; }
-  .weather-extra { display: none; }
-}
-/* === T01 增强动画：左右分栏 + 时段差异化动画 === */
-
-body.split-active { display: flex; gap: 0; min-height: 100vh; }
-body.split-active .page--home { flex: 0 0 42%; overflow-y: auto; padding-right: 16px; border-right: 1px solid var(--line); transition: all 0.3s ease; }
-.timeline-pane { display: none; }
-body.split-active .timeline-pane { display: block; flex: 1 1 58%; overflow-y: auto; padding-left: 16px; }
-.timeline-iframe { width: 100%; height: calc(100vh - 20px); border: none; }
-.home-pane-back { display: none; margin-bottom: 12px; }
-body.split-active .home-pane-back { display: inline-block; }
-
-@keyframes tea-morning { 0%,100% { filter: brightness(1) hue-rotate(0deg); } 50% { filter: brightness(1.08) hue-rotate(5deg); } }
-@keyframes tea-forenoon { 0%,100% { filter: brightness(1.02) saturate(1); } 50% { filter: brightness(1.06) saturate(1.1); } }
-@keyframes tea-noon { 0%,100% { filter: brightness(1.1) saturate(1.05); } 50% { filter: brightness(1.15) saturate(1.15); } }
-@keyframes tea-afternoon { 0%,100% { filter: brightness(1) hue-rotate(0deg); } 50% { filter: brightness(0.97) hue-rotate(-5deg); } }
-@keyframes tea-evening { 0%,100% { filter: brightness(0.9) hue-rotate(-10deg) saturate(0.95); } 50% { filter: brightness(0.85) hue-rotate(-15deg) saturate(1.05); } }
-@keyframes tea-night { 0%,100% { filter: brightness(0.7) saturate(0.8); } 50% { filter: brightness(0.65) saturate(0.85); } }
-
-[data-timeperiod="morning"] .weather-bg-layer { animation: tea-morning 5s ease-in-out infinite; }
-[data-timeperiod="forenoon"] .weather-bg-layer { animation: tea-forenoon 6s ease-in-out infinite; }
-[data-timeperiod="noon"] .weather-bg-layer { animation: tea-noon 4s ease-in-out infinite; }
-[data-timeperiod="afternoon"] .weather-bg-layer { animation: tea-afternoon 6s ease-in-out infinite; }
-[data-timeperiod="evening"] .weather-bg-layer { animation: tea-evening 5s ease-in-out infinite; }
-[data-timeperiod="night"] .weather-bg-layer { animation: tea-night 8s ease-in-out infinite; }
-
-[data-timeperiod="morning"] { --time-accent: #f5b86a; }
-[data-timeperiod="forenoon"] { --time-accent: #e8a544; }
-[data-timeperiod="noon"] { --time-accent: #d99b2b; }
-[data-timeperiod="afternoon"] { --time-accent: #c47a3a; }
-[data-timeperiod="evening"] { --time-accent: #9a5a4a; }
-[data-timeperiod="night"] { --time-accent: #4a5a7a; }
-
-.weather-bg-layer { transition: filter 0.5s ease, opacity 0.5s ease; }
-
-@media (prefers-reduced-motion: reduce) {
-  [data-timeperiod] .weather-bg-layer { animation: none !important; }
-}
-
-@media (max-width: 767px) {
-  body.split-active { flex-direction: column; }
-  body.split-active .page--home { flex: none; border-right: none; border-bottom: 1px solid var(--line); padding-right: 0; padding-bottom: 16px; }
-  body.split-active .timeline-pane { flex: none; padding-left: 0; padding-top: 16px; }
-  .timeline-iframe { height: 70vh; }
-}
-/* 通用隐藏工具类：多处 HTML 用 class="hidden"，但此前没有全局定义 */
-.hidden { display: none !important; }
-
-/* === V4 T01: UI 改版 === */
-
-body[data-layout="app"] { display: flex; min-height: 100vh; background: linear-gradient(180deg, #ffffff 0%, #faf9f6 100%); }
-body[data-layout="app"] .sidebar { position: fixed; left: 0; top: 0; bottom: 0; z-index: 2; }
-body[data-layout="app"] .app-main { flex: 1; margin-left: 200px; min-height: 100vh; position: relative; z-index: 1; background: transparent; }
-body[data-layout="app"] .page--home { max-width: none; background-image: none; background-color: transparent; }
-
-/* 子功能板块（我的地块 / 我的产品 / 病害检查）：
-   切到这些板块时日历主体整个让位，板块自己占满侧栏右侧的内容区，
-   宽度与农事日历一致，内容居中对齐在 1200px 容器里 */
-body[data-layout="app"].pane-mode .app-main { display: none; }
-/* 日历模式下板块一律不占位：.content-pane 带了 flex:1，
-   若此时还显示（calendar 自己那个空 pane），会和 .app-main 平分宽度，首页就被挤窄了 */
-body[data-layout="app"]:not(.pane-mode) .content-pane { display: none !important; }
-body[data-layout="app"] .content-pane {
-  flex: 1;
-  min-width: 0;
-  margin-left: 200px;
-  min-height: 100vh;
-  box-sizing: border-box;
-  padding: 28px clamp(16px, 2.4vw, 36px) 56px;
-}
-body[data-layout="app"] .content-pane > * {
+.timeline-iframe {
   width: 100%;
-  max-width: 1200px;
-  margin: 0 auto;
-  box-sizing: border-box;
+  height: 100vh;
+  border: none;
+  background: var(--bg);
 }
 
-.weather-fx-overlay { position: fixed; inset: 0; z-index: 1; pointer-events: none; }
-
-[data-daynight="night"][data-weather="sunny"] .weather-bg-layer { animation: tea-night 8s ease-in-out infinite; }
-[data-daynight="night"][data-weather="rain"] .weather-bg-layer { animation: tea-night 6s ease-in-out infinite; }
-[data-daynight="night"][data-weather="cloudy"] .weather-bg-layer { animation: tea-night 7s ease-in-out infinite; }
-[data-daynight="night"][data-weather="snow"] .weather-bg-layer { animation: tea-night 5s ease-in-out infinite; }
-
-#loading-gate {
-  position: fixed; inset: 0; z-index: 9999;
-  display: flex; align-items: center; justify-content: center;
-  background: var(--paper);
-  transition: opacity 0.4s ease;
-}
-#loading-gate.hidden { opacity: 0; pointer-events: none; display: none; }
-.loading-gate-text { font-size: 18px; color: var(--leaf); font-weight: 600; }
-.loading-gate-spinner { width: 32px; height: 32px; border: 3px solid var(--leaf-soft); border-top-color: var(--leaf); border-radius: 50%; animation: spin 0.8s linear infinite; margin-right: 12px; }
-@keyframes spin { to { transform: rotate(360deg); } }
-
-@media (max-width: 767px) {
-  body[data-layout="app"] .app-main { margin-left: 0; }
-  /* 移动端左上角有汉堡按钮（fixed 定位），顶部留出空间避免压住标题 */
-  body[data-layout="app"] .content-pane { margin-left: 0; padding: 58px 14px 40px; }
-}
-
-/* T02：俗称归一提示（如「西红柿」识别为「番茄」） */
-.crop-resolved-hint {
-  margin: 10px 0 0;
-  padding: 8px 12px;
-  font-size: 13px;
-  color: var(--leaf);
-  background: var(--leaf-soft);
+.home-pane-back {
+  display: none;
+  position: fixed;
+  left: 228px;
+  top: 14px;
+  z-index: 60;
+  height: 30px;
+  padding: 0 12px;
+  font-size: 12.5px;
+  font-family: inherit;
+  border: 1px solid var(--line);
   border-radius: var(--radius-sm);
-  display: inline-block;
-}
-
-/* T07：作物属性说明（熟制/年限/生育期） */
-.crop-props-hint {
-  margin: 6px 0 0;
-  font-size: 12.5px;
-  color: var(--muted);
-}
-
-/* === T03 节点农事指导 === */
-.tl-guide { margin-top: 12px; padding-top: 10px; border-top: 1px dashed var(--line); }
-.tl-guide-title {
-  font-size: 12px; font-weight: 700; color: var(--leaf);
-  margin: 10px 0 4px; letter-spacing: .5px;
-}
-.tl-guide-title:first-child { margin-top: 0; }
-.tl-guide-line { margin: 0 0 3px; font-size: 13px; color: var(--ink-soft); line-height: 1.65; }
-.tl-guide-line b { color: var(--ink); font-weight: 600; }
-.tl-guide-basis { margin: 4px 0 0; font-size: 11.5px; color: var(--muted); line-height: 1.6; }
-.tl-guide-pest { font-size: 12.5px; color: var(--ink-soft); line-height: 1.7; margin-bottom: 4px; }
-.tl-guide-med { display: block; color: var(--muted); font-size: 11.5px; }
-.tl-guide-tools { display: flex; flex-wrap: wrap; gap: 6px; }
-.tl-guide-tools span {
-  font-size: 11.5px; color: var(--ink-soft);
-  background: var(--paper-2); border-radius: 999px; padding: 2px 9px;
-}
-.tl-guide ul { margin: 4px 0 0; padding-left: 18px; font-size: 12.5px; color: var(--muted); line-height: 1.7; }
-
-/* === T04 双模式播种 === */
-.term-sow-btn {
-  margin-top: 8px;
-  font-size: 12.5px;
-  color: var(--leaf);
-  background: var(--leaf-soft);
-  border: 1px solid transparent;
-  border-radius: 999px;
-  padding: 5px 12px;
+  background: var(--surface);
+  color: var(--ink-soft);
   cursor: pointer;
 }
-.term-sow-btn:hover { border-color: var(--leaf); }
+
+body.split-active .home-pane-back { display: inline-flex; align-items: center; }
+
+/* ============================================================
+   通用
+   ============================================================ */
+
+.hidden { display: none !important; }
+
+/* ============================================================
+   加载闸门
+   ============================================================ */
+
+#loading-gate {
+  position: fixed;
+  inset: 0;
+  z-index: 400;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  background: var(--bg);
+  font-size: 12.5px;
+}
+
+#loading-gate.hidden { display: none; }
+
+.loading-gate-text { color: var(--muted); }
+
+.loading-gate-spinner {
+  width: 18px;
+  height: 18px;
+  border: 2px solid var(--line);
+  border-top-color: var(--ink);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ============================================================
+   日历相关补充控件
+   ============================================================ */
+
+.crop-resolved-hint,
+.crop-props-hint {
+  margin: 6px 0 0;
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.term-sow-btn {
+  margin-top: 8px;
+  height: 30px;
+  padding: 0 10px;
+  font-family: inherit;
+  font-size: 12.5px;
+  color: var(--ink-soft);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+}
+
+.term-sow-btn:hover { background: var(--surface-2); color: var(--ink); }
+
 .term-sow-hint {
   margin: 8px 0 0;
-  font-size: 12.5px;
-  line-height: 1.6;
-  color: var(--ink-soft);
-  background: var(--paper-2);
-  border-radius: var(--radius-sm);
   padding: 8px 10px;
+  font-size: 12.5px;
+  color: var(--ink-soft);
+  background: var(--surface-2);
+  border: 1px solid var(--line-soft);
+  border-radius: var(--radius-sm);
+  line-height: 1.6;
 }
-.term-sow-hint.is-error { color: #b4523f; background: #fdf1ef; }
 
-/* === T04 预报标注与节点提醒 === */
+.term-sow-hint.is-error { color: var(--red); background: var(--red-soft); border-color: #f3d6d6; }
+
+.voice-hint {
+  margin: 6px 0 0;
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.55;
+}
+
 .tl-forecast-note {
   display: inline-block;
   margin-top: 6px;
   font-size: 11.5px;
-  color: #a8602a;
-  background: #fbeee1;
-  border-radius: 999px;
-  padding: 2px 9px;
+  color: var(--muted);
 }
+
+.tl-climate-note { color: var(--sun); }
+
 .tl-remind {
   margin-top: 8px;
+  height: 28px;
+  padding: 0 10px;
+  font-family: inherit;
   font-size: 12px;
-  color: var(--leaf);
-  background: transparent;
+  color: var(--ink-soft);
+  background: var(--surface);
   border: 1px solid var(--line);
-  border-radius: 999px;
-  padding: 3px 10px;
+  border-radius: var(--radius-sm);
   cursor: pointer;
 }
-.tl-remind.on { background: var(--leaf-soft); border-color: var(--leaf); }
+
+.tl-remind.on { color: var(--brand); border-color: var(--brand-line); background: var(--brand-soft); }
+
 .reminder-panel {
-  margin: 16px 0;
-  padding: 12px 14px;
-  background: var(--card);
-  border: 1px solid var(--line);
+  margin-top: 12px;
+  padding: 14px;
+  background: var(--surface);
+  border: 1px solid var(--line-soft);
   border-radius: var(--radius);
 }
-.reminder-panel h3 { margin: 0 0 8px; font-size: 14px; color: var(--ink); }
+
+.reminder-panel h3 { margin: 0 0 8px; font-size: 13px; font-weight: 600; }
+
 .reminder-row {
-  display: flex; align-items: center; gap: 10px;
-  font-size: 13px; color: var(--ink-soft); padding: 4px 0;
-}
-.reminder-row .cd-day { color: var(--leaf); font-weight: 700; }
-.reminder-row .del {
-  margin-left: auto; border: none; background: none; color: var(--muted);
-  cursor: pointer; font-size: 16px; line-height: 1;
-}
-
-/* T08 方言纠错提示 */
-.voice-hint {
-  margin: 8px 0 0;
-  padding: 8px 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 7px 0;
+  border-bottom: 1px solid var(--line-soft);
   font-size: 12.5px;
-  line-height: 1.6;
   color: var(--ink-soft);
-  background: var(--paper-2);
-  border-radius: var(--radius-sm);
 }
 
-/* 常年同期标注与预报标注区分开：前者不是预报 */
-.tl-climate-note { color: #3d6f8a; background: #e8f1f6; }
+.reminder-row:last-child { border-bottom: none; }
+.reminder-row .cd-day { color: var(--ink); font-variant-numeric: tabular-nums; }
 
-/* ---------- 播种前常识校验（/api/sow-check） ---------- */
+.reminder-row .del {
+  border: none;
+  background: none;
+  color: var(--muted);
+  font-size: 14px;
+  cursor: pointer;
+  border-radius: var(--radius-xs);
+  width: 20px;
+  height: 20px;
+}
+
+.reminder-row .del:hover { background: var(--red-soft); color: var(--red); }
+
+/* 农事指导块 */
+.tl-guide { font-size: 12.5px; color: var(--ink-soft); line-height: 1.65; }
+.tl-guide-title { font-weight: 600; color: var(--ink); margin: 8px 0 4px; }
+.tl-guide-title:first-child { margin-top: 0; }
+.tl-guide-line { margin: 2px 0; }
+.tl-guide-line b { color: var(--ink); font-weight: 500; }
+.tl-guide-basis { color: var(--muted); font-size: 11.5px; }
+.tl-guide-pest { margin: 4px 0 0; padding-left: 16px; }
+.tl-guide-med { color: var(--ink-soft); }
+.tl-guide-tools { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
+.tl-guide-tools span {
+  padding: 1px 8px;
+  border-radius: 999px;
+  background: var(--surface-2);
+  border: 1px solid var(--line-soft);
+  font-size: 11.5px;
+  color: var(--ink-soft);
+}
+.tl-guide ul { margin: 4px 0 0; padding-left: 16px; }
+
+/* ============================================================
+   播种前校验（对齐新的语义色）
+   ============================================================ */
+
 .sow-check {
   margin: 4px 0 14px;
   padding: 12px 14px;
-  border-radius: 12px;
+  border-radius: var(--radius);
   border: 1px solid var(--line);
-  background: var(--card);
+  background: var(--surface-2);
   font-size: 13px;
-  line-height: 1.65;
+  line-height: 1.6;
 }
-.sow-check--block { border-color: #e3b7b7; background: #fdf6f6; }
-.sow-check--warn { border-color: #e6cfa8; background: #fdfaf3; }
-.sow-check-head {
-  font-size: 13.5px;
-  font-weight: 700;
-  color: var(--ink);
-  margin-bottom: 8px;
-}
-.sow-check--block .sow-check-head { color: #a32b2b; }
-.sow-check--warn .sow-check-head { color: #8a5a2a; }
-.sow-check-item {
-  padding: 7px 0;
-  border-top: 1px dashed var(--line);
-}
-.sow-check-item:first-of-type { border-top: 0; }
-.sow-check-item strong { display: block; font-size: 12.8px; color: var(--ink); }
-.sow-check-item p { margin: 2px 0 0; color: var(--ink-soft); font-size: 12.5px; }
-.sow-check-item--block strong::before { content: '✕ '; color: #a32b2b; }
-.sow-check-item--warn strong::before { content: '! '; color: #b8791f; }
-.sow-check-item--ok strong::before { content: '✓ '; color: var(--leaf); }
-.sow-check-tip { color: var(--leaf) !important; }
+
+.sow-check--block { border-color: #f0c9cd; background: #fdf4f5; }
+.sow-check--warn { border-color: #f2ddc2; background: #fffaf2; }
+.sow-check--ok { border-color: var(--brand-line); background: #f3fbf8; }
+
+.sow-check-head { font-size: 13px; font-weight: 600; margin-bottom: 8px; color: var(--ink); }
+.sow-check--block .sow-check-head { color: var(--red); }
+.sow-check--warn .sow-check-head { color: var(--sun); }
+
+.sow-check-item { padding: 7px 0; border-top: 1px solid rgba(0, 0, 0, 0.05); }
+.sow-check-item:first-of-type { border-top: 0; padding-top: 0; }
+.sow-check-item strong { display: block; font-size: 12.5px; font-weight: 600; color: var(--ink); }
+.sow-check-item p { margin: 2px 0 0; font-size: 12px; color: var(--ink-soft); }
+.sow-check-item--block strong::before { content: "✕ "; color: var(--red); }
+.sow-check-item--warn strong::before { content: "! "; color: var(--sun); }
+.sow-check-item--ok strong::before { content: "✓ "; color: var(--brand); }
+.sow-check-tip { color: var(--brand) !important; }
+
 .sow-check-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+
 .sow-check-btn {
+  height: 30px;
+  padding: 0 12px;
   border: 1px solid var(--line);
-  background: var(--card);
+  background: var(--surface);
   color: var(--ink-soft);
-  border-radius: 8px;
-  padding: 6px 12px;
+  border-radius: var(--radius-sm);
   font-size: 12.5px;
+  font-family: inherit;
   cursor: pointer;
 }
-.sow-check-btn:hover { border-color: var(--leaf); color: var(--leaf); background: var(--leaf-soft); }
+
+.sow-check-btn:hover { background: var(--surface-2); color: var(--ink); }
+
 .sow-check-btn--primary {
-  border-color: var(--leaf);
-  background: var(--leaf);
+  background: var(--ink);
+  border-color: var(--ink);
   color: #fff;
 }
-.sow-check-btn--primary:hover { background: var(--leaf-2); color: #fff; }
+
+.sow-check-btn--primary:hover { background: #333; color: #fff; }
+
+/* ============================================================
+   响应式
+   ============================================================ */
+
+@media (max-width: 900px) {
+  body[data-layout="app"] .page--home { padding: 22px 18px 56px; }
+  body[data-layout="app"] .content-pane { padding: 18px 16px 44px; }
+}
+
+@media (max-width: 767px) {
+  body[data-layout="app"] .sidebar {
+    transform: translateX(-100%);
+    width: 248px;
+    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.06), 20px 0 40px -24px rgba(0, 0, 0, 0.3);
+  }
+  body[data-layout="app"] .sidebar.sidebar--open { transform: translateX(0); }
+  body[data-layout="app"] { padding-left: 0; }
+  body[data-layout="app"] .page--home { padding: 58px 16px 48px; }
+  .home-pane-back { left: 12px; }
+  .home-title { font-size: 18px; }
+}
+
+/* ============================================================
+   模块尺度统一
+   各功能板块早期各写了一套大标题（22px/800）和绿色渐变按钮，
+   在 WorkBuddy 这种 13-14px 的克制排版里会显得突兀，这里统一收敛。
+   ============================================================ */
+
+.my-plots-title,
+.my-crops-title,
+.recommend-title,
+.disease-title,
+.service-title,
+.admin-title,
+.industry-title,
+.industry-head-title {
+  font-size: 20px !important;
+  font-weight: 600 !important;
+  letter-spacing: -0.01em !important;
+  color: var(--ink) !important;
+  line-height: 1.35;
+}
+
+.pane-sub,
+.my-crops-sub,
+.recommend-sub,
+.disease-sub,
+.service-sub,
+.admin-sub {
+  font-size: 12.5px !important;
+  color: var(--muted) !important;
+  font-weight: 400 !important;
+}
+
+/* 模块主按钮：从绿色渐变改为近黑实心，与新主色一致 */
+.my-plots-add,
+.my-crops-add {
+  height: 32px !important;
+  padding: 0 12px !important;
+  font-family: inherit;
+  font-size: 12.5px !important;
+  font-weight: 500 !important;
+  color: #fff !important;
+  background: var(--ink) !important;
+  border: 1px solid var(--ink) !important;
+  border-radius: var(--radius-sm) !important;
+  box-shadow: none !important;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.my-plots-add:hover,
+.my-crops-add:hover { background: #333 !important; border-color: #333 !important; }
+
+/* 卡片统一细边框 + 小圆角 */
+.my-plots-card,
+.my-crops-card,
+.recommend-card,
+.disease-card,
+.service-card {
+  border-radius: var(--radius) !important;
+  border-color: var(--line-soft) !important;
+  box-shadow: var(--shadow-soft) !important;
+}
+
+.my-plots-card:hover,
+.my-crops-card:hover { box-shadow: var(--shadow) !important; }
+
+/* 地图选点按钮同样被 append 到 .field 末尾，与语音按钮一起悬浮在输入框右侧。
+   有地图按钮时，语音按钮往左让一格，避免两个图标叠在一起。 */
+.field > .map-picker-btn {
+  position: absolute;
+  right: 5px;
+  top: 29px;
+  margin-left: 0;
+  width: 28px;
+  height: 28px;
+  border-color: transparent;
+  background: transparent;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.field > .map-picker-btn:hover {
+  background: var(--surface-2);
+  border-color: transparent;
+}
+
+.field:has(> .map-picker-btn) input { padding-right: 40px; }
+.field:has(> .map-picker-btn) > .voice-btn { right: 36px; }
+.field:has(> .map-picker-btn):has(> .voice-btn) input { padding-right: 72px; }
+
+/* 日期行里的语音按钮：保持同一视觉语言，不要描边框 */
+.date-picker > .voice-btn {
+  border-color: transparent;
+  background: transparent;
+  color: var(--muted);
+  margin-left: 2px;
+}
+.date-picker > .voice-btn:hover { background: var(--surface-2); border-color: transparent; }
+
+/* 节气刻度尺收敛：细一点、淡一点，别像进度条 */
+.term-ruler { height: 18px; margin-bottom: 12px; }
+.term-ruler i { height: 4px; border-radius: 2px; background: #e3e4e6; }
+.term-ruler i.hi { background: var(--brand); opacity: 0.32; }
+
+
+/* ============================================================
+   天气氛围（保留四类天气 / 昼夜 / 时段的动效，幅度压到极小）
+   旧皮肤靠整屏插画+大幅动画营造氛围，在工具型界面里太吵；
+   这里保留"会动"这件事，但把位移与透明度控制在 1-2% 量级。
+   ============================================================ */
+
+@keyframes weather-sunny {
+  0%, 100% { transform: translateY(0) scale(1); }
+  50% { transform: translateY(-4px) scale(1.006); }
+}
+
+@keyframes weather-rain {
+  0% { background-position: 0 0; }
+  100% { background-position: 0 96px; }
+}
+
+@keyframes weather-cloudy {
+  0%, 100% { transform: translateX(0); }
+  50% { transform: translateX(6px); }
+}
+
+@keyframes weather-snow {
+  0% { background-position: 0 0; }
+  100% { background-position: 18px 120px; }
+}
+
+@keyframes tea-morning {
+  0%, 100% { opacity: 0.07; }
+  50% { opacity: 0.1; }
+}
+
+@keyframes tea-forenoon {
+  0%, 100% { opacity: 0.08; }
+  50% { opacity: 0.11; }
+}
+
+@keyframes tea-noon {
+  0%, 100% { opacity: 0.09; }
+  50% { opacity: 0.13; }
+}
+
+@keyframes tea-afternoon {
+  0%, 100% { opacity: 0.08; }
+  50% { opacity: 0.12; }
+}
+
+@keyframes tea-evening {
+  0%, 100% { opacity: 0.06; }
+  50% { opacity: 0.09; }
+}
+
+@keyframes tea-night {
+  0%, 100% { opacity: 0.05; }
+  50% { opacity: 0.07; }
+}
+
+.page--home[data-weather="sunny"] .weather-bg-layer { animation: weather-sunny 12s ease-in-out infinite; }
+.page--home[data-weather="rain"] .weather-bg-layer { animation: weather-rain 24s linear infinite; }
+.page--home[data-weather="cloudy"] .weather-bg-layer { animation: weather-cloudy 18s ease-in-out infinite; }
+.page--home[data-weather="snow"] .weather-bg-layer { animation: weather-snow 30s linear infinite; }
+
+[data-timeperiod="morning"] .weather-bg-layer { animation: tea-morning 16s ease-in-out infinite; }
+[data-timeperiod="forenoon"] .weather-bg-layer { animation: tea-forenoon 16s ease-in-out infinite; }
+[data-timeperiod="noon"] .weather-bg-layer { animation: tea-noon 16s ease-in-out infinite; }
+[data-timeperiod="afternoon"] .weather-bg-layer { animation: tea-afternoon 16s ease-in-out infinite; }
+[data-timeperiod="evening"] .weather-bg-layer { animation: tea-evening 18s ease-in-out infinite; }
+[data-timeperiod="night"] .weather-bg-layer { animation: tea-night 20s ease-in-out infinite; }
+
+/* 夜间：整层再压暗压淡，与白天的中性灰区分开 */
+[data-daynight="night"] .weather-bg-layer {
+  opacity: 0.05;
+  filter: saturate(0.35) brightness(0.92);
+}
+
+/* ============================================================
+   断点与无障碍
+   ============================================================ */
+
+@media (min-width: 768px) {
+  body[data-layout="app"] .page--home { padding-left: 32px; padding-right: 32px; }
+}
+
+@media (min-width: 1024px) {
+  body[data-layout="app"] .page--home { max-width: 900px; }
+  body[data-layout="app"] .content-pane > * { max-width: 1120px; }
+}
+
+@media (max-width: 375px) {
+  body[data-layout="app"] .page--home { padding-left: 12px; padding-right: 12px; }
+  .weather-extra { display: none; }
+  .date-picker { gap: 6px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .weather-bg-layer,
+  .page--home[data-weather] .weather-bg-layer,
+  [data-timeperiod] .weather-bg-layer { animation: none !important; }
+  * { scroll-behavior: auto !important; }
+}

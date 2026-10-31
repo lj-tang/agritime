@@ -1,68 +1,159 @@
+/*
+ * 左侧栏 · 对齐 WorkBuddy 的导航栏
+ * 白底、1px 右边线、34px 行高、6px 圆角、选中态浅灰底 + 深色文字。
+ * 不用竖条高亮，也不用品牌绿铺底 —— 那会让整个侧栏变"重"。
+ */
+
 .sidebar {
   position: fixed;
   left: 0;
   top: 0;
   bottom: 0;
-  width: 200px;
-  background: var(--card);
-  border-right: 1px solid var(--line);
+  width: 216px;
+  background: var(--surface, #fff);
+  border-right: 1px solid var(--line-soft, #efefef);
   display: flex;
   flex-direction: column;
   z-index: 100;
-  transition: transform 0.3s ease;
+  transition: transform 0.24s ease;
 }
 
+/* 顶部品牌区 */
 .sidebar-header {
-  padding: 16px 20px;
-  border-bottom: 1px solid var(--line);
-  font-weight: 700;
-  font-size: 16px;
-  color: var(--leaf);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 52px;
+  padding: 0 14px;
+  flex-shrink: 0;
+  border-bottom: 1px solid var(--line-soft, #efefef);
 }
 
+.sidebar-logo {
+  width: 20px;
+  height: 20px;
+  display: block;
+  flex-shrink: 0;
+  border-radius: 5px;
+}
+
+.sidebar-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ink, #191919);
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+}
+
+/* 导航 */
 .sidebar-nav {
   flex: 1;
   overflow-y: auto;
-  padding: 8px 0;
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.sidebar-nav::-webkit-scrollbar { width: 6px; }
+.sidebar-nav::-webkit-scrollbar-thumb {
+  background: var(--surface-3, #ebebeb);
+  border-radius: 999px;
 }
 
 .sidebar-item {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 9px;
   width: 100%;
-  padding: 12px 20px;
+  min-height: 34px;
+  padding: 6px 9px;
   border: none;
-  background: none;
+  border-radius: 6px;
+  background: transparent;
   cursor: pointer;
-  font-size: 14px;
-  color: var(--ink-soft);
+  font-family: inherit;
+  font-size: 13px;
+  line-height: 1.4;
+  color: var(--ink-soft, #5d5d5d);
   text-align: left;
-  transition: background 0.2s ease, color 0.2s ease;
+  transition: background 0.12s ease, color 0.12s ease;
 }
 
-.sidebar-item:hover { background: var(--leaf-soft); color: var(--leaf); }
-.sidebar-item--active { background: var(--leaf-soft); color: var(--leaf); font-weight: 600; border-left: 3px solid var(--leaf); }
+.sidebar-item:hover {
+  background: var(--surface-2, #f7f8fa);
+  color: var(--ink, #191919);
+}
 
-.sidebar-icon { font-size: 18px; flex-shrink: 0; }
-.sidebar-label { white-space: nowrap; }
+.sidebar-item:active { background: var(--surface-3, #ebebeb); }
 
+.sidebar-item--active {
+  background: var(--surface-3, #ebebeb);
+  color: var(--ink, #191919);
+  font-weight: 500;
+}
+
+.sidebar-item--active:hover { background: var(--surface-3, #ebebeb); }
+
+.sidebar-icon {
+  width: 18px;
+  font-size: 14px;
+  line-height: 1;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  /* 彩色 emoji 在克制的工具型界面里太跳，灰化后接近线性图标的观感 */
+  filter: grayscale(1);
+  opacity: 0.62;
+  transition: opacity 0.12s ease;
+}
+
+.sidebar-item:hover .sidebar-icon { opacity: 0.85; }
+.sidebar-item--active .sidebar-icon { opacity: 1; }
+
+.sidebar-label {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* 二级菜单 */
+.sidebar-submenu {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.sidebar-submenu--open { max-height: 220px; }
+
+.sidebar-item--sub {
+  padding-left: 31px;
+  font-size: 12.5px;
+  min-height: 32px;
+}
+
+/* 移动端汉堡 */
 .sidebar-burger {
   display: none;
   position: fixed;
   top: 12px;
   left: 12px;
-  zE-index: 101;
   z-index: 101;
   width: 36px;
   height: 36px;
-  border: 1px solid var(--line);
-  border-radius: var(--radius-sm);
-  background: var(--card);
+  border: 1px solid var(--line, #e6e6e6);
+  border-radius: 8px;
+  background: var(--surface, #fff);
+  color: var(--ink, #191919);
   cursor: pointer;
-  font-size: 18px;
+  font-size: 16px;
   align-items: center;
   justify-content: center;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
 }
 
 /* 板块容器是 body 的 flex 子项，必须给 flex:1，
@@ -72,19 +163,16 @@
 
 #module-placeholder {
   display: none;
-  padding: 40px 20px;
+  padding: 48px 20px;
   text-align: center;
-  color: var(--muted);
-  font-size: 16px;
+  color: var(--muted, #8a9099);
+  font-size: 13px;
 }
 
 @media (max-width: 767px) {
-  .sidebar { transform: translateX(-100%); width: 240px; }
+  .sidebar { transform: translateX(-100%); width: 248px; }
   .sidebar--open { transform: translateX(0); }
   /* 触控热区 44×44（T11）：top/left 由 12 收到 8，视觉中心不变 */
   .sidebar-burger { display: flex; width: 44px; height: 44px; top: 8px; left: 8px; }
   body.sidebar-open .sidebar-burger { display: none; }
 }
-.sidebar-submenu { max-height: 0; overflow: hidden; transition: max-height 0.2s ease; }
-.sidebar-submenu--open { max-height: 200px; }
-.sidebar-item--sub { padding-left: 40px; font-size: 13px; }

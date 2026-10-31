@@ -249,30 +249,33 @@
   font-size: 13px;
 }
 
+/* 与 WorkBuddy 的右上角一致：默认无边框，hover 才浮出浅底 */
 .user-chip a,
 .user-chip button {
   font: inherit;
+  font-size: 12.5px;
   color: var(--ink-soft);
   text-decoration: none;
-  background: var(--card);
-  border: 1px solid var(--line);
-  border-radius: 999px;
-  padding: 5px 14px;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  padding: 5px 10px;
   cursor: pointer;
-  transition: border-color 0.18s ease, color 0.18s ease;
+  transition: background 0.15s ease, color 0.15s ease;
 }
 
 .user-chip a:hover,
 .user-chip button:hover {
-  border-color: var(--leaf-2);
-  color: var(--leaf);
+  background: var(--surface-2, #f7f8fa);
+  border-color: var(--line-soft, #efefef);
+  color: var(--ink);
 }
 
 .user-chip .user-chip-name {
-  padding: 5px 12px;
-  border-radius: 999px;
-  background: var(--leaf-soft);
-  color: var(--leaf);
+  padding: 4px 10px;
+  border-radius: 8px;
+  background: var(--surface-2, #f7f8fa);
+  color: var(--ink);
   font-weight: 600;
   max-width: 120px;
   overflow: hidden;

@@ -2,11 +2,11 @@
   position: fixed;
   right: 24px;
   bottom: 24px;
-  width: 56px;
-  height: 56px;
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
-  background: var(--leaf);
-  color: var(--paper);
+  background: var(--ink, #191919);
+  color: #fff;
   display: flex;
   align-items: center;
   justify-content: center;

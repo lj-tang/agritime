@@ -434,7 +434,7 @@
 }
 
 /* ---------- 远期计划节点：虚线、无天气结论 ---------- */
-.badge.plan { background: var(--paper-2, #efe9da); color: var(--muted); }
+.badge.plan { background: var(--paper-2, #ebebeb); color: var(--muted); }
 .tl-node.seasonal .tl-dot {
   border-color: var(--line);
   background: var(--paper, #fff);
@@ -457,3 +457,70 @@
   color: var(--ink-soft);
   line-height: 1.6;
 }
+
+/* ============================================================
+   与 WorkBuddy 视觉对齐：收敛字号、去掉薄荷绿大色块
+   ============================================================ */
+
+.tl-card {
+  border: 1px solid var(--line-soft);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+  box-shadow: var(--shadow-soft);
+}
+
+.tl-action .name {
+  font-size: 14.5px;
+  font-weight: 600;
+  letter-spacing: 0;
+}
+
+.tl-action .date { font-size: 12px; }
+
+/* 决策行：从"大色块"改成"中性底 + 状态色左边线" */
+.tl-decision {
+  margin-top: 8px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  border-left: 2px solid var(--brand);
+  background: var(--surface-2);
+  font-size: 13.5px;
+  font-weight: 500;
+  line-height: 1.55;
+  letter-spacing: 0;
+  color: var(--ink);
+}
+
+.tl-node.status-yellow .tl-decision {
+  border-left-color: var(--sun);
+  background: #fffaf2;
+}
+
+.tl-node.status-red .tl-decision {
+  border-left-color: var(--red);
+  background: #fdf4f5;
+}
+
+.tl-advice {
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--brand);
+}
+
+.tl-node.certain::before { border-left-color: var(--line); }
+.tl-node.predicted::before { border-left-color: var(--line-soft); }
+
+.mode-tab {
+  font-size: 13px;
+  font-weight: 500;
+  background: var(--surface-2);
+}
+
+.mode-tab.active {
+  font-weight: 600;
+  color: var(--ink);
+  box-shadow: inset 0 -2px 0 var(--ink);
+}
+
+/* 远期节点保持虚线卡片，但底色跟整体一致 */
+.tl-node.seasonal .tl-card { background: var(--surface); }

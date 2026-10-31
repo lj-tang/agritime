@@ -16,6 +16,8 @@
   flex-shrink: 0;
 }
 .voice-btn:hover { background: var(--leaf-soft); border-color: var(--leaf-2); }
+/* 悬浮在输入框内时不要自己的边框，避免出现"框中框" */
+.field > .voice-btn { border-color: transparent; background: transparent; }
 .voice-btn:active { background: var(--leaf); color: var(--paper); }
 .voice-btn--active { background: var(--red-soft); border-color: var(--red); animation: voice-pulse 1s ease-in-out infinite; }
 

@@ -54,7 +54,7 @@
   height: 6px;
   margin: 8px 0;
   border-radius: 999px;
-  background: var(--paper-2, #efe9da);
+  background: var(--paper-2, #ebebeb);
   overflow: hidden;
 }
 .my-crops-status-bar i { display: block; height: 100%; border-radius: 999px; background: var(--leaf-2); }
