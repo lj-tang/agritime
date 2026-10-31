@@ -79,3 +79,57 @@
   .recommend-body { grid-template-columns: 1fr; }
   .recommend-form { position: static; }
 }
+
+/* ---------- V5 T16：地点来源、地块关联与推荐依据 ---------- */
+.recommend-loc-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+.recommend-loc-status {
+  margin: 6px 0 0;
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--muted);
+}
+.recommend-loc-status.is-ok { color: var(--leaf); }
+.recommend-loc-status.is-warn { color: #a8752a; }
+.recommend-loc-status.is-error { color: #a32b2b; }
+
+.recommend-context {
+  margin-bottom: 14px;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--card);
+}
+.recommend-context-line { font-size: 12.5px; line-height: 1.7; color: var(--ink-soft); }
+.recommend-context-line.is-ok { color: var(--leaf); }
+.recommend-context-line.is-warn { color: #a8752a; }
+
+.recommend-why-toggle {
+  margin-top: 8px;
+  border: 0;
+  background: transparent;
+  color: var(--leaf);
+  font-size: 12.5px;
+  cursor: pointer;
+  padding: 0;
+}
+.recommend-why-toggle:hover { text-decoration: underline; }
+.recommend-why {
+  margin-top: 6px;
+  padding: 8px 10px;
+  border-left: 2px solid var(--line);
+  background: rgba(0, 0, 0, 0.015);
+  border-radius: 0 8px 8px 0;
+}
+.recommend-why-row {
+  display: grid;
+  grid-template-columns: 84px 1fr 40px;
+  gap: 8px;
+  align-items: baseline;
+  font-size: 12px;
+  line-height: 1.7;
+  color: var(--muted);
+}
+.recommend-why-row strong { color: var(--ink-soft); font-weight: 600; }
+.recommend-why-row b { text-align: right; font-variant-numeric: tabular-nums; color: var(--muted); }
+.recommend-why-row.is-hit { color: var(--ink-soft); }
+.recommend-why-row.is-hit b { color: var(--leaf); }

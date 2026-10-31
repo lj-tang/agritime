@@ -136,24 +136,22 @@
           <select id="recommend-month"></select>
         </div>
         <div class="field">
-          <label for="recommend-location">地点 <span class="hint">城市或地区名</span></label>
-          <input type="text" id="recommend-location" placeholder="如：山东济宁" />
-        </div>
-        <div class="field">
-          <label for="recommend-lat">纬度 <span class="hint">可选</span></label>
-          <input type="text" id="recommend-lat" value="35.07" />
-        </div>
-        <div class="field">
-          <label for="recommend-lon">经度 <span class="hint">可选</span></label>
-          <input type="text" id="recommend-lon" value="116.31" />
-        </div>
-        <div class="field">
-          <label>定位</label>
+          <label for="recommend-location">地点 <span class="hint">填了就会参与计算</span></label>
+          <input type="text" id="recommend-location" placeholder="如：山东济宁" autocomplete="off" />
           <div class="recommend-loc-row">
-            <button type="button" class="btn btn-ghost" id="recommend-loc-btn">📍 自动定位</button>
-            <span class="recommend-loc-status" id="recommend-loc-status"></span>
+            <button type="button" class="btn btn-ghost" id="recommend-loc-btn">📍 用当前位置</button>
+            <button type="button" class="btn btn-ghost" id="recommend-resolve-btn">🔍 解析地点</button>
           </div>
+          <p class="recommend-loc-status" id="recommend-loc-status">未填地点时按默认地点（北京）计算</p>
         </div>
+        <div class="field">
+          <label for="recommend-plot">关联地块 <span class="hint">可选</span></label>
+          <select id="recommend-plot">
+            <option value="">不关联地块</option>
+          </select>
+        </div>
+        <input type="hidden" id="recommend-lat" value="" />
+        <input type="hidden" id="recommend-lon" value="" />
         <div class="recommend-submit-row">
           <button type="submit" class="btn btn-primary">获取推荐</button>
         </div>
@@ -786,6 +784,9 @@
         params.set('lat', String(opts.lat));
         params.set('lon', String(opts.lon));
         params.set('location', opts.location || '');
+        // 从推荐页带来的地块要一路传到时间线，否则"按地块推荐"到日历就断了
+        var pid = opts.plotId || window.__timelinePlotId || '';
+        if (pid) params.set('plotId', pid);
         return params.toString();
       }
 
@@ -1013,12 +1014,14 @@
         if (window.HistoryStore) {
           window.HistoryStore.add({ cropName: cropName, sowDate: sowDate, location: location });
         }
+        var plotId = window.__timelinePlotId || '';
         var query = buildTimelineQuery({
           cropName: cropName,
           sowDate: sowDate,
           lat: window.__markerLatLon ? window.__markerLatLon.lat : (hit ? hit.lat : 35.07),
           lon: window.__markerLatLon ? window.__markerLatLon.lon : (hit ? hit.lng : 116.31),
-          location: location
+          location: location,
+          plotId: plotId
         });
         try {
           var pane = document.getElementById('timeline-pane');

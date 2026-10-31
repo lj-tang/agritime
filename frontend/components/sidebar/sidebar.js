@@ -102,6 +102,17 @@
     var guard = findEntry(id);
     if (guard && guard.adminOnly && !isAdmin) return;
     currentModule = id;
+    // 广播切换事件：各模块可据此刷新自己的数据（如推荐页的地块下拉），
+    // 否则进页面时初始化一次，之后新建的地块在别的模块里看不到
+    try {
+      window.dispatchEvent(new CustomEvent('agritime:module-changed', { detail: { module: id } }));
+    } catch (e) {
+      if (document.createEvent) {
+        var ev = document.createEvent('CustomEvent');
+        ev.initCustomEvent('agritime:module-changed', true, true, { module: id });
+        window.dispatchEvent(ev);
+      }
+    }
     // 切到子功能板块时让日历主体整体让位，由板块占满内容区（见 common.css 的 .pane-mode）
     document.body.classList.toggle('pane-mode', id !== 'calendar');
     openParentOf(id);

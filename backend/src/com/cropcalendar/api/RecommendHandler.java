@@ -10,6 +10,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -43,6 +44,15 @@ public class RecommendHandler implements HttpHandler {
         Map<String, String> q = HttpSupport.query(ex.getRequestURI().getRawQuery());
         int month = (int) HttpSupport.parseDouble(q.get("month"), 0);
         double lat = HttpSupport.parseDouble(q.get("lat"), 35.07);
+        double lon = HttpSupport.parseDouble(q.get("lon"), 116.31);
+
+        // 地点来源必须如实回传：用户填了"山东济宁"却没解析出坐标时，
+        // 前端要能提示"按默认地点计算"，而不是让用户以为推荐是济宁的。
+        String locationName = HttpSupport.trimToNull(q.get("location"));
+        String locationSource = HttpSupport.trimToNull(q.get("locationSource"));
+        if (locationSource == null) locationSource = "default";
+        String plotName = HttpSupport.trimToNull(q.get("plotName"));
+        Map<String, Double> plotCrops = parsePlotCrops(q.get("plotCrops"));
 
         if (month < 1 || month > 12) {
             HttpSupport.write(ex, 400, Json.obj(
@@ -65,7 +75,7 @@ public class RecommendHandler implements HttpHandler {
 
         List<Scored> scored = new ArrayList<>();
         for (Map<String, Object> r : rules) {
-            Scored s = score(r, month, lat);
+            Scored s = score(r, month, lat, plotCrops);
             if (s.score > 0) scored.add(s);
         }
         scored.sort((a, b) -> Double.compare(b.score, a.score));
@@ -84,22 +94,56 @@ public class RecommendHandler implements HttpHandler {
                     "sowMonths", Json.arr(strList(r.get("sowMonths"))),
                     "reason", Json.str(str(r.get("reason"))),
                     "monthMatch", s.monthMatch ? "true" : "false",
-                    "climateMatch", s.climateMatch ? "true" : "false"));
+                    "climateMatch", s.climateMatch ? "true" : "false",
+                    "plotMatch", s.plotScore > 0 ? "true" : "false",
+                    // 推荐依据拆开给，前端可展开看每一条为什么加分
+                    "reasons", Json.arr(s.reasons)));
         }
 
         HttpSupport.write(ex, 200, Json.obj(
                 "month", String.valueOf(month),
                 "lat", Json.num(lat),
+                "lon", Json.num(lon),
                 "total", String.valueOf(items.size()),
+                "location", Json.obj(
+                        "name", Json.str(locationName == null ? "默认地点" : locationName),
+                        "lat", Json.num(lat),
+                        "lon", Json.num(lon),
+                        "source", Json.str(locationSource),
+                        "resolved", "default".equals(locationSource) ? "false" : "true"),
+                "plot", Json.obj(
+                        "name", Json.str(plotName),
+                        "cropCount", String.valueOf(plotCrops.size()),
+                        "used", plotCrops.isEmpty() ? "false" : "true"),
                 "recommendations", Json.arr(items)));
     }
 
-    private record Scored(Map<String, Object> rule, double score, boolean monthMatch, boolean climateMatch) {
+    private record Scored(Map<String, Object> rule, double score, boolean monthMatch,
+                          boolean climateMatch, double plotScore, List<String> reasons) {
     }
 
-    private Scored score(Map<String, Object> rule, int month, double lat) {
+    /** 解析前端传来的地块适宜作物："大蒜:86,小麦:74"。格式不对就当作没传。 */
+    private static Map<String, Double> parsePlotCrops(String raw) {
+        Map<String, Double> map = new LinkedHashMap<>();
+        if (raw == null || raw.isBlank()) return map;
+        for (String part : raw.split(",")) {
+            int idx = part.lastIndexOf(':');
+            if (idx <= 0) continue;
+            String name = part.substring(0, idx).trim();
+            try {
+                double sc = Double.parseDouble(part.substring(idx + 1).trim());
+                if (!name.isEmpty()) map.put(name, sc);
+            } catch (NumberFormatException ignored) {
+                // 单个条目格式不对就跳过，不影响其它作物
+            }
+        }
+        return map;
+    }
+
+    private Scored score(Map<String, Object> rule, int month, double lat, Map<String, Double> plotCrops) {
         boolean monthMatch = false;
         double s = 0;
+        List<String> reasons = new ArrayList<>();
 
         // 月份匹配：最高权重，命中 +60
         if (rule.get("sowMonths") instanceof List<?> months) {
@@ -109,7 +153,14 @@ public class RecommendHandler implements HttpHandler {
                 } catch (NumberFormatException ignore) { }
             }
         }
-        if (monthMatch) s += 60;
+        if (monthMatch) {
+            s += 60;
+            reasons.add(reason("solar", "节气适播", month + " 月在该作物适播期内（"
+                    + joinMonths(rule.get("sowMonths")) + "）", 60));
+        } else {
+            reasons.add(reason("solar", "非适播期", month + " 月不在适播期（"
+                    + joinMonths(rule.get("sowMonths")) + "），仅作参考", 0));
+        }
 
         // 纬度（气候带）匹配：命中 +25
         boolean climateMatch = false;
@@ -117,19 +168,75 @@ public class RecommendHandler implements HttpHandler {
             try {
                 double lo = Double.parseDouble(str(lr.get(0)));
                 double hi = Double.parseDouble(str(lr.get(1)));
-                if (lat >= lo && lat <= hi) { climateMatch = true; s += 25; }
+                if (lat >= lo && lat <= hi) {
+                    climateMatch = true;
+                    s += 25;
+                    reasons.add(reason("climate", "气候带匹配",
+                            "北纬 " + String.format("%.2f", lat) + "° 落在适宜纬度带 "
+                                    + String.format("%.0f", lo) + "°–" + String.format("%.0f", hi) + "°", 25));
+                } else {
+                    reasons.add(reason("climate", "气候带不符",
+                            "北纬 " + String.format("%.2f", lat) + "° 不在适宜纬度带 "
+                                    + String.format("%.0f", lo) + "°–" + String.format("%.0f", hi) + "°，需确认品种适应性", 0));
+                }
             } catch (NumberFormatException ignore) { }
         }
 
         // 市场需求热度（0~100）折算，最高 +15
         double market = 0;
         try { market = Double.parseDouble(str(rule.get("market"))); } catch (NumberFormatException ignore) { }
-        s += market / 100.0 * 15;
+        double marketPoints = market / 100.0 * 15;
+        s += marketPoints;
+        if (market > 0) {
+            reasons.add(reason("market", "市场需求",
+                    "市场热度 " + String.format("%.0f", market) + "/100（经验评级，非实时批发价）",
+                    Math.round(marketPoints * 10) / 10.0));
+        }
+
+        // 地块匹配：命中该地块适宜作物 Top5 再加分，让推荐和"这块地"对得上
+        double plotScore = 0;
+        String name = str(rule.get("name"));
+        if (name != null && plotCrops.containsKey(name)) {
+            plotScore = plotCrops.get(name);
+            double bonus = Math.min(15, plotScore / 100.0 * 15);
+            s += bonus;
+            reasons.add(reason("plot", "地块匹配",
+                    "与你所选地块的适宜作物一致，该地块评分为 " + String.format("%.0f", plotScore) + " 分",
+                    Math.round(bonus * 10) / 10.0));
+        } else if (!plotCrops.isEmpty()) {
+            reasons.add(reason("plot", "未进入地块推荐",
+                    "该作物未进入所选地块的适宜作物 Top5，实际种植需先改善地块条件", 0));
+        }
 
         // 月份不匹配时，只保留"接近月份"的微弱分数，避免全淹掉
         if (!monthMatch) s = Math.min(s, 20);
+        // 四项加分理论上可到 115，但界面上分数条是按 100 画的，
+        // 超过 100 会显示成"111 分"让人困惑，这里封顶到 100
+        s = Math.min(100, s);
 
-        return new Scored(rule, Math.round(s * 10) / 10.0, monthMatch, climateMatch);
+        return new Scored(rule, Math.round(s * 10) / 10.0, monthMatch, climateMatch,
+                plotScore, reasons);
+    }
+
+    private static String reason(String key, String label, String detail, double points) {
+        return Json.obj(
+                "key", Json.str(key),
+                "label", Json.str(label),
+                "detail", Json.str(detail),
+                "points", Json.num(points));
+    }
+
+    private static String joinMonths(Object months) {
+        if (!(months instanceof List<?> l) || l.isEmpty()) return "未限定";
+        StringBuilder sb = new StringBuilder();
+        for (Object o : l) {
+            if (sb.length() > 0) sb.append("、");
+            // 规则里的月份是数字，直接拼会出现"9.0 月"，转成整数再展示
+            String m = str(o);
+            if (m != null && m.endsWith(".0")) m = m.substring(0, m.length() - 2);
+            sb.append(m).append(" 月");
+        }
+        return sb.toString();
     }
 
     private List<String> strList(Object v) {

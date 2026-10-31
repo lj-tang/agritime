@@ -1343,9 +1343,12 @@ test('V5.3 去重：共享层已抽取', () => {
 test('V5 任务书：与 V4 同体例，编号自 T16 续接', () => {
   const tb = read(path.resolve(__dirname, '..', '..', 'docs', 'taskbook-v5.md'));
   assert.ok(tb.includes('**任务编号：T16**'), '首个任务应为 T16，与 V4 的 T00-T15 续接');
-  assert.ok(tb.includes('**任务编号：T30**'), '应覆盖到 T30');
+  assert.ok(tb.includes('**任务编号：T29**'), '应覆盖到 T29');
   const ids = tb.match(/\*\*任务编号：T\d+\*\*/g) || [];
-  assert.equal(ids.length, 15, '应有 15 个任务，与 V4 数量一致');
+  assert.equal(ids.length, 14, '应有 14 个待办任务（T16-T29）');
+  // 编号必须连续不重复，否则中途插任务时容易乱
+  const nums = ids.map(x => parseInt(x.replace(/\D/g, ''), 10));
+  nums.forEach((n, i) => assert.equal(n, 16 + i, '任务编号应从 T16 连续递增'));
   ['任务描述', '验收标准', '对应目录'].forEach(k => {
     assert.ok(tb.includes('**' + k + '**') || tb.includes('- **' + k + '**'), '每个任务应含「' + k + '」');
   });
@@ -1355,6 +1358,28 @@ test('V5 任务书：与 V4 同体例，编号自 T16 续接', () => {
   // 任务书只列未完成任务，不把已完成项写进来占编号
   assert.ok(!/\*\*状态\*\*：已完成/.test(tb), '不应出现"已完成"状态标记');
   const prio = tb.match(/\*\*优先级\*\*：P\d/g) || [];
-  assert.equal(prio.length, 15, '每个任务都应有优先级');
+  assert.equal(prio.length, 14, '每个任务都应有优先级');
   assert.ok(!tb.includes('commit') && !tb.includes('350259d'), '不写提交号，避免把已完成记录混进待办');
+});
+
+test('V5 T16 推荐：地点真参与计算，地块真参与打分', () => {
+  const rh = read(path.resolve(__dirname, '..', '..', 'backend', 'src', 'com', 'cropcalendar', 'api', 'RecommendHandler.java'));
+  assert.ok(rh.includes('locationSource'), '应接收地点来源，区分解析成功与默认地点');
+  assert.ok(rh.includes('"resolved"'), '应回传地点是否解析成功');
+  assert.ok(rh.includes('plotCrops') && rh.includes('parsePlotCrops'), '应接收地块适宜作物');
+  assert.ok(rh.includes('"plotMatch"'), '应标出是否匹配所选地块');
+  assert.ok(rh.includes('"reasons"'), '应给出逐条推荐依据');
+  assert.ok(rh.includes('Math.min(100, s)'), '总分应封顶，避免出现 111 分');
+
+  const js = read(path.resolve(__dirname, '..', 'assets', 'js', 'recommend.js'));
+  assert.ok(js.includes('/api/geo/search'), '地点文字要经地理编码解析');
+  assert.ok(js.includes('stripRegion'), '带省名解析成企业时应去掉省名重试');
+  assert.ok(js.includes('locState.source'), '应记录地点来源并传给后端');
+  assert.ok(js.includes('recommend-context'), '界面要说清按哪个地点算的');
+  assert.ok(js.includes('plotCrops='), '请求应带上地块适宜作物');
+  assert.ok(js.includes('__timelinePlotId'), '进日历时应把地块带过去');
+
+  assert.ok(indexHtml.includes('recommend-plot'), '推荐页应有地块下拉');
+  assert.ok(indexHtml.includes('recommend-resolve-btn'), '推荐页应有地点解析按钮');
+  assert.ok(indexHtml.includes("params.set('plotId'"), '日历跳转应带上 plotId');
 });
