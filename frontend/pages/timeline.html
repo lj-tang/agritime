@@ -349,7 +349,10 @@
 
       function renderNode(node) {
         var wrap = document.createElement('div');
-        wrap.className = 'tl-node ' + (node.certainty === 'predicted' ? 'predicted' : 'certain') + ' status-' + (node.status || 'green');
+        var seasonal = node.precision === 'season';
+        wrap.className = 'tl-node '
+          + (seasonal ? 'seasonal' : (node.certainty === 'predicted' ? 'predicted' : 'certain'))
+          + ' status-' + (node.status || 'green');
 
         var dot = document.createElement('span');
         dot.className = 'tl-dot';
@@ -401,12 +404,23 @@
           fn.textContent = '天气为预测数据，仅供参考';
           card.appendChild(fn);
         }
-        // 超出预报范围时用去年同日补位，必须让用户知道这不是预报
-        if (node.climateNormal) {
-          var cn = document.createElement('span');
-          cn.className = 'tl-forecast-note tl-climate-note';
-          cn.textContent = '常年同期参考，非预报';
-          card.appendChild(cn);
+        // 远期节点：只说时段气候，不给具体某天的结论
+        if (seasonal) {
+          var chip = document.createElement('span');
+          chip.className = 'tl-season-chip';
+          chip.textContent = '远期计划 · 非预报';
+          card.appendChild(chip);
+
+          var o = node.outlook;
+          if (o && o.available) {
+            var ol = document.createElement('div');
+            ol.className = 'tl-outlook';
+            ol.textContent = '常年同期：日均 ' + o.meanTempC + '℃（'
+              + o.minTempC + '~' + o.maxTempC + '℃），约 '
+              + Math.round((o.rainDayRatio || 0) * 100) + '% 的日子有雨 · 近 '
+              + o.years + ' 年统计';
+            card.appendChild(ol);
+          }
         }
 
         // T04：关键节点可开启提醒，前端展示倒计时

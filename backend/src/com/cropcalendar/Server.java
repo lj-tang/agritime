@@ -13,6 +13,7 @@ import com.cropcalendar.api.PlotHandler;
 import com.cropcalendar.api.PlotAnalyzeHandler;
 import com.cropcalendar.api.CropStatusHandler;
 import com.cropcalendar.api.PondStatusHandler;
+import com.cropcalendar.api.SowCheckHandler;
 import com.cropcalendar.api.RecognitionHandler;
 import com.cropcalendar.api.RecommendHandler;
 import com.cropcalendar.api.SiteConfigHandler;
@@ -64,6 +65,7 @@ public class Server {
         server.createContext("/api/industry", new IndustryHandler());
         server.createContext("/api/crop-status", new CropStatusHandler());
         server.createContext("/api/pond-status", new PondStatusHandler());
+        server.createContext("/api/sow-check", new SowCheckHandler());
         server.setExecutor(Executors.newFixedThreadPool(8));
 
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {

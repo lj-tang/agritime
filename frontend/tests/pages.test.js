@@ -1122,14 +1122,15 @@ test('T09 渔业：接口注册与水质口径声明', () => {
   assert.ok(h.includes('fetchWindowWeather'), '应叠加天气适宜度');
 });
 
-test('T09 渔业：前端板块与侧栏入口', () => {
-  assert.ok(indexHtml.includes('data-module="industry"'), '应有渔业板块');
-  assert.ok(indexHtml.includes('industry.js') && indexHtml.includes('industry.css'));
-  const sidebar = read(path.resolve(__dirname, '..', 'components', 'sidebar', 'sidebar.js'));
-  assert.ok(/id: 'industry'[^}]*implemented: true/.test(sidebar), '侧栏入口应可用');
+test('T09 渔业：并入地块而非独立板块', () => {
+  const myPlotsJs = read(path.resolve(__dirname, '..', 'assets', 'js', 'my-plots.js'));
+  assert.ok(!indexHtml.includes('data-module="industry"'), '不应再有独立的渔业板块');
+  assert.ok(!/id: 'industry'/.test(sidebarJs), '侧栏不应再有渔业入口');
+  assert.ok(myPlotsJs.includes('pond-calendar'), '养殖日历应嵌在地块详情里');
+  assert.ok(myPlotsJs.includes('/api/industry/timeline'), '养殖日历复用同一套规程接口');
+  assert.ok(myPlotsJs.includes('loadSpecies'), '鱼种应读后端品种库，不在前端硬编码');
 });
 
-// ---------------- T08 方言词表 ----------------
 test('T08 方言：三方言区词表，且都映射到标准作物名', () => {
   const lib = JSON.parse(read(path.resolve(__dirname, '..', '..', 'data', 'voice', 'dialect-map.json')));
   assert.ok(Array.isArray(lib.regions));
@@ -1231,13 +1232,18 @@ test('修复：未知作物不会长时间占用线程', () => {
   assert.ok(th.includes('作物名称过长'), '应拦截超长作物名');
 });
 
-test('修复：远期节点用常年同期补位，且不与预报标签同时出现', () => {
+test('修复：远期节点只给时段气候概览，不再逐日假精度', () => {
   const orch = read(path.resolve(__dirname, '..', '..', 'backend', 'src', 'com', 'cropcalendar', 'orchestration', 'TimelineOrchestrator.java'));
-  assert.ok(orch.includes('climateNormals'), '应补齐常年同期');
-  assert.ok(orch.includes('minusYears(1)'), '用去年同日');
+  // 旧实现拿去年同一天的天气给远期节点打分，产出的"某日有雨"是假精度，已删除
+  assert.ok(!orch.includes('minusYears(1)'), '不应再用去年同日逐日补位');
+  assert.ok(orch.includes('FORECAST_HORIZON_DAYS'), '应有预报可信期分界');
+  assert.ok(orch.includes('"season"'), '远期节点应标 precision=season');
+  assert.ok(orch.includes('periodOf'), '远期结论应给到"上/中/下旬"这种粒度');
   const th = read(path.resolve(__dirname, '..', '..', 'backend', 'src', 'com', 'cropcalendar', 'api', 'TimelineHandler.java'));
-  assert.ok(th.includes('!n.climateNormal()'), '常年同期不应再标预报');
-  assert.ok(timelineHtml.includes('常年同期参考，非预报'));
+  assert.ok(th.includes('"precision"'), '应下发 precision 字段');
+  assert.ok(th.includes('"outlook"'), '应下发常年气候概览');
+  assert.ok(timelineHtml.includes('tl-season-chip'), '远期节点应有独立标记');
+  assert.ok(timelineHtml.includes('tl-outlook'), '远期节点应展示常年概览');
 });
 
 test('修复：提醒键用标准作物名，过期提醒自动清理', () => {
@@ -1288,4 +1294,48 @@ test('落地：鱼塘水质与投喂面板接真实计算', () => {
   assert.ok(myPlotsJs.includes('pond-do'), '应允许用户填入实测溶氧覆盖估算');
   assert.ok(myPlotsJs.includes('pond-risk--'), '风险应按等级区分展示');
   assert.ok(myPlotsCss.includes('.pond-metric'), '水质指标样式应存在');
+});
+
+test('V5.3 日历：播种校验有阻断能力', () => {
+  const sc = read(path.resolve(__dirname, '..', '..', 'backend', 'src', 'com', 'cropcalendar', 'api', 'SowCheckHandler.java'));
+  assert.ok(sc.includes('/api/sow-check') || sc.includes('SowCheckHandler'), '应有播种校验接口');
+  assert.ok(sc.includes('"block"'), '应能输出阻断级判定');
+  assert.ok(sc.includes('suggestedSowDate'), '阻断时应给替代日期');
+  assert.ok(sc.includes('region-mismatch') && sc.includes('season-mismatch'), '区域与播季都要校验');
+  assert.ok(sc.includes('sow-in-frost'), '播期落在霜期应阻断');
+  assert.ok(indexHtml.includes('/api/sow-check'), '前端生成前应调用校验');
+  assert.ok(indexHtml.includes('checkSowThenGo'), '阻断时不应跳到日历');
+});
+
+test('V5.3 评分：七因子且权重归一', () => {
+  const pa = read(path.resolve(__dirname, '..', '..', 'backend', 'src', 'com', 'cropcalendar', 'api', 'PlotAnalyzeHandler.java'));
+  ['terrain', 'soil', 'climate', 'light', 'wind', 'shape', 'drainage'].forEach(k => {
+    assert.ok(pa.includes('"' + k + '"') || pa.includes('x.key = "' + k + '"'), '应有因子 ' + k);
+  });
+  assert.ok(pa.includes('shortwave_radiation_sum'), '光照用真实短波辐射');
+  assert.ok(pa.includes('wind_speed_10m_max'), '风害用最大风速');
+  assert.ok(pa.includes('moistureSource'), '实测与模型要区分来源');
+});
+
+test('V5.3 传感器：实测覆盖估算且进缓存键', () => {
+  const store = read(path.resolve(__dirname, '..', 'assets', 'js', 'sensors-store.js'));
+  assert.ok(store.includes('measuredParams'), '应能把实测值整理成接口参数');
+  assert.ok(store.includes('isStale'), '读数过期要识别');
+  const pa = read(path.resolve(__dirname, '..', '..', 'backend', 'src', 'com', 'cropcalendar', 'api', 'PlotAnalyzeHandler.java'));
+  assert.ok(pa.includes('fmtKey(measuredMoisture)'), '实测值必须进缓存键');
+  assert.ok(indexHtml.includes('sensors-store.js'), '页面应引入设备存储');
+});
+
+test('V5.3 去重：共享层已抽取', () => {
+  const hj = read(path.resolve(__dirname, '..', '..', 'backend', 'src', 'com', 'cropcalendar', 'util', 'HttpJson.java'));
+  assert.ok(hj.includes('public static Map<?, ?> getMap'), '应有统一的上游抓取');
+  const az = read(path.resolve(__dirname, '..', '..', 'backend', 'src', 'com', 'cropcalendar', 'service', 'crop', 'AgroZone.java'));
+  assert.ok(az.includes('regionMatches') && az.includes('sowMonths'), '区划与播季应集中');
+  const sc = read(path.resolve(__dirname, '..', '..', 'backend', 'src', 'com', 'cropcalendar', 'service', 'aqua', 'SpeciesCatalog.java'));
+  assert.ok(sc.includes('public static Map<String, Object> find'), '鱼种应单一数据源');
+  const pond = read(path.resolve(__dirname, '..', '..', 'backend', 'src', 'com', 'cropcalendar', 'api', 'PondStatusHandler.java'));
+  // 只允许保留单条兜底（查不到品种时用草鱼这档保守值），不允许整张表
+  ['南美白对虾', '罗非鱼', '河蟹', '青鱼'].forEach(n => {
+    assert.ok(!pond.includes('"' + n + '"'), '不应再硬编码鱼种「' + n + '」');
+  });
 });

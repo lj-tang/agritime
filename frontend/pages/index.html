@@ -16,7 +16,6 @@
   <link rel="stylesheet" href="../assets/css/service.css" />
   <link rel="stylesheet" href="../assets/css/admin.css" />
   <link rel="stylesheet" href="../assets/css/recommend.css" />
-  <link rel="stylesheet" href="../assets/css/industry.css" />
   <link rel="stylesheet" href="../components/floating-ball/floating-ball.css" />
   <link rel="stylesheet" href="../components/location-picker/location-picker.css" />
   <link rel="stylesheet" href="../components/plot-3d/plot-3d.css" />
@@ -90,7 +89,9 @@
         <div class="error" id="error-location">请输入所在地</div>
       </div>
 
-      <button type="submit" class="btn btn-primary">
+      <div class="sow-check" id="sow-check" hidden></div>
+
+      <button type="submit" class="btn btn-primary" id="generate-btn">
         <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h13M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
         生成时间线
       </button>
@@ -301,32 +302,6 @@
     </div>
   </div>
 
-  <div class="content-pane" data-module="industry" id="industry-pane">
-    <div class="industry-pane">
-      <div class="pane-head">
-        <div class="pane-head-text">
-          <span class="industry-title">渔业</span>
-          <span class="pane-sub">鱼苗蟹苗当种子，按放养日生成生产日历：放苗 / 投喂 / 换水 / 捕捞</span>
-        </div>
-      </div>
-      <div class="industry-body">
-        <form class="industry-form" id="industry-form">
-          <label class="industry-field">养殖品类
-            <select id="industry-species"></select>
-          </label>
-          <label class="industry-field">放养日期
-            <input type="date" id="industry-date" />
-          </label>
-          <label class="industry-field">地点
-            <input type="text" id="industry-location" value="湖北省荆州市" autocomplete="off" />
-          </label>
-          <button type="submit" class="btn btn-primary">生成生产日历</button>
-          <p class="industry-note">水温尚未接入实测，阶段适宜度用气温近似判断，仅供参考</p>
-        </form>
-        <div id="industry-result"></div>
-      </div>
-    </div>
-  </div>
 
   <div class="content-pane" data-module="service" id="service-pane">
     <div class="service-pane">
@@ -424,12 +399,12 @@
   <script src="../assets/js/time-period.js"></script>
   <script src="../assets/js/my-crops-store.js"></script>
   <script src="../assets/js/my-plots-store.js"></script>
+  <script src="../assets/js/sensors-store.js"></script>
   <script src="../components/crop-photo/crop-photo.js"></script>
   <script src="../assets/js/my-crops.js"></script>
   <script src="../assets/js/my-plots.js"></script>
   <script src="../assets/js/disease.js"></script>
   <script src="../assets/js/recommend.js"></script>
-  <script src="../assets/js/industry.js"></script>
   <script src="../assets/js/service.js"></script>
   <script src="../assets/js/admin.js"></script>
   <script src="../components/floating-ball/floating-ball.js"></script>
@@ -887,17 +862,151 @@
         var location = locationInput.value.trim();
         var sowDate = sowingInput.value;
         if (!sowDate) {
-          // 没填日期：先按节气推算，成功后再走同一条跳转逻辑
+          // 没填日期：先按节气推算，成功后再过常识校验
           fetchSowWindow(cropName, function (err, info) {
             if (err) { showToast('没能推算播种节气：' + err + '，请手动选择日期', 'error'); return; }
             applySuggestedDate(info);
             showTermSowHint(info);
-            goTimeline(cropName, location, info.sowDate, info);
+            checkSowThenGo(cropName, location, info.sowDate, info);
           });
           return;
         }
-        goTimeline(cropName, location, sowDate, null);
+        checkSowThenGo(cropName, location, sowDate, null);
       });
+
+      /**
+       * 生成日历前先过一遍农事常识：作物认不认得、这个区域能不能种、
+       * 这个月份是不是它的播季、生育期会不会撞霜冻。
+       * 明显不成立的直接拦住 —— 排一份排得整整齐齐的假计划，比不排更糟。
+       */
+      function checkSowThenGo(cropName, location, sowDate, termInfo) {
+        var box = document.getElementById('sow-check');
+        var btn = document.getElementById('generate-btn');
+        var ll = window.__markerLatLon || {};
+        var hit = findCrop(cropName);
+        var lat = ll.lat != null ? ll.lat : (hit ? hit.lat : 35.07);
+        var lon = ll.lon != null ? ll.lon : (hit ? hit.lng : 116.31);
+        if (btn) { btn.disabled = true; btn.dataset.busy = '1'; }
+        var url = '/api/sow-check?crop=' + encodeURIComponent(cropName)
+          + '&sowDate=' + encodeURIComponent(sowDate)
+          + '&lat=' + encodeURIComponent(lat) + '&lon=' + encodeURIComponent(lon);
+
+        fetch(url).then(function (r) {
+          if (!r.ok) throw new Error('HTTP ' + r.status);
+          return r.json();
+        }).then(function (d) {
+          if (btn) { btn.disabled = false; delete btn.dataset.busy; }
+          renderSowCheck(box, d, function () {
+            goTimeline(cropName, location, sowDate, termInfo);
+          });
+          if (d.verdict === 'ok') {
+            if (box) box.hidden = true;
+            goTimeline(cropName, location, sowDate, termInfo);
+          } else if (d.verdict === 'warn') {
+            showToast('有几项提醒，确认无误后再点一次生成', 'info');
+          } else {
+            showToast('这个播期安排不合理，已阻止生成', 'error');
+          }
+        }).catch(function (err) {
+          // 校验服务不可用时不阻断用户 —— 但要说明这次没校验过
+          if (btn) { btn.disabled = false; delete btn.dataset.busy; }
+          showToast('播期校验暂不可用（' + (err.message || '网络异常') + '），本次直接生成', 'error');
+          goTimeline(cropName, location, sowDate, termInfo);
+        });
+      }
+
+      function renderSowCheck(box, d, onProceed) {
+        if (!box) return;
+        if (!d || !d.items || !d.items.length) { box.hidden = true; return; }
+        box.hidden = false;
+        box.className = 'sow-check sow-check--' + (d.verdict || 'ok');
+        box.innerHTML = '';
+
+        var head = document.createElement('div');
+        head.className = 'sow-check-head';
+        head.textContent = d.verdict === 'block' ? '这个安排不成立'
+          : d.verdict === 'warn' ? '可以种，但有几点要注意' : '播期检查通过';
+        box.appendChild(head);
+
+        d.items.forEach(function (it) {
+          var row = document.createElement('div');
+          row.className = 'sow-check-item sow-check-item--' + it.level;
+          var t = document.createElement('strong');
+          t.textContent = it.title;
+          var p = document.createElement('p');
+          p.textContent = it.detail;
+          row.appendChild(t);
+          row.appendChild(p);
+          if (it.suggestion) {
+            var s = document.createElement('p');
+            s.className = 'sow-check-tip';
+            s.textContent = '建议：' + it.suggestion;
+            row.appendChild(s);
+          }
+          box.appendChild(row);
+        });
+
+        var actions = document.createElement('div');
+        actions.className = 'sow-check-actions';
+
+        if (d.candidates && d.candidates.length) {
+          d.candidates.slice(0, 5).forEach(function (c) {
+            var b = document.createElement('button');
+            b.type = 'button';
+            b.className = 'sow-check-btn';
+            b.textContent = '用「' + c.name + '」重试';
+            b.addEventListener('click', function () {
+              var input = document.getElementById('crop');
+              if (input) {
+                input.value = c.name;
+                input.dispatchEvent(new Event('input', { bubbles: true }));
+              }
+              box.hidden = true;
+            });
+            actions.appendChild(b);
+          });
+        }
+
+        if (d.verdict === 'block' && d.suggestedSowDate) {
+          var fix = document.createElement('button');
+          fix.type = 'button';
+          fix.className = 'sow-check-btn sow-check-btn--primary';
+          fix.textContent = '改用 ' + d.suggestedSowDate + '（最近的适播日）';
+          fix.addEventListener('click', function () {
+            try {
+              syncSelectsFromDate(d.suggestedSowDate);
+              composeDate();
+            } catch (e) { /* 轮盘不含该日期时忽略，用户可手动选 */ }
+            sowingInput.value = d.suggestedSowDate;
+            box.hidden = true;
+            showToast('已改为 ' + d.suggestedSowDate + '，请重新生成', 'info');
+          });
+          actions.appendChild(fix);
+        }
+
+        if (d.verdict === 'warn') {
+          var go = document.createElement('button');
+          go.type = 'button';
+          go.className = 'sow-check-btn sow-check-btn--primary';
+          go.textContent = '我知道了，仍然生成';
+          go.addEventListener('click', function () {
+            box.hidden = true;
+            onProceed();
+          });
+          actions.appendChild(go);
+        }
+
+        if (d.verdict === 'block') {
+          var cancel = document.createElement('button');
+          cancel.type = 'button';
+          cancel.className = 'sow-check-btn';
+          cancel.textContent = '先改一改';
+          cancel.addEventListener('click', function () { box.hidden = true; });
+          actions.appendChild(cancel);
+        }
+
+        if (actions.childNodes.length) box.appendChild(actions);
+      }
 
       function goTimeline(cropName, location, sowDate, termInfo) {
         var hit = findCrop(cropName);

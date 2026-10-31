@@ -5,6 +5,8 @@ import com.cropcalendar.compute.ComputeStub.MarketHint;
 import com.cropcalendar.compute.ComputeStub.RawNode;
 import com.cropcalendar.service.crop.CropRegistry;
 import com.cropcalendar.service.guidance.GuidanceService;
+import com.cropcalendar.service.weather.ClimateNormals;
+import com.cropcalendar.util.Json;
 import com.cropcalendar.compute.ComputeStub.ScoreResult;
 import com.cropcalendar.compute.ComputeStub.TermHint;
 import com.cropcalendar.compute.ComputeStub.WeatherWindow;
@@ -12,6 +14,8 @@ import com.cropcalendar.config.AppConfig;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.Month;
+import java.time.temporal.ChronoUnit;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -54,9 +58,18 @@ public class TimelineOrchestrator {
     // 对外返回的形状（契约②，D5 冻结）
     // ============================================================
 
+    /**
+     * @param precision 结论的依据精度：
+     *                  forecast —— 落在预报可信期内，按真实预报判定；
+     *                  season   —— 超出预报期，只给时段气候概览，不判断具体某天。
+     * @param outlook   远期节点的常年气候概览（JSON），forecast 精度时为空串。
+     */
+    /** 预报可信期：超过这个天数就不再说"某天天气如何"。 */
+    private static final int FORECAST_HORIZON_DAYS = 10;
+
     public record NodeView(int dayOffset, String date, String opType, String title,
                            String status, String suggest, String reason, String guidance,
-                           boolean climateNormal) {
+                           boolean climateNormal, String precision, String outlook) {
     }
 
     public record TimelineResult(String cropId, String sowDate, String generatedAt,
@@ -98,29 +111,47 @@ public class TimelineOrchestrator {
         // ---- 步骤 4 取天气：唯一有 IO 的一步，带三档降级 ----
         WeatherFetch fetched = fetchWeatherWithFallback(lat, lon, allDates);
 
-        // 超出预报范围的日期（节气推荐的起点可能在 3 个月后）用去年同日补位，
-        // 否则整条远期时间线全是"请人工判断"，等于白生成。
-        WeatherWindow normals = climateNormals(lat, lon, allDates, fetched.window());
-
-        // ---- 步骤 5 逐节点打分 ----
+        // ---- 步骤 5 逐节点给结论，按"说不说得准"分两档 ----
+        //
+        // 这里以前是拿去年同一天的天气去给远期节点打分，产出的说法是
+        // 「9 月 17 日 有雨，不宜喷药」—— 三个月后的事，精确到天，纯属假精度，
+        // 农户照着做反而误事。现在的口径是：
+        //   · 预报可信期（未来 10 天）内：逐节点用真实预报判定，可以说"当天"；
+        //   · 超出这个范围：只给时段气候概览（近三年同期日均温、雨日占比），
+        //     结论是"预计 X 月中下旬，注意 Y"，具体哪天做要等临近再看。
         int w = AppConfig.weatherWindowDays();
+        LocalDate today = LocalDate.now();
         List<NodeView> nodes = new ArrayList<>(raw.size());
         for (RawNode n : raw) {
-            String date = sow.plusDays(n.dayOffset()).format(DATE);
-            WeatherWindow slice = fetched.window().around(date, w, w);
-            boolean climateNormal = false;
-            if (slice.byDate().isEmpty()) {
-                WeatherWindow ns = normals.around(date, w, w);
-                if (!ns.byDate().isEmpty()) {
-                    slice = ns;
-                    climateNormal = true;
-                }
+            LocalDate nodeDate = sow.plusDays(n.dayOffset());
+            String date = nodeDate.format(DATE);
+            long daysAhead = ChronoUnit.DAYS.between(today, nodeDate);
+
+            if (daysAhead <= FORECAST_HORIZON_DAYS) {
+                WeatherWindow slice = fetched.window().around(date, w, w);
+                ScoreResult score = ComputeStub.scoreNode(n.opType(), slice);
+                // T03：四类指导随节点下发，天气窗口用同一份 slice，避免两处天气不一致
+                String guidance = GuidanceService.build(n.opType(), slice, cropNameForGuidance);
+                nodes.add(new NodeView(n.dayOffset(), date, n.opType(), n.title(),
+                        score.status(), score.suggest(), score.reason(), guidance, false,
+                        "forecast", ""));
+            } else {
+                ClimateNormals.Outlook o = ClimateNormals.window(lat, lon, nodeDate, 7);
+                String outlookJson = o.available()
+                        ? Json.obj(
+                        "meanTempC", Json.num(o.meanTempC()),
+                        "maxTempC", Json.num(o.maxTempC()),
+                        "minTempC", Json.num(o.minTempC()),
+                        "rainDayRatio", Json.num(o.rainDayRatio()),
+                        "years", Json.num((double) o.years()),
+                        "available", "true")
+                        : Json.obj("available", "false");
+                nodes.add(new NodeView(n.dayOffset(), date, n.opType(), n.title(),
+                        "plan",
+                        planSuggest(n.opType(), nodeDate, o, cropNameForGuidance),
+                        outlookReason(nodeDate, o),
+                        null, false, "season", outlookJson));
             }
-            ScoreResult score = ComputeStub.scoreNode(n.opType(), slice);
-            // T03：四类指导随节点下发，天气窗口用同一份 slice，避免两处天气不一致
-            String guidance = GuidanceService.build(n.opType(), slice, cropNameForGuidance);
-            nodes.add(new NodeView(n.dayOffset(), date, n.opType(), n.title(),
-                    score.status(), score.suggest(), score.reason(), guidance, climateNormal));
         }
 
         // ---- 步骤 6 叠加节气与行情提醒 ----
@@ -135,6 +166,63 @@ public class TimelineOrchestrator {
                 fetched.window().degraded() ? fetched.window().degradedReason() : fetched.source(),
                 summarizeWeather(fetched.window()),
                 term, nodes, market);
+    }
+
+
+    /**
+     * 远期节点的做法：只给时段与判断依据，不给具体某天的结论。
+     * 农户真正需要知道的是"这段时间大致什么气候、要提前准备什么"，
+     * 而不是一个三个月前就被钉死的日期。
+     */
+    private static String planSuggest(String opType, LocalDate date, ClimateNormals.Outlook o, String crop) {
+        String period = periodOf(date);
+        boolean rainy = o.available() && o.rainDayRatio() >= 0.4;
+        boolean cold = o.available() && o.minTempC() <= 3;
+        boolean hot = o.available() && o.maxTempC() >= 33;
+
+        switch (opType == null ? "" : opType) {
+            case "pesticide":
+                return "预计 " + period + "，具体打药日等临近 7 天预报再定"
+                        + (rainy ? "；该时段常年雨日偏多，注意抢雨隙施药" : "")
+                        + (hot ? "；常年白天偏热，避开中午高温" : "");
+            case "fertilize":
+                return "预计 " + period + "追肥，具体日期看当时墒情"
+                        + (rainy ? "；常年同期雨水较多，可在雨前 1 天施用以提高利用率" : "");
+            case "irrigation":
+                return "预计 " + period + "视墒情灌溉"
+                        + (rainy ? "；常年同期降水偏多，届时可能不需要灌" : "；常年同期偏干，提前检修灌溉设施");
+            case "harvest":
+                return "预计 " + period + "进入收获期，提前联系农机与晾晒场地"
+                        + (rainy ? "；常年同期雨日多，注意抢晴收获、防霉变" : "");
+            case "sowing":
+            case "seed":
+                return "预计 " + period + "播种，播前 3~5 天再看地温与墒情";
+            default:
+                return "预计 " + period + "，具体日期临近时按实际天气调整";
+        }
+    }
+
+    /** 远期节点的依据说明：说清楚"这个结论是怎么来的"，而不是假装是预报。 */
+    private static String outlookReason(LocalDate date, ClimateNormals.Outlook o) {
+        if (!o.available()) {
+            return "超出预报范围，且常年气候数据暂不可用；此节点仅按农事规程排期，不作天气判断";
+        }
+        StringBuilder sb = new StringBuilder();
+        sb.append("非预报，依据近 ").append(o.years()).append(" 年同期（前后 7 天）气候：日均 ")
+          .append(String.format("%.1f", o.meanTempC())).append("℃，最高 ")
+          .append(String.format("%.1f", o.maxTempC())).append("℃，最低 ")
+          .append(String.format("%.1f", o.minTempC())).append("℃，约 ")
+          .append(Math.round(o.rainDayRatio() * 100)).append("% 的日子有雨");
+        return sb.toString();
+    }
+
+    /** 把日期说成"9 月中下旬"这种人类习惯的粒度，而不是精确到日。 */
+    private static String periodOf(LocalDate d) {
+        int day = d.getDayOfMonth();
+        Month m = d.getMonth();
+        if (day <= 10) return m.getValue() + " 月上旬";
+        if (day <= 20) return m.getValue() + " 月中旬";
+        return m.getValue() + " 月下旬";
     }
 
     /** A9: 生成天气概况，如"120天数据，15天有雨，最高35℃最低-2℃" */
@@ -193,35 +281,6 @@ public class TimelineOrchestrator {
         } catch (Exception e) {
             return degradeToCache(key, "上游异常 " + e.getClass().getSimpleName());
         }
-    }
-
-    /**
-     * 常年同期：把缺失日期映射到去年同日，一次请求取回后按原日期重建窗口。
-     * 用途是让远期节点有"平均气候"可比，而不是一律返回"取不到天气"。
-     * 返回的 window 里 key 是**原始日期**，调用方无感知。
-     */
-    private WeatherWindow climateNormals(double lat, double lon, List<String> allDates, WeatherWindow have) {
-        List<String> lastYear = new ArrayList<>();
-        Map<String, String> toOriginal = new LinkedHashMap<>();
-        for (String d : allDates) {
-            if (have.byDate().containsKey(d)) continue;
-            try {
-                String ly = LocalDate.parse(d).minusYears(1).toString();
-                lastYear.add(ly);
-                toOriginal.put(ly, d);
-            } catch (Exception ignored) {
-                // 日期非法就跳过
-            }
-        }
-        if (lastYear.isEmpty()) return WeatherWindow.unavailable("无缺失日期");
-        WeatherWindow ly = ComputeStub.fetchWindowWeather(lat, lon, lastYear);
-        if (ly.degraded()) return ly;
-        Map<String, WeatherWindow.Daily> mapped = new LinkedHashMap<>();
-        ly.byDate().forEach((k, v) -> {
-            String orig = toOriginal.get(k);
-            if (orig != null) mapped.put(orig, v);
-        });
-        return new WeatherWindow(mapped, false, null);
     }
 
     private WeatherFetch degradeToCache(String key, String why) {

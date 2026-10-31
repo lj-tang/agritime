@@ -1,6 +1,7 @@
 package com.cropcalendar.api;
 
 import com.cropcalendar.orchestration.CacheStore;
+import com.cropcalendar.service.aqua.SpeciesCatalog;
 import com.cropcalendar.util.Json;
 import com.cropcalendar.util.JsonParser;
 import com.sun.net.httpserver.HttpExchange;
@@ -44,18 +45,18 @@ public class PondStatusHandler implements HttpHandler {
     private static final CacheStore CACHE = new CacheStore();
     private static final int TTL_SECONDS = 1800;
 
-    /** 常见养殖鱼类的适温与投喂参数。查不到就用草鱼这一档的保守值。 */
-    private static final String[][] SPECIES = {
-            {"草鱼", "grass_carp", "18", "30", "3.5"},
-            {"鲢鱼", "silver_carp", "15", "32", "3.0"},
-            {"鳙鱼", "bighead_carp", "15", "32", "3.0"},
-            {"鲤鱼", "common_carp", "15", "30", "3.5"},
-            {"鲫鱼", "crucian_carp", "12", "28", "3.0"},
-            {"青鱼", "black_carp", "18", "30", "3.5"},
-            {"罗非鱼", "tilapia", "20", "34", "4.0"},
-            {"南美白对虾", "shrimp", "22", "32", "5.0"},
-            {"河蟹", "crab", "15", "30", "3.0"}
-    };
+    /** 查不到品种时的兜底：草鱼这一档，保守但不至于算出离谱的投喂量。 */
+    private static final String[] FALLBACK = {"草鱼", "grass_carp", "18", "30", "3.5"};
+
+    /** 日投喂率基准（占存塘量百分比）。品种库里只有适温，没有投喂率的就按类别给。 */
+    private static double defaultFeedRate(String name) {
+        if (name == null) return 3.5;
+        if (name.contains("虾")) return 5.0;
+        if (name.contains("蟹")) return 3.0;
+        if (name.contains("罗非")) return 4.0;
+        if (name.contains("鲫")) return 3.0;
+        return 3.5;
+    }
 
     @Override
     public void handle(HttpExchange ex) throws IOException {
@@ -371,12 +372,26 @@ public class PondStatusHandler implements HttpHandler {
     // ------------------------------------------------------------------ 工具
 
     private static String[] speciesOf(String name) {
-        if (name != null) {
-            for (String[] s : SPECIES) {
-                if (s[0].equals(name) || s[1].equalsIgnoreCase(name) || name.contains(s[0])) return s;
+        Map<String, Object> sp = SpeciesCatalog.find(name);
+        if (sp == null) {
+            // 品种库里没有这个品种时，保留用户填的名字，只是适温用草鱼这档保守值。
+            // 直接把它改成"草鱼"会让用户以为自己选错了。
+            if (name != null && !name.isBlank()) {
+                return new String[]{name.trim(), "", "18", "30", String.valueOf(defaultFeedRate(name))};
             }
+            return FALLBACK;
         }
-        return SPECIES[0];
+        String n = SpeciesCatalog.str(sp.get("name"));
+        String id = SpeciesCatalog.str(sp.get("id"));
+        double tmin = SpeciesCatalog.numOf(sp, "waterTempMin", 18);
+        double tmax = SpeciesCatalog.numOf(sp, "waterTempMax", 30);
+        return new String[]{
+                n == null ? FALLBACK[0] : n,
+                id == null ? FALLBACK[1] : id,
+                String.valueOf(tmin),
+                String.valueOf(tmax),
+                String.valueOf(defaultFeedRate(n))
+        };
     }
 
     private static List<Double> arr(String seg, String key) {

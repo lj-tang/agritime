@@ -3,6 +3,7 @@ package com.cropcalendar.api;
 import com.cropcalendar.compute.ComputeStub;
 import com.cropcalendar.compute.ComputeStub.WeatherWindow;
 import com.cropcalendar.orchestration.CacheStore;
+import com.cropcalendar.service.aqua.SpeciesCatalog;
 import com.cropcalendar.util.Json;
 import com.cropcalendar.util.JsonParser;
 import com.sun.net.httpserver.HttpExchange;
@@ -210,7 +211,7 @@ public class IndustryHandler implements HttpHandler {
                 "waterTempMax", fmt(tMax),
                 // 口径声明：气温近似，不是水体实测
                 "tempBasis", Json.str("air"),
-                "tempNote", Json.str("水温未接入实测，判定用气温近似，仅供安排参考"),
+                "tempNote", Json.str("未接水温传感器时用气温近似判定；在「我的地块」接入水温设备后以实测为准"),
                 "weatherStatus", Json.str(window.degraded() ? "degraded" : "ok"),
                 "nodes", Json.arr(nodes));
 
@@ -223,32 +224,7 @@ public class IndustryHandler implements HttpHandler {
     }
 
     private static List<Map<String, Object>> species() {
-        List<Map<String, Object>> local = speciesCache;
-        if (local != null) return local;
-        synchronized (IndustryHandler.class) {
-            if (speciesCache != null) return speciesCache;
-            List<Map<String, Object>> list = new ArrayList<>();
-            for (String p : PATHS) {
-                try {
-                    Path path = Path.of(p);
-                    if (!Files.isReadable(path)) continue;
-                    Object root = JsonParser.parse(Files.readString(path, StandardCharsets.UTF_8));
-                    if (root instanceof Map<?, ?> rm && rm.get("species") instanceof List<?> arr) {
-                        for (Object o : arr) {
-                            if (!(o instanceof Map<?, ?> s)) continue;
-                            Map<String, Object> item = new LinkedHashMap<>();
-                            s.forEach((k, v) -> item.put(String.valueOf(k), v));
-                            list.add(item);
-                        }
-                    }
-                    break;
-                } catch (Exception e) {
-                    System.err.println("[industry] 读取 " + p + " 失败：" + e.getMessage());
-                }
-            }
-            speciesCache = list;
-            return speciesCache;
-        }
+        return SpeciesCatalog.all();
     }
 
     private String num(Object o) {

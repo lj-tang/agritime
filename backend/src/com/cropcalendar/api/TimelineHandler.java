@@ -146,21 +146,26 @@ public class TimelineHandler implements HttpHandler {
         for (NodeView n : r.nodes()) {
             seq++;
             String status = mapStatus(n.status());
-            String certainty = "certain".equals(dataSource) ? "certain" : "predicted";
-            if (status.equals("yellow") || status.equals("red")) certainty = "predicted";
+            boolean seasonal = "season".equals(n.precision());
+            // 远期节点不是"预测"，是"按规程排期 + 常年气候提示"，用 planned 单独标出来，
+            // 免得前端把它和"预报说那天不宜打药"混为一谈
+            String certainty = seasonal ? "planned"
+                    : ("certain".equals(dataSource) ? "certain" : "predicted");
+            if (!seasonal && (status.equals("yellow") || status.equals("red"))) certainty = "predicted";
 
             String reasons = n.reason() != null && !n.reason().isBlank()
                     ? Json.arr(List.of(Json.str(n.reason())))
                     : "[]";
 
             // T04：未来第 5 天（含）之后的节点，天气已经是预报值，必须标注"仅供参考"
+            // 远期(season)节点走的是气候概览，不属于预报，不能挂这个标签
             boolean forecastNote = false;
-            try {
-                // 常年同期的节点不是预报，两个标签不能同时出现
-                forecastNote = !n.climateNormal()
-                        && LocalDate.parse(n.date()).isAfter(LocalDate.now().plusDays(4));
-            } catch (Exception ignored) {
-                // 日期异常就不标注，避免误标
+            if (!seasonal) {
+                try {
+                    forecastNote = LocalDate.parse(n.date()).isAfter(LocalDate.now().plusDays(4));
+                } catch (Exception ignored) {
+                    // 日期异常就不标注，避免误标
+                }
             }
 
             String nodeJson = Json.obj(
@@ -176,7 +181,9 @@ public class TimelineHandler implements HttpHandler {
                     "reasons", reasons,
                     "guidance", n.guidance() != null ? n.guidance() : "null",
                     "forecastNote", String.valueOf(forecastNote),
-                    "climateNormal", String.valueOf(n.climateNormal()),
+                    "climateNormal", "false",
+                    "precision", Json.str(n.precision() == null ? "forecast" : n.precision()),
+                    "outlook", n.outlook() == null || n.outlook().isBlank() ? "null" : n.outlook(),
                     "rescheduleAdvice", "null",
                     "certainty", Json.str(certainty),
                     "weatherIcon", "null",
@@ -244,6 +251,7 @@ public class TimelineHandler implements HttpHandler {
     private static String mapStatus(String s) {
         return switch (s) {
             case "ok" -> "green";
+            case "plan" -> "plan";
             case "caution" -> "yellow";
             case "degraded" -> "red";
             default -> "yellow";

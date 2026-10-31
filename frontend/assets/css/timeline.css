@@ -432,3 +432,28 @@
   font-size: 13px;
   color: var(--muted);
 }
+
+/* ---------- 远期计划节点：虚线、无天气结论 ---------- */
+.badge.plan { background: var(--paper-2, #efe9da); color: var(--muted); }
+.tl-node.seasonal .tl-dot {
+  border-color: var(--line);
+  background: var(--paper, #fff);
+  box-shadow: none;
+}
+.tl-node.seasonal .tl-card { border-style: dashed; }
+.tl-node.seasonal .tl-decision { background: transparent; border-left-color: var(--line); }
+.tl-season-chip {
+  display: inline-block;
+  margin-top: 6px;
+  padding: 1px 8px;
+  border-radius: 999px;
+  border: 1px dashed var(--line);
+  color: var(--muted);
+  font-size: 11px;
+}
+.tl-outlook {
+  margin-top: 6px;
+  font-size: 12px;
+  color: var(--ink-soft);
+  line-height: 1.6;
+}

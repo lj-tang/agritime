@@ -102,10 +102,10 @@
     fetch('/api/plots/analyze', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
+      body: JSON.stringify(withMeasured({
         polygon: polygon,
         type: (typeEl && typeEl.value) || 'farmland'
-      })
+      }))
     }).then(function (r) {
       if (!r.ok) throw new Error('HTTP ' + r.status);
       return r.json();
@@ -171,7 +171,7 @@
     fetch('/api/plots/analyze', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ polygon: plot.polygon, type: plot.type || 'farmland' })
+      body: JSON.stringify(withMeasured({ polygon: plot.polygon, type: plot.type || 'farmland' }, plot.plotId))
     }).then(function (r) {
       if (!r.ok) throw new Error('HTTP ' + r.status);
       return r.json();
@@ -756,9 +756,212 @@
     if (plot.type === 'pond' || plot.type === 'fishpond' || plot.type === 'aquaculture') {
       renderPondPanel(plot, detail);
     }
+
+    // 监测设备：用户自己决定接不接，不接就继续用模型估算
+    renderSensors(plot, detail);
   }
 
+  /**
+   * 监测设备面板。默认什么都不装 —— 模型能算的先算，
+   * 用户愿意插探头就插，插了就以实测为准，界面上标清楚哪个数是测的、哪个是算的。
+   */
+  function renderSensors(plot, detail) {
+    var box = document.createElement('div');
+    box.className = 'my-plots-env-section';
+    var title = document.createElement('div');
+    title.className = 'my-plots-env-section-title';
+    title.textContent = '监测设备（可选）';
+    box.appendChild(title);
+
+    var hint = document.createElement('div');
+    hint.className = 'my-plots-card-meta';
+    hint.textContent = W_STORE_READY()
+      ? '接入后，实测值会覆盖模型估算，并在结论里标注「实测」。'
+      : '当前浏览器不支持本地存储，设备信息无法保存。';
+    box.appendChild(hint);
+
+    var listBox = document.createElement('div');
+    listBox.className = 'sensor-list';
+    box.appendChild(listBox);
+
+    function renderDevices() {
+      listBox.innerHTML = '';
+      var devices = window.SensorsStore ? window.SensorsStore.list(plot.plotId) : [];
+      if (!devices.length) {
+        var empty = document.createElement('div');
+        empty.className = 'sensor-empty';
+        empty.textContent = '还没有接设备。不接也能用，只是数据来自模型推算。';
+        listBox.appendChild(empty);
+      }
+      devices.forEach(function (d) {
+        var meta = window.SensorsStore.KINDS[d.kind] || { label: d.kind, unit: '' };
+        var row = document.createElement('div');
+        row.className = 'sensor-row';
+
+        var head = document.createElement('div');
+        head.className = 'sensor-row-head';
+        var nm = document.createElement('strong');
+        nm.textContent = d.name || meta.label;
+        var tag = document.createElement('span');
+        tag.className = 'sensor-tag';
+        tag.textContent = window.SensorsStore.SOURCES[d.source] || d.source;
+        head.appendChild(nm);
+        head.appendChild(tag);
+        row.appendChild(head);
+
+        var last = d.readings && d.readings.length ? d.readings[d.readings.length - 1] : null;
+        var val = document.createElement('div');
+        val.className = 'sensor-value';
+        if (d.kind === 'camera') {
+          val.textContent = d.url ? '监控地址已记录' : '未填监控地址';
+        } else if (last) {
+          var stale = window.SensorsStore.isStale(last);
+          val.textContent = '最新：' + last.value + ' ' + meta.unit + ' · ' + last.at.slice(0, 16).replace('T', ' ')
+            + (stale ? '（可能已过期）' : '（实测）');
+          val.className = 'sensor-value' + (stale ? ' is-stale' : ' is-fresh');
+        } else {
+          val.textContent = '还没有读数';
+        }
+        row.appendChild(val);
+
+        if (d.kind === 'camera' && d.url) {
+          var img = document.createElement('img');
+          img.className = 'sensor-camera';
+          img.alt = '监控画面';
+          img.loading = 'lazy';
+          img.src = d.url;
+          img.onerror = function () {
+            img.replaceWith(Object.assign(document.createElement('div'), {
+              className: 'sensor-note',
+              textContent: '画面加载失败（可能是内网地址或需要鉴权）'
+            }));
+          };
+          row.appendChild(img);
+        }
+
+        if (d.kind !== 'camera') {
+          var inputRow = document.createElement('div');
+          inputRow.className = 'sensor-input-row';
+          var inp = document.createElement('input');
+          inp.type = 'number';
+          inp.step = 'any';
+          inp.placeholder = '输入本次读数';
+          inp.min = meta.min;
+          inp.max = meta.max;
+          var ok = document.createElement('button');
+          ok.type = 'button';
+          ok.className = 'my-plots-crop-tag';
+          ok.textContent = '记一笔';
+          ok.addEventListener('click', function () {
+            if (!inp.value) return;
+            window.SensorsStore.addReading(d.sensorId, inp.value);
+            renderDevices();
+          });
+          inputRow.appendChild(inp);
+          inputRow.appendChild(ok);
+          row.appendChild(inputRow);
+        }
+
+        var del = document.createElement('button');
+        del.type = 'button';
+        del.className = 'sensor-del';
+        del.textContent = '移除';
+        del.addEventListener('click', function () {
+          if (confirm('移除这台设备？已记录的读数也会一并删除。')) {
+            window.SensorsStore.remove(d.sensorId);
+            renderDevices();
+          }
+        });
+        row.appendChild(del);
+
+        listBox.appendChild(row);
+      });
+    }
+
+    renderDevices();
+
+    var addRow = document.createElement('div');
+    addRow.className = 'sensor-add';
+    var kindSel = document.createElement('select');
+    Object.keys(window.SensorsStore ? window.SensorsStore.KINDS : {}).forEach(function (k) {
+      var o = document.createElement('option');
+      o.value = k;
+      o.textContent = window.SensorsStore.KINDS[k].label;
+      kindSel.appendChild(o);
+    });
+    var srcSel = document.createElement('select');
+    Object.keys(window.SensorsStore ? window.SensorsStore.SOURCES : {}).forEach(function (k) {
+      var o = document.createElement('option');
+      o.value = k;
+      o.textContent = window.SensorsStore.SOURCES[k];
+      srcSel.appendChild(o);
+    });
+    var urlInput = document.createElement('input');
+    urlInput.type = 'text';
+    urlInput.placeholder = '接口/快照地址（可选）';
+    var addBtn = document.createElement('button');
+    addBtn.type = 'button';
+    addBtn.className = 'my-plots-3d-view';
+    addBtn.textContent = '添加设备';
+    addBtn.addEventListener('click', function () {
+      if (!window.SensorsStore) return;
+      window.SensorsStore.add(plot.plotId, {
+        kind: kindSel.value,
+        source: srcSel.value,
+        url: urlInput.value.trim()
+      });
+      urlInput.value = '';
+      renderDevices();
+      showSensorHint(box);
+    });
+    addRow.appendChild(kindSel);
+    addRow.appendChild(srcSel);
+    addRow.appendChild(urlInput);
+    addRow.appendChild(addBtn);
+    box.appendChild(addRow);
+
+    detail.appendChild(box);
+  }
+
+  function showSensorHint(box) {
+    var tip = box.querySelector('.sensor-saved');
+    if (!tip) {
+      tip = document.createElement('div');
+      tip.className = 'sensor-saved';
+      box.appendChild(tip);
+    }
+    tip.textContent = '设备已添加。填入一次读数后，分析就会优先使用实测值。';
+  }
+
+  function W_STORE_READY() {
+    try {
+      localStorage.setItem('agritime.__t', '1');
+      localStorage.removeItem('agritime.__t');
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  // 兜底清单：正常情况从 /api/industry/species 读，保证与后端品种库同源
   var POND_SPECIES = ['草鱼', '鲢鱼', '鳙鱼', '鲤鱼', '鲫鱼', '青鱼', '罗非鱼', '南美白对虾', '河蟹'];
+  var SPECIES_CACHE = null;
+
+  function loadSpecies(cb) {
+    if (SPECIES_CACHE) { cb(SPECIES_CACHE); return; }
+    fetch('/api/industry/species').then(function (r) {
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      return r.json();
+    }).then(function (d) {
+      var list = (d && d.data && d.data.species) || [];
+      var names = list.map(function (x) { return x.name; }).filter(Boolean);
+      SPECIES_CACHE = names.length ? names : POND_SPECIES.slice();
+      cb(SPECIES_CACHE);
+    }).catch(function () {
+      SPECIES_CACHE = POND_SPECIES.slice();
+      cb(SPECIES_CACHE);
+    });
+  }
 
   /** 鱼塘水质与投喂面板：数值全部来自 /api/pond-status，前端不做任何估算。 */
   function renderPondPanel(plot, detail) {
@@ -798,6 +1001,17 @@
       o.textContent = n;
       sel.appendChild(o);
     });
+    loadSpecies(function (names) {
+      var keep = sel.value;
+      sel.innerHTML = '';
+      names.forEach(function (n) {
+        var o = document.createElement('option');
+        o.value = n;
+        o.textContent = n;
+        sel.appendChild(o);
+      });
+      if (keep) sel.value = keep;
+    });
     selWrap.appendChild(selT);
     selWrap.appendChild(sel);
     grid.appendChild(selWrap);
@@ -806,9 +1020,16 @@
     field('水面面积', 'pond-area', areaMu, '亩');
     field('放养密度', 'pond-density', 1000, '尾/亩');
     field('当前规格', 'pond-weight', 250, 'g/尾');
-    field('实测 pH', 'pond-ph', '', '选填');
-    field('实测氨氮', 'pond-ammonia', '', 'mg/L，选填');
-    field('实测溶氧', 'pond-do', '', 'mg/L，选填');
+    var mp = window.SensorsStore ? window.SensorsStore.measuredParams(plot.plotId) : {};
+    var phInput = field('实测 pH', 'pond-ph', mp.ph != null ? mp.ph : '', '选填');
+    var nhInput = field('实测氨氮', 'pond-ammonia', mp.ammonia != null ? mp.ammonia : '', 'mg/L，选填');
+    var doInput = field('实测溶氧', 'pond-do', mp.dissolvedOxygen != null ? mp.dissolvedOxygen : '', 'mg/L，选填');
+    if (mp.ph != null || mp.ammonia != null || mp.dissolvedOxygen != null) {
+      var srcNote = document.createElement('div');
+      srcNote.className = 'pond-note';
+      srcNote.textContent = '已带入传感器最新读数；如需覆盖请直接改上面的数值。';
+      box.appendChild(srcNote);
+    }
     box.appendChild(grid);
 
     var btnRow = document.createElement('div');
@@ -836,6 +1057,9 @@
       if (ph !== '') qs += '&ph=' + encodeURIComponent(ph);
       if (nh !== '') qs += '&ammonia=' + encodeURIComponent(nh);
       if (dd !== '') qs += '&dissolvedOxygen=' + encodeURIComponent(dd);
+      // 水温若接了传感器就直接用实测，比气温推算准
+      var wtm = window.SensorsStore ? window.SensorsStore.latest(plot.plotId, 'water_temp') : null;
+      if (wtm && !window.SensorsStore.isStale(wtm, 6)) qs += '&waterTemp=' + encodeURIComponent(wtm.value);
       fetch('/api/pond-status?' + qs).then(function (r) {
         if (!r.ok) throw new Error('HTTP ' + r.status);
         return r.json();
@@ -848,7 +1072,89 @@
       });
     });
 
+    // 养殖日历：渔业不再是独立板块，而是鱼塘地块自带的一段生产计划
+    var calendarBox = document.createElement('div');
+    calendarBox.className = 'pond-calendar';
+    var cTitle = document.createElement('div');
+    cTitle.className = 'pond-calendar-head';
+    cTitle.textContent = '养殖日历';
+    calendarBox.appendChild(cTitle);
+
+    var cRow = document.createElement('div');
+    cRow.className = 'pond-actions';
+    var dateInput = document.createElement('input');
+    dateInput.type = 'date';
+    dateInput.id = 'pond-stock-date';
+    dateInput.className = 'pond-date';
+    dateInput.value = new Date().toISOString().slice(0, 10);
+    var cBtn = document.createElement('button');
+    cBtn.type = 'button';
+    cBtn.className = 'my-plots-3d-view';
+    cBtn.textContent = '按放养日生成';
+    cRow.appendChild(dateInput);
+    cRow.appendChild(cBtn);
+    calendarBox.appendChild(cRow);
+
+    var cOut = document.createElement('div');
+    cOut.className = 'pond-calendar-list';
+    cOut.textContent = '选放养日期后生成：放苗 / 开食 / 投喂 / 换水 / 起捕。';
+    calendarBox.appendChild(cOut);
+
+    cBtn.addEventListener('click', function () {
+      cOut.textContent = '正在生成…';
+      var sd = dateInput.value;
+      if (!sd) { cOut.textContent = '请先选放养日期'; return; }
+      var url = '/api/industry/timeline?species=' + encodeURIComponent(sel.value)
+        + '&stockDate=' + encodeURIComponent(sd)
+        + '&lat=' + encodeURIComponent(plot.lat || 35.07)
+        + '&lon=' + encodeURIComponent(plot.lon || 116.31);
+      fetch(url).then(function (r) {
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        return r.json();
+      }).then(function (d) {
+        var stages = (d && d.data && d.data.nodes) || [];
+        if (!stages.length) { cOut.textContent = '该品种暂无养殖规程'; return; }
+        cOut.innerHTML = '';
+        stages.forEach(function (st) {
+          var row = document.createElement('div');
+          row.className = 'pond-stage';
+          var day = document.createElement('span');
+          day.className = 'pond-stage-day';
+          day.textContent = '第 ' + st.dayOffset + ' 天';
+          var name = document.createElement('strong');
+          name.textContent = st.title || '';
+          var date = document.createElement('span');
+          date.className = 'pond-stage-date';
+          date.textContent = st.date || '';
+          row.appendChild(day);
+          row.appendChild(name);
+          row.appendChild(date);
+          if (st.detail) {
+            var p = document.createElement('p');
+            p.textContent = st.detail;
+            row.appendChild(p);
+          }
+          cOut.appendChild(row);
+        });
+      }).catch(function (e) {
+        cOut.textContent = '生成失败：' + e.message;
+      });
+    });
+
+    box.appendChild(calendarBox);
     detail.appendChild(box);
+  }
+
+  /** 把该地块已有传感器的实测值塞进请求；没有设备时原样返回，不伪造字段。 */
+  function withMeasured(payload, plotId) {
+    if (!window.SensorsStore) return payload;
+    var pid = plotId || (document.getElementById('plot-id') && document.getElementById('plot-id').value) || null;
+    if (!pid) return payload;
+    var m = window.SensorsStore.measuredParams(pid);
+    Object.keys(m).forEach(function (k) {
+      if (m[k] != null) payload[k] = m[k];
+    });
+    return payload;
   }
 
   function val(id) {

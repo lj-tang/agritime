@@ -1,7 +1,9 @@
 package com.cropcalendar.api;
 
 import com.cropcalendar.orchestration.CacheStore;
+import com.cropcalendar.service.crop.AgroZone;
 import com.cropcalendar.service.crop.CropProperties;
+import com.cropcalendar.util.HttpJson;
 import com.cropcalendar.util.Json;
 import com.cropcalendar.util.JsonParser;
 import com.sun.net.httpserver.HttpExchange;
@@ -97,8 +99,14 @@ public class PlotAnalyzeHandler implements HttpHandler {
             return;
         }
         String type = rm.get("type") instanceof String s ? s : "farmland";
+        // 用户接了传感器就用实测覆盖模型值，没接就保持 null 走估算
+        Double measuredMoisture = HttpJson.num(rm.get("soilMoisture"));
+        Double measuredSoilTemp = HttpJson.num(rm.get("soilTemp"));
+        Double measuredWaterTemp = HttpJson.num(rm.get("waterTemp"));
 
-        String key = cacheKey(ring, type);
+        // 实测值必须进缓存键：否则同一块地先算过模型值，接入传感器后仍会返回旧结论
+        String key = cacheKey(ring, type) + ":" + fmtKey(measuredMoisture) + ":" + fmtKey(measuredSoilTemp)
+                + ":" + fmtKey(measuredWaterTemp);
         String cached = CACHE.get(key, String.class);
         if (cached != null) {
             HttpSupport.write(ex, 200, cached);
@@ -106,7 +114,7 @@ public class PlotAnalyzeHandler implements HttpHandler {
         }
 
         try {
-            String out = analyze(ring, type);
+            String out = analyze(ring, type, measuredMoisture, measuredSoilTemp, measuredWaterTemp);
             CACHE.put(key, out, TTL_SECONDS);
             HttpSupport.write(ex, 200, out);
         } catch (Exception e) {
@@ -116,7 +124,8 @@ public class PlotAnalyzeHandler implements HttpHandler {
 
     // ------------------------------------------------------------------ 主流程
 
-    private String analyze(List<double[]> ring, String type) throws Exception {
+    private String analyze(List<double[]> ring, String type,
+                           Double measuredMoisture, Double measuredSoilTemp, Double measuredWaterTemp) throws Exception {
         Geometry g = Geometry.of(ring);
 
         // 高程采样与气象/土壤抓取并行：两路上游互不依赖，串行会慢一倍
@@ -127,9 +136,20 @@ public class PlotAnalyzeHandler implements HttpHandler {
                 .get(7, TimeUnit.SECONDS);
         Weather w = wFuture.completeOnTimeout(new Weather(), 6, TimeUnit.SECONDS)
                 .get(7, TimeUnit.SECONDS);
+        if (measuredMoisture != null) {
+            w.soilMoisture = measuredMoisture;
+            w.moistureMeasured = true;
+        }
+        if (measuredSoilTemp != null) {
+            w.soilTemp0 = measuredSoilTemp;
+            w.soilTempMeasured = true;
+        }
+        if (measuredWaterTemp != null) {
+            w.waterTemp = measuredWaterTemp;
+        }
 
-        String region = regionOf(g.centroidLat, g.centroidLon);
-        String soilType = soilTypeOf(region);
+        String region = AgroZone.regionOf(g.centroidLat, g.centroidLon);
+        String soilType = AgroZone.soilTypeOf(region);
 
         List<Factor> factors = new ArrayList<>();
         List<Limit> limits = new ArrayList<>();
@@ -141,6 +161,8 @@ public class PlotAnalyzeHandler implements HttpHandler {
         addClimateFactor(factors, w, limits);
         addShapeFactor(factors, g, limits);
         addDrainageFactor(factors, t, w, g, limits);
+        addLightFactor(factors, t, w, g, limits, pond);
+        addWindFactor(factors, t, w, limits);
 
         double total = 0, wsum = 0;
         for (Factor f : factors) { total += f.score * f.weight; wsum += f.weight; }
@@ -420,7 +442,7 @@ public class PlotAnalyzeHandler implements HttpHandler {
         Factor x = new Factor();
         x.key = "terrain";
         x.label = "地形";
-        x.weight = pond ? 0.20 : 0.25;
+        x.weight = pond ? 0.20 : 0.18;
         double s;
         double sl = t.slopeDeg;
         if (pond) {
@@ -463,7 +485,7 @@ public class PlotAnalyzeHandler implements HttpHandler {
         Factor x = new Factor();
         x.key = "soil";
         x.label = "土壤";
-        x.weight = pond ? 0.15 : 0.25;
+        x.weight = pond ? 0.15 : 0.16;
         Double m = w.soilMoisture;
         Double st = w.soilTemp0;
         List<Double> parts = new ArrayList<>();
@@ -521,7 +543,7 @@ public class PlotAnalyzeHandler implements HttpHandler {
         Factor x = new Factor();
         x.key = "climate";
         x.label = "气候";
-        x.weight = 0.25;
+        x.weight = 0.15;
         List<Double> parts = new ArrayList<>();
         List<String> notes = new ArrayList<>();
         if (w.temp != null) {
@@ -571,6 +593,82 @@ public class PlotAnalyzeHandler implements HttpHandler {
         f.add(x);
     }
 
+    /**
+     * 光照：用未来 7 天的实测短波辐射均值，再按坡向修正。
+     * 阳坡比阴坡多收 5%~10% 的光，这在山区是能差出一茬庄稼的。
+     */
+    private void addLightFactor(List<Factor> f, Terrain t, Weather w, Geometry g,
+                                List<Limit> limits, boolean pond) {
+        if (w.radiation7d == null) return;
+        Factor x = new Factor();
+        x.key = "light";
+        x.label = "光照";
+        x.weight = pond ? 0.06 : 0.12;
+        double r = w.radiation7d;
+        double s;
+        if (r >= 18) s = 100;
+        else if (r >= 14) s = 88;
+        else if (r >= 10) s = 72;
+        else if (r >= 6) s = 55;
+        else s = 35;
+        String aspectNote = "";
+        if (t.available && t.slopeDeg >= 3 && !Double.isNaN(t.aspectDeg)) {
+            double a = t.aspectDeg;
+            boolean south = a > 135 && a < 225;
+            boolean north = a < 45 || a > 315;
+            if (south) { s += 6; aspectNote = "；南向坡受光好"; }
+            else if (north) {
+                s -= 10;
+                aspectNote = "；北向坡偏阴，光照偏弱";
+                limits.add(new Limit("shade", "阴坡光照不足", "坡向朝北且坡度 " + String.format("%.1f", t.slopeDeg)
+                        + "°，日均光照偏少，喜光作物易徒长、成熟推迟", 2));
+            }
+        }
+        x.score = clamp(s);
+        x.note = "短波辐射 " + String.format("%.1f", r) + " MJ/m²·d" + aspectNote;
+        if (r < 8 && !pond) {
+            limits.add(new Limit("low-light", "光照偏少", "日均短波辐射仅 " + String.format("%.1f", r)
+                    + " MJ/m²，光合产物积累慢，建议选耐阴品种或适当稀植", 2));
+        }
+        f.add(x);
+    }
+
+    /**
+     * 风害：未来 7 天最大风速。6 级以上（≥10.8 m/s）会造成倒伏与落花落果，
+     * 也直接决定这几天能不能喷药 —— 风大时雾滴飘移，打了等于白打。
+     */
+    private void addWindFactor(List<Factor> f, Terrain t, Weather w, List<Limit> limits) {
+        if (w.windMax7d == null) return;
+        Factor x = new Factor();
+        x.key = "wind";
+        x.label = "风害";
+        x.weight = 0.08;
+        double v = w.windMax7d;
+        double s;
+        if (v < 3) s = 100;
+        else if (v < 5) s = 92;
+        else if (v < 8) s = 78;
+        else if (v < 10.8) s = 58;
+        else if (v < 14) s = 38;
+        else s = 20;
+        // 山顶、垭口这类地形 DEM 上表现为局部高点，风速会明显大于周边
+        String reliefNote = "";
+        if (t.available && t.min < t.mean - 8) {
+            s -= 5;
+            reliefNote = "；地块内有明显凸起，迎风面风速更大";
+        }
+        x.score = clamp(s);
+        x.note = "7 天最大风速 " + String.format("%.1f", v) + " m/s" + reliefNote;
+        if (v >= 10.8) {
+            limits.add(new Limit("wind", "大风风险", "未来 7 天最大风速 " + String.format("%.1f", v)
+                    + " m/s（6 级以上），高秆作物易倒伏，喷药雾滴会飘移", 3));
+        } else if (v >= 8) {
+            limits.add(new Limit("wind-mid", "风力偏大", "最大风速 " + String.format("%.1f", v)
+                    + " m/s，喷药请选清晨或傍晚风小的时段", 1));
+        }
+        f.add(x);
+    }
+
     private void addShapeFactor(List<Factor> f, Geometry g, List<Limit> limits) {
         Factor x = new Factor();
         x.key = "shape";
@@ -604,7 +702,7 @@ public class PlotAnalyzeHandler implements HttpHandler {
         Factor x = new Factor();
         x.key = "drainage";
         x.label = "排水与保水";
-        x.weight = 0.15;
+        x.weight = 0.13;
         double sl = t.available ? t.slopeDeg : Double.NaN;
         double p = w.precip7d == null ? Double.NaN : w.precip7d;
         double s;
@@ -829,6 +927,15 @@ public class PlotAnalyzeHandler implements HttpHandler {
     private static final class Weather {
         Double temp, soilTemp0, soilTemp6, soilMoisture, precip7d;
         Double humidity;
+        /** 未来 7 天累计短波辐射（MJ/m²），决定光合潜力。 */
+        Double radiation7d;
+        /** 未来 7 天最大风速（m/s），决定风害与喷药窗口。 */
+        Double windMax7d;
+        /** 未来 7 天最大日降水量，判断侵蚀风险用。 */
+        Double rainMax7d;
+        Double waterTemp;
+        /** 这两个字段是不是用户传感器测的，决定界面上标"实测"还是"模型"。 */
+        boolean moistureMeasured, soilTempMeasured;
         Integer code;
     }
 
@@ -838,54 +945,55 @@ public class PlotAnalyzeHandler implements HttpHandler {
                 "https://api.open-meteo.com/v1/forecast?latitude=%.5f&longitude=%.5f"
                         + "&current=temperature_2m,relative_humidity_2m,weather_code"
                         + ",soil_temperature_0cm,soil_temperature_6cm,soil_moisture_0_to_1cm"
-                        + "&daily=precipitation_sum&forecast_days=7&timezone=auto",
+                        + "&daily=precipitation_sum,shortwave_radiation_sum,wind_speed_10m_max"
+                        + "&forecast_days=7&timezone=auto",
                 g.centroidLat, g.centroidLon);
-        try {
-            HttpRequest req = HttpRequest.newBuilder().uri(URI.create(url))
-                    .timeout(Duration.ofSeconds(8)).GET().build();
-            HttpResponse<String> resp = HTTP.send(req, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
-            if (resp.statusCode() != 200) return w;
-            String b = resp.body();
-            int ci = b.indexOf("\"current\":");
-            if (ci >= 0) {
-                String cur = b.substring(ci);
-                w.temp = dbl(cur, "\"temperature_2m\":");
-                w.humidity = dbl(cur, "\"relative_humidity_2m\":");
-                w.soilTemp0 = dbl(cur, "\"soil_temperature_0cm\":");
-                w.soilTemp6 = dbl(cur, "\"soil_temperature_6cm\":");
-                w.soilMoisture = dbl(cur, "\"soil_moisture_0_to_1cm\":");
-                Integer c = intg(cur, "\"weather_code\":");
-                w.code = c;
-            }
-            // 必须从 "daily": 之后找，否则会先撞上 daily_units 里的 "precipitation_sum":"mm"，
-            // 再顺着找到的却是 time 数组，算出来的降水永远是 0
-            int di = b.indexOf("\"daily\":");
-            int pi = di < 0 ? -1 : b.indexOf("\"precipitation_sum\":[", di);
-            if (pi >= 0) {
-                int open = b.indexOf('[', pi);
-                int close = b.indexOf(']', open);
-                if (open > 0 && close > open) {
-                    String arr = b.substring(open + 1, close);
-                    String[] ns = arr.split(",");
-                    double sum = 0;
-                    int n = 0;
-                    for (String s : ns) {
-                        try { sum += Double.parseDouble(s.trim()); n++; } catch (Exception ignored) { }
-                    }
-                    if (n > 0) w.precip7d = sum;
-                }
-            }
-        } catch (Exception e) {
-            return w;
+        Map<?, ?> root = HttpJson.getMap(url, 8);
+        if (root == null) return w;
+
+        w.temp = HttpJson.dbl(root, "current", "temperature_2m");
+        w.humidity = HttpJson.dbl(root, "current", "relative_humidity_2m");
+        w.soilTemp0 = HttpJson.dbl(root, "current", "soil_temperature_0cm");
+        w.soilTemp6 = HttpJson.dbl(root, "current", "soil_temperature_6cm");
+        w.soilMoisture = HttpJson.dbl(root, "current", "soil_moisture_0_to_1cm");
+        Double code = HttpJson.dbl(root, "current", "weather_code");
+        w.code = code == null ? null : (int) Math.round(code);
+
+        List<Double> precip = HttpJson.list(root, "daily", "precipitation_sum");
+        if (!precip.isEmpty()) {
+            w.precip7d = round1(HttpJson.sum(precip));
+            double mx = 0;
+            for (double v : precip) if (!Double.isNaN(v)) mx = Math.max(mx, v);
+            w.rainMax7d = round1(mx);
+        }
+        List<Double> rad = HttpJson.list(root, "daily", "shortwave_radiation_sum");
+        if (!rad.isEmpty()) w.radiation7d = Math.round(HttpJson.sum(rad) / 7.0 * 10) / 10.0;
+
+        List<Double> wind = HttpJson.list(root, "daily", "wind_speed_10m_max");
+        if (!wind.isEmpty()) {
+            double mx = 0;
+            for (double v : wind) if (!Double.isNaN(v)) mx = Math.max(mx, v);
+            // Open-Meteo 的风速单位是 km/h，统一换算成 m/s，避免与"3 级风"这类说法对不上
+            w.windMax7d = Math.round(mx / 3.6 * 10) / 10.0;
         }
         return w;
+    }
+
+    private static double round1(double v) {
+        return Math.round(v * 10) / 10.0;
     }
 
     private String soilJson(Weather w, String soilType) {
         List<String> kv = new ArrayList<>();
         kv.add("soilType"); kv.add(Json.str(soilType));
-        kv.add("source"); kv.add(Json.str("区域规则推断（非取土化验）"));
-        if (w.soilMoisture != null) { kv.add("moisture"); kv.add(Json.num(w.soilMoisture)); }
+        kv.add("source"); kv.add(Json.str(
+                (w.moistureMeasured || w.soilTempMeasured)
+                        ? "传感器实测（用户设备）+ 区域规则推断的土壤类型"
+                        : "区域规则推断（非取土化验）"));
+        if (w.soilMoisture != null) {
+            kv.add("moisture"); kv.add(Json.num(w.soilMoisture));
+            kv.add("moistureSource"); kv.add(Json.str(w.moistureMeasured ? "measured" : "model"));
+        }
         if (w.soilTemp0 != null) { kv.add("temp0cm"); kv.add(Json.num(w.soilTemp0)); }
         if (w.soilTemp6 != null) { kv.add("temp6cm"); kv.add(Json.num(w.soilTemp6)); }
         if (w.soilMoisture == null && w.soilTemp0 == null) {
@@ -939,6 +1047,10 @@ public class PlotAnalyzeHandler implements HttpHandler {
                 + ":" + ring.size() + ":" + area + ":" + type;
     }
 
+    private static String fmtKey(Double v) {
+        return v == null ? "-" : String.valueOf(Math.round(v * 1000));
+    }
+
     private static List<double[]> readRing(Object o) {
         if (!(o instanceof List<?> list) || list.size() < 3) return null;
         List<double[]> ring = new ArrayList<>();
@@ -963,30 +1075,6 @@ public class PlotAnalyzeHandler implements HttpHandler {
             ring.add(new double[]{lon, lat});
         }
         return ring.size() >= 3 ? ring : null;
-    }
-
-    private static String regionOf(double lat, double lon) {
-        if (lat >= 27 && lat <= 37 && lon >= 78 && lon <= 103) return "青藏高原";
-        if (lon < 103) return "西北";
-        if (lat >= 41.5 && lon >= 119) return "东北";
-        if (lat >= 34 && lat <= 42 && lon >= 110) return "华北";
-        if (lat >= 28 && lat < 34 && lon >= 105) return "长江流域";
-        if (lat < 25 && lon >= 105) return "华南";
-        if (lat >= 22 && lat < 34 && lon >= 97 && lon < 110) return "西南";
-        return "华北";
-    }
-
-    /** 与 PlotHandler 保持一致的粗粒度土壤区划，措辞上不声称是化验结果。 */
-    private static String soilTypeOf(String region) {
-        return switch (region) {
-            case "华南" -> "红壤";
-            case "长江流域" -> "水稻土";
-            case "西南" -> "黄壤";
-            case "东北" -> "黑土";
-            case "西北" -> "黄绵土";
-            case "青藏高原" -> "高山草甸土";
-            default -> "褐土";
-        };
     }
 
     private static double clamp(double v) {

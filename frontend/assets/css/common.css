@@ -739,3 +739,52 @@ body[data-layout="app"] .content-pane > * {
 
 /* 常年同期标注与预报标注区分开：前者不是预报 */
 .tl-climate-note { color: #3d6f8a; background: #e8f1f6; }
+
+/* ---------- 播种前常识校验（/api/sow-check） ---------- */
+.sow-check {
+  margin: 4px 0 14px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  background: var(--card);
+  font-size: 13px;
+  line-height: 1.65;
+}
+.sow-check--block { border-color: #e3b7b7; background: #fdf6f6; }
+.sow-check--warn { border-color: #e6cfa8; background: #fdfaf3; }
+.sow-check-head {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--ink);
+  margin-bottom: 8px;
+}
+.sow-check--block .sow-check-head { color: #a32b2b; }
+.sow-check--warn .sow-check-head { color: #8a5a2a; }
+.sow-check-item {
+  padding: 7px 0;
+  border-top: 1px dashed var(--line);
+}
+.sow-check-item:first-of-type { border-top: 0; }
+.sow-check-item strong { display: block; font-size: 12.8px; color: var(--ink); }
+.sow-check-item p { margin: 2px 0 0; color: var(--ink-soft); font-size: 12.5px; }
+.sow-check-item--block strong::before { content: '✕ '; color: #a32b2b; }
+.sow-check-item--warn strong::before { content: '! '; color: #b8791f; }
+.sow-check-item--ok strong::before { content: '✓ '; color: var(--leaf); }
+.sow-check-tip { color: var(--leaf) !important; }
+.sow-check-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+.sow-check-btn {
+  border: 1px solid var(--line);
+  background: var(--card);
+  color: var(--ink-soft);
+  border-radius: 8px;
+  padding: 6px 12px;
+  font-size: 12.5px;
+  cursor: pointer;
+}
+.sow-check-btn:hover { border-color: var(--leaf); color: var(--leaf); background: var(--leaf-soft); }
+.sow-check-btn--primary {
+  border-color: var(--leaf);
+  background: var(--leaf);
+  color: #fff;
+}
+.sow-check-btn--primary:hover { background: var(--leaf-2); color: #fff; }
