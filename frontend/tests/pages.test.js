@@ -1344,9 +1344,9 @@ test('V5.3 去重：共享层已抽取', () => {
 test('V5 任务书：与 V4 同体例，编号自 T16 续接', () => {
   const tb = read(path.resolve(__dirname, '..', '..', 'docs', 'taskbook-v5.md'));
   assert.ok(tb.includes('**任务编号：T16**'), '首个任务应为 T16，与 V4 的 T00-T15 续接');
-  assert.ok(tb.includes('**任务编号：T28**'), '应覆盖到 T28');
+  assert.ok(tb.includes('**任务编号：T27**'), '末项应为 T27（T18 提醒服务落地后已删项并重编号）');
   const ids = tb.match(/\*\*任务编号：T\d+\*\*/g) || [];
-  assert.equal(ids.length, 13, '应有 13 个待办任务（T16-T28）');
+  assert.equal(ids.length, 12, '应有 12 个待办任务（T16-T27）');
   // 编号必须连续不重复，否则中途插任务时容易乱
   const nums = ids.map(x => parseInt(x.replace(/\D/g, ''), 10));
   nums.forEach((n, i) => assert.equal(n, 16 + i, '任务编号应从 T16 连续递增'));
@@ -1359,7 +1359,7 @@ test('V5 任务书：与 V4 同体例，编号自 T16 续接', () => {
   // 任务书只列未完成任务，不把已完成项写进来占编号
   assert.ok(!/\*\*状态\*\*：已完成/.test(tb), '不应出现"已完成"状态标记');
   const prio = tb.match(/\*\*优先级\*\*：P\d/g) || [];
-  assert.equal(prio.length, 13, '每个任务都应有优先级');
+  assert.equal(prio.length, 12, '每个任务都应有优先级');
   assert.ok(!tb.includes('commit') && !tb.includes('350259d'), '不写提交号，避免把已完成记录混进待办');
 });
 
@@ -1491,4 +1491,39 @@ test('T20 四态：空态有引导动作、错误态可重试', () => {
 
   // 移动端触控热区
   assert.match(commonCss, /\.ui-state-action \{ min-height: 44px/, '窄屏按钮应不小于 44px');
+});
+
+// ---------------- V5 T18 提醒服务 ----------------
+test('T18 提醒中心：三类分级、开关、未读数与降级持久', () => {
+  const rcJs = read(path.resolve(__dirname, '..', 'components', 'reminder-center', 'reminder-center.js'));
+  const rcCss = read(path.resolve(__dirname, '..', 'components', 'reminder-center', 'reminder-center.css'));
+  assert.ok(rcJs.includes('weather') && rcJs.includes('disease') && rcJs.includes('window'), '应覆盖三类提醒');
+  assert.ok(rcJs.includes('high') && rcJs.includes('medium') && rcJs.includes('low'), '应有三级风险');
+  assert.ok(rcJs.includes('unreadCount'), '应能显示未读数');
+  assert.ok(rcJs.includes('setSetting'), '提醒类型开关应可持久设置');
+  assert.ok(rcJs.includes('generateFromTimeline'), '应从日历节点生成风险提醒');
+  assert.ok(rcJs.includes('LEGACY_KEY'), '旧版单标记提醒应迁移');
+  assert.ok(rcJs.includes('当前为本地提醒'), '服务不可用时须明确降级提示');
+  assert.ok(rcJs.includes('ahead < 0') && rcJs.includes("n.status === 'done'"), '过期与已完成节点不应产生提醒');
+  assert.ok(rcCss.includes('rc-high') && rcCss.includes('rc-badge'), '高风险与未读角标应有样式');
+  assert.ok(indexHtml.includes('reminder-center.js') && indexHtml.includes('reminder-center.css'), '首页应引入提醒中心');
+  assert.ok(timelineHtml.includes('reminder-center.js'), '时间线页应引入提醒中心');
+  assert.ok(timelineHtml.includes('__reminderCenterNoEntry'), '时间线页不应重复挂悬浮铃铛');
+  assert.ok(timelineHtml.includes("agritime:reminders-changed"), '提醒变化应刷新内嵌面板');
+  assert.ok(timelineHtml.includes('generateFromTimeline'), '时间线页应在日历生成后同步风险提醒');
+});
+
+test('T18 提醒记录：按账号落盘、去重、已读与过期清理', () => {
+  const handler = read(path.resolve(__dirname, '..', '..', 'backend', 'src', 'com', 'cropcalendar', 'api', 'ReminderHandler.java'));
+  const store = read(path.resolve(__dirname, '..', '..', 'backend', 'src', 'com', 'cropcalendar', 'service', 'reminder', 'ReminderStore.java'));
+  const server = read(path.resolve(__dirname, '..', '..', 'backend', 'src', 'com', 'cropcalendar', 'Server.java'));
+  const taskbook = read(path.resolve(__dirname, '..', '..', 'docs', 'taskbook-v5.md'));
+  assert.ok(server.includes('/api/reminders'), '服务端应注册提醒接口');
+  assert.ok(handler.includes('Auth.current'), '提醒接口应按账号隔离');
+  assert.ok(store.includes('Atomic') || store.includes('ATOMIC_MOVE'), '档案写入应原子替换');
+  assert.ok(store.includes('PRUNE_AFTER_DAYS'), '过期提醒应清理');
+  assert.ok(store.includes('Asia/Shanghai'), '过期判定应显式用北京时间');
+  assert.ok(store.includes('old.get("read")'), '重复推送不应把已读顶回未读');
+  assert.ok(!taskbook.includes('模块18：提醒服务'), '已完成任务应从任务书移除');
+  assert.ok(/共 12 项/.test(taskbook), '任务书应重编号为 12 项待办');
 });

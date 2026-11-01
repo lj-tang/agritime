@@ -1,6 +1,7 @@
 package com.cropcalendar.util;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * 极简 JSON 输出工具：只做序列化，不做解析。
@@ -73,6 +74,37 @@ public final class Json {
     /** 原样输出（用于已经是合法 JSON 片段的场景）。 */
     public static String raw(String jsonFragment) {
         return jsonFragment == null ? "null" : jsonFragment;
+    }
+
+    /**
+     * 把 JsonParser 解析出来的普通对象（Map / List / String / Number / Boolean / null）
+     * 重新序列化成 JSON。提醒记录这类「读出来改几个字段再整体写回」的场景需要它，
+     * 避免每个 handler 自己拼一遍字段。
+     */
+    public static String stringify(Object o) {
+        if (o == null) return "null";
+        if (o instanceof String s) return str(s);
+        if (o instanceof Boolean b) return bool(b);
+        if (o instanceof Number n) return num(n.doubleValue());
+        if (o instanceof Map<?, ?> m) {
+            StringBuilder b = new StringBuilder("{");
+            boolean first = true;
+            for (Map.Entry<?, ?> e : m.entrySet()) {
+                if (!first) b.append(',');
+                first = false;
+                b.append(str(String.valueOf(e.getKey()))).append(':').append(stringify(e.getValue()));
+            }
+            return b.append('}').toString();
+        }
+        if (o instanceof List<?> l) {
+            StringBuilder b = new StringBuilder("[");
+            for (int i = 0; i < l.size(); i++) {
+                if (i > 0) b.append(',');
+                b.append(stringify(l.get(i)));
+            }
+            return b.append(']').toString();
+        }
+        return str(String.valueOf(o));
     }
 
     private Json() {

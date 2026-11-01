@@ -1,17 +1,29 @@
 #!/usr/bin/env bash
-# 逆地理编码解析回归（不需要网络、不需要 key）
+# 后端回归测试：不需要网络、不需要 key
 #
 #   bash backend/test/run.sh
 #
-# 用固定的高德/腾讯报文验证字段抽取与展示名拼装，
-# 覆盖：neighborhood 命中、住宅小区、直辖市 city 为空数组、腾讯数字状态码、上游报错降级。
+# 遍历 test/com 下所有 *Test.java 的 main：
+#   · GeoParseTest / GeoClassifyTest —— 逆地理解析与地块几何
+#   · ReminderStoreTest —— 提醒档案持久化、去重、已读、开关、过期清理
 set -euo pipefail
 
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 BACKEND="$(cd "$DIR/.." && pwd)"
-OUT="$(mktemp -d)"
+# 固定输出目录：javac 每次覆盖，不用 rm -rf（部署机上的删除保护会拦）
+OUT="$BACKEND/build/test-classes"
+mkdir -p "$OUT"
 
-javac -encoding UTF-8 -cp "$BACKEND/build/classes" -d "$OUT" \
-  "$DIR/com/cropcalendar/service/geo/GeoParseTest.java"
-java -cp "$BACKEND/build/classes:$OUT" com.cropcalendar.service.geo.GeoParseTest
-rm -rf "$OUT"
+SOURCES="$(find "$DIR/com" -name '*Test.java' | sort)"
+if [ -z "$SOURCES" ]; then
+  echo "没有找到测试类" >&2
+  exit 1
+fi
+
+javac -encoding UTF-8 -cp "$BACKEND/build/classes" -d "$OUT" $SOURCES
+
+for f in $SOURCES; do
+  cls="$(printf '%s' "$f" | sed "s|^$DIR/||; s|/|.|g; s|\.java$||")"
+  echo "--- $cls ---"
+  java -cp "$BACKEND/build/classes:$OUT" "$cls"
+done

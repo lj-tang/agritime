@@ -9,6 +9,7 @@
   <link rel="stylesheet" href="../assets/css/common.css" />
   <link rel="stylesheet" href="../assets/css/timeline.css" />
   <link rel="stylesheet" href="../components/location-picker/location-picker.css" />
+  <link rel="stylesheet" href="../components/reminder-center/reminder-center.css" />
 </head>
 <body>
   <main class="page">
@@ -55,6 +56,7 @@
 
     <div class="reminder-panel" id="reminder-panel" hidden>
       <h3>我的农事提醒</h3>
+      <p class="reminder-countdown" id="reminder-countdown" hidden></p>
       <div id="reminder-list"></div>
     </div>
 
@@ -78,6 +80,9 @@
   <script src="../shared/utils/timeline-logic.js"></script>
   <script src="../assets/js/chart-client.js"></script>
   <script src="../components/location-picker/location-picker.js"></script>
+  <!-- 时间线页已有内嵌提醒面板，不再挂悬浮铃铛 -->
+  <script>window.__reminderCenterNoEntry = true;</script>
+  <script src="../components/reminder-center/reminder-center.js"></script>
   <script>
     (function () {
       var STATUS_LABEL = { green: '适宜', yellow: '谨慎', red: '不宜' };
@@ -548,84 +553,60 @@
         host.appendChild(box);
       }
 
-      // ---------------- T04 节点提醒（localStorage，刷新不丢） ----------------
-      var REMIND_KEY = 'agritime.reminders.v1';
+      // ---------------- T18 提醒中心 ----------------
+      // T04 只在 localStorage 存一个"打过钩"的标记，换设备就没了。现在统一交给
+      // ReminderCenter：分类/三级风险/已读/开关都持久化，登录同步到账号，
+      // 旧版标记由组件自动迁移。这里只保留四个旧函数名，避免改动节点渲染代码。
+      var REMIND_KEY = window.ReminderCenter ? window.ReminderCenter.KEY : 'agritime.reminders.center.v1';
 
       function todayStr() {
         var d = new Date();
         return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
       }
-      function loadReminders() {
-        try { return JSON.parse(localStorage.getItem(REMIND_KEY) || '[]'); } catch (e) { return []; }
-      }
-      function saveReminders(list) {
-        try { localStorage.setItem(REMIND_KEY, JSON.stringify(list)); } catch (e) { /* 隐私模式忽略 */ }
+      function reminderCrop() {
+        return window.__cropStandardName || query.cropName || '';
       }
       function reminderKey(node) {
-        var crop = window.__cropStandardName || query.cropName || '';
-        return crop + '|' + (node.date || '') + '|' + (node.name || '');
+        if (window.ReminderCenter) {
+          return window.ReminderCenter.manualId(reminderCrop(), node.date, node.name);
+        }
+        return reminderCrop() + '|' + (node.date || '') + '|' + (node.name || '');
       }
       function isReminded(node) {
-        var k = reminderKey(node);
-        return loadReminders().some(function (r) { return r.key === k; });
+        return window.ReminderCenter ? window.ReminderCenter.has(reminderKey(node)) : false;
       }
       function toggleReminder(node) {
-        var list = loadReminders();
-        var k = reminderKey(node);
-        var idx = list.findIndex(function (r) { return r.key === k; });
-        if (idx >= 0) list.splice(idx, 1);
-        else list.push({ key: k, date: node.date, name: node.name || '', crop: query.cropName || '' });
-        saveReminders(list);
+        if (window.ReminderCenter) window.ReminderCenter.toggleManual(node, reminderCrop());
       }
+      /** 展示层也兜一次过期清理：节点过去 7 天以上就不再占位（落盘清理由组件/服务端做）。 */
       function pruneReminders(list) {
-        // 节点日期过去 7 天后自动清理，否则提醒面板会越攒越多"已过"
-        var cutoff = new Date();
-        cutoff.setDate(cutoff.getDate() - 7);
-        var cut = cutoff.getFullYear() + '-' + String(cutoff.getMonth() + 1).padStart(2, '0') + '-' + String(cutoff.getDate()).padStart(2, '0');
-        var kept = list.filter(function (r) { return r.date && r.date >= cut; });
-        if (kept.length !== list.length) saveReminders(kept);
-        return kept;
+        var cut = new Date();
+        cut.setDate(cut.getDate() - 7);
+        var cutStr = cut.getFullYear() + '-' + String(cut.getMonth() + 1).padStart(2, '0')
+          + '-' + String(cut.getDate()).padStart(2, '0');
+        return (list || []).filter(function (r) { return !r.date || r.date >= cutStr; });
       }
-
       function renderMyReminders() {
         var panel = document.getElementById('reminder-panel');
         var box = document.getElementById('reminder-list');
-        if (!panel || !box) return;
-        var list = pruneReminders(loadReminders()).filter(function (r) { return r.date; })
-          .sort(function (a, b) { return a.date < b.date ? -1 : 1; });
-        box.innerHTML = '';
-        if (!list.length) { panel.hidden = true; return; }
-        panel.hidden = false;
-        list.forEach(function (r) {
-          var row = document.createElement('div');
-          row.className = 'reminder-row';
-          var cd = window.TimelineLogic && window.TimelineLogic.calcCountdown
-            ? window.TimelineLogic.calcCountdown(r.date) : { state: 'future', days: 0 };
-          var day = document.createElement('span');
-          day.className = 'cd-day';
-          day.textContent = cd.state === 'today' ? '今天' : (cd.state === 'past' ? '已过' : '还有 ' + cd.days + ' 天');
-          var label = document.createElement('span');
-          label.textContent = r.date + ' · ' + (r.crop ? r.crop + ' ' : '') + r.name;
-          var del = document.createElement('button');
-          del.className = 'del';
-          del.type = 'button';
-          del.textContent = '×';
-          del.setAttribute('aria-label', '删除提醒');
-          del.addEventListener('click', function () {
-            var all = loadReminders().filter(function (x) { return x.key !== r.key; });
-            saveReminders(all);
-            renderMyReminders();
-            if (cachedData && cachedData.nodes) {
-              var tl = document.getElementById('timeline');
-              tl.innerHTML = '';
-              cachedData.nodes.forEach(function (n) { tl.appendChild(renderNode(n)); });
-            }
-          });
-          row.appendChild(day);
-          row.appendChild(label);
-          row.appendChild(del);
-          box.appendChild(row);
-        });
+        if (!panel || !box || !window.ReminderCenter) return;
+
+        // 面板顶部给一句"最近一条提醒还有几天"，延续 T04 的倒计时信息
+        var hint = document.getElementById('reminder-countdown');
+        if (hint && window.TimelineLogic && window.TimelineLogic.calcCountdown) {
+          var next = pruneReminders(window.ReminderCenter.list()).filter(function (r) { return !r.read; })[0];
+          if (next) {
+            var cd = window.TimelineLogic.calcCountdown(next.date);
+            hint.textContent = cd.state === 'today' ? '今天有提醒'
+              : cd.state === 'past' ? '有已过期的提醒，建议清理'
+                : '最近一条提醒还有 ' + cd.days + ' 天';
+            hint.hidden = false;
+          } else {
+            hint.hidden = true;
+          }
+        }
+        window.ReminderCenter.renderInto(box);
+        panel.hidden = window.ReminderCenter.list().length === 0;
       }
 
       function renderReminder(r) {
@@ -899,8 +880,18 @@
         document.getElementById('footer').hidden = false;
       }
 
-      getData().then(function (data) {
+      // 提醒档案变化（自动生成、手动设提醒、服务端同步回来）时，
+      // 内嵌面板的显隐与倒计时都要跟着刷新，不能只在启动时算一次
+      document.addEventListener('agritime:reminders-changed', function () {
+        renderMyReminders();
+      });
+
+      // 先等提醒档案加载完，再画节点：否则「已设提醒」会先按空数据画一遍，
+      // 服务端数据回来后再覆盖，按钮会闪一下；自动生成的风险提醒也要排在同步之后。
+      var boot = window.ReminderCenter ? window.ReminderCenter.ready() : Promise.resolve();
+      boot.then(function () { return getData(); }).then(function (data) {
         render(data);
+        if (window.ReminderCenter) window.ReminderCenter.generateFromTimeline(data);
         renderMyReminders();
       });
     })();
