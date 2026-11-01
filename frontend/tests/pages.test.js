@@ -1569,4 +1569,5 @@ test('T22 时间线页接入改期入口与恢复按钮', () => {
   assert.ok(timelineHtml.includes('agritime.timeline.overrides.v1'), '改期档案应持久化');
   assert.ok(timelineHtml.includes('已改期 · 原'), '改期节点应标注原日期');
   assert.ok(timelineCss.includes('.tl-date-editor') && timelineCss.includes('.reschedule-bar'), '应有改期样式');
+  assert.ok(/\.reschedule-bar\[hidden\]/.test(timelineCss), '改期条 hidden 时必须真正隐藏（flex 会盖掉 hidden）');
 });

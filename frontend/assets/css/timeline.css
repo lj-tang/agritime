@@ -598,6 +598,8 @@
   border: 1px solid rgba(214, 158, 46, 0.35);
   border-radius: var(--radius-sm);
 }
+/* display:flex 会盖掉 hidden 的默认 display:none，没有改期时必须真正隐藏 */
+.reschedule-bar[hidden] { display: none !important; }
 .reschedule-reset {
   flex-shrink: 0;
   padding: 6px 12px;
