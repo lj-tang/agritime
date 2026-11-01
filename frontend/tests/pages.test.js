@@ -178,7 +178,8 @@ test('流程对齐：函数图像真实/占位双形态闸门', () => {
 });
 
 test('流程对齐：reminders 缺失容错', () => {
-  assert.match(timelineHtml, /Array\.isArray\(data\.reminders\)/);
+  // 节点区重绘后改为从 cachedData 取 reminders，容错口径不变
+  assert.match(timelineHtml, /Array\.isArray\((data|cachedData)\.reminders\)/);
 });
 
 test('流程对齐：mock 数据 null 占位不造假', () => {
@@ -1526,4 +1527,46 @@ test('T18 提醒记录：按账号落盘、去重、已读与过期清理', () =
   assert.ok(store.includes('old.get("read")'), '重复推送不应把已读顶回未读');
   assert.ok(!taskbook.includes('模块18：提醒服务'), '已完成任务应从任务书移除');
   assert.ok(/共 12 项/.test(taskbook), '任务书应重编号为 12 项待办');
+});
+
+// ---------------- T22 日历节点改期 ----------------
+test('T22 改期纯函数：顺延 / 拒绝倒序 / 差异与恢复', () => {
+  const TL = require('../../shared/utils/timeline-logic.js');
+  const nodes = [
+    { nodeId: '1', date: '2026-06-01', name: '播种', operationType: 'sowing' },
+    { nodeId: '2', date: '2026-06-15', name: '追肥', operationType: 'fertilize' },
+    { nodeId: '3', date: '2026-09-20', name: '收获', operationType: 'harvest' },
+    { nodeId: '4', date: '2026-10-01', name: '晾晒', operationType: 'postharvest' }
+  ];
+  const r = TL.reschedule(nodes, 1, '2026-06-20');
+  assert.strictEqual(r.ok, true);
+  assert.deepStrictEqual(r.nodes.map((n) => n.date),
+    ['2026-06-01', '2026-06-20', '2026-09-25', '2026-10-06']);
+
+  const bad = TL.reschedule(nodes, 1, '2026-05-30');
+  assert.strictEqual(bad.ok, false);
+  assert.match(bad.error, /上一节点/);
+
+  const diff = TL.diffDates(nodes, r.nodes);
+  assert.deepStrictEqual(Object.keys(diff).sort(), ['n2', 'n3', 'n4']);
+
+  const applied = TL.applyOverrides(nodes, { dates: diff, manual: { n2: '2026-06-15' } });
+  assert.strictEqual(applied[1].date, '2026-06-20');
+  assert.strictEqual(applied[1].manualReschedule, true);
+  assert.strictEqual(applied[1].originalDate, '2026-06-15');
+  assert.strictEqual(applied[2].rescheduled, true);
+  assert.strictEqual(applied[2].manualReschedule, false);
+  assert.strictEqual(TL.hasOverrides({ dates: {} }), false);
+  assert.strictEqual(TL.hasOverrides({ dates: { n2: '2026-06-20' } }), true);
+  assert.deepStrictEqual(TL.applyOverrides(nodes, null).map((n) => n.date),
+    ['2026-06-01', '2026-06-15', '2026-09-20', '2026-10-01']);
+});
+
+test('T22 时间线页接入改期入口与恢复按钮', () => {
+  assert.ok(timelineHtml.includes('reschedule-bar') && timelineHtml.includes('恢复按规程排期'));
+  assert.ok(timelineHtml.includes('tl-edit-date'), '节点应有改期入口');
+  assert.ok(timelineHtml.includes('applyOverrides') && timelineHtml.includes('diffDates'), '应复用纯函数');
+  assert.ok(timelineHtml.includes('agritime.timeline.overrides.v1'), '改期档案应持久化');
+  assert.ok(timelineHtml.includes('已改期 · 原'), '改期节点应标注原日期');
+  assert.ok(timelineCss.includes('.tl-date-editor') && timelineCss.includes('.reschedule-bar'), '应有改期样式');
 });

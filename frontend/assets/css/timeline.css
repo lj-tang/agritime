@@ -524,3 +524,90 @@
 
 /* 远期节点保持虚线卡片，但底色跟整体一致 */
 .tl-node.seasonal .tl-card { background: var(--surface); }
+
+/* ---------------- T22 节点改期 ---------------- */
+.tl-edit-date {
+  margin-left: 8px;
+  padding: 2px 9px;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--leaf);
+  background: var(--leaf-soft);
+  border: 1px solid rgba(63, 143, 86, 0.35);
+  border-radius: 999px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.tl-edit-date:hover { background: var(--leaf); color: #fff; }
+
+.tl-reschedule-badge,
+.tl-shift-badge {
+  margin-left: 8px;
+  padding: 2px 9px;
+  font-size: 12px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+.tl-reschedule-badge { color: #8a6415; background: rgba(214, 158, 46, 0.16); }
+.tl-shift-badge { color: var(--muted); background: var(--paper-2); }
+
+.tl-date-editor {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin: 10px 0 2px;
+  padding: 10px;
+  background: var(--paper-2);
+  border: 1px dashed var(--line);
+  border-radius: 10px;
+}
+.tl-date-editor-label { font-size: 13px; color: var(--ink-soft); }
+.tl-date-editor input[type="date"] {
+  font-family: inherit;
+  font-size: 14px;
+  padding: 6px 8px;
+  color: var(--ink);
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+}
+.tl-date-save,
+.tl-date-cancel {
+  font-family: inherit;
+  font-size: 13px;
+  padding: 6px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+.tl-date-save { color: #fff; background: var(--leaf); border: 1px solid var(--leaf); }
+.tl-date-cancel { color: var(--leaf); background: transparent; border: 1px solid var(--leaf); }
+.tl-date-error { flex-basis: 100%; font-size: 12px; color: var(--red); }
+
+.reschedule-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 0 0 16px;
+  padding: 10px 14px;
+  font-size: 13px;
+  color: #8a6415;
+  background: rgba(214, 158, 46, 0.12);
+  border: 1px solid rgba(214, 158, 46, 0.35);
+  border-radius: var(--radius-sm);
+}
+.reschedule-reset {
+  flex-shrink: 0;
+  padding: 6px 12px;
+  font-family: inherit;
+  font-size: 13px;
+  color: #8a6415;
+  background: #fff;
+  border: 1px solid #b58a2b;
+  border-radius: 8px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.reschedule-reset:hover { color: #fff; background: #8a6415; }

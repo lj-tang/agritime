@@ -54,6 +54,11 @@
       <button type="button" class="mode-tab" data-mode="chart">函数图像</button>
     </div>
 
+    <div class="reschedule-bar" id="reschedule-bar" hidden>
+      <span class="reschedule-text" id="reschedule-text"></span>
+      <button type="button" class="reschedule-reset" id="reschedule-reset">恢复按规程排期</button>
+    </div>
+
     <div class="reminder-panel" id="reminder-panel" hidden>
       <h3>我的农事提醒</h3>
       <p class="reminder-countdown" id="reminder-countdown" hidden></p>
@@ -352,7 +357,7 @@
         }
       }
 
-      function renderNode(node) {
+      function renderNode(node, index) {
         var wrap = document.createElement('div');
         var seasonal = node.precision === 'season';
         wrap.className = 'tl-node '
@@ -377,6 +382,31 @@
         date.textContent = node.date || '';
         action.appendChild(name);
         action.appendChild(date);
+
+        // T22：改期标识 + 单节点改期入口
+        if (node.manualReschedule) {
+          var rbadge = document.createElement('span');
+          rbadge.className = 'tl-reschedule-badge';
+          rbadge.textContent = '已改期 · 原 ' + (node.originalDate || '');
+          action.appendChild(rbadge);
+        } else if (node.rescheduled) {
+          var sbadge = document.createElement('span');
+          sbadge.className = 'tl-shift-badge';
+          sbadge.textContent = '顺延';
+          action.appendChild(sbadge);
+        }
+        if (node.date && node.precision !== 'season') {
+          var editBtn = document.createElement('button');
+          editBtn.type = 'button';
+          editBtn.className = 'tl-edit-date';
+          editBtn.textContent = '改期';
+          editBtn.addEventListener('click', function (ev) {
+            ev.stopPropagation();
+            openDateEditor(card, index, node);
+          });
+          action.appendChild(editBtn);
+        }
+
         card.appendChild(action);
 
         var decision = document.createElement('div');
@@ -463,6 +493,73 @@
 
         wrap.appendChild(card);
         return wrap;
+      }
+
+      // T22：单节点改期编辑器。保存后由纯函数重算，违反间隔直接拒绝。
+      function openDateEditor(card, index, node) {
+        var old = card.querySelector('.tl-date-editor');
+        if (old) old.remove();
+
+        var box = document.createElement('div');
+        box.className = 'tl-date-editor';
+
+        var label = document.createElement('span');
+        label.className = 'tl-date-editor-label';
+        label.textContent = '调整「' + (node.name || '该节点') + '」日期';
+
+        var input = document.createElement('input');
+        input.type = 'date';
+        input.value = node.date || '';
+
+        var save = document.createElement('button');
+        save.type = 'button';
+        save.className = 'tl-date-save';
+        save.textContent = '保存';
+
+        var cancel = document.createElement('button');
+        cancel.type = 'button';
+        cancel.className = 'tl-date-cancel';
+        cancel.textContent = '取消';
+
+        var err = document.createElement('span');
+        err.className = 'tl-date-error';
+
+        box.appendChild(label);
+        box.appendChild(input);
+        box.appendChild(save);
+        box.appendChild(cancel);
+        box.appendChild(err);
+        card.appendChild(box);
+        input.focus();
+
+        save.addEventListener('click', function (ev) {
+          ev.stopPropagation();
+          if (!window.TimelineLogic || !window.TimelineLogic.reschedule) return;
+          var res = window.TimelineLogic.reschedule(currentNodes, index, input.value);
+          if (!res.ok) { err.textContent = res.error; return; }
+
+          var diff = window.TimelineLogic.diffDates(protocolNodes, res.nodes);
+          if (!overrides) overrides = { dates: {}, manual: {} };
+          overrides.dates = diff;
+          overrides.manual = overrides.manual || {};
+          var key = window.TimelineLogic.nodeKey(protocolNodes[index]);
+          if (diff[key] && !overrides.manual[key]) overrides.manual[key] = protocolNodes[index].date;
+          Object.keys(overrides.manual).forEach(function (k) {
+            if (!diff[k]) delete overrides.manual[k];
+          });
+
+          if (window.TimelineLogic.hasOverrides(overrides)) saveOverrides(overrideScope, overrides);
+          else { clearOverrides(overrideScope); overrides = null; }
+
+          // 用 applyOverrides 重放一次，保证「已改期/顺延」标记与持久化后的渲染完全一致
+          currentNodes = window.TimelineLogic.applyOverrides(protocolNodes, overrides);
+          renderTimelineNodes();
+        });
+
+        cancel.addEventListener('click', function (ev) {
+          ev.stopPropagation();
+          box.remove();
+        });
       }
 
       // T03：四类农事指导（浇水/施肥/病虫害/农具）+ 天气调整依据
@@ -676,6 +773,38 @@
       var chartRendered = false;
       var cachedData = null;
 
+      // ---------------- T22 节点改期 ----------------
+      // 改期档案按「作物 + 播期 + 地点」存本地，换查询不串味，跨会话保留。
+      var OVERRIDE_KEY = 'agritime.timeline.overrides.v1';
+      var protocolNodes = null;   // 后端规程原始节点
+      var currentNodes = null;    // 应用改期后的节点
+      var overrideScope = '';
+      var overrides = null;
+
+      function readOverrideStore() {
+        try { return JSON.parse(localStorage.getItem(OVERRIDE_KEY) || '{}') || {}; }
+        catch (e) { return {}; }
+      }
+      function writeOverrideStore(all) {
+        try { localStorage.setItem(OVERRIDE_KEY, JSON.stringify(all)); }
+        catch (e) { /* 配额满就放弃本地落盘，页面仍按内存改期 */ }
+      }
+      function loadOverrides(scope) { return readOverrideStore()[scope] || null; }
+      function saveOverrides(scope, ov) {
+        var all = readOverrideStore();
+        all[scope] = ov;
+        writeOverrideStore(all);
+      }
+      function clearOverrides(scope) {
+        var all = readOverrideStore();
+        delete all[scope];
+        writeOverrideStore(all);
+      }
+      function overrideScopeKey(data) {
+        return (data.cropName || query.cropName || query.crop) + '|' + query.sowDate + '|'
+          + Number(query.lat).toFixed(2) + ',' + Number(query.lon).toFixed(2);
+      }
+
       function gaussianPath(cx, sigma, xStart, xEnd, yBase, yPeak) {
         var d = '';
         for (var px = xStart; px <= xEnd; px += CHART_CONFIG.SAMPLE_STEP) {
@@ -827,6 +956,52 @@
         if (mode === 'chart' && !chartRendered) requestChart();
       }
 
+      // T22：按当前改期状态重绘节点区（不动结论卡与模式开关）
+      function renderTimelineNodes() {
+        var timeline = document.getElementById('timeline');
+        timeline.innerHTML = '';
+        (currentNodes || []).forEach(function (n, i) {
+          timeline.appendChild(renderNode(n, i));
+        });
+        var reminders = (cachedData && Array.isArray(cachedData.reminders)) ? cachedData.reminders : [];
+        reminders.forEach(function (r) {
+          if (r && (r.festivalName || r.festivalDate || r.reminderCopy || r.salesCopy)) {
+            timeline.appendChild(renderReminder(r));
+          }
+        });
+        timeline.hidden = false;
+        updateRescheduleBar();
+      }
+
+      function updateRescheduleBar() {
+        var bar = document.getElementById('reschedule-bar');
+        var text = document.getElementById('reschedule-text');
+        if (!bar) return;
+        if (!window.TimelineLogic || !window.TimelineLogic.hasOverrides(overrides)) {
+          bar.hidden = true;
+          return;
+        }
+        var total = Object.keys(overrides.dates || {}).length;
+        var manual = Object.keys(overrides.manual || {}).length;
+        var shifted = total - manual;
+        bar.hidden = false;
+        if (text) {
+          text.textContent = '已手工改期 ' + manual + ' 个节点'
+            + (shifted > 0 ? '，' + shifted + ' 个节点按原有间隔顺延' : '');
+        }
+      }
+
+      function restoreProtocol() {
+        if (!protocolNodes) return;
+        overrides = null;
+        clearOverrides(overrideScope);
+        currentNodes = protocolNodes.map(function (n) { return Object.assign({}, n); });
+        renderTimelineNodes();
+      }
+
+      var resetBtn = document.getElementById('reschedule-reset');
+      if (resetBtn) resetBtn.addEventListener('click', restoreProtocol);
+
       function render(data) {
         document.getElementById('loading').hidden = true;
         if (!data || typeof data !== 'object') data = { todayConclusion: {}, nodes: [] };
@@ -866,17 +1041,12 @@
         }
         renderConclusion(data);
         cachedData = data;
+        protocolNodes = data.nodes.map(function (n) { return Object.assign({}, n); });
+        overrideScope = overrideScopeKey(data);
+        overrides = loadOverrides(overrideScope);
+        currentNodes = window.TimelineLogic.applyOverrides(protocolNodes, overrides);
         renderModeSwitch();
-        var timeline = document.getElementById('timeline');
-        timeline.innerHTML = '';
-        data.nodes.forEach(function (n) { timeline.appendChild(renderNode(n)); });
-        var reminders = Array.isArray(data.reminders) ? data.reminders : [];
-        reminders.forEach(function (r) {
-          if (r && (r.festivalName || r.festivalDate || r.reminderCopy || r.salesCopy)) {
-            timeline.appendChild(renderReminder(r));
-          }
-        });
-        timeline.hidden = false;
+        renderTimelineNodes();
         document.getElementById('footer').hidden = false;
       }
 
