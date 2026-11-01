@@ -459,7 +459,17 @@
     var items = window.MyPlotsStore.list();
     container.innerHTML = '';
     if (!items.length) {
-      container.innerHTML = '<div class="my-plots-empty">还没有地块记录，点击「添加地块」开始管理</div>';
+      // 空态不留一句死文案：直接给「框一块」按钮，点开就是新地块表单
+      if (window.UiState) {
+        window.UiState.empty(container, {
+          icon: '📍',
+          text: '还没有地块。框一块地，就能看到坡度、墒情和适合种什么。',
+          actionText: '框一块地',
+          onAction: function () { showForm(null); }
+        });
+      } else {
+        container.innerHTML = '<div class="my-plots-empty">还没有地块记录，点击「添加地块」开始管理</div>';
+      }
       return;
     }
     var cards = document.createElement('div');

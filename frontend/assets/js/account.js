@@ -1,0 +1,230 @@
+/**
+ * 账号设置页：基本信息、改昵称、改密码。
+ *
+ * 三个约定：
+ *   · 未登录直接回登录页，不在这一页显示空白表单
+ *   · 改密成功后服务端会重签 Cookie，本页不跳转，原地提示「其他设备需重新登录」
+ *   · 如果服务端说还在用初始密码（mustChangePassword），把改密区顶到最前并高亮
+ */
+(function () {
+  var API = '/api/auth';
+  var state = { user: null, mustChange: false };
+
+  function $(id) { return document.getElementById(id); }
+
+  function el(tag, cls, text) {
+    var e = document.createElement(tag);
+    if (cls) e.className = cls;
+    if (text != null) e.textContent = text;
+    return e;
+  }
+
+  function showError(id, msg) {
+    var box = $(id);
+    if (!box) return;
+    box.textContent = msg || '';
+    box.hidden = !msg;
+  }
+
+  function toast(msg, kind) {
+    var t = document.querySelector('.account-toast');
+    if (!t) {
+      t = el('div', 'account-toast');
+      document.body.appendChild(t);
+    }
+    t.textContent = msg;
+    t.className = 'account-toast is-show' + (kind ? ' is-' + kind : '');
+    clearTimeout(t._timer);
+    t._timer = setTimeout(function () { t.className = 'account-toast'; }, 2600);
+  }
+
+  function fmtTime(s) {
+    if (!s) return '—';
+    // 服务端给的是 "yyyy-MM-dd HH:mm:ss"，直接展示成日期即可
+    return String(s).slice(0, 16).replace('T', ' ');
+  }
+
+  function roleLabel(role) {
+    return role === 'admin' ? '管理员' : '普通用户';
+  }
+
+  function render() {
+    var u = state.user;
+    if (!u) return;
+    var name = u.nickname || u.username;
+
+    $('acc-avatar').textContent = (name || '·').trim().charAt(0) || '·';
+    $('acc-name').textContent = name;
+    $('acc-sub').textContent = '登录名 ' + u.username + ' · ' + roleLabel(u.role);
+
+    var meta = $('acc-meta');
+    meta.innerHTML = '';
+    [
+      ['登录名', u.username],
+      ['角色', roleLabel(u.role)],
+      ['注册时间', fmtTime(u.createdAt)],
+      ['最近登录', fmtTime(u.lastLoginAt)],
+      ['登录次数', (u.loginCount || 0) + ' 次']
+    ].forEach(function (row) {
+      var wrap = el('div', 'account-meta-row');
+      wrap.appendChild(el('dt', null, row[0]));
+      wrap.appendChild(el('dd', null, row[1]));
+      meta.appendChild(wrap);
+    });
+
+    $('nick-input').value = u.nickname || '';
+
+    if (state.mustChange) {
+      $('acc-force').hidden = false;
+      var block = $('pwd-block');
+      if (block && block.parentNode.firstElementChild !== block) {
+        block.parentNode.insertBefore(block, block.parentNode.querySelector('.account-block'));
+      }
+      block.classList.add('is-focus');
+      var old = $('old-pwd');
+      if (old) old.focus();
+    }
+  }
+
+  function load() {
+    fetch(API + '/me')
+      .then(function (r) {
+        if (r.status === 401) {
+          location.replace('./auth.html?redirect=' + encodeURIComponent('./account.html'));
+          return null;
+        }
+        return r.ok ? r.json() : null;
+      })
+      .then(function (d) {
+        var data = d && d.data;
+        if (!data || !data.user) return;
+        state.user = data.user;
+        state.mustChange = String(data.mustChangePassword) === 'true';
+        render();
+      })
+      .catch(function () {
+        toast('网络异常，账号信息读取失败', 'error');
+      });
+  }
+
+  function submitNick(e) {
+    e.preventDefault();
+    var input = $('nick-input');
+    var nick = (input.value || '').trim();
+    if (!nick) { showError('nick-error', '昵称不能为空'); return; }
+    if (nick.length > 20) { showError('nick-error', '昵称最多 20 个字符'); return; }
+    showError('nick-error', '');
+    var btn = $('nick-submit');
+    btn.disabled = true;
+    fetch(API + '/profile', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ nickname: nick })
+    })
+      .then(function (r) { return r.json().catch(function () { return {}; }).then(function (d) { return { ok: r.ok, d: d }; }); })
+      .then(function (res) {
+        btn.disabled = false;
+        if (!res.ok) {
+          showError('nick-error', (res.d && res.d.message) || '保存失败，请重试');
+          return;
+        }
+        state.user = res.d.data.user;
+        render();
+        toast('昵称已更新');
+      })
+      .catch(function (e) {
+        btn.disabled = false;
+        if (window.console) console.error('[account] 保存昵称失败', e);
+        showError('nick-error', '网络异常，请稍后重试');
+      });
+  }
+
+  /** 与后端 UserStore.passwordProblem 保持一致的即时校验，省一次往返 */
+  function pwdProblem(pwd) {
+    if (!pwd) return '请输入新密码';
+    if (pwd.length < 6) return '新密码至少 6 位';
+    if (!/[A-Za-z]/.test(pwd) || !/\d/.test(pwd)) return '新密码需同时包含字母和数字';
+    return null;
+  }
+
+  function strengthHint() {
+    var pwd = $('new-pwd').value || '';
+    var pwd2 = $('new-pwd2').value || '';
+    var box = $('pwd-strength');
+    if (!pwd) { box.textContent = ''; box.className = 'account-strength'; return; }
+    var problem = pwdProblem(pwd);
+    if (problem) {
+      box.textContent = problem;
+      box.className = 'account-strength is-bad';
+      return;
+    }
+    if (pwd2 && pwd2 !== pwd) {
+      box.textContent = '两次输入不一致';
+      box.className = 'account-strength is-bad';
+      return;
+    }
+    var strong = pwd.length >= 10 && /[^A-Za-z0-9]/.test(pwd);
+    box.textContent = strong ? '强度：较高' : '强度：可用（再长一些或加符号会更安全）';
+    box.className = 'account-strength is-ok';
+  }
+
+  function submitPwd(e) {
+    e.preventDefault();
+    var oldPwd = $('old-pwd').value;
+    var pwd = $('new-pwd').value;
+    var pwd2 = $('new-pwd2').value;
+
+    if (!oldPwd) { showError('pwd-error', '请输入当前密码'); return; }
+    var problem = pwdProblem(pwd);
+    if (problem) { showError('pwd-error', problem); return; }
+    if (pwd !== pwd2) { showError('pwd-error', '两次输入的新密码不一致'); return; }
+    if (pwd === oldPwd) { showError('pwd-error', '新密码不能与当前密码相同'); return; }
+
+    showError('pwd-error', '');
+    var btn = $('pwd-submit');
+    btn.disabled = true;
+    btn.textContent = '正在更新…';
+    fetch(API + '/password', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ oldPassword: oldPwd, newPassword: pwd })
+    })
+      .then(function (r) { return r.json().catch(function () { return {}; }).then(function (d) { return { ok: r.ok, d: d }; }); })
+      .then(function (res) {
+        btn.disabled = false;
+        btn.textContent = '更新密码';
+        if (!res.ok) {
+          showError('pwd-error', (res.d && res.d.message) || '修改失败，请重试');
+          return;
+        }
+        $('old-pwd').value = '';
+        $('new-pwd').value = '';
+        $('new-pwd2').value = '';
+        $('pwd-strength').textContent = '';
+        $('pwd-strength').className = 'account-strength';
+        state.mustChange = false;
+        $('acc-force').hidden = true;
+        $('pwd-block').classList.remove('is-focus');
+        toast('密码已更新，其他设备需重新登录', 'ok');
+      })
+      .catch(function () {
+        btn.disabled = false;
+        btn.textContent = '更新密码';
+        showError('pwd-error', '网络异常，请稍后重试');
+      });
+  }
+
+  function init() {
+    $('nick-form').addEventListener('submit', submitNick);
+    $('pwd-form').addEventListener('submit', submitPwd);
+    $('new-pwd').addEventListener('input', strengthHint);
+    $('new-pwd2').addEventListener('input', strengthHint);
+    load();
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+})();

@@ -1344,9 +1344,9 @@ test('V5.3 去重：共享层已抽取', () => {
 test('V5 任务书：与 V4 同体例，编号自 T16 续接', () => {
   const tb = read(path.resolve(__dirname, '..', '..', 'docs', 'taskbook-v5.md'));
   assert.ok(tb.includes('**任务编号：T16**'), '首个任务应为 T16，与 V4 的 T00-T15 续接');
-  assert.ok(tb.includes('**任务编号：T29**'), '应覆盖到 T29');
+  assert.ok(tb.includes('**任务编号：T28**'), '应覆盖到 T28');
   const ids = tb.match(/\*\*任务编号：T\d+\*\*/g) || [];
-  assert.equal(ids.length, 14, '应有 14 个待办任务（T16-T29）');
+  assert.equal(ids.length, 13, '应有 13 个待办任务（T16-T28）');
   // 编号必须连续不重复，否则中途插任务时容易乱
   const nums = ids.map(x => parseInt(x.replace(/\D/g, ''), 10));
   nums.forEach((n, i) => assert.equal(n, 16 + i, '任务编号应从 T16 连续递增'));
@@ -1359,7 +1359,7 @@ test('V5 任务书：与 V4 同体例，编号自 T16 续接', () => {
   // 任务书只列未完成任务，不把已完成项写进来占编号
   assert.ok(!/\*\*状态\*\*：已完成/.test(tb), '不应出现"已完成"状态标记');
   const prio = tb.match(/\*\*优先级\*\*：P\d/g) || [];
-  assert.equal(prio.length, 14, '每个任务都应有优先级');
+  assert.equal(prio.length, 13, '每个任务都应有优先级');
   assert.ok(!tb.includes('commit') && !tb.includes('350259d'), '不写提交号，避免把已完成记录混进待办');
 });
 
@@ -1461,4 +1461,34 @@ test('地块：倾角不超 90°、面积保留一位小数', () => {
   assert.match(analyze, /mu >= 1 \? Math\.round\(mu \* 10\)/, '面积应按 1 位小数输出');
   assert.ok(myPlotsJs.includes('function fmtMu'), '前端应有统一的面积格式化');
   assert.match(myPlotsJs, /n >= 1 \? \(Math\.round\(n \* 10\)/, 'fmtMu 应对齐后端口径');
+});
+
+test('T20 四态：空态有引导动作、错误态可重试', () => {
+  const uiStateJs = read(path.resolve(__dirname, '..', 'assets', 'js', 'ui-state.js'));
+  const myPlotsJs = read(path.resolve(__dirname, '..', 'assets', 'js', 'my-plots.js'));
+  const myCropsJs = read(path.resolve(__dirname, '..', 'assets', 'js', 'my-crops.js'));
+  const serviceJs = read(path.resolve(__dirname, '..', 'assets', 'js', 'service.js'));
+  const diseaseJs = read(path.resolve(__dirname, '..', 'assets', 'js', 'disease.js'));
+
+  // 统一组件：四种状态各一个入口，空/错误都带可点动作
+  ['loading', 'empty', 'error', 'partial'].forEach(k => {
+    assert.ok(uiStateJs.includes(k + ':'), '四态组件应提供 ' + k);
+  });
+  assert.ok(uiStateJs.includes('ui-state-action'), '空态与错误态应带按钮');
+  assert.ok(indexHtml.includes('ui-state.js'), '首页应引入四态组件');
+  assert.ok(commonCss.includes('.ui-state--error'), '错误态应有独立样式');
+  assert.ok(commonCss.includes('.ui-state--partial'), '部分数据应有提示条样式');
+
+  // 空列表不留死文案：都能一键到下一步
+  assert.ok(myPlotsJs.includes("actionText: '框一块地'"), '地块空态应能直接开始框地');
+  assert.ok(myCropsJs.includes("actionText: '去农事日历'"), '作物空态应能跳到日历');
+  assert.ok(serviceJs.includes("actionText: '提第一个问题'"), '工单空态应能新建咨询');
+
+  // 错误态可重试，不用重新填表
+  assert.ok(serviceJs.includes('onRetry: loadTickets'), '工单加载失败应可重试');
+  assert.ok(diseaseJs.includes('window.UiState.error'), '病害查询失败应走错误态');
+  assert.ok(diseaseJs.includes('requestSubmit'), '病害重试应复用手填内容');
+
+  // 移动端触控热区
+  assert.match(commonCss, /\.ui-state-action \{ min-height: 44px/, '窄屏按钮应不小于 44px');
 });

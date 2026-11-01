@@ -47,10 +47,12 @@
       avatar.textContent = name.trim().charAt(0) || '👤';
       chip.appendChild(avatar);
 
-      var label = document.createElement('span');
-      label.className = 'user-chip-name';
+      // 昵称本身是入口：点一下进账号设置（改昵称/改密码）
+      var label = document.createElement('a');
+      label.className = 'user-chip-name user-chip-name--link';
+      label.href = './account.html';
       label.textContent = name;
-      label.title = name;
+      label.title = name + ' · 账号设置';
       chip.appendChild(label);
     }
 

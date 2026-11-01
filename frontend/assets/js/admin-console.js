@@ -103,7 +103,13 @@
     fetch('/api/auth/me')
       .then(function (res) { return res.ok ? res.json() : null; })
       .then(function (d) {
-        var u = d && d.data && d.data.user;
+        var data = d && d.data;
+        var u = data && data.user;
+        // 还在用初始密码就先踢去改密，改完再回来
+        if (data && String(data.mustChangePassword) === 'true') {
+          location.replace('./account.html?force=1');
+          return;
+        }
         if (u) {
           meUser = u;
           whoEl.textContent = (u.nickname || u.username) + '（管理员）';

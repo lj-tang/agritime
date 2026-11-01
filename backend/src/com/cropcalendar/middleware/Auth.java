@@ -17,8 +17,12 @@ import java.util.Base64;
  * 无状态令牌重启后仍然有效，代价只是「不能主动踢人」——
  * 对现在的场景（几十个演示账号）这个取舍划算。
  *
- * 令牌形如 base64url(userId|expireAt).base64url(HMAC-SHA256)，
+ * 令牌形如 base64url(userId|expireAt|pwdTag).base64url(HMAC-SHA256)，
  * 密钥存在 users.json 里，跟着账号库一起备份。
+ *
+ * pwdTag 是密码哈希的短指纹：改密后指纹变化，旧令牌立即失效 ——
+ * 这样才能做到「改了密码，别的设备上的登录状态跟着掉」。
+ * 老版本令牌只有两段，仍按两段解析放行（7 天后自然过期）。
  */
 public final class Auth {
 
@@ -28,7 +32,7 @@ public final class Auth {
 
     public static String issue(User u) {
         long exp = System.currentTimeMillis() / 1000 + TTL_SECONDS;
-        String payload = u.id() + "|" + exp;
+        String payload = u.id() + "|" + exp + "|" + pwdTag(u);
         String p = b64(payload.getBytes(StandardCharsets.UTF_8));
         return p + "." + b64(sign(payload));
     }
@@ -53,12 +57,13 @@ public final class Auth {
             return null;
         }
 
-        int bar = payload.lastIndexOf('|');
-        if (bar <= 0) return null;
-        String id = payload.substring(0, bar);
+        // 三段：id|exp|pwdTag；两段是旧版令牌，兼容放行
+        String[] seg = payload.split("\\|");
+        if (seg.length < 2) return null;
+        String id = seg[0];
         long exp;
         try {
-            exp = Long.parseLong(payload.substring(bar + 1));
+            exp = Long.parseLong(seg[1]);
         } catch (NumberFormatException e) {
             return null;
         }
@@ -67,6 +72,8 @@ public final class Auth {
         User u = UserStore.findById(id);
         // 封号即时生效：不等令牌过期，下一次请求就登不进来
         if (u == null || u.banned()) return null;
+        // 改密后指纹对不上，旧令牌作废；两段的老令牌不受影响
+        if (seg.length >= 3 && !seg[2].equals(pwdTag(u))) return null;
         return u;
     }
 
@@ -105,6 +112,17 @@ public final class Auth {
             return mac.doFinal(payload.getBytes(StandardCharsets.UTF_8));
         } catch (Exception e) {
             throw new IllegalStateException("令牌签名失败", e);
+        }
+    }
+
+    /** 密码哈希的短指纹，用于让改密后的旧令牌失效 */
+    private static String pwdTag(User u) {
+        try {
+            byte[] d = MessageDigest.getInstance("SHA-256")
+                    .digest(u.passwordHash().getBytes(StandardCharsets.UTF_8));
+            return b64(d).substring(0, 8);
+        } catch (Exception e) {
+            return "0";
         }
     }
 

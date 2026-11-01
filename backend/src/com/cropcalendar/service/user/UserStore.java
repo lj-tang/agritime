@@ -166,6 +166,64 @@ public final class UserStore {
         }
     }
 
+    /**
+     * 用户自助改密：必须先验过旧密码。
+     * 返回 null 表示成功，否则是给用户看的原因（不返回布尔，页面要显示具体哪一条不满足）。
+     */
+    public static String changePassword(User u, String oldPwd, String newPwd) {
+        ensureLoaded();
+        if (u == null) return "请先登录";
+        User cur = findById(u.id());
+        if (cur == null) return "账号不存在";
+        if (!verify(cur, oldPwd)) return "当前密码不正确";
+        String bad = passwordProblem(newPwd);
+        if (bad != null) return bad;
+        if (verify(cur, newPwd)) return "新密码不能与当前密码相同";
+        synchronized (LOCK) {
+            BY_ID.put(cur.id(), new User(cur.id(), cur.username(), cur.nickname(), hash(newPwd),
+                    cur.role(), cur.createdAt(), cur.lastLoginAt(), cur.loginCount(), cur.banned()));
+            persist();
+        }
+        return null;
+    }
+
+    /** 改昵称。返回 null 表示成功 */
+    public static String updateNickname(User u, String nickname) {
+        ensureLoaded();
+        if (u == null) return "请先登录";
+        String n = nickname == null ? "" : nickname.trim();
+        if (n.isEmpty()) return "昵称不能为空";
+        if (n.length() > 20) return "昵称最多 20 个字符";
+        synchronized (LOCK) {
+            User cur = BY_ID.get(u.id());
+            if (cur == null) return "账号不存在";
+            BY_ID.put(cur.id(), new User(cur.id(), cur.username(), n, cur.passwordHash(),
+                    cur.role(), cur.createdAt(), cur.lastLoginAt(), cur.loginCount(), cur.banned()));
+            persist();
+        }
+        return null;
+    }
+
+    /**
+     * 密码强度：至少 6 位且同时含字母和数字。
+     * 不强制大小写与符号 —— 农户账号多半在手机上输入，规则太严会逼出「Aa123456」这种更好猜的密码。
+     */
+    public static String passwordProblem(String pwd) {
+        if (pwd == null || pwd.isEmpty()) return "请输入新密码";
+        if (pwd.length() < 6) return "新密码至少 6 位";
+        if (pwd.length() > 64) return "新密码过长";
+        if (!pwd.matches(".*[A-Za-z].*") || !pwd.matches(".*\\d.*")) return "新密码需同时包含字母和数字";
+        return null;
+    }
+
+    /** 是否仍是预置的初始密码：管理员用初始密码登录时强制去改密 */
+    public static boolean isInitialPassword(User u) {
+        if (u == null) return false;
+        String init = AppConfig.authAdminPassword();
+        if (init == null || init.isBlank()) init = "agritime@2026";
+        return verify(u, init);
+    }
+
     /** 删号。连同这个人的业务数据一起清掉，避免留下孤儿文件 */
     public static boolean delete(String userId) {
         ensureLoaded();

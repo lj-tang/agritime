@@ -46,7 +46,19 @@
     var items = window.MyCropsStore.list();
     container.innerHTML = '';
     if (!items.length) {
-      container.innerHTML = '<div class="my-crops-empty">还没有作物记录，点击「添加」开始记录</div>';
+      if (window.UiState) {
+        window.UiState.empty(container, {
+          icon: '🌾',
+          text: '还没有作物记录。在农事日历生成一季安排、确认播种后，会自动建档到这里。',
+          actionText: '去农事日历',
+          onAction: function () {
+            var btn = document.querySelector('.sidebar-item[data-module="calendar"]');
+            if (btn) btn.click();
+          }
+        });
+      } else {
+        container.innerHTML = '<div class="my-crops-empty">还没有作物记录，点击「添加」开始记录</div>';
+      }
       return;
     }
     var groups = {};

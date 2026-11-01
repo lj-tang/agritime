@@ -113,7 +113,13 @@
           resetSubmit();
           return;
         }
-        var user = r.data && r.data.data && r.data.data.user;
+        var data = r.data && r.data.data;
+        var user = data && data.user;
+        // 还在用初始密码的管理员先去改密，改完再进后台
+        if (data && String(data.mustChangePassword) === 'true') {
+          location.href = './account.html?force=1';
+          return;
+        }
         if (user && user.role === 'admin') {
           location.href = './admin.html';
           return;

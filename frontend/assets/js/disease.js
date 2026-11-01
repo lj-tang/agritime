@@ -127,17 +127,41 @@
       .then(function (data) { render(data); })
       .catch(function (err) {
         clearTimeout(timer);
-        var msg = err && err.name === 'AbortError' ? '请求超时，请稍后重试' : '查询失败：' + (err.message || '网络异常');
-        showMessage(msg);
+        var msg = err && err.name === 'AbortError' ? '查询超时' : '查询失败：' + (err.message || '网络异常');
+        // 错误态给重试：重新提交同一份描述，用户不用重填
+        if (window.UiState) {
+          window.UiState.error(resultBox, {
+            text: msg,
+            hint: '可能是网络不稳或服务繁忙，重试一次通常就好了。',
+            onRetry: function () {
+              var form = document.getElementById('disease-form');
+              if (form && form.requestSubmit) form.requestSubmit();
+            }
+          });
+        } else {
+          showMessage(msg);
+        }
       });
     }
   }
 
   function showLoading() {
-    resultBox.innerHTML = '<div class="disease-empty">正在比对病害库…</div>';
+    if (window.UiState) {
+      window.UiState.loading(resultBox, '正在比对病害库…');
+    } else {
+      resultBox.innerHTML = '<div class="disease-empty">正在比对病害库…</div>';
+    }
   }
 
   function showMessage(text) {
+    if (window.UiState) {
+      window.UiState.empty(resultBox, {
+        icon: '🔍',
+        text: text,
+        hint: '补充部位（叶背/茎基）、颜色变化、有没有霉层或虫体，命中率会高很多。'
+      });
+      return;
+    }
     resultBox.innerHTML = '';
     var d = document.createElement('div');
     d.className = 'disease-empty';

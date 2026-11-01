@@ -345,6 +345,13 @@
   opacity: 1;
 }
 
+/* 昵称是进账号设置的入口，保持纯文本观感，hover 才提示可点 */
+.user-chip-name--link {
+  text-decoration: none;
+  cursor: pointer;
+}
+.user-chip-name--link:hover { color: var(--leaf) !important; }
+
 .user-chip--sidebar .user-chip-name {
   flex: 1;
   min-width: 0;
@@ -360,7 +367,7 @@
 
 /* 只作用于登录后的「后台 / 退出」；未登录的整行入口是 a，要排除掉，
    否则会被这里的 justify-content: center 和 padding 拉成居中胶囊 */
-.user-chip--sidebar > a:not(.user-chip-entry),
+.user-chip--sidebar > a:not(.user-chip-entry):not(.user-chip-name),
 .user-chip--sidebar > button {
   flex-shrink: 0;
   display: inline-flex;
@@ -378,7 +385,7 @@
   cursor: pointer;
 }
 
-.user-chip--sidebar > a:not(.user-chip-entry):hover,
+.user-chip--sidebar > a:not(.user-chip-entry):not(.user-chip-name):hover,
 .user-chip--sidebar > button:hover {
   background: var(--leaf-soft);
   border-color: transparent;
@@ -406,4 +413,138 @@
     padding-top: 0;
     padding-bottom: 0;
   }
+}
+
+/* ============================================================
+   账号设置页
+   ============================================================ */
+
+.account-card {
+  width: 100%;
+  max-width: 460px;
+  /* 内容比一屏长，用整页滚动而不是卡片内滚动条 */
+  max-height: none;
+  margin: 24px 0;
+}
+
+.account-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--line-soft);
+  margin-bottom: 4px;
+}
+
+.account-avatar {
+  width: 44px;
+  height: 44px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: var(--leaf-soft);
+  color: var(--leaf);
+  font-size: 18px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.account-head-text { min-width: 0; }
+.account-head-text .auth-title { margin: 0 0 2px; font-size: 18px; }
+.account-head-text .auth-sub { margin: 0; font-size: 12.5px; }
+
+.account-force {
+  margin: 12px 0 4px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid #e6cfa8;
+  background: var(--sun-soft, #fbf0d8);
+  color: #8a5a2a;
+  font-size: 12.5px;
+  line-height: 1.6;
+}
+.account-force strong { display: block; font-size: 13px; margin-bottom: 2px; }
+.account-force p { margin: 0; }
+
+.account-block {
+  padding: 14px 0;
+  border-bottom: 1px solid var(--line-soft);
+}
+.account-block:last-of-type { border-bottom: 0; }
+
+.account-block h3 {
+  margin: 0 0 10px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.account-hint {
+  margin-left: 6px;
+  font-size: 11.5px;
+  font-weight: 400;
+  color: var(--muted);
+}
+
+.account-block.is-focus h3 { color: var(--leaf); }
+.account-block.is-focus {
+  border-radius: 10px;
+  box-shadow: 0 0 0 1px var(--brand-line) inset;
+  padding-left: 12px;
+  padding-right: 12px;
+  margin: 0 -12px;
+}
+
+.account-meta { margin: 0; display: flex; flex-direction: column; gap: 6px; }
+.account-meta-row { display: flex; gap: 12px; font-size: 12.5px; line-height: 1.6; }
+.account-meta-row dt { flex: 0 0 72px; color: var(--muted); margin: 0; }
+.account-meta-row dd { margin: 0; color: var(--ink-soft); min-width: 0; word-break: break-all; }
+
+.account-strength {
+  margin: -2px 0 6px;
+  font-size: 11.5px;
+  min-height: 16px;
+  color: var(--muted);
+}
+.account-strength.is-ok { color: var(--leaf); }
+.account-strength.is-bad { color: #a32b2b; }
+
+.account-card .auth-field { margin-bottom: 10px; }
+.account-card .auth-submit { margin-top: 2px; }
+
+.account-foot {
+  padding-top: 12px;
+  text-align: center;
+  font-size: 12.5px;
+}
+.account-foot a { color: var(--muted); text-decoration: none; }
+.account-foot a:hover { color: var(--leaf); }
+
+.account-toast {
+  position: fixed;
+  left: 50%;
+  bottom: 36px;
+  transform: translate(-50%, 12px);
+  z-index: 400;
+  max-width: min(420px, calc(100vw - 40px));
+  padding: 9px 16px;
+  border-radius: 10px;
+  border: 1px solid var(--brand-line);
+  background: var(--leaf-soft);
+  color: var(--leaf);
+  font-size: 13px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.18s ease, transform 0.18s ease;
+}
+.account-toast.is-show { opacity: 1; transform: translate(-50%, 0); }
+.account-toast.is-error {
+  border-color: #eec9c3;
+  background: var(--red-soft);
+  color: var(--red);
+}
+
+@media (max-width: 767px) {
+  .account-card { margin: 0; }
 }

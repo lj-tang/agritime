@@ -18,6 +18,8 @@ import java.util.concurrent.ConcurrentHashMap;
  *   POST /api/auth/login     {username, password}
  *   POST /api/auth/logout
  *   GET  /api/auth/me
+ *   POST /api/auth/password  {oldPassword, newPassword}   自助改密
+ *   POST /api/auth/profile   {nickname}                    改昵称
  *
  * 会话走 HttpOnly Cookie（见 user/Auth），前端拿不到令牌，
  * 也就没有「把 token 存 localStorage 被 XSS 偷走」这条路径。
@@ -29,6 +31,8 @@ public class AuthHandler implements HttpHandler {
     private static final long LOCK_MS = 60_000;
     private static final Map<String, int[]> FAILS = new ConcurrentHashMap<>();
     private static final Map<String, Long> LOCK_UNTIL = new ConcurrentHashMap<>();
+    /** 「是否仍在用初始密码」的结果缓存，key 带密码哈希指纹 */
+    private static final Map<String, Boolean> INIT_PWD = new ConcurrentHashMap<>();
 
     @Override
     public void handle(HttpExchange ex) throws IOException {
@@ -48,6 +52,10 @@ public class AuthHandler implements HttpHandler {
             logout(ex);
         } else if (path.endsWith("/me")) {
             me(ex);
+        } else if (path.endsWith("/password")) {
+            changePassword(ex);
+        } else if (path.endsWith("/profile")) {
+            updateProfile(ex);
         } else {
             HttpSupport.write(ex, 404, HttpSupport.error(404, "接口不存在"));
         }
@@ -81,7 +89,9 @@ public class AuthHandler implements HttpHandler {
         }
 
         Auth.setCookie(ex, Auth.issue(u));
-        HttpSupport.write(ex, 200, HttpSupport.ok(Json.obj("user", u.toJson())));
+        HttpSupport.write(ex, 200, HttpSupport.ok(Json.obj(
+                "user", u.toJson(),
+                "mustChangePassword", "false")));
     }
 
     private void login(HttpExchange ex) throws IOException {
@@ -131,7 +141,9 @@ public class AuthHandler implements HttpHandler {
 
         User updated = UserStore.touchLogin(u);
         Auth.setCookie(ex, Auth.issue(updated));
-        HttpSupport.write(ex, 200, HttpSupport.ok(Json.obj("user", updated.toJson())));
+        HttpSupport.write(ex, 200, HttpSupport.ok(Json.obj(
+                "user", updated.toJson(),
+                "mustChangePassword", String.valueOf(mustChangePassword(updated)))));
     }
 
     private void logout(HttpExchange ex) throws IOException {
@@ -145,7 +157,79 @@ public class AuthHandler implements HttpHandler {
             HttpSupport.write(ex, 401, HttpSupport.error(401, "未登录"));
             return;
         }
-        HttpSupport.write(ex, 200, HttpSupport.ok(Json.obj("user", u.toJson())));
+        HttpSupport.write(ex, 200, HttpSupport.ok(Json.obj(
+                "user", u.toJson(),
+                "mustChangePassword", String.valueOf(mustChangePassword(u)))));
+    }
+
+    /** 改密：先验旧密码，再按强度规则校验新密码；成功后重签令牌，当前会话不断 */
+    private void changePassword(HttpExchange ex) throws IOException {
+        if (!"POST".equalsIgnoreCase(ex.getRequestMethod())) {
+            HttpSupport.write(ex, 405, HttpSupport.error(405, "只支持 POST"));
+            return;
+        }
+        User u = Auth.current(ex);
+        if (u == null) {
+            HttpSupport.write(ex, 401, HttpSupport.error(401, "请先登录"));
+            return;
+        }
+        Map<String, Object> body = HttpSupport.jsonBody(ex);
+        String oldPwd = HttpSupport.field(body, "oldPassword");
+        String newPwd = HttpSupport.field(body, "newPassword");
+        if (oldPwd.isEmpty()) {
+            HttpSupport.write(ex, 400, HttpSupport.error(400, "请输入当前密码"));
+            return;
+        }
+        String err = UserStore.changePassword(u, oldPwd, newPwd);
+        if (err != null) {
+            HttpSupport.write(ex, 400, HttpSupport.error(400, err));
+            return;
+        }
+        // 密码变了，旧令牌的指纹全部失效；当前这台设备要重新签一个，否则会被自己踢掉
+        User fresh = UserStore.findById(u.id());
+        Auth.setCookie(ex, Auth.issue(fresh));
+        INIT_PWD.clear();
+        HttpSupport.write(ex, 200, HttpSupport.ok(Json.obj(
+                "user", fresh.toJson(),
+                "message", Json.str("密码已更新，其他设备需重新登录"))));
+    }
+
+    /** 改昵称：只改展示名，登录名不变 */
+    private void updateProfile(HttpExchange ex) throws IOException {
+        if (!"POST".equalsIgnoreCase(ex.getRequestMethod())) {
+            HttpSupport.write(ex, 405, HttpSupport.error(405, "只支持 POST"));
+            return;
+        }
+        User u = Auth.current(ex);
+        if (u == null) {
+            HttpSupport.write(ex, 401, HttpSupport.error(401, "请先登录"));
+            return;
+        }
+        Map<String, Object> body = HttpSupport.jsonBody(ex);
+        String nickname = HttpSupport.field(body, "nickname");
+        String err = UserStore.updateNickname(u, nickname);
+        if (err != null) {
+            HttpSupport.write(ex, 400, HttpSupport.error(400, err));
+            return;
+        }
+        HttpSupport.write(ex, 200, HttpSupport.ok(Json.obj(
+                "user", UserStore.findById(u.id()).toJson(),
+                "message", Json.str("昵称已更新"))));
+    }
+
+    /**
+     * 是否必须改密：管理员还在用预置初始密码时为 true。
+     * PBKDF2 一次要 120ms 左右，me 又是高频接口，所以按「用户 + 密码哈希」缓存结果，
+     * 改密后哈希变了缓存自然失效。
+     */
+    private static boolean mustChangePassword(User u) {
+        if (u == null || !u.isAdmin()) return false;
+        String key = u.id() + "@" + Integer.toHexString(u.passwordHash().hashCode());
+        Boolean cached = INIT_PWD.get(key);
+        if (cached != null) return cached;
+        boolean v = UserStore.isInitialPassword(u);
+        INIT_PWD.put(key, v);
+        return v;
     }
 
     /** 用户名 3~20 位（中英文数字下划线），密码至少 6 位 */
@@ -153,8 +237,9 @@ public class AuthHandler implements HttpHandler {
         if (username.isEmpty()) return "请输入用户名";
         if (username.length() < 3 || username.length() > 20) return "用户名需 3~20 个字符";
         if (!username.matches("[\\w\\u4e00-\\u9fa5]+")) return "用户名只能包含中英文、数字和下划线";
-        if (password.length() < 6) return "密码至少 6 位";
-        if (password.length() > 64) return "密码过长";
+        // 与改密共用一套规则，避免「注册能过、改密不让过」
+        String pwdProblem = UserStore.passwordProblem(password);
+        if (pwdProblem != null) return pwdProblem.replace("新密码", "密码");
         return null;
     }
 }

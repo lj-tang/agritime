@@ -33,7 +33,15 @@
         renderList(list);
       })
       .catch(function (e) {
-        listBox.innerHTML = '<div class="service-empty">加载失败：' + e.message + '</div>';
+        if (window.UiState) {
+          window.UiState.error(listBox, {
+            text: '工单加载失败：' + (e.message || '网络异常'),
+            hint: '已经提交的工单不会丢，网络恢复后点下面重新加载。',
+            onRetry: loadTickets
+          });
+        } else {
+          listBox.innerHTML = '<div class="service-empty">加载失败：' + e.message + '</div>';
+        }
       });
   }
 
@@ -50,14 +58,32 @@
         })).then(function (rows) {
           var valid = rows.filter(Boolean);
           if (!valid.length) {
-            listBox.innerHTML = '<div class="service-empty">还没有咨询记录，点「新建咨询」提第一个问题</div>';
+            if (window.UiState) {
+              window.UiState.empty(listBox, {
+                icon: '💬',
+                text: '还没有咨询记录。',
+                actionText: '提第一个问题',
+                onAction: function () { if (newBtn) newBtn.click(); }
+              });
+            } else {
+              listBox.innerHTML = '<div class="service-empty">还没有咨询记录，点「新建咨询」提第一个问题</div>';
+            }
             return;
           }
           valid.forEach(function (t) { listBox.appendChild(renderTicketItem(t)); });
         });
         return;
       }
-      listBox.innerHTML = '<div class="service-empty">还没有咨询记录，点「新建咨询」提第一个问题</div>';
+      if (window.UiState) {
+        window.UiState.empty(listBox, {
+          icon: '💬',
+          text: '还没有咨询记录。',
+          actionText: '提第一个问题',
+          onAction: function () { if (newBtn) newBtn.click(); }
+        });
+      } else {
+        listBox.innerHTML = '<div class="service-empty">还没有咨询记录，点「新建咨询」提第一个问题</div>';
+      }
       return;
     }
     list.forEach(function (t) { listBox.appendChild(renderTicketItem(t)); });

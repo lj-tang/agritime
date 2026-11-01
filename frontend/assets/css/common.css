@@ -1163,3 +1163,104 @@ body.split-active .home-pane-back { display: inline-flex; align-items: center; }
   [data-timeperiod] .weather-bg-layer { animation: none !important; }
   * { scroll-behavior: auto !important; }
 }
+
+/* ============================================================
+   四态：加载中 / 空 / 错误 / 部分数据（T20）
+   空态与错误态都给一个能点的动作，不留死胡同。
+   ============================================================ */
+
+.ui-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  /* 空态撑开一段高度，视觉上落在内容区中上部，不像贴着标题的零散文字 */
+  min-height: 260px;
+  padding: 36px 20px;
+  text-align: center;
+  color: var(--muted);
+}
+
+.ui-state-icon {
+  font-size: 26px;
+  line-height: 1;
+  opacity: 0.75;
+}
+
+.ui-state-text {
+  margin: 0;
+  font-size: 13.5px;
+  line-height: 1.6;
+  color: var(--ink-soft);
+  max-width: 360px;
+}
+
+.ui-state-hint {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--muted);
+  max-width: 360px;
+}
+
+.ui-state-action {
+  margin-top: 4px;
+  min-height: 34px;
+  padding: 0 14px;
+  border: 1px solid var(--leaf-2);
+  border-radius: var(--radius-sm);
+  background: var(--leaf-soft);
+  color: var(--leaf);
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.ui-state-action:hover {
+  background: var(--leaf);
+  color: #fff;
+}
+
+/* 加载中：图标做一点呼吸，别让页面看起来卡死 */
+.ui-state--loading .ui-state-icon { animation: ui-state-pulse 1.4s ease-in-out infinite; }
+@keyframes ui-state-pulse {
+  0%, 100% { opacity: 0.4; transform: translateY(0); }
+  50% { opacity: 0.9; transform: translateY(-2px); }
+}
+
+.ui-state--error .ui-state-text { color: #a32b2b; }
+
+.ui-state--error {
+  border: 1px dashed #eec9c3;
+  border-radius: var(--radius);
+  background: var(--red-soft);
+}
+
+/* 部分数据：顶部一条窄提示，不遮挡主体内容 */
+.ui-state--partial {
+  flex-direction: row;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 12px;
+  margin-bottom: 10px;
+  border: 1px solid #e6cfa8;
+  border-radius: var(--radius-sm);
+  background: var(--sun-soft);
+  color: #8a5a2a;
+  font-size: 12.5px;
+  text-align: left;
+  justify-content: flex-start;
+}
+
+/* 移动端触控热区：空态/错误态的按钮是最常点的，必须够 44px */
+@media (max-width: 767px) {
+  .ui-state { padding: 28px 16px; }
+  .ui-state-action { min-height: 44px; width: 100%; max-width: 280px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ui-state--loading .ui-state-icon { animation: none; }
+}
