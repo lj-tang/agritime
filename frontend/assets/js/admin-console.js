@@ -82,7 +82,12 @@
     swMsg = document.getElementById('sw-msg');
 
     document.querySelectorAll('.admin-tab').forEach(function (tab) {
-      tab.addEventListener('click', function () { switchTab(tab.getAttribute('data-tab')); });
+      tab.addEventListener('click', function () {
+        // 工单是独立页，不在这里切面板
+        var href = tab.getAttribute('data-href');
+        if (href) { location.href = href; return; }
+        switchTab(tab.getAttribute('data-tab'));
+      });
     });
 
     document.getElementById('fs-new-file').addEventListener('click', function () { createEntry(false); });

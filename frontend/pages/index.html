@@ -314,7 +314,21 @@
         <button type="button" class="btn btn-primary service-new-btn" id="service-new-btn">+ 新建咨询</button>
       </div>
       <button type="button" class="btn btn-ghost service-back-btn" id="service-back-btn" style="display:none;margin-bottom:10px;">← 返回列表</button>
+      <div class="service-toolbar" id="service-toolbar">
+        <div class="service-tabs" id="service-tabs" role="tablist">
+          <button type="button" class="service-tab is-active" data-status="all">全部 <span data-count="all">0</span></button>
+          <button type="button" class="service-tab" data-status="open">待处理 <span data-count="open">0</span></button>
+          <button type="button" class="service-tab" data-status="processing">处理中 <span data-count="processing">0</span></button>
+          <button type="button" class="service-tab" data-status="resolved">已解决 <span data-count="resolved">0</span></button>
+        </div>
+        <span class="service-unread" id="service-unread" hidden></span>
+      </div>
       <div id="service-list"></div>
+      <div class="service-pager" id="service-pager" hidden>
+        <button type="button" class="service-page-btn" id="service-prev">上一页</button>
+        <span class="service-page-info" id="service-page-info"></span>
+        <button type="button" class="service-page-btn" id="service-next">下一页</button>
+      </div>
       <form class="service-form" id="service-form" style="display:none;">
         <div class="field">
           <label for="service-user-name">您的称呼 <span class="hint">选填，方便客服称呼您</span></label>

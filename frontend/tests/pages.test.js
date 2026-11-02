@@ -1345,9 +1345,9 @@ test('V5.3 去重：共享层已抽取', () => {
 test('V5 任务书：与 V4 同体例，编号自 T16 续接', () => {
   const tb = read(path.resolve(__dirname, '..', '..', 'docs', 'taskbook-v5.md'));
   assert.ok(tb.includes('**任务编号：T16**'), '首个任务应为 T16，与 V4 的 T00-T15 续接');
-  assert.ok(tb.includes('**任务编号：T27**'), '末项应为 T27（T18 提醒服务落地后已删项并重编号）');
+  assert.ok(tb.includes('**任务编号：T26**'), '末项应为 T26（提醒与工单落地后已删项并重编号）');
   const ids = tb.match(/\*\*任务编号：T\d+\*\*/g) || [];
-  assert.equal(ids.length, 12, '应有 12 个待办任务（T16-T27）');
+  assert.equal(ids.length, 11, '应有 11 个待办任务（T16-T26）');
   // 编号必须连续不重复，否则中途插任务时容易乱
   const nums = ids.map(x => parseInt(x.replace(/\D/g, ''), 10));
   nums.forEach((n, i) => assert.equal(n, 16 + i, '任务编号应从 T16 连续递增'));
@@ -1360,7 +1360,7 @@ test('V5 任务书：与 V4 同体例，编号自 T16 续接', () => {
   // 任务书只列未完成任务，不把已完成项写进来占编号
   assert.ok(!/\*\*状态\*\*：已完成/.test(tb), '不应出现"已完成"状态标记');
   const prio = tb.match(/\*\*优先级\*\*：P\d/g) || [];
-  assert.equal(prio.length, 12, '每个任务都应有优先级');
+  assert.equal(prio.length, 11, '每个任务都应有优先级');
   assert.ok(!tb.includes('commit') && !tb.includes('350259d'), '不写提交号，避免把已完成记录混进待办');
 });
 
@@ -1526,7 +1526,8 @@ test('T18 提醒记录：按账号落盘、去重、已读与过期清理', () =
   assert.ok(store.includes('Asia/Shanghai'), '过期判定应显式用北京时间');
   assert.ok(store.includes('old.get("read")'), '重复推送不应把已读顶回未读');
   assert.ok(!taskbook.includes('模块18：提醒服务'), '已完成任务应从任务书移除');
-  assert.ok(/共 12 项/.test(taskbook), '任务书应重编号为 12 项待办');
+  assert.ok(/共 11 项/.test(taskbook), '任务书应重编号为 11 项待办');
+  assert.ok(!taskbook.includes('模块18：客服工单流转'), '已完成工单任务应从任务书移除');
 });
 
 // ---------------- T22 日历节点改期 ----------------
@@ -1570,4 +1571,31 @@ test('T22 时间线页接入改期入口与恢复按钮', () => {
   assert.ok(timelineHtml.includes('已改期 · 原'), '改期节点应标注原日期');
   assert.ok(timelineCss.includes('.tl-date-editor') && timelineCss.includes('.reschedule-bar'), '应有改期样式');
   assert.ok(/\.reschedule-bar\[hidden\]/.test(timelineCss), '改期条 hidden 时必须真正隐藏（flex 会盖掉 hidden）');
+});
+
+// ---------------- V5 T18 工单流转 ----------------
+test('T18 工单：分页、状态流转、未读与独立后台页', () => {
+  const sh = read(path.resolve(__dirname, '..', '..', 'backend', 'src', 'com', 'cropcalendar', 'api', 'SupportHandler.java'));
+  const svc = read(path.resolve(__dirname, '..', 'assets', 'js', 'service.js'));
+  const adminHtml = read(path.join(PAGES, 'admin.html'));
+  const adminTicketsHtml = read(path.join(PAGES, 'admin-tickets.html'));
+  const adminTicketsJs = read(path.resolve(__dirname, '..', 'assets', 'js', 'admin-tickets.js'));
+
+  assert.ok(sh.includes('DEFAULT_PAGE_SIZE') && sh.includes('totalPages') && sh.includes('statusCounts'), '接口应返回分页与状态计数');
+  assert.ok(sh.includes('"processing"') && sh.includes('"resolved"'), '状态应含处理中/已解决');
+  assert.ok(sh.includes('unreadForAdmin') && sh.includes('unreadForUser'), '未读应分身份计算');
+  assert.ok(sh.includes('path.endsWith("/status")'), '应有状态流转接口');
+  assert.ok(sh.includes('Json.stringify(s)'), '落盘应保留完整字段（userId/未读）');
+  assert.ok(!sh.includes('serializeTickets'), '不应再用响应结构落盘（会丢 userId）');
+
+  assert.ok(svc.includes('service-tabs') && svc.includes('service-pager'), '用户端应有筛选与分页');
+  assert.ok(svc.includes('updateSidebarBadge'), '侧栏应有未读角标');
+  assert.ok(svc.includes('resolved'), '用户端应认识已解决状态');
+
+  assert.ok(indexHtml.includes('id="service-tabs"'), '首页应有状态筛选');
+  assert.ok(indexHtml.includes('id="service-pager"'), '首页应有分页条');
+  assert.ok(adminTicketsHtml.includes('id="ticket-tabs"') && adminTicketsHtml.includes('id="ticket-detail"'), '后台应有独立工单页');
+  assert.ok(adminTicketsJs.includes("API + '/status'"), '后台应能流转状态');
+  assert.ok(adminTicketsJs.includes('mustChangePassword'), '后台应守卫初始密码');
+  assert.ok(adminHtml.includes('admin-tickets.html'), '后台入口应指向独立工单页');
 });
