@@ -1264,3 +1264,25 @@ body.split-active .home-pane-back { display: inline-flex; align-items: center; }
 @media (prefers-reduced-motion: reduce) {
   .ui-state--loading .ui-state-icon { animation: none; }
 }
+
+/* T26：同步状态提示。服务不可用时必须明确告诉用户「现在看的是本地数据」 */
+.agri-sync-status {
+  position: fixed;
+  right: 16px;
+  bottom: 76px;
+  z-index: 240;
+  max-width: min(360px, calc(100vw - 24px));
+  padding: 9px 14px;
+  border: 1px solid rgba(217, 155, 43, 0.45);
+  border-radius: 8px;
+  background: var(--sun-soft);
+  color: #8a6415;
+  font-size: 12.5px;
+  line-height: 1.55;
+  box-shadow: var(--shadow-soft);
+}
+.agri-sync-status[hidden] { display: none; }
+
+@media (max-width: 767px) {
+  .agri-sync-status { left: 12px; right: 12px; bottom: 12px; max-width: none; }
+}

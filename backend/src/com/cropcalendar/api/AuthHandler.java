@@ -2,6 +2,7 @@ package com.cropcalendar.api;
 
 import com.cropcalendar.middleware.Auth;
 import com.cropcalendar.model.User;
+import com.cropcalendar.service.reminder.ReminderStore;
 import com.cropcalendar.service.user.UserStore;
 import com.cropcalendar.util.Json;
 import com.sun.net.httpserver.HttpExchange;
@@ -56,6 +57,8 @@ public class AuthHandler implements HttpHandler {
             changePassword(ex);
         } else if (path.endsWith("/profile")) {
             updateProfile(ex);
+        } else if (path.endsWith("/delete")) {
+            deleteAccount(ex);
         } else {
             HttpSupport.write(ex, 404, HttpSupport.error(404, "接口不存在"));
         }
@@ -215,6 +218,47 @@ public class AuthHandler implements HttpHandler {
         HttpSupport.write(ex, 200, HttpSupport.ok(Json.obj(
                 "user", UserStore.findById(u.id()).toJson(),
                 "message", Json.str("昵称已更新"))));
+    }
+
+    /**
+     * 注销账号（V5 T26）：密码确认后删除账号本体与全部业务数据。
+     *
+     * 管理员不能自助注销 —— 线上只有一个超管，误删就没人能进后台，
+     * 需要运维在服务器上处理。UserStore.delete 会连带删 UserDataStore，
+     * 提醒档案是独立目录，这里补删一次。
+     */
+    private void deleteAccount(HttpExchange ex) throws IOException {
+        if (!"POST".equalsIgnoreCase(ex.getRequestMethod())) {
+            HttpSupport.write(ex, 405, HttpSupport.error(405, "只支持 POST"));
+            return;
+        }
+        User u = Auth.current(ex);
+        if (u == null) {
+            HttpSupport.write(ex, 401, HttpSupport.error(401, "请先登录"));
+            return;
+        }
+        Map<String, Object> body = HttpSupport.jsonBody(ex);
+        String pwd = HttpSupport.field(body, "password");
+        if (pwd.isEmpty()) {
+            HttpSupport.write(ex, 400, HttpSupport.error(400, "请输入当前密码"));
+            return;
+        }
+        if (!UserStore.verify(u, pwd)) {
+            HttpSupport.write(ex, 403, HttpSupport.error(403, "密码不正确，无法注销"));
+            return;
+        }
+        if (u.isAdmin()) {
+            HttpSupport.write(ex, 403, HttpSupport.error(403, "管理员账号不能自助注销，请联系运维"));
+            return;
+        }
+        boolean removed = UserStore.delete(u.id());
+        ReminderStore.delete(u.id());
+        if (!removed) {
+            HttpSupport.write(ex, 404, HttpSupport.error(404, "账号不存在或已注销"));
+            return;
+        }
+        Auth.clearCookie(ex);
+        HttpSupport.write(ex, 200, HttpSupport.ok(Json.obj("message", Json.str("账号已注销"))));
     }
 
     /**

@@ -1599,3 +1599,24 @@ test('T18 工单：分页、状态流转、未读与独立后台页', () => {
   assert.ok(adminTicketsJs.includes('mustChangePassword'), '后台应守卫初始密码');
   assert.ok(adminHtml.includes('admin-tickets.html'), '后台入口应指向独立工单页');
 });
+
+// ---------------- V5 T26 持久化前端侧 ----------------
+test('T26 持久化：设备同步、冲突留痕、导出与注销', () => {
+  const sync = read(path.resolve(__dirname, '..', 'assets', 'js', 'user-sync.js'));
+  const accHtml = read(path.join(PAGES, 'account.html'));
+  const accJs = read(path.resolve(__dirname, '..', 'assets', 'js', 'account.js'));
+  const authH = read(path.resolve(__dirname, '..', '..', 'backend', 'src', 'com', 'cropcalendar', 'api', 'AuthHandler.java'));
+  const authCss = read(path.resolve(__dirname, '..', 'assets', 'css', 'auth.css'));
+
+  assert.ok(sync.includes("sensors: 'agritime.sensors.v1'"), '设备应纳入同步');
+  assert.ok(sync.includes('CONFLICT_KEY') && sync.includes('recordConflict'), '合并应留冲突记录');
+  assert.ok(sync.includes('agri-sync-status') && sync.includes('当前为本地数据'), '降级应明确提示');
+  assert.ok(sync.includes("addEventListener('online'"), '网络恢复应立即重试');
+  assert.ok(accHtml.includes('id="export-json"') && accHtml.includes('id="export-csv"'), '应能导出 JSON/CSV');
+  assert.ok(accHtml.includes('id="del-submit"'), '应有注销入口');
+  assert.ok(accJs.includes("'/delete'") && accJs.includes('collectExport'), '前端应调用注销并导出');
+  assert.ok(authH.includes('deleteAccount') && authH.includes('ReminderStore.delete'), '注销应删账号与提醒档案');
+  assert.ok(authH.includes('管理员账号不能自助注销'), '管理员不应被误删');
+  assert.ok(commonCss.includes('.agri-sync-status'), '应有同步状态提示样式');
+  assert.ok(authCss.includes('.account-block--danger'), '注销区应有危险样式');
+});

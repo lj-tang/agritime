@@ -214,11 +214,143 @@
       });
   }
 
+  // ---------------- T26 数据导出与注销 ----------------
+
+  var EXPORT_KEYS = {
+    crops: 'agritime.my-crops.v1',
+    plots: 'agritime.my-plots.v1',
+    sensors: 'agritime.sensors.v1',
+    history: 'agritime.history.v1',
+    conflicts: 'agritime.sync.conflicts.v1'
+  };
+
+  function readJson(key, fallback) {
+    try {
+      var raw = localStorage.getItem(key);
+      return raw ? JSON.parse(raw) : fallback;
+    } catch (e) { return fallback; }
+  }
+
+  function collectExport() {
+    return {
+      exportedAt: new Date().toISOString(),
+      user: state.user ? {
+        username: state.user.username,
+        nickname: state.user.nickname || '',
+        role: state.user.role
+      } : null,
+      crops: readJson(EXPORT_KEYS.crops, []),
+      plots: readJson(EXPORT_KEYS.plots, []),
+      sensors: readJson(EXPORT_KEYS.sensors, []),
+      history: readJson(EXPORT_KEYS.history, []),
+      reminders: readJson('agritime.reminders.center.v1', null),
+      conflicts: readJson(EXPORT_KEYS.conflicts, [])
+    };
+  }
+
+  function download(name, text, mime) {
+    var blob = new Blob([text], { type: mime || 'text/plain;charset=utf-8' });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url;
+    a.download = name;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
+  }
+
+  function stamp() {
+    var d = new Date();
+    var m = String(d.getMonth() + 1).padStart(2, '0');
+    var day = String(d.getDate()).padStart(2, '0');
+    return '' + d.getFullYear() + m + day;
+  }
+
+  function exportJson() {
+    download('agritime-backup-' + stamp() + '.json',
+      JSON.stringify(collectExport(), null, 2), 'application/json;charset=utf-8');
+    toast('已导出 JSON 备份', 'ok');
+  }
+
+  function csvCell(v) {
+    var s = v == null ? '' : String(v);
+    return '"' + s.replace(/"/g, '""') + '"';
+  }
+
+  function exportCsv() {
+    var data = collectExport();
+    var rows = [['类型', 'ID/主键', '名称/主题', '创建时间', '更新时间', '详情']];
+    function add(type, list, idField, nameField) {
+      (list || []).forEach(function (r) {
+        rows.push([type, r[idField] || '', r[nameField] || '',
+          r.createdAt || '', r.updatedAt || r.sownDate || '', JSON.stringify(r)]);
+      });
+    }
+    add('地块', data.plots, 'plotId', 'name');
+    add('作物', data.crops, 'recordId', 'cropName');
+    add('设备', data.sensors, 'sensorId', 'name');
+    add('搜索历史', data.history, 'key', 'cropName');
+    add('提醒', data.reminders && data.reminders.items, 'id', 'title');
+    add('同步冲突', data.conflicts, 'id', 'dataType');
+    var text = '\ufeff' + rows.map(function (r) {
+      return r.map(csvCell).join(',');
+    }).join('\r\n');
+    download('agritime-backup-' + stamp() + '.csv', text, 'text/csv;charset=utf-8');
+    toast('已导出 CSV', 'ok');
+  }
+
+  function deleteAccount() {
+    var pwd = $('del-pwd').value;
+    var confirmText = $('del-confirm').value.trim();
+    if (!pwd) { showError('del-error', '请输入当前密码'); return; }
+    if (confirmText !== '注销') { showError('del-error', '请输入「注销」两个字确认'); return; }
+
+    var btn = $('del-submit');
+    btn.disabled = true;
+    btn.textContent = '正在注销…';
+    fetch(API + '/delete', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ password: pwd })
+    })
+      .then(function (r) {
+        return r.json().catch(function () { return {}; }).then(function (d) {
+          return { ok: r.ok, d: d };
+        });
+      })
+      .then(function (res) {
+        if (!res.ok || res.d.code !== 0) {
+          btn.disabled = false;
+          btn.textContent = '永久注销账号';
+          showError('del-error', res.d.message || '注销失败，请稍后重试');
+          return;
+        }
+        try {
+          ['agritime.my-crops.v1', 'agritime.my-plots.v1', 'agritime.sensors.v1',
+            'agritime.history.v1', 'agritime.reminders.center.v1',
+            'agritime.sync.conflicts.v1', 'agritime.my-tickets.v1'].forEach(function (k) {
+            localStorage.removeItem(k);
+          });
+        } catch (e) { /* 清不掉也不影响账号已删除 */ }
+        alert('账号已注销，本机缓存已清理。');
+        location.href = './index.html';
+      })
+      .catch(function () {
+        btn.disabled = false;
+        btn.textContent = '永久注销账号';
+        showError('del-error', '网络异常，请稍后重试');
+      });
+  }
+
   function init() {
     $('nick-form').addEventListener('submit', submitNick);
     $('pwd-form').addEventListener('submit', submitPwd);
     $('new-pwd').addEventListener('input', strengthHint);
     $('new-pwd2').addEventListener('input', strengthHint);
+    $('export-json').addEventListener('click', exportJson);
+    $('export-csv').addEventListener('click', exportCsv);
+    $('del-submit').addEventListener('click', deleteAccount);
     load();
   }
 

@@ -82,6 +82,30 @@
           </form>
         </section>
 
+        <section class="account-block">
+          <h3>我的数据 <span class="account-hint">备份与导出</span></h3>
+          <p class="account-note">导出包含地块、作物、设备、搜索历史、提醒与同步冲突记录；数据取自本机已同步副本，换设备前建议先导一份。</p>
+          <div class="account-actions">
+            <button type="button" class="auth-submit account-btn-inline" id="export-json">导出 JSON</button>
+            <button type="button" class="auth-submit account-btn-inline account-btn-ghost" id="export-csv">导出 CSV</button>
+          </div>
+        </section>
+
+        <section class="account-block account-block--danger">
+          <h3>注销账号</h3>
+          <p class="account-note">注销会删除账号与全部业务数据（地块、作物、设备、提醒），不可恢复。管理员账号不能自助注销。</p>
+          <label class="auth-field">
+            <span>当前密码</span>
+            <input type="password" id="del-pwd" autocomplete="current-password" placeholder="输入密码确认身份" />
+          </label>
+          <label class="auth-field">
+            <span>确认文本</span>
+            <input type="text" id="del-confirm" placeholder="输入「注销」" />
+          </label>
+          <p class="auth-error" id="del-error" role="alert" hidden></p>
+          <button type="button" class="auth-submit account-btn-danger" id="del-submit">永久注销账号</button>
+        </section>
+
         <div class="account-foot">
           <a href="./index.html">← 返回农事日历</a>
         </div>
