@@ -216,7 +216,7 @@
     });
   }
 
-  /** 这块地上种了什么、还能种什么 */
+  /** 这块地上种过什么、产量趋势如何、还能种什么 */
   function renderPlotCrops(plot, detail) {
     var all = window.MyCropsStore ? window.MyCropsStore.list() : [];
     var mine = all.filter(function (r) { return r.plotId && r.plotId === plot.plotId; });
@@ -225,35 +225,20 @@
     box.className = 'my-plots-env-section';
     var title = document.createElement('div');
     title.className = 'my-plots-env-section-title';
-    title.textContent = '已种作物';
+    title.textContent = '种植档案';
     box.appendChild(title);
 
     if (!mine.length) {
       var empty = document.createElement('div');
       empty.className = 'my-plots-card-meta';
-      empty.textContent = '这块地还没有作物记录。在农事日历点「确认已播种」后会自动关联到这里。';
+      empty.textContent = '这块地还没有作物记录。在农事日历点「确认已播种」后会自动关联到这里；收获后到「我的作物」补录产量，才能看地力趋势。';
       box.appendChild(empty);
     } else {
-      mine.forEach(function (r) {
-        var row = document.createElement('div');
-        row.className = 'my-plots-crop-row';
-        var name = document.createElement('span');
-        name.className = 'my-plots-crop-name';
-        name.textContent = r.cropName || '未命名作物';
-        var meta = document.createElement('span');
-        meta.className = 'my-plots-crop-meta';
-        var bits = [];
-        if (r.sownDate) bits.push('播期 ' + r.sownDate);
-        if (r.sownDate) {
-          var days = Math.floor((Date.now() - new Date(r.sownDate + 'T00:00:00').getTime()) / 86400000);
-          if (days >= 0) bits.push('已种 ' + days + ' 天');
-        }
-        if (r.growthVigor) bits.push('长势 ' + r.growthVigor);
-        meta.textContent = bits.join(' · ');
-        row.appendChild(name);
-        row.appendChild(meta);
-        box.appendChild(row);
-      });
+      var body = document.createElement('div');
+      body.className = 'my-plots-history';
+      body.textContent = '正在整理历年记录…';
+      box.appendChild(body);
+      loadPlotHistory(plot, mine, body);
     }
 
     var rec = (plot.analysis && plot.analysis.crops) || [];
@@ -282,6 +267,158 @@
       box.appendChild(tags);
     }
     detail.appendChild(box);
+  }
+
+  // ---------------- T20 地块历史 ----------------
+
+  /** 把本地作物记录交给后端做纯分析（连作/产量趋势），不额外落盘 */
+  function loadPlotHistory(plot, mine, host) {
+    var payload = mine.map(function (r) {
+      return {
+        recordId: r.recordId,
+        cropId: r.cropId || '',
+        cropName: r.cropName || '',
+        sowDate: r.sownDate || '',
+        harvestDate: r.harvestDate || '',
+        yield: r.yieldKg != null ? r.yieldKg : null,
+        unit: 'kg',
+        year: r.sownDate ? Number(String(r.sownDate).slice(0, 4)) : null,
+        note: r.remark || ''
+      };
+    });
+    fetch('/api/plots/history/analyze', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ records: payload })
+    })
+      .then(function (res) {
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        return res.json();
+      })
+      .then(function (d) { renderPlotHistory(host, d.data || {}, plot, mine); })
+      .catch(function () { localCropRows(host, mine, true); });
+  }
+
+  function renderPlotHistory(host, data, plot, mine) {
+    host.innerHTML = '';
+    var records = Array.isArray(data.records) ? data.records : [];
+    if (!records.length) { localCropRows(host, mine, false); return; }
+
+    (data.continuousWarnings || []).forEach(function (w) {
+      var warn = document.createElement('div');
+      warn.className = 'my-plots-history-warn';
+      warn.textContent = '连作提示：' + w.years + ' 连续种「' + w.crop + '」。' + w.risk;
+      host.appendChild(warn);
+    });
+
+    var groups = {};
+    records.forEach(function (r) {
+      var y = r.year || (r.sowDate ? Number(String(r.sowDate).slice(0, 4)) : 0);
+      if (!groups[y]) groups[y] = [];
+      groups[y].push(r);
+    });
+    Object.keys(groups).sort(function (a, b) { return Number(b) - Number(a); }).forEach(function (y) {
+      var gh = document.createElement('div');
+      gh.className = 'my-plots-history-year';
+      gh.textContent = Number(y) > 0 ? y + ' 年' : '年份未填';
+      host.appendChild(gh);
+      groups[y].forEach(function (r) {
+        var row = document.createElement('div');
+        row.className = 'my-plots-crop-row';
+        var name = document.createElement('span');
+        name.className = 'my-plots-crop-name';
+        name.textContent = r.cropName || '未命名作物';
+        var meta = document.createElement('span');
+        meta.className = 'my-plots-crop-meta';
+        var bits = [];
+        if (r.sowDate) bits.push('播期 ' + r.sowDate);
+        if (r.harvestDate) bits.push('收获 ' + r.harvestDate);
+        if (r['yield'] != null) bits.push('产量 ' + r['yield'] + ' kg');
+        meta.textContent = bits.join(' · ') || '未填产量与收获期';
+        row.appendChild(name);
+        row.appendChild(meta);
+        host.appendChild(row);
+      });
+    });
+
+    var trend = data.yieldTrend || {};
+    var t = document.createElement('div');
+    t.className = 'my-plots-history-trend';
+    if (trend.available && trend.points && trend.points.length >= 2) {
+      var first = trend.points[0];
+      var last = trend.points[trend.points.length - 1];
+      var dir = trend.direction === 'up' ? '上升' : trend.direction === 'down' ? '下降' : '基本持平';
+      var pct = trend.changePct != null ? '（' + trend.changePct + '%）' : '';
+      t.textContent = '产量趋势：' + first.year + ' 年 ' + first['yield'] + ' kg → '
+        + last.year + ' 年 ' + last['yield'] + ' kg，' + dir + pct;
+    } else {
+      t.textContent = '产量趋势：' + (trend.hint || '补录产量后可看趋势');
+    }
+    host.appendChild(t);
+
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'btn btn-ghost my-plots-history-export';
+    btn.textContent = '导出 CSV';
+    btn.addEventListener('click', function () { exportPlotHistory(plot, records); });
+    host.appendChild(btn);
+  }
+
+  /** 分析接口不可用时退回本地简列表，并说明是本地数据 */
+  function localCropRows(host, mine, degraded) {
+    host.innerHTML = '';
+    if (degraded) {
+      var note = document.createElement('div');
+      note.className = 'my-plots-history-warn';
+      note.textContent = '档案分析暂不可用，以下是本机记录。';
+      host.appendChild(note);
+    }
+    mine.forEach(function (r) {
+      var row = document.createElement('div');
+      row.className = 'my-plots-crop-row';
+      var name = document.createElement('span');
+      name.className = 'my-plots-crop-name';
+      name.textContent = r.cropName || '未命名作物';
+      var meta = document.createElement('span');
+      meta.className = 'my-plots-crop-meta';
+      var bits = [];
+      if (r.sownDate) bits.push('播期 ' + r.sownDate);
+      if (r.sownDate) {
+        var days = Math.floor((Date.now() - new Date(r.sownDate + 'T00:00:00').getTime()) / 86400000);
+        if (days >= 0) bits.push('已种 ' + days + ' 天');
+      }
+      if (r.yieldKg != null) bits.push('产量 ' + r.yieldKg + ' kg');
+      if (r.growthVigor) bits.push('长势 ' + r.growthVigor);
+      meta.textContent = bits.join(' · ');
+      row.appendChild(name);
+      row.appendChild(meta);
+      host.appendChild(row);
+    });
+  }
+
+  function csvCell(v) {
+    var s = v == null ? '' : String(v);
+    return '"' + s.replace(/"/g, '""') + '"';
+  }
+
+  function exportPlotHistory(plot, records) {
+    if (!records.length) return;
+    var rows = [['年份', '作物', '播种期', '收获期', '产量', '单位', '备注']];
+    records.forEach(function (r) {
+      rows.push([r.year, r.cropName, r.sowDate, r.harvestDate, r['yield'], 'kg', r.note]);
+    });
+    var text = '\ufeff' + rows.map(function (row) {
+      return row.map(csvCell).join(',');
+    }).join('\r\n');
+    var blob = new Blob([text], { type: 'text/csv;charset=utf-8' });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url;
+    a.download = (plot.name || '地块') + '-种植档案.csv';
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
   }
 
   /**

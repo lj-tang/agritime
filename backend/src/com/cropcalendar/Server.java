@@ -11,6 +11,7 @@ import com.cropcalendar.api.IndustryHandler;
 import com.cropcalendar.api.MeHandler;
 import com.cropcalendar.api.PlotHandler;
 import com.cropcalendar.api.PlotAnalyzeHandler;
+import com.cropcalendar.api.PlotHistoryHandler;
 import com.cropcalendar.api.CropStatusHandler;
 import com.cropcalendar.api.PondStatusHandler;
 import com.cropcalendar.api.SowCheckHandler;
@@ -54,6 +55,8 @@ public class Server {
         server.createContext("/api/plots", new PlotHandler());
         // 更长的前缀优先匹配，所以 /api/plots/analyze 会走这里而不是上面的 PlotHandler
         server.createContext("/api/plots/analyze", new PlotAnalyzeHandler());
+        // 地块历史：/analyze 纯分析（匿名可用），其余按登录用户档案
+        server.createContext("/api/plots/history", new PlotHistoryHandler());
         server.createContext("/api/disease", new DiseaseHandler());
         server.createContext("/api/geo", new GeoHandler());
         server.createContext("/api/auth", new AuthHandler());

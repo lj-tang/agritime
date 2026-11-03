@@ -212,6 +212,39 @@
 .my-plots-crop-row { display: flex; justify-content: space-between; gap: 10px; padding: 7px 0; border-bottom: 1px dashed var(--line); font-size: 13px; }
 .my-plots-crop-row:last-child { border-bottom: 0; }
 .my-plots-crop-name { font-weight: 600; color: var(--ink); }
+
+/* T20 地块历史档案 */
+.my-plots-history { font-size: 13px; }
+.my-plots-history-year {
+  margin: 10px 0 2px;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--leaf);
+}
+.my-plots-history-warn {
+  margin: 6px 0;
+  padding: 8px 10px;
+  border-left: 3px solid var(--sun);
+  border-radius: 6px;
+  background: var(--sun-soft);
+  color: #8a6415;
+  font-size: 12.5px;
+  line-height: 1.6;
+}
+.my-plots-history-trend {
+  margin-top: 10px;
+  padding: 8px 10px;
+  border-radius: 6px;
+  background: var(--surface-2);
+  color: var(--ink-soft);
+  font-size: 12.5px;
+  line-height: 1.6;
+}
+.my-plots-history-export {
+  margin-top: 10px;
+  padding: 6px 14px;
+  font-size: 12.5px;
+}
 .my-plots-crop-meta { color: var(--muted); font-size: 12px; }
 .my-plots-crop-tags { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
 .my-plots-crop-tag {

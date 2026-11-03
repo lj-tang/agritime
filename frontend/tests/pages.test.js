@@ -1345,9 +1345,9 @@ test('V5.3 去重：共享层已抽取', () => {
 test('V5 任务书：与 V4 同体例，编号自 T16 续接', () => {
   const tb = read(path.resolve(__dirname, '..', '..', 'docs', 'taskbook-v5.md'));
   assert.ok(tb.includes('**任务编号：T16**'), '首个任务应为 T16，与 V4 的 T00-T15 续接');
-  assert.ok(tb.includes('**任务编号：T24**'), '末项应为 T24（提醒/工单/播期/改期落地后已删项并重编号）');
+  assert.ok(tb.includes('**任务编号：T23**'), '末项应为 T23（提醒/工单/播期/改期/地块历史落地后已删项并重编号）');
   const ids = tb.match(/\*\*任务编号：T\d+\*\*/g) || [];
-  assert.equal(ids.length, 9, '应有 9 个待办任务（T16-T24）');
+  assert.equal(ids.length, 8, '应有 8 个待办任务（T16-T23）');
   // 编号必须连续不重复，否则中途插任务时容易乱
   const nums = ids.map(x => parseInt(x.replace(/\D/g, ''), 10));
   nums.forEach((n, i) => assert.equal(n, 16 + i, '任务编号应从 T16 连续递增'));
@@ -1360,7 +1360,7 @@ test('V5 任务书：与 V4 同体例，编号自 T16 续接', () => {
   // 任务书只列未完成任务，不把已完成项写进来占编号
   assert.ok(!/\*\*状态\*\*：已完成/.test(tb), '不应出现"已完成"状态标记');
   const prio = tb.match(/\*\*优先级\*\*：P\d/g) || [];
-  assert.equal(prio.length, 9, '每个任务都应有优先级');
+  assert.equal(prio.length, 8, '每个任务都应有优先级');
   assert.ok(!tb.includes('commit') && !tb.includes('350259d'), '不写提交号，避免把已完成记录混进待办');
 });
 
@@ -1526,7 +1526,7 @@ test('T18 提醒记录：按账号落盘、去重、已读与过期清理', () =
   assert.ok(store.includes('Asia/Shanghai'), '过期判定应显式用北京时间');
   assert.ok(store.includes('old.get("read")'), '重复推送不应把已读顶回未读');
   assert.ok(!taskbook.includes('模块18：提醒服务'), '已完成任务应从任务书移除');
-  assert.ok(/共 9 项/.test(taskbook), '任务书应重编号为 9 项待办');
+  assert.ok(/共 8 项/.test(taskbook), '任务书应重编号为 8 项待办');
   assert.ok(!taskbook.includes('模块18：客服工单流转'), '已完成工单任务应从任务书移除');
 });
 
@@ -1636,4 +1636,22 @@ test('T20 播期：节气 + 积温 + 最晚播期，缺积温如实降级', () =
   assert.ok(indexHtml.includes('term-row') && indexHtml.includes('按积温') && indexHtml.includes('最晚播期'), '面板应三行并列');
   assert.ok(indexHtml.includes('info.solar') && indexHtml.includes('info.gdd'), '前端应消费双依据字段');
   assert.ok(commonCss.includes('.term-row') && commonCss.includes('.term-row-btn'), '应有播期行与填入按钮样式');
+});
+
+// ---------------- V5 T20 地块历史与地力档案 ----------------
+test('T20 地块历史：连作、产量趋势、CSV 与产量补录', () => {
+  const ph = read(path.resolve(__dirname, '..', '..', 'backend', 'src', 'com', 'cropcalendar', 'service', 'plot', 'PlotHistory.java'));
+  const phh = read(path.resolve(__dirname, '..', '..', 'backend', 'src', 'com', 'cropcalendar', 'api', 'PlotHistoryHandler.java'));
+  const myPlotsJs = read(path.resolve(__dirname, '..', 'assets', 'js', 'my-plots.js'));
+  const myCropsJs = read(path.resolve(__dirname, '..', 'assets', 'js', 'my-crops.js'));
+
+  assert.ok(ph.includes('detectContinuousCropping') && ph.includes('yieldTrend') && ph.includes('toCsv'), '后端应有连作/趋势/CSV');
+  assert.ok(ph.includes('analyze'), '应有纯分析入口（不另存一份数据）');
+  assert.ok(phh.includes('/history/analyze') && phh.includes('handleAnalyze'), '应有匿名分析接口');
+  assert.ok(myPlotsJs.includes('/api/plots/history/analyze'), '地块详情应调用分析接口');
+  assert.ok(myPlotsJs.includes('连作提示') && myPlotsJs.includes('产量趋势'), '应展示连作与趋势');
+  assert.ok(myPlotsJs.includes('导出 CSV'), '应能导出 CSV');
+  assert.ok(indexHtml.includes('name="mc-yield"') && indexHtml.includes('name="mc-harvest-date"'), '作物表单应有产量与收获期');
+  assert.ok(myCropsJs.includes('yieldKg') && myCropsJs.includes('产量：'), '作物记录应保存并展示产量');
+  assert.ok(myCropsJs.includes('fillPlotOptions'), '作物表单应能关联地块');
 });

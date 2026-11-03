@@ -11,6 +11,11 @@
     renderList();
     var addBtn = document.getElementById('my-crops-add-btn');
     if (addBtn) addBtn.addEventListener('click', function () { showForm(null); });
+    var form = document.getElementById('my-crops-form');
+    if (form) form.addEventListener('submit', handleSubmit);
+    var cancel = document.getElementById('my-crops-cancel');
+    if (cancel) cancel.addEventListener('click', function () { if (form) form.style.display = 'none'; });
+    fillSelects();
     window.addEventListener('agritime:data-synced', renderList);
     window.addEventListener('agritime:sowing-confirmed', function (e) {
       var d = e.detail || {};
@@ -185,6 +190,8 @@
     fields.className = 'my-crops-card-fields';
     var lines = [];
     if (r.sownDate) lines.push('种下时间：' + r.sownDate);
+    if (r.harvestDate) lines.push('收获：' + r.harvestDate);
+    if (r.yieldKg != null) lines.push('产量：' + r.yieldKg + ' kg');
     if (r.germinationStatus) lines.push('发芽状况：' + r.germinationStatus);
     if (r.height != null) lines.push('高度：' + r.height + 'cm');
     if (r.growthVigor) lines.push('长势：' + r.growthVigor);
@@ -238,10 +245,63 @@
     return card;
   }
 
+  function fillSelects() {
+    var form = document.getElementById('my-crops-form');
+    if (!form) return;
+    var g = form.elements['mc-germination'];
+    if (g && !g.options.length) {
+      var blankG = document.createElement('option');
+      blankG.value = '';
+      blankG.textContent = '未填写';
+      g.appendChild(blankG);
+      GERMINATION_OPTIONS.forEach(function (v) {
+        var o = document.createElement('option');
+        o.value = v;
+        o.textContent = v;
+        g.appendChild(o);
+      });
+    }
+    var v = form.elements['mc-vigor'];
+    if (v && !v.options.length) {
+      var blankV = document.createElement('option');
+      blankV.value = '';
+      blankV.textContent = '未填写';
+      v.appendChild(blankV);
+      VIGOR_OPTIONS.forEach(function (x) {
+        var o = document.createElement('option');
+        o.value = x;
+        o.textContent = x;
+        v.appendChild(o);
+      });
+    }
+  }
+
+  /** 地块下拉：只列当前用户已有的地块，不关联也允许 */
+  function fillPlotOptions(selected) {
+    var form = document.getElementById('my-crops-form');
+    if (!form) return;
+    var sel = form.elements['mc-plot-id'];
+    if (!sel) return;
+    sel.innerHTML = '';
+    var blank = document.createElement('option');
+    blank.value = '';
+    blank.textContent = '不关联地块';
+    sel.appendChild(blank);
+    var plots = window.MyPlotsStore ? window.MyPlotsStore.list() : [];
+    plots.forEach(function (p) {
+      var o = document.createElement('option');
+      o.value = p.plotId;
+      o.textContent = p.name || '未命名地块';
+      sel.appendChild(o);
+    });
+    sel.value = selected || '';
+  }
+
   function showForm(record) {
     var form = document.getElementById('my-crops-form');
     if (!form) return;
     form.style.display = 'block';
+    fillSelects();
     var f = form.elements;
     f['mc-record-id'].value = record ? record.recordId : '';
     f['mc-crop-name'].value = record ? (record.cropName || '') : '';
@@ -249,8 +309,11 @@
     f['mc-germination'].value = record ? (record.germinationStatus || '') : '';
     f['mc-height'].value = record ? (record.height != null ? record.height : '') : '';
     f['mc-vigor'].value = record ? (record.growthVigor || '') : '';
-    f['mc-plot-id'].value = record ? (record.plotId || '') : '';
+    fillPlotOptions(record ? record.plotId : null);
+    f['mc-harvest-date'].value = record ? (record.harvestDate || '') : '';
+    f['mc-yield'].value = record && record.yieldKg != null ? record.yieldKg : '';
     f['mc-remark'].value = record ? (record.remark || '') : '';
+    f['mc-crop-name'].focus();
   }
 
   function handleSubmit(e) {
@@ -262,10 +325,12 @@
     var data = {
       cropName: cropName,
       sownDate: f['mc-sown-date'].value || null,
+      harvestDate: f['mc-harvest-date'].value || null,
+      yieldKg: f['mc-yield'].value ? Number(f['mc-yield'].value) : null,
       germinationStatus: f['mc-germination'].value || null,
       height: f['mc-height'].value ? Number(f['mc-height'].value) : null,
       growthVigor: f['mc-vigor'].value || null,
-      plotId: f['mc-plot-id'].value.trim() || null,
+      plotId: f['mc-plot-id'].value || null,
       remark: f['mc-remark'].value.trim() || null
     };
     var id = f['mc-record-id'].value;

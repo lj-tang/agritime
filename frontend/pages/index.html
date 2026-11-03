@@ -168,7 +168,59 @@
     <div class="my-crops-pane">
       <div class="my-crops-header">
         <div class="pane-head-text"><span class="my-crops-title">我的作物</span><span class="pane-sub">已经种下的作物，拍照记录长势</span></div>
+        <button type="button" class="my-crops-add" id="my-crops-add-btn">+ 添加作物</button>
       </div>
+      <form class="my-crops-form" id="my-crops-form">
+        <input type="hidden" name="mc-record-id" />
+        <div class="my-crops-form-row">
+          <div class="field">
+            <label>作物名称</label>
+            <input type="text" name="mc-crop-name" required placeholder="如：番茄" />
+          </div>
+          <div class="field">
+            <label>播种日期</label>
+            <input type="date" name="mc-sown-date" />
+          </div>
+        </div>
+        <div class="my-crops-form-row">
+          <div class="field">
+            <label>生长阶段</label>
+            <select name="mc-germination"></select>
+          </div>
+          <div class="field">
+            <label>长势</label>
+            <select name="mc-vigor"></select>
+          </div>
+        </div>
+        <div class="my-crops-form-row">
+          <div class="field">
+            <label>株高（cm）</label>
+            <input type="number" name="mc-height" min="0" step="0.1" />
+          </div>
+          <div class="field">
+            <label>所属地块</label>
+            <select name="mc-plot-id"></select>
+          </div>
+        </div>
+        <div class="my-crops-form-row">
+          <div class="field">
+            <label>收获日期 <span class="hint">选填，按实际收获补录</span></label>
+            <input type="date" name="mc-harvest-date" />
+          </div>
+          <div class="field">
+            <label>产量（kg） <span class="hint">补录后可看地力趋势</span></label>
+            <input type="number" name="mc-yield" min="0" step="0.1" />
+          </div>
+        </div>
+        <div class="field">
+          <label>备注</label>
+          <textarea name="mc-remark" rows="2" placeholder="病虫害、施肥、天气影响…"></textarea>
+        </div>
+        <div class="my-crops-form-actions">
+          <button type="submit" class="btn btn-primary">保存</button>
+          <button type="button" class="btn btn-ghost" id="my-crops-cancel">取消</button>
+        </div>
+      </form>
       <div id="my-crops-list"></div>
     </div>
   </div>
