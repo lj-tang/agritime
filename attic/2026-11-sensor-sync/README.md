@@ -41,4 +41,5 @@
 ## 来源
 
 `/tmp/extra-src/com/cropcalendar/{api,service}`，2026-11-03 由部署机导出。
-原始目录已随清理删除，本目录是唯一副本。
+原始目录已随清理删除；部署机 `/root/agritime-teammate-archive/20261103/` 另存有一份同样的
+`extra-src/`，以及当时三个 stash 的补丁与说明。本目录是仓库内的可追溯副本。
