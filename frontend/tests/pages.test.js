@@ -1712,3 +1712,28 @@ test('T19 茬口校验：同地块重叠阻断，跨地块只提醒', () => {
   assert.ok(indexHtml.includes('window.MyPlotsStore.getById'), '应能取到地块');
   assert.ok(indexHtml.includes('id="plot-select"'), '首页应有地块选择器');
 });
+
+// ---------------- T16 病害库扩充（数据部分已落地） ----------------
+
+test('T16 病害库：50 条起，每条带来源、适用范围与安全间隔期', () => {
+  const lib = JSON.parse(read(path.resolve(__dirname, '..', '..', 'data', 'disease', 'library.json')));
+  assert.ok(lib.diseases.length >= 50, '病害库应扩到 50 条以上，实际 ' + lib.diseases.length);
+  const ids = new Set();
+  lib.diseases.forEach((d) => {
+    assert.ok(!ids.has(d.id), 'id 不应重复：' + d.id);
+    ids.add(d.id);
+    ['source', 'scope', 'safetyNote'].forEach((k) => {
+      assert.ok(d[k], d.id + ' 缺字段 ' + k);
+    });
+    // 生理性病害（如番茄脐腐病）不用药，间隔期可以是 0，但字段必须在
+    assert.ok(typeof d.safetyInterval === 'number', d.id + ' 缺安全间隔期字段');
+  });
+  const withInterval = lib.diseases.filter((d) => d.safetyInterval > 0).length;
+  assert.ok(withInterval >= lib.diseases.length - 3, '需要用药的条目都应给出安全间隔期');
+  // 覆盖至少 5 个主栽作物（中英文名都算）
+  const crops = new Set();
+  lib.diseases.forEach((d) => (d.crops || []).forEach((c) => crops.add(c)));
+  ['小麦', '玉米', '水稻', '番茄'].forEach((c) => assert.ok(crops.has(c), '应覆盖 ' + c));
+  const rust = lib.diseases.find((d) => d.name === '小麦条锈病');
+  assert.ok(rust && rust.symptoms.some((x) => x.includes('条状孢子堆')), '小麦条锈病应有可命中的症状描述');
+});

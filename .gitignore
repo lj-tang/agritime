@@ -4,10 +4,14 @@ backend/build/
 
 # 运行时数据（账号库等，含密码摘要，绝不入库）
 backend/var/
+# 服务端以仓库根为工作目录时，运行时会写到这里（缓存、传感器、同步档案）
+/var/
 
 # 运行时文件
 *.log
 *.pid
+# 部署时手工留的页面备份
+*.bak
 
 # 工具临时数据（CodeArts 索引 / 抓取数据集，非源码）
 .codeartsdoer/temp/
