@@ -1051,8 +1051,9 @@ test('T03 指导：后端四类内容随节点下发，浇水按天气调整', (
   assert.ok(gs.includes('guidance.json'), '应读取 guidance.json');
   assert.ok(gs.includes('"watering"') && gs.includes('"fertilize"') && gs.includes('"pest"') && gs.includes('"tools"'),
     '四类内容都应输出');
-  assert.ok(gs.includes('rain >= 10'), '有雨应切换到暂停灌溉');
-  assert.ok(gs.includes('rain < 2 && maxTemp >= 30'), '高温少雨应加量灌溉');
+  // T17 起判定口径改为"未来 3 天 + 前 3 天"，不再是整个窗口平均
+  assert.ok(gs.includes('rainNext >= 10'), '未来 3 天有雨应切换到暂停灌溉');
+  assert.ok(gs.includes('rainNext < 1 && rainPrev < 2'), '连续无雨应加量补灌');
   const orch = read(path.resolve(__dirname, '..', '..', 'backend', 'src', 'com', 'cropcalendar', 'orchestration', 'TimelineOrchestrator.java'));
   assert.ok(orch.includes('GuidanceService.build'), '编排层应为每个节点生成指导');
   const th = read(path.resolve(__dirname, '..', '..', 'backend', 'src', 'com', 'cropcalendar', 'api', 'TimelineHandler.java'));
@@ -1345,9 +1346,9 @@ test('V5.3 去重：共享层已抽取', () => {
 test('V5 任务书：与 V4 同体例，编号自 T16 续接', () => {
   const tb = read(path.resolve(__dirname, '..', '..', 'docs', 'taskbook-v5.md'));
   assert.ok(tb.includes('**任务编号：T16**'), '首个任务应为 T16，与 V4 的 T00-T15 续接');
-  assert.ok(tb.includes('**任务编号：T23**'), '末项应为 T23（提醒/工单/播期/改期/地块历史落地后已删项并重编号）');
+  assert.ok(tb.includes('**任务编号：T21**'), '末项应为 T21（提醒/工单/播期/改期/地块历史/指导换算/茬口校验落地后已删项并重编号）');
   const ids = tb.match(/\*\*任务编号：T\d+\*\*/g) || [];
-  assert.equal(ids.length, 8, '应有 8 个待办任务（T16-T23）');
+  assert.equal(ids.length, 6, '应有 6 个待办任务（T16-T21）');
   // 编号必须连续不重复，否则中途插任务时容易乱
   const nums = ids.map(x => parseInt(x.replace(/\D/g, ''), 10));
   nums.forEach((n, i) => assert.equal(n, 16 + i, '任务编号应从 T16 连续递增'));
@@ -1360,7 +1361,7 @@ test('V5 任务书：与 V4 同体例，编号自 T16 续接', () => {
   // 任务书只列未完成任务，不把已完成项写进来占编号
   assert.ok(!/\*\*状态\*\*：已完成/.test(tb), '不应出现"已完成"状态标记');
   const prio = tb.match(/\*\*优先级\*\*：P\d/g) || [];
-  assert.equal(prio.length, 8, '每个任务都应有优先级');
+  assert.equal(prio.length, 6, '每个任务都应有优先级');
   assert.ok(!tb.includes('commit') && !tb.includes('350259d'), '不写提交号，避免把已完成记录混进待办');
 });
 
@@ -1526,7 +1527,7 @@ test('T18 提醒记录：按账号落盘、去重、已读与过期清理', () =
   assert.ok(store.includes('Asia/Shanghai'), '过期判定应显式用北京时间');
   assert.ok(store.includes('old.get("read")'), '重复推送不应把已读顶回未读');
   assert.ok(!taskbook.includes('模块18：提醒服务'), '已完成任务应从任务书移除');
-  assert.ok(/共 8 项/.test(taskbook), '任务书应重编号为 8 项待办');
+  assert.ok(/共 6 项/.test(taskbook), '任务书应重编号为 6 项待办');
   assert.ok(!taskbook.includes('模块18：客服工单流转'), '已完成工单任务应从任务书移除');
 });
 
@@ -1654,4 +1655,60 @@ test('T20 地块历史：连作、产量趋势、CSV 与产量补录', () => {
   assert.ok(indexHtml.includes('name="mc-yield"') && indexHtml.includes('name="mc-harvest-date"'), '作物表单应有产量与收获期');
   assert.ok(myCropsJs.includes('yieldKg') && myCropsJs.includes('产量：'), '作物记录应保存并展示产量');
   assert.ok(myCropsJs.includes('fillPlotOptions'), '作物表单应能关联地块');
+});
+
+// ---------------- T17 指导按面积与墒情换算 ----------------
+
+test('T17 指导换算：亩均与总量分开给，未填面积不编总量', () => {
+  const gs = read(path.resolve(__dirname, '..', '..', 'backend', 'src', 'com', 'cropcalendar', 'service', 'guidance', 'GuidanceService.java'));
+  const dose = read(path.resolve(__dirname, '..', '..', 'backend', 'src', 'com', 'cropcalendar', 'service', 'guidance', 'Dose.java'));
+  const orch = read(path.resolve(__dirname, '..', '..', 'backend', 'src', 'com', 'cropcalendar', 'orchestration', 'TimelineOrchestrator.java'));
+  const th = read(path.resolve(__dirname, '..', '..', 'backend', 'src', 'com', 'cropcalendar', 'api', 'TimelineHandler.java'));
+
+  assert.ok(dose.includes('/亩'), '应只解析带「/亩」的用量');
+  assert.ok(dose.includes('灌根1000倍液') || dose.includes('稀释倍数'), '稀释倍数不应按面积换算');
+  assert.ok(dose.includes('totalText'), '应能算总面积用量');
+  assert.ok(gs.includes('"perMu"') && gs.includes('"total"'), '应同时输出亩均与总量');
+  assert.ok(gs.includes('areaMu > 0'), '未填面积时不应给总量');
+  assert.ok(gs.includes('填入面积可自动换算总用量'), '未填面积应提示补录');
+  assert.ok(gs.includes('"weatherAdvice"'), '应给天气建议');
+  assert.ok(gs.includes('before-rain') && gs.includes('drought') && gs.includes('waterlog'), '雨前/补灌/排渍三种口径都应存在');
+  assert.ok(orch.includes('GuidanceService.build(n.opType(), slice, cropNameForGuidance'), '近端节点应按天气给指导');
+  assert.ok(orch.includes('GuidanceService.build(n.opType(), null, cropNameForGuidance'), '远端节点不应挂天气，只给规程用量');
+  assert.ok(th.includes('"areaMu"'), '接口应接受并回传面积');
+});
+
+test('T17 指导换算：前端面积条与总量展示', () => {
+  const timelineHtml = read(path.resolve(__dirname, '..', 'pages', 'timeline.html'));
+  const timelineCss = read(path.resolve(__dirname, '..', 'assets', 'css', 'timeline.css'));
+  const commonCss = read(path.resolve(__dirname, '..', 'assets', 'css', 'common.css'));
+  const indexHtml = read(path.resolve(__dirname, '..', 'pages', 'index.html'));
+
+  assert.ok(timelineHtml.includes('id="area-input"'), '日历页应有面积输入');
+  assert.ok(timelineHtml.includes('query.areaMu'), '面积应从 URL 带入');
+  assert.ok(timelineHtml.includes('doseText'), '应渲染亩均 + 总量');
+  assert.ok(timelineHtml.includes('tl-guide-advice'), '应渲染天气建议');
+  assert.ok(timelineCss.includes('.area-bar'), '缺少面积条样式');
+  assert.ok(commonCss.includes('.tl-guide-advice--warn'), '缺少天气建议样式');
+  assert.ok(indexHtml.includes('areaMu: window.__timelineAreaMu'), '首页应把面积带进日历');
+});
+
+// ---------------- T19 茬口冲突校验 ----------------
+
+test('T19 茬口校验：同地块重叠阻断，跨地块只提醒', () => {
+  const ph = read(path.resolve(__dirname, '..', '..', 'backend', 'src', 'com', 'cropcalendar', 'service', 'plot', 'PlotHistory.java'));
+  const sch = read(path.resolve(__dirname, '..', '..', 'backend', 'src', 'com', 'cropcalendar', 'api', 'SowCheckHandler.java'));
+  const indexHtml = read(path.resolve(__dirname, '..', 'pages', 'index.html'));
+
+  assert.ok(ph.includes('checkSchedule'), '应有茬口校验纯函数');
+  assert.ok(ph.includes('plot-occupied'), '同地块重叠应阻断');
+  assert.ok(ph.includes('continuous-cropping'), '连作应提醒');
+  assert.ok(ph.includes('cross-plot-busy'), '跨地块农忙应提醒');
+  assert.ok(ph.includes('LAND_PREP_DAYS'), '应留整地天数再给最早播期');
+  assert.ok(sch.includes('/api/sow-check') && sch.includes('"POST"'), '接口应支持 POST');
+  assert.ok(sch.includes('recordsOf'), '应解析前端上传的作物记录');
+  assert.ok(sch.includes('laterDate'), '改期建议应取更晚的那个（腾地 vs 适播）');
+  assert.ok(indexHtml.includes("fetch('/api/sow-check'"), '前端应 POST 校验');
+  assert.ok(indexHtml.includes('window.MyPlotsStore.getById'), '应能取到地块');
+  assert.ok(indexHtml.includes('id="plot-select"'), '首页应有地块选择器');
 });

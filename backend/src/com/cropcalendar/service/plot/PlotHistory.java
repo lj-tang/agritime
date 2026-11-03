@@ -9,6 +9,8 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
@@ -16,7 +18,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * 地块历史与地力档案（T26）。
+ * 地块历史与地力档案（V5）。
  *
  * 按地块聚合历年种植记录：种过什么、播期、收获期、产量。
  * 用地块历史支撑两个因子：连作检测与产量趋势（地力）。
@@ -231,6 +233,187 @@ public final class PlotHistory {
     /** 导出 CSV（服务端档案） */
     public static String exportCsv(String userId, String plotId) {
         return toCsv(listByPlot(userId, plotId));
+    }
+
+    // ============================================================
+    // T19 茬口冲突校验（纯函数）
+    //
+    // 设计口径：不在服务端另存一份"地块档案"，而是前端把 MyCropsStore 里已有的
+    // 作物记录传上来，直接判断新播期能不能排 —— 数据源只有一个，不会出现
+    // "档案说空着、作物说种着"的两套账。
+    // ============================================================
+
+    /** 一条已有种植季。harvest 为估算时 estimatedHarvest=true，文案里要说明。 */
+    public record Season(String plotId, String plotName, String cropName,
+                         LocalDate sow, LocalDate harvest, boolean estimatedHarvest) {
+    }
+
+    /** 一条校验结论，level 沿用播种校验的三级口径：block / warn / ok。 */
+    public record Item(String code, String level, String title, String detail, String suggestion) {
+    }
+
+    public record ScheduleCheck(String verdict, List<Item> items, String earliestSowDate) {
+        public static ScheduleCheck pass() {
+            return new ScheduleCheck("pass", List.of(), null);
+        }
+    }
+
+    /** 收获后留几天整地，才能排下一季。 */
+    private static final int LAND_PREP_DAYS = 7;
+    /** 记录没写收获期时的兜底生育期。 */
+    private static final int DEFAULT_GROWING_DAYS = 120;
+    /** 农忙窗口：播种前后、收获前后，这几天要集中出工。 */
+    private static final int SOW_BUSY_BEFORE = 3;
+    private static final int SOW_BUSY_AFTER = 10;
+    private static final int HARVEST_BUSY_BEFORE = 10;
+    private static final int HARVEST_BUSY_AFTER = 3;
+
+    /**
+     * 茬口校验：同地块重叠阻断、同地块连作提醒、跨地块农忙重叠提醒。
+     *
+     * @param cropName  新播作物（标准名）
+     * @param sowDate   新播期 yyyy-MM-dd
+     * @param plotId    关联地块 id；为空表示没关联地块，直接通过
+     * @param totalDays 新作物的全生育期，&lt;=0 时按 120 天估算
+     * @param records   该用户已有的作物记录（前端上传）
+     */
+    public static ScheduleCheck checkSchedule(String cropName, String sowDate, String plotId,
+                                              int totalDays, List<Map<String, Object>> records) {
+        if (plotId == null || plotId.isBlank() || sowDate == null || sowDate.isBlank()) {
+            return ScheduleCheck.pass();
+        }
+        LocalDate sow;
+        try {
+            sow = LocalDate.parse(sowDate);
+        } catch (Exception e) {
+            return ScheduleCheck.pass();
+        }
+        int days = totalDays > 0 ? totalDays : DEFAULT_GROWING_DAYS;
+        LocalDate newHarvest = sow.plusDays(days);
+        String crop = cropName == null ? "" : cropName;
+
+        List<Season> seasons = normalize(records);
+        List<Item> items = new ArrayList<>();
+        String earliest = null;
+
+        // ---- 1. 同一地块：新播期与上一季收获期重叠 → 阻断 ----
+        Season blocker = null;
+        for (Season s : seasons) {
+            if (!plotId.equals(s.plotId())) continue;
+            // 同一季重排（同作物同播期）不算冲突，否则刷新日历会被自己拦住
+            if (s.cropName().equals(crop) && s.sow().equals(sow)) continue;
+            if (!sow.isAfter(s.harvest()) && !newHarvest.isBefore(s.sow())) {
+                if (blocker == null || s.harvest().isAfter(blocker.harvest())) blocker = s;
+            }
+        }
+        if (blocker != null) {
+            LocalDate earliestDate = blocker.harvest().plusDays(LAND_PREP_DAYS);
+            earliest = earliestDate.toString();
+            long overlap = ChronoUnit.DAYS.between(
+                    sow.isAfter(blocker.sow()) ? sow : blocker.sow(),
+                    newHarvest.isBefore(blocker.harvest()) ? newHarvest : blocker.harvest()) + 1;
+            String plotLabel = blocker.plotName().isEmpty() ? "该地块" : "「" + blocker.plotName() + "」";
+            items.add(new Item("plot-occupied", "block", "这块地还没腾出来",
+                    plotLabel + "上还有一季" + blocker.cropName() + "：" + blocker.sow() + " 播种、"
+                            + blocker.harvest() + " 收获。你要排的" + crop + "从 " + sow + " 起，两季重叠 "
+                            + Math.max(overlap, 0) + " 天。"
+                            + (blocker.estimatedHarvest() ? "（该记录未填收获期，按生育期估算）" : ""),
+                    "最早可排到 " + earliestDate + "（收获后留 " + LAND_PREP_DAYS + " 天整地）"));
+        }
+
+        // ---- 2. 同一地块连作 → 提醒，不阻断 ----
+        Season sameCrop = null;
+        for (Season s : seasons) {
+            if (!plotId.equals(s.plotId())) continue;
+            if (!s.cropName().equals(crop) || s.cropName().isEmpty()) continue;
+            if (s.sow().equals(sow)) continue;
+            if (sameCrop == null || s.sow().isAfter(sameCrop.sow())) sameCrop = s;
+        }
+        if (sameCrop != null) {
+            String plotLabel = sameCrop.plotName().isEmpty() ? "该地块" : "「" + sameCrop.plotName() + "」";
+            items.add(new Item("continuous-cropping", "warn", "同一地块连作" + crop,
+                    plotLabel + "上一季（" + sameCrop.sow() + "～" + sameCrop.harvest() + "）种的就是"
+                            + crop + "。连作容易让土传病害累积、养分失衡。",
+                    "换一茬豆科或禾本科作物轮作；确实要连作，至少换抗病品种并增施有机肥"));
+        }
+
+        // ---- 3. 跨地块农忙重叠 → 提醒，不阻断 ----
+        // 只比"集中出工"的那几周，不是比整个生育期 —— 整季重叠是常态，全报等于没报。
+        for (Season s : seasons) {
+            if (plotId.equals(s.plotId())) continue;
+            LocalDate[] sowBusy = {s.sow().minusDays(SOW_BUSY_BEFORE), s.sow().plusDays(SOW_BUSY_AFTER)};
+            LocalDate[] harvestBusy = {s.harvest().minusDays(HARVEST_BUSY_BEFORE), s.harvest().plusDays(HARVEST_BUSY_AFTER)};
+            String phase = null;
+            LocalDate[] hit = null;
+            if (!sow.isBefore(sowBusy[0]) && !sow.isAfter(sowBusy[1])) {
+                phase = "播种";
+                hit = sowBusy;
+            } else if (!sow.isBefore(harvestBusy[0]) && !sow.isAfter(harvestBusy[1])) {
+                phase = "收获";
+                hit = harvestBusy;
+            }
+            if (phase == null) continue;
+            String plotLabel = s.plotName().isEmpty() ? "另一块地" : "「" + s.plotName() + "」";
+            items.add(new Item("cross-plot-busy", "warn", "另一块地同期也有重活",
+                    "你计划的 " + sow + " 前后，" + plotLabel + "上的" + s.cropName()
+                            + "正好在" + phase + "（" + hit[0] + "～" + hit[1] + "），两块地同时开工人手可能排不开。",
+                    "错开 3~5 天，或提前安排帮工与农机"));
+            break;
+        }
+
+        String verdict = "pass";
+        for (Item it : items) {
+            if ("block".equals(it.level())) {
+                verdict = "block";
+                break;
+            }
+            if ("warn".equals(it.level())) verdict = "warn";
+        }
+        return new ScheduleCheck(verdict, items, earliest);
+    }
+
+    /** 把前端传来的记录整理成季节区间；缺收获期时按作物生育期估算并标记。 */
+    static List<Season> normalize(List<Map<String, Object>> records) {
+        List<Season> out = new ArrayList<>();
+        if (records == null) return out;
+        for (Map<String, Object> r : records) {
+            if (r == null) continue;
+            LocalDate sow = parseDate(str(r.get("sowDate")));
+            if (sow == null) continue;
+            String cropName = str(r.get("cropName"));
+            LocalDate harvest = parseDate(str(r.get("harvestDate")));
+            boolean estimated = false;
+            if (harvest == null) {
+                harvest = sow.plusDays(growingDays(cropName));
+                estimated = true;
+            }
+            if (harvest.isBefore(sow)) harvest = sow;
+            out.add(new Season(str(r.get("plotId")), str(r.get("plotName")),
+                    cropName, sow, harvest, estimated));
+        }
+        return out;
+    }
+
+    private static int growingDays(String cropName) {
+        if (cropName == null || cropName.isEmpty()) return DEFAULT_GROWING_DAYS;
+        try {
+            String std = com.cropcalendar.service.crop.CropRegistry.standardName(cropName);
+            com.cropcalendar.service.crop.CropProperties.Props p =
+                    com.cropcalendar.service.crop.CropProperties.of(std);
+            if (p != null && p.totalDays() > 0) return p.totalDays();
+        } catch (Exception ignored) {
+            // 属性库读不到就按兜底生育期
+        }
+        return DEFAULT_GROWING_DAYS;
+    }
+
+    private static LocalDate parseDate(String s) {
+        if (s == null || s.isEmpty()) return null;
+        try {
+            return LocalDate.parse(s.length() > 10 ? s.substring(0, 10) : s);
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     /** 纯转换，单测直接调：字段含逗号/引号时按 RFC 4180 转义。 */

@@ -593,6 +593,8 @@
   function renderList() {
     var container = document.getElementById('my-plots-list');
     if (!container || !window.MyPlotsStore) return;
+    // 其他面板（首页的地块选择器）要跟着地块增删改更新，否则会指向已删除的地块
+    try { document.dispatchEvent(new CustomEvent('agritime:plots-changed')); } catch (e) { /* 老浏览器忽略 */ }
     var items = window.MyPlotsStore.list();
     container.innerHTML = '';
     if (!items.length) {

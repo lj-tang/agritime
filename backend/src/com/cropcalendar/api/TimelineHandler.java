@@ -51,6 +51,7 @@ public class TimelineHandler implements HttpHandler {
         String sowDate;
         double lat;
         double lon;
+        double areaMu;
 
         if ("POST".equalsIgnoreCase(ex.getRequestMethod())) {
             String body = new String(ex.getRequestBody().readAllBytes(), StandardCharsets.UTF_8);
@@ -61,6 +62,7 @@ public class TimelineHandler implements HttpHandler {
             }
             cropId = str(map.get("crop"));
             sowDate = str(map.get("sowingDate"));
+            areaMu = num(map.get("areaMu"), 0);
             Object locObj = map.get("location");
             if (locObj instanceof Map<?, ?> loc) {
                 lat = num(loc.get("latitude"), 35.07);
@@ -75,6 +77,7 @@ public class TimelineHandler implements HttpHandler {
             sowDate = HttpSupport.trimToNull(q.get("sowDate"));
             lat = HttpSupport.parseDouble(q.get("lat"), 35.07);
             lon = HttpSupport.parseDouble(q.get("lon"), 116.31);
+            areaMu = HttpSupport.parseDouble(q.get("areaMu"), 0);
         } else {
             HttpSupport.write(ex, 405, errJson("INVALID_INPUT", "只支持 GET 或 POST"));
             return;
@@ -91,6 +94,10 @@ public class TimelineHandler implements HttpHandler {
             return;
         }
 
+        // 面积只接受合理范围：负数/NaN 视为未填，超大值截断，避免换算出一串荒谬的总量
+        if (!(areaMu > 0)) areaMu = 0;
+        if (areaMu > 100000) areaMu = 100000;
+
         try {
             // T02：无论用户传的是「西红柿」还是「tomato」，先归一到标准名，
             // 再映射到规程 id；没有规程的作物交给下游按标准名处理。
@@ -99,7 +106,7 @@ public class TimelineHandler implements HttpHandler {
             String buildCropId = protocolId != null ? protocolId : standardName;
 
             CropProperties.Props props = CropProperties.of(buildCropId);
-            TimelineResult r = orchestrator.build(buildCropId, sowDate, lat, lon);
+            TimelineResult r = orchestrator.build(buildCropId, sowDate, lat, lon, areaMu);
 
             if (r.nodes().isEmpty()) {
                 // 大模型生成要 30 秒上下，不能同步等：先告诉前端"在生成，稍后再来"，
@@ -117,7 +124,7 @@ public class TimelineHandler implements HttpHandler {
                 return;
             }
 
-            HttpSupport.write(ex, 200, toContractJson(r, standardName, cropId, props));
+            HttpSupport.write(ex, 200, toContractJson(r, standardName, cropId, props, areaMu));
 
         } catch (IllegalArgumentException e) {
             HttpSupport.write(ex, 400, errJson("INVALID_INPUT", e.getMessage()));
@@ -131,11 +138,11 @@ public class TimelineHandler implements HttpHandler {
      * 转换成前端契约 v3 格式。
      */
     private static String toContractJson(TimelineResult r) {
-        return toContractJson(r, null, null, null);
+        return toContractJson(r, null, null, null, 0);
     }
 
     private static String toContractJson(TimelineResult r, String cropName, String requestedCrop,
-                                         CropProperties.Props props) {
+                                         CropProperties.Props props, double areaMu) {
         String today = LocalDate.now().toString();
         String dataSource = mapDataSource(r.weatherStatus());
         String dataTime = r.dataTime() != null ? r.dataTime() : null;
@@ -225,6 +232,8 @@ public class TimelineHandler implements HttpHandler {
                 "cropName", cropName != null ? Json.str(cropName) : "null",
                 "requestedCrop", requestedCrop != null ? Json.str(requestedCrop) : "null",
                 "cropProperties", propsJson(props),
+                // T17：回传实际用于换算的面积，前端可确认"按 2 亩算"是否生效
+                "areaMu", areaMu > 0 ? Json.num(areaMu) : "null",
                 "dataSource", Json.str(dataSource),
                 "dataTime", dataTime != null ? Json.str(dataTime) : "null",
                 "weatherSummary", r.weatherSummary() != null ? Json.str(r.weatherSummary()) : "null",

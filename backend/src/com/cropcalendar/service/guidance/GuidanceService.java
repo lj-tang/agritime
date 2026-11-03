@@ -7,6 +7,8 @@ import com.cropcalendar.util.JsonParser;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -40,45 +42,96 @@ public final class GuidanceService {
     private GuidanceService() {
     }
 
-    /** 返回一段可直接拼进响应的 JSON；无数据时返回 "null"。 */
+    /** 兼容旧调用：不给日期与面积时，只出原文案，不做换算。 */
     public static String build(String opType, WeatherWindow slice, String cropName) {
+        return build(opType, slice, cropName, null, 0, false);
+    }
+
+    public static String build(String opType, WeatherWindow slice, String cropName,
+                               String nodeDate, double areaMu) {
+        return build(opType, slice, cropName, nodeDate, areaMu, false);
+    }
+
+    /**
+     * 返回一段可直接拼进响应的 JSON；无数据时返回 "null"。
+     *
+     * @param nodeDate 节点日期，用来算"未来 3 天"与"前 3 天"的降水；为空时退化为整个窗口
+     * @param areaMu   地块面积（亩）；&lt;=0 表示未填，只给亩均用量并提示补录
+     * @param farAhead 超出预报期的远期节点：只给规程用量，不编天气结论
+     */
+    public static String build(String opType, WeatherWindow slice, String cropName,
+                               String nodeDate, double areaMu, boolean farAhead) {
         Map<String, Object> g = guidance();
         if (g == null) return "null";
+
+        String op = opType == null ? "" : opType;
+        boolean hasArea = areaMu > 0;
 
         double rain = 0;
         double maxTemp = -999;
         int days = 0;
+        double rainPrev = 0;
+        double rainNext = 0;
+        int prevDays = 0;
+        int nextDays = 0;
         if (slice != null && !slice.degraded()) {
-            for (WeatherWindow.Daily d : slice.byDate().values()) {
+            LocalDate center = null;
+            if (nodeDate != null) {
+                try {
+                    center = LocalDate.parse(nodeDate);
+                } catch (Exception ignored) {
+                    // 日期异常就按整个窗口算
+                }
+            }
+            for (Map.Entry<String, WeatherWindow.Daily> e : slice.byDate().entrySet()) {
+                WeatherWindow.Daily d = e.getValue();
                 rain += d.rainMm();
                 if (d.maxTempC() > maxTemp) maxTemp = d.maxTempC();
                 days++;
+                if (center == null) continue;
+                LocalDate day;
+                try {
+                    day = LocalDate.parse(e.getKey());
+                } catch (Exception ignored) {
+                    continue;
+                }
+                long diff = ChronoUnit.DAYS.between(center, day);
+                if (diff >= 0 && diff <= 2) {
+                    rainNext += d.rainMm();
+                    nextDays++;
+                } else if (diff < 0 && diff >= -3) {
+                    rainPrev += d.rainMm();
+                    prevDays++;
+                }
             }
         }
+        if (nextDays == 0 && days > 0) {
+            // 没有节点日期时，用整个窗口近似"近期降水"，避免两处口径都取不到数
+            rainNext = rain;
+            rainPrev = rain;
+        }
 
-        // ---- 浇水：按窗口降雨与高温调整 ----
+        // ---- 浇水：按未来 3 天降水与前期墒情调整 ----
         Map<?, ?> irrigation = asMap(g.get("irrigation"));
         String waterKey = "default";
         String waterBasis;
         if (days == 0) {
-            waterBasis = "无天气数据，按常规灌溉建议";
-        } else if (rain >= 10) {
+            waterBasis = farAhead
+                    ? "远期节点按常年规程给量，作业前 7 天再看天气"
+                    : "无天气数据，按常规灌溉建议";
+        } else if (rainNext >= 10) {
             waterKey = "rainy";
-            waterBasis = "节点窗口内累计降雨约 " + Math.round(rain) + "mm，可暂停灌溉并注意排水";
-        } else if (rain < 2 && maxTemp >= 30) {
+            waterBasis = "未来 3 天累计降水约 " + Math.round(rainNext) + "mm，可暂停灌溉并注意排水";
+        } else if (rainNext < 1 && rainPrev < 2) {
             waterKey = "drought";
-            waterBasis = "窗口内基本无雨且最高 " + Math.round(maxTemp) + "℃，按旱情加量灌溉";
+            waterBasis = "近 3 天无有效降水、未来 3 天也无雨，按旱情加量补灌";
         } else {
-            waterBasis = "窗口内累计降雨约 " + Math.round(rain) + "mm，按常规灌溉";
+            waterBasis = "未来 3 天降水约 " + Math.round(rainNext) + "mm，按常规灌溉";
         }
         Map<?, ?> water = asMap(irrigation.get(waterKey));
 
         // ---- 施肥：按节点类型选苗期 / 花果期 / 常规 ----
         String fertKey = "default";
-        String titleHint = opType == null ? "" : opType;
-        if ("fertilize".equals(titleHint)) {
-            fertKey = "default";
-        }
         Map<?, ?> fert = asMap(asMap(g.get("fertilize")).get(fertKey));
 
         // ---- 病虫害：优先本作物，否则通用清单 ----
@@ -95,7 +148,7 @@ public final class GuidanceService {
             }
             if (!hit) continue;
             pests.add(pestJson(d.get("name"), d.get("symptoms"), d.get("medicine"),
-                    "按标签用量兑水喷雾", d.get("prevention")));
+                    "按标签用量兑水喷雾", d.get("prevention"), areaMu));
             pestSource = "病害库（" + cropName + "）";
             if (pests.size() >= 2) break;
         }
@@ -105,14 +158,14 @@ public final class GuidanceService {
                 for (Object o : common) {
                     Map<?, ?> p = asMap(o);
                     pests.add(pestJson(p.get("name"), p.get("symptoms"), p.get("solution"),
-                            p.get("dosage"), p.get("prevention")));
+                            p.get("dosage"), p.get("prevention"), areaMu));
                     if (pests.size() >= 2) break;
                 }
             }
         }
 
         // ---- 农具：按节点类型取对应清单 ----
-        String toolKey = switch (opType == null ? "" : opType) {
+        String toolKey = switch (op) {
             case "sowing" -> "sowing";
             case "irrigation" -> "irrigation";
             case "fertilize" -> "fertilize";
@@ -125,36 +178,125 @@ public final class GuidanceService {
             for (Object t : tools) toolJson.add(Json.str(String.valueOf(t)));
         }
 
+        // ---- 天气建议：同一份降水数据，按节点类型给不同的作业口径 ----
+        String adviceCode = null;
+        String adviceLevel = "info";
+        String adviceText = null;
+        if (days > 0 && !farAhead) {
+            if (rainNext >= 40) {
+                adviceCode = "waterlog";
+                adviceLevel = "warn";
+                adviceText = "未来 3 天累计降水约 " + Math.round(rainNext) + "mm，田间易积水，先清沟排渍再作业";
+            } else if (rainNext >= 10) {
+                adviceCode = "before-rain";
+                adviceLevel = "warn";
+                adviceText = switch (op) {
+                    case "irrigation" -> "未来 3 天有雨（约 " + Math.round(rainNext) + "mm），可暂停灌溉，注意排水防涝";
+                    case "harvest" -> "未来 3 天有雨（约 " + Math.round(rainNext) + "mm），抢在雨前收获，或备好防雨覆盖";
+                    case "sowing" -> "未来 3 天有雨（约 " + Math.round(rainNext) + "mm），可抢墒播种，注意别让田面积水";
+                    default -> "未来 3 天有雨（约 " + Math.round(rainNext) + "mm），赶在雨前 1~2 天施用，避免被雨水冲刷";
+                };
+            } else if (rainNext < 1 && rainPrev < 2) {
+                adviceCode = "drought";
+                adviceLevel = "warn";
+                adviceText = switch (op) {
+                    case "irrigation" -> "近 3 天与未来 3 天均无有效降水，建议补灌（" + waterText(water) + "）";
+                    case "fertilize" -> "土壤偏干、未来 3 天无雨，施肥后及时补灌，避免烧根";
+                    case "pesticide" -> "近期无有效降水，药液易蒸发，建议早晚施药并适当加大兑水量";
+                    default -> "近期无有效降水，注意保墒，播后及时镇压";
+                };
+            } else {
+                adviceCode = "normal";
+                adviceText = "未来 3 天降水约 " + Math.round(rainNext) + "mm，墒情接近常年";
+            }
+        }
+
         List<String> notes = new ArrayList<>();
         notes.add(Json.str(waterBasis));
         if (days > 0 && maxTemp >= 35) notes.add(Json.str("窗口内有高温（最高 " + Math.round(maxTemp) + "℃），建议避开正午作业"));
-        if (days > 0 && rain >= 10) notes.add(Json.str("降雨较多，施肥建议改在雨前或雨后 2 天进行"));
+        if (!hasArea) notes.add(Json.str("未填地块面积，用量按亩给出；填入面积可自动换算总用量"));
 
-        return Json.obj(
-                "watering", Json.obj(
-                        "method", Json.str(str(water.get("method"))),
-                        "duration", Json.str(str(water.get("duration"))),
-                        "waterPerMu", Json.str(str(water.get("waterPerMu"))),
-                        "tips", Json.str(str(water.get("tips"))),
-                        "basis", Json.str(waterBasis)),
-                "fertilize", Json.obj(
-                        "type", Json.str(str(fert.get("type"))),
-                        "npk", Json.str(str(fert.get("npk"))),
-                        "amount", Json.str(str(fert.get("amount"))),
-                        "method", Json.str(str(fert.get("method"))),
-                        "tips", Json.str(str(fert.get("tips")))),
-                "pest", Json.arr(pests),
-                "pestSource", Json.str(pestSource),
-                "tools", Json.arr(toolJson),
-                "notes", Json.arr(notes));
+        Map<String, String> parts = new LinkedHashMap<>();
+        // 浇水：收获节点不掺灌溉建议
+        if (!"harvest".equals(op)) {
+            parts.put("watering", Json.obj(
+                    "method", Json.str(str(water.get("method"))),
+                    "duration", Json.str(str(water.get("duration"))),
+                    "waterPerMu", Json.str(str(water.get("waterPerMu"))),
+                    "dose", doseJson(Dose.parse(str(water.get("waterPerMu"))), areaMu),
+                    "tips", Json.str(str(water.get("tips"))),
+                    "basis", Json.str(waterBasis)));
+        }
+        // 施肥：只在施肥 / 播种（基肥）节点给
+        if ("fertilize".equals(op) || "sowing".equals(op)) {
+            parts.put("fertilize", Json.obj(
+                    "type", Json.str(str(fert.get("type"))),
+                    "npk", Json.str(str(fert.get("npk"))),
+                    "amount", Json.str(str(fert.get("amount"))),
+                    "dose", doseJson(Dose.parse(str(fert.get("amount"))), areaMu),
+                    "method", Json.str(str(fert.get("method"))),
+                    "tips", Json.str(str(fert.get("tips")))));
+        }
+        // 病虫害：打药节点给全量，播种节点只给苗期风险
+        if ("pesticide".equals(op) || "sowing".equals(op)) {
+            parts.put("pest", Json.arr(pests));
+            parts.put("pestSource", Json.str(pestSource));
+        }
+        parts.put("tools", Json.arr(toolJson));
+        parts.put("notes", Json.arr(notes));
+        parts.put("area", Json.obj(
+                "areaMu", hasArea ? Json.num(areaMu) : "null",
+                "hint", hasArea ? "null" : Json.str("填入面积可自动换算总用量")));
+        parts.put("weatherAdvice", adviceCode == null ? "null" : Json.obj(
+                "code", Json.str(adviceCode),
+                "level", Json.str(adviceLevel),
+                "text", Json.str(adviceText)));
+        List<String> kv = new ArrayList<>(parts.size() * 2);
+        parts.forEach((k, v) -> {
+            kv.add(k);
+            kv.add(v);
+        });
+        return Json.obj((Object[]) kv.toArray(new String[0]));
     }
 
-    private static String pestJson(Object name, Object symptom, Object solution, Object dosage, Object prevention) {
+    private static String waterText(Map<?, ?> water) {
+        String perMu = str(water.get("waterPerMu"));
+        return perMu == null ? "按常规灌水量" : perMu;
+    }
+
+    /**
+     * 亩均 + 总面积用量。
+     * 未填面积时 total 为 null，前端只显示亩均并提示补录，不编一个假总量。
+     */
+    private static String doseJson(Dose dose, double areaMu) {
+        if (dose == null) return "null";
+        String total = areaMu > 0
+                ? Json.obj(
+                "min", Json.num(round1(dose.min() * areaMu)),
+                "max", Json.num(round1(dose.max() * areaMu)),
+                "text", Json.str(dose.totalText(areaMu)))
+                : "null";
+        return Json.obj(
+                "perMu", Json.obj(
+                        "min", Json.num(dose.min()),
+                        "max", Json.num(dose.max()),
+                        "unit", Json.str(dose.unit()),
+                        "text", Json.str(dose.perMuText())),
+                "total", total);
+    }
+
+    private static double round1(double v) {
+        return Math.round(v * 10) / 10.0;
+    }
+
+    private static String pestJson(Object name, Object symptom, Object solution, Object dosage,
+                                   Object prevention, double areaMu) {
         return Json.obj(
                 "name", Json.str(str(name)),
                 "symptom", Json.str(str(symptom)),
                 "solution", Json.str(str(solution)),
                 "dosage", Json.str(str(dosage)),
+                "dose", doseJson(Dose.parse(str(dosage)), areaMu),
                 "prevention", Json.str(str(prevention)));
     }
 

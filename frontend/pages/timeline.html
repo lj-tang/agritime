@@ -41,6 +41,16 @@
       </div>
     </section>
 
+    <!-- T17：面积决定总用量。放页头常驻，改完立即按新面积重算，不用回首页重来 -->
+    <div class="area-bar" id="area-bar">
+      <label for="area-input">地块面积</label>
+      <div class="area-input-wrap">
+        <input id="area-input" type="number" min="0" step="0.1" inputmode="decimal" placeholder="0" aria-label="地块面积（亩）" />
+        <span class="area-unit">亩</span>
+      </div>
+      <span class="area-hint" id="area-hint">填入面积后按总面积换算用量</span>
+    </div>
+
     <div class="loading" id="loading" role="status" aria-live="polite">
       <div class="loading-bar" aria-hidden="true"><i></i></div>
       <p class="loading-text" id="loading-text">正在读取农时…</p>
@@ -128,7 +138,12 @@
           sowDate: sowDate,
           lat: lat,
           lon: lon,
-          county: p.get('location') || ''
+          county: p.get('location') || '',
+          // T17：面积从首页地块带过来；0 表示未填，只给亩均用量
+          areaMu: (function () {
+            var a = Number(p.get('areaMu'));
+            return isFinite(a) && a > 0 ? a : 0;
+          })()
         };
       }
 
@@ -138,6 +153,7 @@
         params.set('sowDate', query.sowDate);
         params.set('lat', String(query.lat));
         params.set('lon', String(query.lon));
+        if (query.areaMu > 0) params.set('areaMu', String(query.areaMu));
         return CONFIG.API_PATH + '?' + params.toString();
       }
 
@@ -585,9 +601,25 @@
           box.appendChild(p);
         }
 
+        // T17：亩均 + 总面积。没填面积时只给亩均，并说明为什么没有总量
+        function doseText(dose) {
+          if (!dose || !dose.perMu) return '';
+          if (dose.total && dose.total.text) return dose.perMu.text + '，共 ' + dose.total.text;
+          return dose.perMu.text + '（未填面积，按亩计）';
+        }
+
+        // 天气建议放最前面：用户先看"今天该不该干"，再看具体用量
+        if (g.weatherAdvice && g.weatherAdvice.text) {
+          var advice = document.createElement('div');
+          advice.className = 'tl-guide-advice tl-guide-advice--' + (g.weatherAdvice.level || 'info');
+          advice.textContent = g.weatherAdvice.text;
+          box.appendChild(advice);
+        }
+
         if (g.watering) {
           section('浇水');
-          line(g.watering.method || '方式', [g.watering.duration, g.watering.waterPerMu].filter(Boolean).join(' · '));
+          line(g.watering.method || '方式',
+            [g.watering.duration, doseText(g.watering.dose) || g.watering.waterPerMu].filter(Boolean).join(' · '));
           if (g.watering.tips) line('要点', g.watering.tips);
           if (g.watering.basis) {
             var basis = document.createElement('p');
@@ -599,7 +631,9 @@
 
         if (g.fertilize && g.fertilize.type) {
           section('施肥');
-          line(g.fertilize.type, 'N-P-K ' + (g.fertilize.npk || '—') + ' · ' + (g.fertilize.amount || ''));
+          line(g.fertilize.type,
+            'N-P-K ' + (g.fertilize.npk || '—') + ' · ' +
+            (doseText(g.fertilize.dose) || g.fertilize.amount || ''));
           if (g.fertilize.method) line('方法', g.fertilize.method);
           if (g.fertilize.tips) line('要点', g.fertilize.tips);
         }
@@ -615,7 +649,9 @@
             if (p.solution) {
               var s = document.createElement('span');
               s.className = 'tl-guide-med';
-              s.textContent = '用药：' + p.solution + (p.dosage ? '（' + p.dosage + '）' : '');
+              var dose = doseText(p.dose);
+              s.textContent = '用药：' + p.solution
+                + (dose ? '（' + dose + '）' : (p.dosage ? '（' + p.dosage + '）' : ''));
               item.appendChild(s);
             }
             box.appendChild(item);
@@ -645,6 +681,14 @@
           var ul = document.createElement('ul');
           g.notes.forEach(function (n) { var li = document.createElement('li'); li.textContent = n; ul.appendChild(li); });
           box.appendChild(ul);
+        }
+
+        // 面积缺失时给一句可执行的提示，而不是让用户自己琢磨"为什么没有总量"
+        if (g.area && g.area.hint) {
+          var areaHint = document.createElement('p');
+          areaHint.className = 'tl-guide-basis';
+          areaHint.textContent = g.area.hint;
+          box.appendChild(areaHint);
         }
 
         host.appendChild(box);
@@ -1056,14 +1100,44 @@
         renderMyReminders();
       });
 
-      // 先等提醒档案加载完，再画节点：否则「已设提醒」会先按空数据画一遍，
-      // 服务端数据回来后再覆盖，按钮会闪一下；自动生成的风险提醒也要排在同步之后。
-      var boot = window.ReminderCenter ? window.ReminderCenter.ready() : Promise.resolve();
-      boot.then(function () { return getData(); }).then(function (data) {
+      // T17：面积改动只影响用量换算，防抖后重新拉一次数据即可，
+      // 不走整页刷新，用户选中的节点与滚动位置都还在
+      (function initAreaBar() {
+        var input = document.getElementById('area-input');
+        var hint = document.getElementById('area-hint');
+        if (!input) return;
+        if (query.areaMu > 0) input.value = query.areaMu;
+
+        function updateHint() {
+          if (!hint) return;
+          hint.textContent = query.areaMu > 0
+            ? '按 ' + query.areaMu + ' 亩换算总用量（亩均量不变）'
+            : '填入面积后按总面积换算用量';
+        }
+        updateHint();
+
+        var timer = null;
+        input.addEventListener('input', function () {
+          var v = Number(input.value);
+          query.areaMu = isFinite(v) && v > 0 ? v : 0;
+          updateHint();
+          clearTimeout(timer);
+          timer = setTimeout(function () {
+            getData().then(paint);
+          }, 600);
+        });
+      })();
+
+      function paint(data) {
         render(data);
         if (window.ReminderCenter) window.ReminderCenter.generateFromTimeline(data);
         renderMyReminders();
-      });
+      }
+
+      // 先等提醒档案加载完，再画节点：否则「已设提醒」会先按空数据画一遍，
+      // 服务端数据回来后再覆盖，按钮会闪一下；自动生成的风险提醒也要排在同步之后。
+      var boot = window.ReminderCenter ? window.ReminderCenter.ready() : Promise.resolve();
+      boot.then(function () { return getData(); }).then(paint);
     })();
   </script>
 </body>

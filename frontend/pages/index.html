@@ -92,6 +92,14 @@
         <div class="error" id="error-location">请输入所在地</div>
       </div>
 
+      <div class="field" id="field-plot">
+        <label for="plot-select">关联地块 <span class="hint">可选</span></label>
+        <select id="plot-select">
+          <option value="">不关联地块</option>
+        </select>
+        <p class="plot-select-hint" id="plot-select-hint">关联地块后会校验茬口，并按地块面积换算总用量</p>
+      </div>
+
       <div class="sow-check" id="sow-check" hidden></div>
 
       <button type="submit" class="btn btn-primary" id="generate-btn">
@@ -858,7 +866,63 @@
         // 从推荐页带来的地块要一路传到时间线，否则"按地块推荐"到日历就断了
         var pid = opts.plotId || window.__timelinePlotId || '';
         if (pid) params.set('plotId', pid);
+        // T17：面积一路带到日历，指导才能按总面积换算
+        var area = opts.areaMu != null ? opts.areaMu : window.__timelineAreaMu;
+        if (area) params.set('areaMu', String(area));
         return params.toString();
+      }
+
+      /**
+       * T17/T19：地块选择器。
+       * 选中的地块同时提供两件事 —— 面积（换算总用量）与 plotId（校验茬口）。
+       */
+      function currentPlot() {
+        var sel = document.getElementById('plot-select');
+        var id = sel ? sel.value : '';
+        if (!id || !window.MyPlotsStore) return null;
+        return window.MyPlotsStore.getById(id);
+      }
+
+      function plotNameOf(plotId) {
+        if (!plotId || !window.MyPlotsStore) return null;
+        var p = window.MyPlotsStore.getById(plotId);
+        return p ? (p.name || null) : null;
+      }
+
+      function applyPlotSelection() {
+        var plot = currentPlot();
+        var hint = document.getElementById('plot-select-hint');
+        window.__timelinePlotId = plot ? plot.plotId : '';
+        window.__timelineAreaMu = plot && plot.area ? Number(plot.area) : 0;
+        if (!hint) return;
+        if (!plot) {
+          hint.textContent = '关联地块后会校验茬口，并按地块面积换算总用量';
+        } else if (plot.area) {
+          hint.textContent = '「' + (plot.name || '地块') + '」' + plot.area + ' 亩 —— 用量按总面积换算，生成前会校验茬口';
+        } else {
+          hint.textContent = '「' + (plot.name || '地块') + '」未填面积 —— 只给亩均用量，可在「我的地块」补录';
+        }
+      }
+
+      function renderPlotSelect() {
+        var sel = document.getElementById('plot-select');
+        if (!sel || !window.MyPlotsStore) return;
+        var keep = sel.value || window.__timelinePlotId || '';
+        var items = window.MyPlotsStore.list();
+        sel.innerHTML = '';
+        var none = document.createElement('option');
+        none.value = '';
+        none.textContent = '不关联地块';
+        sel.appendChild(none);
+        items.forEach(function (p) {
+          var o = document.createElement('option');
+          o.value = p.plotId;
+          o.textContent = (p.name || '未命名地块') + (p.area ? '（' + p.area + ' 亩）' : '');
+          sel.appendChild(o);
+        });
+        // 从推荐页带过来的地块在这里恢复选中，用户能看到"这次是按哪块地算的"
+        if (keep && items.some(function (p) { return p.plotId === keep; })) sel.value = keep;
+        applyPlotSelection();
       }
 
       // T04 双模式播种：不填日期时按节气推荐起点（方式A），填了就用用户给的（方式B）
@@ -1017,11 +1081,32 @@
         var lat = ll.lat != null ? ll.lat : (hit ? hit.lat : 35.07);
         var lon = ll.lon != null ? ll.lon : (hit ? hit.lng : 116.31);
         if (btn) { btn.disabled = true; btn.dataset.busy = '1'; }
-        var url = '/api/sow-check?crop=' + encodeURIComponent(cropName)
-          + '&sowDate=' + encodeURIComponent(sowDate)
-          + '&lat=' + encodeURIComponent(lat) + '&lon=' + encodeURIComponent(lon);
+        // T19：把地块与该用户已有的作物记录一起带上，服务端才能判断茬口冲突。
+        // GET 也能用，但只做常识判定，拿不到"这块地还种着玉米"这类信息。
+        var payload = {
+          crop: cropName,
+          sowDate: sowDate,
+          lat: lat,
+          lon: lon,
+          plotId: window.__timelinePlotId || null,
+          records: (window.MyCropsStore ? window.MyCropsStore.list() : []).map(function (r) {
+            return {
+              recordId: r.recordId,
+              plotId: r.plotId || null,
+              plotName: plotNameOf(r.plotId),
+              cropName: r.cropName || '',
+              // 记录里叫 sownDate（种下时间），接口统一用 sowDate
+              sowDate: r.sownDate || r.sowDate || null,
+              harvestDate: r.harvestDate || null
+            };
+          })
+        };
 
-        fetch(url).then(function (r) {
+        fetch('/api/sow-check', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        }).then(function (r) {
           if (!r.ok) throw new Error('HTTP ' + r.status);
           return r.json();
         }).then(function (d) {
@@ -1101,7 +1186,8 @@
           var fix = document.createElement('button');
           fix.type = 'button';
           fix.className = 'sow-check-btn sow-check-btn--primary';
-          fix.textContent = '改用 ' + d.suggestedSowDate + '（最近的适播日）';
+          fix.textContent = '改用 ' + d.suggestedSowDate
+            + (d.plotVerdict === 'block' ? '（收获后最早可排）' : '（最近的适播日）');
           fix.addEventListener('click', function () {
             try {
               syncSelectsFromDate(d.suggestedSowDate);
@@ -1150,7 +1236,8 @@
           lat: window.__markerLatLon ? window.__markerLatLon.lat : (hit ? hit.lat : 35.07),
           lon: window.__markerLatLon ? window.__markerLatLon.lon : (hit ? hit.lng : 116.31),
           location: location,
-          plotId: plotId
+          plotId: plotId,
+          areaMu: window.__timelineAreaMu || 0
         });
         try {
           var pane = document.getElementById('timeline-pane');
@@ -1171,6 +1258,13 @@
       renderRuler();
       setDefaultValues();
       renderHistory();
+      renderPlotSelect();
+      (function () {
+        var sel = document.getElementById('plot-select');
+        if (sel) sel.addEventListener('change', applyPlotSelection);
+        // 地块在别的面板增删改后，选择器要跟着更新，否则会指向一个已经不存在的地块
+        document.addEventListener('agritime:plots-changed', renderPlotSelect);
+      })();
     })();
   </script>
 </body>

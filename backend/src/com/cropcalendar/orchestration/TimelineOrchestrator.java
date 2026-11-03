@@ -86,6 +86,13 @@ public class TimelineOrchestrator {
     // ============================================================
 
     public TimelineResult build(String cropId, String sowDate, double lat, double lon) {
+        return build(cropId, sowDate, lat, lon, 0);
+    }
+
+    /**
+     * @param areaMu 地块面积（亩），用于把亩均用量换算成总面积用量；&lt;=0 表示未填
+     */
+    public TimelineResult build(String cropId, String sowDate, double lat, double lon, double areaMu) {
         LocalDate sow;
         try {
             sow = LocalDate.parse(sowDate, DATE);
@@ -131,7 +138,9 @@ public class TimelineOrchestrator {
                 WeatherWindow slice = fetched.window().around(date, w, w);
                 ScoreResult score = ComputeStub.scoreNode(n.opType(), slice);
                 // T03：四类指导随节点下发，天气窗口用同一份 slice，避免两处天气不一致
-                String guidance = GuidanceService.build(n.opType(), slice, cropNameForGuidance);
+                // T17：带上节点日期与面积，指导按未来 3 天降水调整，并给出亩均/总量
+                String guidance = GuidanceService.build(n.opType(), slice, cropNameForGuidance,
+                        date, areaMu, false);
                 nodes.add(new NodeView(n.dayOffset(), date, n.opType(), n.title(),
                         score.status(), score.suggest(), score.reason(), guidance, false,
                         "forecast", ""));
@@ -146,11 +155,15 @@ public class TimelineOrchestrator {
                         "years", Json.num((double) o.years()),
                         "available", "true")
                         : Json.obj("available", "false");
+                // 远期节点也带指导：用量只跟规程与面积有关，不依赖预报；
+                // 但天气结论留空，避免把"三个月后某天"说成预报
+                String guidance = GuidanceService.build(n.opType(), null, cropNameForGuidance,
+                        date, areaMu, true);
                 nodes.add(new NodeView(n.dayOffset(), date, n.opType(), n.title(),
                         "plan",
                         planSuggest(n.opType(), nodeDate, o, cropNameForGuidance),
                         outlookReason(nodeDate, o),
-                        null, false, "season", outlookJson));
+                        guidance, false, "season", outlookJson));
             }
         }
 

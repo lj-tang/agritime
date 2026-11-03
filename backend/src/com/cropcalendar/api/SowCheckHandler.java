@@ -3,20 +3,24 @@ package com.cropcalendar.api;
 import com.cropcalendar.service.crop.AgroZone;
 import com.cropcalendar.service.crop.CropProperties;
 import com.cropcalendar.service.crop.CropRegistry;
+import com.cropcalendar.service.plot.PlotHistory;
 import com.cropcalendar.util.Json;
+import com.cropcalendar.util.JsonParser;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 /**
- * GET /api/sow-check —— 播种前的常识拦截
+ * /api/sow-check —— 播种前的常识拦截
  *
  * 原来的日历对输入照单全收：输入"水稻 + 12 月 + 哈尔滨"照样生成一整条时间线，
  * 用户看到的是排得整整齐齐的假计划。真实农户不会这么干，系统也不该配合。
@@ -26,7 +30,11 @@ import java.util.Set;
  *   warn  —— 能种但不建议（播期擦边、生育期撞霜冻、积温可能不足）
  *   ok    —— 放行
  *
- * 判定只依赖作物属性库与经纬度常年气候，不臆造"今年一定怎样"的结论。
+ * T19 起支持 POST：把地块 id 与该用户已有的作物记录一起传上来，
+ * 追加"同地块茬口重叠（阻断）/ 连作（提醒）/ 跨地块农忙重叠（提醒）"三类判定。
+ * GET 仍保留，供 curl 与旧前端使用（无地块记录，只做常识判定）。
+ *
+ * 判定只依赖作物属性库、经纬度常年气候与用户自己录的记录，不臆造"今年一定怎样"的结论。
  */
 public class SowCheckHandler implements HttpHandler {
 
@@ -47,11 +55,34 @@ public class SowCheckHandler implements HttpHandler {
             ex.close();
             return;
         }
-        Map<String, String> q = HttpSupport.query(ex.getRequestURI().getRawQuery());
-        String crop = HttpSupport.trimToNull(q.get("crop"));
-        String sowRaw = HttpSupport.trimToNull(q.get("sowDate"));
-        double lat = HttpSupport.parseDouble(q.get("lat"), 35.07);
-        double lon = HttpSupport.parseDouble(q.get("lon"), 116.31);
+        String crop;
+        String sowRaw;
+        double lat;
+        double lon;
+        String plotId = null;
+        List<Map<String, Object>> records = List.of();
+
+        if ("POST".equalsIgnoreCase(ex.getRequestMethod())) {
+            String body = new String(ex.getRequestBody().readAllBytes(), StandardCharsets.UTF_8);
+            Object parsed = JsonParser.parse(body);
+            if (!(parsed instanceof Map<?, ?> map)) {
+                HttpSupport.write(ex, 400, Json.obj("error", Json.str("请求体不是合法 JSON")));
+                return;
+            }
+            crop = HttpSupport.trimToNull(str(map.get("crop")));
+            sowRaw = HttpSupport.trimToNull(str(map.get("sowDate")));
+            lat = num(map.get("lat"), 35.07);
+            lon = num(map.get("lon"), 116.31);
+            plotId = HttpSupport.trimToNull(str(map.get("plotId")));
+            records = recordsOf(map.get("records"));
+        } else {
+            Map<String, String> q = HttpSupport.query(ex.getRequestURI().getRawQuery());
+            crop = HttpSupport.trimToNull(q.get("crop"));
+            sowRaw = HttpSupport.trimToNull(q.get("sowDate"));
+            lat = HttpSupport.parseDouble(q.get("lat"), 35.07);
+            lon = HttpSupport.parseDouble(q.get("lon"), 116.31);
+            plotId = HttpSupport.trimToNull(q.get("plotId"));
+        }
 
         if (crop == null) {
             HttpSupport.write(ex, 400, Json.obj("error", Json.str("缺少 crop")));
@@ -197,6 +228,23 @@ public class SowCheckHandler implements HttpHandler {
                     months.isEmpty() ? "可直接生成日历" : "点「按节气推荐」可自动填入最近的可播日期"));
         }
 
+        // ---- 6. 茬口冲突（T19）：同地块重叠阻断、连作与跨地块农忙提醒 ----
+        //
+        // 只有传了 plotId 才校验：没关联地块就没有"这块地"的概念，
+        // 硬拿别的记录去比会误报（T19 验收第 4 条）。
+        String plotVerdict = "pass";
+        String plotEarliest = null;
+        if (plotId != null) {
+            PlotHistory.ScheduleCheck pc = PlotHistory.checkSchedule(
+                    standard, sow == null ? null : sow.toString(), plotId,
+                    props.totalDays(), records);
+            plotVerdict = pc.verdict();
+            plotEarliest = pc.earliestSowDate();
+            for (PlotHistory.Item it : pc.items()) {
+                items.add(item(it.level(), it.code(), it.title(), it.detail(), it.suggestion()));
+            }
+        }
+
         String verdict = "ok";
         for (String it : items) {
             if (it.contains("\"level\":\"block\"")) { verdict = "block"; break; }
@@ -212,12 +260,14 @@ public class SowCheckHandler implements HttpHandler {
                             + " 播种符合常识", "可以生成日历"));
         }
 
-        // 给一个可执行的替代日期：最近一个落在适播期内的日子
-        String suggested = null;
+        // 给一个可执行的替代日期：最近一个落在适播期内的日子；
+        // 若地块还被上一季占着，取两者中更晚的那个 —— 早于腾地日期等于没建议
+        String seasonSuggested = null;
         Set<Integer> months = AgroZone.sowMonths(props.suitableSeason());
         if (sow != null && !months.isEmpty() && !months.contains(sow.getMonthValue())) {
-            suggested = nearestSowDate(sow, months, today).toString();
+            seasonSuggested = nearestSowDate(sow, months, today).toString();
         }
+        String suggested = laterDate(seasonSuggested, plotEarliest);
 
         List<String> js = new ArrayList<>(items);
         HttpSupport.write(ex, 200, Json.obj(
@@ -230,8 +280,43 @@ public class SowCheckHandler implements HttpHandler {
                 "suitableRegion", Json.str(props.suitableRegion()),
                 "totalDays", Json.num((double) (props.totalDays() > 0 ? props.totalDays() : 120)),
                 "frostFreeDays", Json.num((double) AgroZone.frostFreeDays(lat)),
+                "plotId", Json.str(plotId),
+                "plotVerdict", Json.str(plotVerdict),
                 "suggestedSowDate", Json.str(suggested),
                 "items", Json.arr(js)));
+    }
+
+    /** 取两个 yyyy-MM-dd 里更晚的一个，空值忽略。 */
+    private static String laterDate(String a, String b) {
+        if (a == null) return b;
+        if (b == null) return a;
+        return a.compareTo(b) >= 0 ? a : b;
+    }
+
+    /** 解析前端上传的作物记录数组；结构不对就当作没传，不让校验因此 500。 */
+    private static List<Map<String, Object>> recordsOf(Object raw) {
+        List<Map<String, Object>> out = new ArrayList<>();
+        if (!(raw instanceof List<?> list)) return out;
+        for (Object o : list) {
+            if (!(o instanceof Map<?, ?> m)) continue;
+            Map<String, Object> one = new LinkedHashMap<>();
+            m.forEach((k, v) -> one.put(String.valueOf(k), v));
+            out.add(one);
+        }
+        return out;
+    }
+
+    private static String str(Object o) {
+        return o == null ? null : String.valueOf(o);
+    }
+
+    private static double num(Object o, double def) {
+        if (o instanceof Number n) return n.doubleValue();
+        try {
+            return o == null ? def : Double.parseDouble(String.valueOf(o));
+        } catch (Exception e) {
+            return def;
+        }
     }
 
     /**
