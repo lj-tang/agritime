@@ -767,6 +767,37 @@ body.split-active .home-pane-back { display: inline-flex; align-items: center; }
 
 .term-sow-hint.is-error { color: var(--red); background: var(--red-soft); border-color: #f3d6d6; }
 
+/* T20：节气 / 积温 / 最晚播期三行并列 */
+.term-row {
+  display: flex;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 6px 8px;
+  padding: 5px 0;
+}
+.term-row + .term-row { border-top: 1px dashed var(--line-soft); }
+.term-row-label {
+  flex: none;
+  min-width: 56px;
+  font-weight: 700;
+  color: var(--brand);
+}
+.term-row-text { flex: 1 1 220px; }
+.term-row-btn {
+  flex: none;
+  margin-left: auto;
+  padding: 3px 10px;
+  font-family: inherit;
+  font-size: 12px;
+  color: var(--brand);
+  background: var(--surface);
+  border: 1px solid var(--brand-line);
+  border-radius: 999px;
+  cursor: pointer;
+}
+.term-row-btn:hover { background: var(--brand-soft); }
+.term-row-note { margin: 6px 0 0; color: var(--sun); }
+
 .voice-hint {
   margin: 6px 0 0;
   font-size: 12px;

@@ -32,20 +32,27 @@ public final class ClimateNormals {
     private record CacheEntry(Map<Integer, DayStat> byDoy, long at) {
     }
 
-    /** 某一天（不分年份）的统计量。 */
+    /** 某一天（不分年份）的统计量。温度单独计数：缺测的日子不能把均值拉低。 */
     public static final class DayStat {
         double tempSum;
         double tmaxSum;
         double tminSum;
+        int tempN;
+        int tmaxN;
+        int tminN;
         int rainDays;
         int n;
 
         void add(double t, double tmax, double tmin, double rain) {
-            if (!Double.isNaN(t)) tempSum += t;
-            if (!Double.isNaN(tmax)) tmaxSum += tmax;
-            if (!Double.isNaN(tmin)) tminSum += tmin;
+            if (!Double.isNaN(t)) { tempSum += t; tempN++; }
+            if (!Double.isNaN(tmax)) { tmaxSum += tmax; tmaxN++; }
+            if (!Double.isNaN(tmin)) { tminSum += tmin; tminN++; }
             if (!Double.isNaN(rain) && rain > 0.1) rainDays++;
             n++;
+        }
+
+        double tempMean() {
+            return tempN == 0 ? Double.NaN : tempSum / tempN;
         }
     }
 
@@ -74,9 +81,11 @@ public final class ClimateNormals {
             LocalDate d = center.plusDays(i);
             DayStat s = byDoy.get(d.getDayOfYear());
             if (s == null || s.n == 0) continue;
-            tSum += s.tempSum / s.n;
-            tmaxSum += s.tmaxSum / s.n;
-            tminSum += s.tminSum / s.n;
+            double tm = s.tempMean();
+            if (Double.isNaN(tm)) continue;   // 没有气温数据的日子不参与气温均值
+            tSum += tm;
+            if (s.tmaxN > 0) tmaxSum += s.tmaxSum / s.tmaxN;
+            if (s.tminN > 0) tminSum += s.tminSum / s.tminN;
             days++;
             // 某天"有雨的比例"而非"有雨的天数"，跨年可比
             rainDays += s.rainDays;
@@ -91,6 +100,19 @@ public final class ClimateNormals {
                 n > 0 ? round2((double) rainDays / n) : 0,
                 years,
                 true);
+    }
+
+    /**
+     * 某日多年平均气温（按一年中的第几天聚合，不分年份）。数据不可用返回 NaN。
+     *
+     * 积温推算用它：宁可返回 NaN 让调用方如实降级，也不要编一个"常年 20℃"
+     * 去凑出一个看起来精确的播期。
+     */
+    public static double meanTempOn(double lat, double lon, LocalDate date) {
+        Map<Integer, DayStat> byDoy = load(lat, lon);
+        if (byDoy == null || byDoy.isEmpty()) return Double.NaN;
+        DayStat s = byDoy.get(date.getDayOfYear());
+        return s == null ? Double.NaN : s.tempMean();
     }
 
     // ------------------------------------------------------------------ 抓取

@@ -81,7 +81,7 @@
         </div>
         <p class="date-range-hint" id="date-range-hint">请选择两年前至今天后 30 天的日期；不选则按节气推荐播种起点</p>
         <button type="button" class="term-sow-btn" id="term-sow-btn">不知道播种时间？按节气推荐</button>
-        <p class="term-sow-hint" id="term-sow-hint" hidden></p>
+        <div class="term-sow-hint" id="term-sow-hint" hidden></div>
         <div class="error" id="error-sowingDate">播种日期不能晚于今天</div>
       </div>
 
@@ -811,14 +811,20 @@
 
       // T04 双模式播种：不填日期时按节气推荐起点（方式A），填了就用用户给的（方式B）
       function fetchSowWindow(cropName, cb) {
+        var ll = window.__markerLatLon || {};
+        var hit = findCrop(cropName);
+        var lat = ll.lat != null ? ll.lat : (hit ? hit.lat : 35.07);
+        var lon = ll.lon != null ? ll.lon : (hit ? hit.lng : 116.31);
         var xhr = new XMLHttpRequest();
-        xhr.open('GET', '/api/sow-window?crop=' + encodeURIComponent(cropName), true);
-        xhr.timeout = 8000;
+        // 积温要拉近三年归档气温，首次可能几秒，超时给宽一点；取不到会明确降级
+        xhr.open('GET', '/api/sow-window?crop=' + encodeURIComponent(cropName)
+          + '&lat=' + encodeURIComponent(lat) + '&lon=' + encodeURIComponent(lon), true);
+        xhr.timeout = 15000;
         xhr.onload = function () {
           try {
             var body = JSON.parse(xhr.responseText);
             if (xhr.status === 200 && body.data && body.data.sowDate) { cb(null, body.data); return; }
-            cb(body.message || '节气推算失败');
+            cb(body.message || '播期推算失败');
           } catch (err) { cb('返回格式异常'); }
         };
         xhr.onerror = xhr.ontimeout = function () { cb('网络异常'); };
@@ -835,18 +841,70 @@
         if (!sowingInput.value) sowingInput.value = info.sowDate;
       }
 
+      /**
+       * T20：两个建议并列，各带依据 —— 节气回答"祖辈什么时候播"，
+       * 积温回答"今年热量够不够"，两者不一致时由用户选，不替他拍板。
+       */
       function showTermSowHint(info, err) {
         var el = document.getElementById('term-sow-hint');
         if (!el) return;
         el.hidden = false;
+        el.innerHTML = '';
+        el.classList.remove('is-error');
+
         if (err) {
-          el.textContent = '节气推荐不可用：' + err + '，请手动选择日期';
+          el.textContent = '播期推荐不可用：' + err + '，请手动选择日期';
           el.classList.add('is-error');
           return;
         }
-        el.classList.remove('is-error');
-        el.textContent = '按节气推荐：' + info.solarTerm + ' · ' + info.sowDate
-          + '（距今 ' + info.daysFromToday + ' 天）—— ' + info.basis;
+
+        var solar = info.solar || null;
+        var gdd = info.gdd || null;
+        var latest = info.latest || null;
+
+        function row(label, date, text, pickable) {
+          var div = document.createElement('div');
+          div.className = 'term-row';
+          var tag = document.createElement('span');
+          tag.className = 'term-row-label';
+          tag.textContent = label;
+          var body = document.createElement('span');
+          body.className = 'term-row-text';
+          body.textContent = text;
+          div.appendChild(tag);
+          div.appendChild(body);
+          if (pickable && date) {
+            var btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = 'term-row-btn';
+            btn.textContent = '用这个日期';
+            btn.addEventListener('click', function () {
+              applySuggestedDate({ sowDate: date });
+              showToast('已填入 ' + date, 'info');
+            });
+            div.appendChild(btn);
+          }
+          el.appendChild(div);
+        }
+
+        if (solar) {
+          row('按节气', solar.sowDate,
+            (solar.solarTerm ? solar.solarTerm + ' · ' : '') + solar.sowDate
+            + (solar.daysFromToday != null ? '（距今 ' + solar.daysFromToday + ' 天）' : '')
+            + ' —— ' + (solar.basis || ''), true);
+        }
+        if (gdd) {
+          row('按积温', gdd.sowDate, gdd.sowDate + ' —— ' + (gdd.basis || ''), true);
+        }
+        if (latest) {
+          row('最晚播期', latest.date, latest.date + ' —— ' + (latest.basis || ''), false);
+        }
+        if (!gdd && info.note) {
+          var note = document.createElement('p');
+          note.className = 'term-row-note';
+          note.textContent = '积温数据不足：' + info.note;
+          el.appendChild(note);
+        }
       }
 
       var termBtn = document.getElementById('term-sow-btn');

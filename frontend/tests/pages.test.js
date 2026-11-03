@@ -1345,9 +1345,9 @@ test('V5.3 去重：共享层已抽取', () => {
 test('V5 任务书：与 V4 同体例，编号自 T16 续接', () => {
   const tb = read(path.resolve(__dirname, '..', '..', 'docs', 'taskbook-v5.md'));
   assert.ok(tb.includes('**任务编号：T16**'), '首个任务应为 T16，与 V4 的 T00-T15 续接');
-  assert.ok(tb.includes('**任务编号：T26**'), '末项应为 T26（提醒与工单落地后已删项并重编号）');
+  assert.ok(tb.includes('**任务编号：T24**'), '末项应为 T24（提醒/工单/播期/改期落地后已删项并重编号）');
   const ids = tb.match(/\*\*任务编号：T\d+\*\*/g) || [];
-  assert.equal(ids.length, 11, '应有 11 个待办任务（T16-T26）');
+  assert.equal(ids.length, 9, '应有 9 个待办任务（T16-T24）');
   // 编号必须连续不重复，否则中途插任务时容易乱
   const nums = ids.map(x => parseInt(x.replace(/\D/g, ''), 10));
   nums.forEach((n, i) => assert.equal(n, 16 + i, '任务编号应从 T16 连续递增'));
@@ -1360,7 +1360,7 @@ test('V5 任务书：与 V4 同体例，编号自 T16 续接', () => {
   // 任务书只列未完成任务，不把已完成项写进来占编号
   assert.ok(!/\*\*状态\*\*：已完成/.test(tb), '不应出现"已完成"状态标记');
   const prio = tb.match(/\*\*优先级\*\*：P\d/g) || [];
-  assert.equal(prio.length, 11, '每个任务都应有优先级');
+  assert.equal(prio.length, 9, '每个任务都应有优先级');
   assert.ok(!tb.includes('commit') && !tb.includes('350259d'), '不写提交号，避免把已完成记录混进待办');
 });
 
@@ -1526,7 +1526,7 @@ test('T18 提醒记录：按账号落盘、去重、已读与过期清理', () =
   assert.ok(store.includes('Asia/Shanghai'), '过期判定应显式用北京时间');
   assert.ok(store.includes('old.get("read")'), '重复推送不应把已读顶回未读');
   assert.ok(!taskbook.includes('模块18：提醒服务'), '已完成任务应从任务书移除');
-  assert.ok(/共 11 项/.test(taskbook), '任务书应重编号为 11 项待办');
+  assert.ok(/共 9 项/.test(taskbook), '任务书应重编号为 9 项待办');
   assert.ok(!taskbook.includes('模块18：客服工单流转'), '已完成工单任务应从任务书移除');
 });
 
@@ -1619,4 +1619,21 @@ test('T26 持久化：设备同步、冲突留痕、导出与注销', () => {
   assert.ok(authH.includes('管理员账号不能自助注销'), '管理员不应被误删');
   assert.ok(commonCss.includes('.agri-sync-status'), '应有同步状态提示样式');
   assert.ok(authCss.includes('.account-block--danger'), '注销区应有危险样式');
+});
+
+// ---------------- V5 T20 播期双依据 ----------------
+test('T20 播期：节气 + 积温 + 最晚播期，缺积温如实降级', () => {
+  const sw = read(path.resolve(__dirname, '..', '..', 'backend', 'src', 'com', 'cropcalendar', 'api', 'SowWindowHandler.java'));
+  const gdd = read(path.resolve(__dirname, '..', '..', 'backend', 'src', 'com', 'cropcalendar', 'service', 'crop', 'GddAdvisor.java'));
+
+  assert.ok(sw.includes('GddAdvisor') && sw.includes('"gdd"') && sw.includes('"latest"'), '接口应返回积温与最晚播期');
+  assert.ok(sw.includes('gddAvailable'), '应标记积温是否可用');
+  assert.ok(gdd.includes('stableAbove') && gdd.includes('stableBelow'), '应有稳定通过/降至的判定');
+  assert.ok(gdd.includes('parseTargetGdd') && gdd.includes('parseThreshold'), '应解析品种积温与生长下限温度');
+  assert.ok(gdd.includes('isAutumnSown') && gdd.includes('nextWindow'), '应区分春播/秋播窗口');
+  assert.ok(gdd.includes('品种未标注所需积温'), '缺积温时应如实说明');
+
+  assert.ok(indexHtml.includes('term-row') && indexHtml.includes('按积温') && indexHtml.includes('最晚播期'), '面板应三行并列');
+  assert.ok(indexHtml.includes('info.solar') && indexHtml.includes('info.gdd'), '前端应消费双依据字段');
+  assert.ok(commonCss.includes('.term-row') && commonCss.includes('.term-row-btn'), '应有播期行与填入按钮样式');
 });
