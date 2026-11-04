@@ -24,10 +24,12 @@ import com.cropcalendar.api.SupportHandler;
 import com.cropcalendar.api.TimelineHandler;
 import com.cropcalendar.compute.ComputeStub;
 import com.cropcalendar.config.AppConfig;
+import com.cropcalendar.util.AppTime;
 import com.sun.net.httpserver.HttpServer;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.util.TimeZone;
 import java.util.concurrent.Executors;
 
 /**
@@ -43,6 +45,9 @@ import java.util.concurrent.Executors;
 public class Server {
 
     public static void main(String[] args) throws IOException {
+        // T17：容器默认时区可能是 UTC，先把 JVM 固定到北京时间。
+        // 业务代码统一走 AppTime，这一行是兜底（第三方库、兜底路径也会受影响）。
+        TimeZone.setDefault(TimeZone.getTimeZone(AppTime.ZONE));
         int port = AppConfig.port();
 
         HttpServer server = HttpServer.create(new InetSocketAddress(port), 0);

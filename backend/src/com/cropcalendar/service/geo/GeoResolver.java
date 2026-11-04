@@ -57,7 +57,7 @@ public final class GeoResolver {
     }
 
     private static final HttpClient HTTP = HttpClient.newBuilder()
-            .connectTimeout(Duration.ofSeconds(2))
+            .connectTimeout(Duration.ofMillis(AppConfig.httpConnectTimeoutMs()))
             .followRedirects(HttpClient.Redirect.NORMAL)
             .build();
 

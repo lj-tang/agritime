@@ -1,5 +1,6 @@
 package com.cropcalendar.api;
 
+import com.cropcalendar.util.AppTime;
 import com.cropcalendar.service.crop.AgroZone;
 import com.cropcalendar.service.crop.CropProperties;
 import com.cropcalendar.service.crop.CropRegistry;
@@ -121,7 +122,7 @@ public class SowCheckHandler implements HttpHandler {
             return;
         }
 
-        LocalDate today = LocalDate.now();
+        LocalDate today = AppTime.today();
         LocalDate sow;
         try {
             sow = sowRaw == null ? null : LocalDate.parse(sowRaw);

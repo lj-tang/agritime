@@ -1,5 +1,6 @@
 package com.cropcalendar.orchestration;
 
+import com.cropcalendar.util.AppTime;
 import com.cropcalendar.compute.ComputeStub;
 import com.cropcalendar.compute.ComputeStub.MarketHint;
 import com.cropcalendar.compute.ComputeStub.RawNode;
@@ -104,7 +105,7 @@ public class TimelineOrchestrator {
         String cropNameForGuidance = CropRegistry.standardName(cropId);
         List<RawNode> raw = ComputeStub.buildNodes(cropId, sowDate, lat);
         if (raw.isEmpty()) {
-            return new TimelineResult(cropId, sowDate, LocalDateTime.now().format(TS),
+            return new TimelineResult(cropId, sowDate, AppTime.now().format(TS),
                     null, "ok", null, null, null, List.of(), List.of());
         }
 
@@ -127,7 +128,7 @@ public class TimelineOrchestrator {
         //   · 超出这个范围：只给时段气候概览（近三年同期日均温、雨日占比），
         //     结论是"预计 X 月中下旬，注意 Y"，具体哪天做要等临近再看。
         int w = AppConfig.weatherWindowDays();
-        LocalDate today = LocalDate.now();
+        LocalDate today = AppTime.today();
         List<NodeView> nodes = new ArrayList<>(raw.size());
         for (RawNode n : raw) {
             LocalDate nodeDate = sow.plusDays(n.dayOffset());
@@ -173,7 +174,7 @@ public class TimelineOrchestrator {
 
         return new TimelineResult(
                 cropId, sowDate,
-                LocalDateTime.now().format(TS),
+                AppTime.now().format(TS),
                 fetched.dataTime(),
                 fetched.window().degraded() ? "degraded" : "ok",
                 fetched.window().degraded() ? fetched.window().degradedReason() : fetched.source(),
@@ -276,7 +277,7 @@ public class TimelineOrchestrator {
                 // 否则一次断网会把空数据缓存 900 秒，缓存自愈的性质就被破坏了。
                 return new WeatherFetch(w, null, "上游取数失败");
             }
-            WeatherFetch fresh = new WeatherFetch(w, LocalDateTime.now().format(TS), "上游实时数据");
+            WeatherFetch fresh = new WeatherFetch(w, AppTime.now().format(TS), "上游实时数据");
             cache.put(key, fresh, AppConfig.cacheTtlSeconds());
             return fresh;
         });

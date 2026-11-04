@@ -1,5 +1,6 @@
 package com.cropcalendar.api;
 
+import com.cropcalendar.util.AppTime;
 import com.cropcalendar.service.crop.CropProperties;
 import com.cropcalendar.service.crop.CropRegistry;
 import com.cropcalendar.service.crop.GddAdvisor;
@@ -56,7 +57,7 @@ public class SowWindowHandler implements HttpHandler {
         if (lat < -90 || lat > 90) lat = 35.07;
         if (lon < -180 || lon > 180) lon = 116.31;
 
-        LocalDate today = LocalDate.now(SHANGHAI);
+        LocalDate today = AppTime.today();
         String standard = CropRegistry.standardName(crop);
         CropProperties.Props props = CropProperties.of(standard);
 

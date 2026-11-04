@@ -1,5 +1,6 @@
 package com.cropcalendar.api;
 
+import com.cropcalendar.util.AppTime;
 import com.cropcalendar.compute.ComputeStub;
 import com.cropcalendar.config.AppConfig;
 import com.cropcalendar.util.Json;
@@ -17,7 +18,7 @@ import java.time.format.DateTimeFormatter;
 public class HealthHandler implements HttpHandler {
 
     private static final DateTimeFormatter TS = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-    private static final String STARTED_AT = LocalDateTime.now().format(TS);
+    private static final String STARTED_AT = AppTime.now().format(TS);
 
     @Override
     public void handle(HttpExchange ex) throws IOException {
@@ -45,7 +46,7 @@ public class HealthHandler implements HttpHandler {
                     "cropCount", String.valueOf(cropCount),
                     "llmModel", Json.str(AppConfig.llmModel()),
                     "startedAt", Json.str(STARTED_AT),
-                    "now", Json.str(LocalDateTime.now().format(TS))
+                    "now", Json.str(AppTime.now().format(TS))
             );
         } else {
             body = Json.obj(
@@ -55,7 +56,7 @@ public class HealthHandler implements HttpHandler {
                     "computeLayer", Json.str(AppConfig.mockMode() ? "mock（乙未交付）" : "real"),
                     "upstreamTimeoutMs", String.valueOf(AppConfig.upstreamTimeoutMs()),
                     "startedAt", Json.str(STARTED_AT),
-                    "now", Json.str(LocalDateTime.now().format(TS))
+                    "now", Json.str(AppTime.now().format(TS))
             );
         }
         HttpSupport.write(ex, 200, body);

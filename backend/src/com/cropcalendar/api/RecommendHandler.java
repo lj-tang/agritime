@@ -1,5 +1,7 @@
 package com.cropcalendar.api;
 
+import com.cropcalendar.config.AppConfig;
+import com.cropcalendar.util.AppTime;
 import com.cropcalendar.util.Json;
 import com.cropcalendar.util.JsonParser;
 import com.sun.net.httpserver.HttpExchange;
@@ -32,6 +34,21 @@ public class RecommendHandler implements HttpHandler {
 
     private static volatile List<Map<String, Object>> RULES;
 
+    /**
+     * 推荐结果缓存（T17）：同一地点、同一天、同一地块条件下的推荐是确定的，
+     * 没必要每次重算。key 里带上日期，跨天自动失效；条数上限防止无限增长。
+     */
+    private static final int MAX_CACHE = 200;
+    private static final Map<String, Cached> CACHE = new LinkedHashMap<>(16, 0.75f, true) {
+        @Override
+        protected boolean removeEldestEntry(Map.Entry<String, Cached> eldest) {
+            return size() > MAX_CACHE;
+        }
+    };
+
+    private record Cached(long at, String body) {
+    }
+
     @Override
     public void handle(HttpExchange ex) throws IOException {
         HttpSupport.cors(ex);
@@ -60,6 +77,21 @@ public class RecommendHandler implements HttpHandler {
                     "message", Json.str("month 需在 1~12 之间"),
                     "data", "null"));
             return;
+        }
+
+        // 同地点同一天复用：key 里带日期、地块与作物条件，任何一项变了都重新算
+        String cacheKey = month + "|" + Math.round(lat * 100) / 100.0 + "|" + Math.round(lon * 100) / 100.0
+                + "|" + locationName + "|" + locationSource + "|" + plotName + "|" + plotCrops
+                + "|" + AppTime.today();
+        long nowMs = System.currentTimeMillis();
+        long ttlMs = Math.max(1, AppConfig.cacheTtlSeconds()) * 1000L;
+        synchronized (CACHE) {
+            Cached hit = CACHE.get(cacheKey);
+            if (hit != null && nowMs - hit.at() < ttlMs) {
+                // 命中时只把标记翻成 true，避免为了一次缓存命中重算整份推荐
+                HttpSupport.write(ex, 200, hit.body().replace("\"cached\":false", "\"cached\":true"));
+                return;
+            }
         }
 
         List<Map<String, Object>> rules;
@@ -100,8 +132,9 @@ public class RecommendHandler implements HttpHandler {
                     "reasons", Json.arr(s.reasons)));
         }
 
-        HttpSupport.write(ex, 200, Json.obj(
+        String body = Json.obj(
                 "month", String.valueOf(month),
+                "cached", "false",
                 "lat", Json.num(lat),
                 "lon", Json.num(lon),
                 "total", String.valueOf(items.size()),
@@ -115,7 +148,11 @@ public class RecommendHandler implements HttpHandler {
                         "name", Json.str(plotName),
                         "cropCount", String.valueOf(plotCrops.size()),
                         "used", plotCrops.isEmpty() ? "false" : "true"),
-                "recommendations", Json.arr(items)));
+                "recommendations", Json.arr(items));
+        synchronized (CACHE) {
+            CACHE.put(cacheKey, new Cached(nowMs, body));
+        }
+        HttpSupport.write(ex, 200, body);
     }
 
     private record Scored(Map<String, Object> rule, double score, boolean monthMatch,

@@ -1,5 +1,6 @@
 package com.cropcalendar.api;
 
+import com.cropcalendar.util.AppTime;
 import com.cropcalendar.middleware.Auth;
 import com.cropcalendar.model.User;
 import com.cropcalendar.util.Json;
@@ -111,7 +112,7 @@ public class SupportHandler implements HttpHandler {
         String userId = u != null ? u.id()
                 : (vid != null ? "anon_" + vid : "anon_ip_" + ip(ex));
         String userName = u != null ? (u.nickname().isEmpty() ? u.username() : u.nickname()) : "访客";
-        String now = FMT.format(LocalDateTime.now());
+        String now = FMT.format(AppTime.now());
 
         Map<String, Object> ticket = new LinkedHashMap<>();
         ticket.put("id", "T" + System.currentTimeMillis() + "_" + shortUuid());
@@ -281,7 +282,7 @@ public class SupportHandler implements HttpHandler {
             return;
         }
 
-        String now = FMT.format(LocalDateTime.now());
+        String now = FMT.format(AppTime.now());
         Map<String, Object> msg = new LinkedHashMap<>();
         msg.put("from", admin ? "admin" : "user");
         msg.put("who", admin ? (u.nickname().isEmpty() ? "客服" : u.nickname()) : str(t.get("userName")));
@@ -383,7 +384,7 @@ public class SupportHandler implements HttpHandler {
     }
 
     private void applyStatus(Map<String, Object> t, String target) {
-        String now = FMT.format(LocalDateTime.now());
+        String now = FMT.format(AppTime.now());
         t.put("status", target);
         t.put("updatedAt", now);
         if ("resolved".equals(target)) {

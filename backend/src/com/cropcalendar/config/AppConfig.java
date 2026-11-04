@@ -44,6 +44,21 @@ public final class AppConfig {
         return intOf("upstream.timeout.ms", 800);
     }
 
+    /** 出站 HTTP 连接超时：全仓唯一来源，各接口不再各写各的 */
+    public static int httpConnectTimeoutMs() {
+        return intOf("http.connect.timeout.ms", 3000);
+    }
+
+    /** 出站 HTTP 读取超时（普通上游：天气、地形、道路等） */
+    public static int httpReadTimeoutMs() {
+        return intOf("http.read.timeout.ms", 8000);
+    }
+
+    /** 归档气象等慢接口的读取超时，单独一档避免拖慢常规请求 */
+    public static int archiveTimeoutMs() {
+        return intOf("http.archive.timeout.ms", 15000);
+    }
+
     /** 缓存有效期 */
     public static int cacheTtlSeconds() {
         return intOf("cache.ttl.seconds", 900);

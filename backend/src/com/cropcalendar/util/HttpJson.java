@@ -1,5 +1,6 @@
 package com.cropcalendar.util;
 
+import com.cropcalendar.config.AppConfig;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -20,7 +21,7 @@ import java.util.Map;
 public final class HttpJson {
 
     private static final HttpClient CLIENT = HttpClient.newBuilder()
-            .connectTimeout(Duration.ofSeconds(3))
+            .connectTimeout(Duration.ofMillis(AppConfig.httpConnectTimeoutMs()))
             .build();
 
     private HttpJson() {
@@ -31,7 +32,7 @@ public final class HttpJson {
         try {
             HttpRequest req = HttpRequest.newBuilder()
                     .uri(URI.create(url))
-                    .timeout(Duration.ofSeconds(timeoutSeconds))
+                    .timeout(Duration.ofMillis(timeoutSeconds * 1000L))
                     .GET().build();
             HttpResponse<String> resp = CLIENT.send(req, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
             if (resp.statusCode() != 200) return null;
@@ -39,6 +40,16 @@ public final class HttpJson {
         } catch (Exception e) {
             return null;
         }
+    }
+
+    /** GET 一个 JSON，超时取配置里的默认值。 */
+    public static String get(String url) {
+        return get(url, Math.max(1, AppConfig.httpReadTimeoutMs() / 1000));
+    }
+
+    /** GET 并解析成 Map，超时取配置里的默认值；失败返回 null。 */
+    public static Map<?, ?> getMap(String url) {
+        return getMap(url, Math.max(1, AppConfig.httpReadTimeoutMs() / 1000));
     }
 
     /** GET 并解析成 Map；失败返回 null。 */

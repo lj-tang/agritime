@@ -257,7 +257,7 @@
         var hit = window.CropMap.getCropByName(query.cropName);
         var displayCropName = hit ? hit.name : query.cropName;
         document.getElementById('brand-sub').textContent = (displayCropName || '') + ' · ' + (query.sowDate || '');
-        var sourceText = { realtime: '实时天气', cache: '缓存天气', unavailable: '天气数据暂不可用' }[data.dataSource] || '';
+        var sourceText = { realtime: '实时天气', cache: '缓存天气', unavailable: '天气未获取' }[data.dataSource] || '';
         var degradedText = { timeout: '接口超时', http: '接口异常', invalid: '数据异常', offline: '网络异常' }[degradedSource] || '';
         var extra = degradedSource ? ' · 本地兜底数据（' + degradedText + '）' : '';
         meta.textContent = '数据来源：' + sourceText + (data.dataTime ? ' · 数据时间 ' + new Date(data.dataTime).toLocaleString() : '') + extra;

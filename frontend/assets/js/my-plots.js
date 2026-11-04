@@ -1260,7 +1260,9 @@
     dateInput.type = 'date';
     dateInput.id = 'pond-stock-date';
     dateInput.className = 'pond-date';
-    dateInput.value = new Date().toISOString().slice(0, 10);
+    var nowD = new Date();
+    dateInput.value = nowD.getFullYear() + '-' + String(nowD.getMonth() + 1).padStart(2, '0')
+      + '-' + String(nowD.getDate()).padStart(2, '0');
     var cBtn = document.createElement('button');
     cBtn.type = 'button';
     cBtn.className = 'my-plots-3d-view';
@@ -1308,6 +1310,13 @@
             p.textContent = st.detail;
             row.appendChild(p);
           }
+          // T20：起捕节点给出"按当前规格与行情能不能卖"的依据
+          if (st.costHint) {
+            var hint = document.createElement('p');
+            hint.className = 'pond-cost-hint';
+            hint.textContent = st.costHint;
+            row.appendChild(hint);
+          }
           cOut.appendChild(row);
         });
       }).catch(function (e) {
@@ -1316,7 +1325,140 @@
     });
 
     box.appendChild(calendarBox);
+
+    // T20：成本与盈亏。估算一律标「估算值」，填了实际数据才切成「按实际数据」
+    var costBox = document.createElement('div');
+    costBox.className = 'pond-cost';
+
+    var costHead = document.createElement('div');
+    costHead.className = 'pond-cost-head';
+    var costTitle = document.createElement('div');
+    costTitle.className = 'pond-cost-title';
+    costTitle.textContent = '成本与盈亏';
+    var costTag = document.createElement('span');
+    costTag.className = 'pond-cost-tag';
+    costHead.appendChild(costTitle);
+    costHead.appendChild(costTag);
+    costBox.appendChild(costHead);
+
+    var costForm = document.createElement('div');
+    costForm.className = 'pond-cost-form';
+    function costField(label, id, placeholder) {
+      var wrap = document.createElement('label');
+      wrap.className = 'pond-cost-field';
+      wrap.textContent = label;
+      var input = document.createElement('input');
+      input.type = 'number';
+      input.id = id;
+      input.min = '0';
+      input.placeholder = placeholder || '';
+      wrap.appendChild(input);
+      costForm.appendChild(wrap);
+      return input;
+    }
+    var priceIn = costField('售价（元/kg）', 'pond-cost-price', '默认用参考价');
+    var harvestIn = costField('实际出塘（kg）', 'pond-cost-harvest', '选填');
+    var feedIn = costField('实际投喂（kg）', 'pond-cost-feed', '选填');
+    var recalcBtn = document.createElement('button');
+    recalcBtn.type = 'button';
+    recalcBtn.className = 'my-plots-3d-view';
+    recalcBtn.textContent = '核算';
+    costForm.appendChild(recalcBtn);
+    costBox.appendChild(costForm);
+
+    var costOut = document.createElement('div');
+    costOut.className = 'pond-cost-result';
+    costBox.appendChild(costOut);
+    box.appendChild(costBox);
+
+    function runCost() {
+      var q = 'species=' + encodeURIComponent(sel.value)
+        + '&areaMu=' + encodeURIComponent(areaMu)
+        + '&marketPricePerKg=' + encodeURIComponent(priceIn.value || '')
+        + '&actualHarvestKg=' + encodeURIComponent(harvestIn.value || '')
+        + '&actualFeedKg=' + encodeURIComponent(feedIn.value || '');
+      costOut.innerHTML = '<div class="pond-cost-loading">正在核算…</div>';
+      fetch('/api/industry/cost?' + q).then(function (r) {
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        return r.json();
+      }).then(function (body) {
+        if (!body || body.code !== '0' || !body.data) throw new Error((body && body.message) || '返回为空');
+        renderPondCost(costOut, costTag, body.data);
+      }).catch(function (e) {
+        costOut.innerHTML = '';
+        var err = document.createElement('div');
+        err.className = 'pond-cost-loading';
+        err.textContent = '核算失败：' + e.message;
+        costOut.appendChild(err);
+      });
+    }
+    recalcBtn.addEventListener('click', runCost);
+    runCost();
+
     detail.appendChild(box);
+  }
+
+  /** 成本构成 + 盈亏。估算与实际必须一眼分得开，不做四舍五入的"好看数字"。 */
+  function renderPondCost(out, tag, d) {
+    out.innerHTML = '';
+    tag.textContent = d.estimated ? '估算值' : '按实际数据';
+    tag.className = 'pond-cost-tag' + (d.estimated ? '' : ' is-actual');
+
+    var rows = [
+      ['苗种', d.cost.seed], ['饲料', d.cost.feed], ['电费', d.cost.electricity],
+      ['药费', d.cost.medicine], ['人工', d.cost.labor], ['塘租', d.cost.rent]
+    ];
+    var table = document.createElement('div');
+    table.className = 'pond-cost-rows';
+    rows.forEach(function (r) {
+      var row = document.createElement('div');
+      row.className = 'pond-cost-row';
+      row.innerHTML = '<span>' + r[0] + '</span><b>' + yuan(r[1]) + ' 元</b>';
+      table.appendChild(row);
+    });
+    var total = document.createElement('div');
+    total.className = 'pond-cost-row is-total';
+    total.innerHTML = '<span>合计成本</span><b>' + yuan(d.cost.total) + ' 元</b>';
+    table.appendChild(total);
+    out.appendChild(table);
+
+    var profit = Number(d.output.profit);
+    var sum = document.createElement('div');
+    sum.className = 'pond-cost-sum';
+    sum.innerHTML =
+      '<div><span>预计产量</span><b>' + kw(d.output.harvestKg) + ' kg</b></div>' +
+      '<div><span>预计收入</span><b>' + yuan(d.output.revenue) + ' 元</b></div>' +
+      '<div><span>保本价</span><b>' + d.output.breakEvenPricePerKg + ' 元/kg</b></div>' +
+      '<div class="' + (profit >= 0 ? 'is-profit' : 'is-loss') + '"><span>'
+      + (profit >= 0 ? '预计盈利' : '预计亏损') + '</span><b>' + yuan(Math.abs(profit)) + ' 元</b></div>';
+    out.appendChild(sum);
+
+    if (d.assumptions && d.assumptions.length) {
+      var ul = document.createElement('ul');
+      ul.className = 'pond-cost-notes';
+      d.assumptions.forEach(function (a) {
+        var li = document.createElement('li');
+        li.textContent = a;
+        ul.appendChild(li);
+      });
+      out.appendChild(ul);
+    }
+    if (d.note) {
+      var p = document.createElement('p');
+      p.className = 'pond-cost-note';
+      p.textContent = d.note;
+      out.appendChild(p);
+    }
+  }
+
+  function yuan(v) {
+    var n = Number(v);
+    return isFinite(n) ? n.toLocaleString('zh-CN', { maximumFractionDigits: 0 }) : '—';
+  }
+
+  function kw(v) {
+    var n = Number(v);
+    return isFinite(n) ? n.toLocaleString('zh-CN', { maximumFractionDigits: 1 }) : '—';
   }
 
   /** 把该地块已有传感器的实测值塞进请求；没有设备时原样返回，不伪造字段。 */

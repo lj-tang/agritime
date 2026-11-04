@@ -1,5 +1,7 @@
 package com.cropcalendar.service.weather;
 
+import com.cropcalendar.config.AppConfig;
+import com.cropcalendar.util.AppTime;
 import com.cropcalendar.util.HttpJson;
 
 import java.time.LocalDate;
@@ -123,7 +125,7 @@ public final class ClimateNormals {
         long now = System.currentTimeMillis();
         if (e != null && now - e.at() < TTL_MS) return e.byDoy();
 
-        LocalDate today = LocalDate.now();
+        LocalDate today = AppTime.today();
         LocalDate from = today.minusYears(3);
         LocalDate to = today.minusDays(2);
         String url = String.format("https://archive-api.open-meteo.com/v1/archive?latitude=%.4f&longitude=%.4f"
@@ -132,7 +134,7 @@ public final class ClimateNormals {
                         + "&timezone=auto",
                 lat, lon, from.format(D), to.format(D));
 
-        Map<?, ?> root = HttpJson.getMap(url, 15);
+        Map<?, ?> root = HttpJson.getMap(url, AppConfig.archiveTimeoutMs() / 1000);
         if (root == null) {
             CACHE.put(key, new CacheEntry(new HashMap<>(), now));
             return null;

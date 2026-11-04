@@ -1,5 +1,7 @@
 package com.cropcalendar.api;
 
+import com.cropcalendar.config.AppConfig;
+import com.cropcalendar.util.AppTime;
 import com.cropcalendar.orchestration.CacheStore;
 import com.cropcalendar.service.crop.AgroZone;
 import com.cropcalendar.service.crop.CropProperties;
@@ -44,7 +46,7 @@ import java.util.concurrent.TimeUnit;
 public class PlotAnalyzeHandler implements HttpHandler {
 
     private static final HttpClient HTTP = HttpClient.newBuilder()
-            .connectTimeout(Duration.ofSeconds(3))
+            .connectTimeout(Duration.ofMillis(AppConfig.httpConnectTimeoutMs()))
             .build();
 
     /** 地形分析缓存：DEM 和土壤模型不会分钟级变化，30 分钟足够，也保护上游。 */
@@ -226,7 +228,7 @@ public class PlotAnalyzeHandler implements HttpHandler {
                         "soil", Json.str("Open-Meteo 土壤模型（0cm/6cm 地温、0-1cm 体积含水率）"),
                         "climate", Json.str("Open-Meteo 预报（实时气温湿度 + 未来 7 天降水）"),
                         "crops", Json.str("作物属性库 properties.json + 区域/坡度/墒情规则匹配")),
-                "analyzedAt", Json.str(LocalDate.now().toString()));
+                "analyzedAt", Json.str(AppTime.today().toString()));
     }
 
     // ------------------------------------------------------------------ 几何
@@ -804,7 +806,7 @@ public class PlotAnalyzeHandler implements HttpHandler {
             return List.of();
         }
 
-        int month = LocalDate.now().getMonthValue();
+        int month = AppTime.today().getMonthValue();
         String season = month >= 3 && month <= 5 ? "春" : month >= 6 && month <= 8 ? "夏"
                 : month >= 9 && month <= 11 ? "秋" : "冬";
         double sl = t.available ? t.slopeDeg : 0;
@@ -901,7 +903,7 @@ public class PlotAnalyzeHandler implements HttpHandler {
         String url = "https://api.open-meteo.com/v1/elevation?latitude=" + la + "&longitude=" + lo;
         try {
             HttpRequest req = HttpRequest.newBuilder().uri(URI.create(url))
-                    .timeout(Duration.ofSeconds(8)).GET().build();
+                    .timeout(Duration.ofMillis(AppConfig.httpReadTimeoutMs())).GET().build();
             HttpResponse<String> resp = HTTP.send(req, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
             if (resp.statusCode() != 200) return Terrain.empty();
             Object o = JsonParser.parse(resp.body());
@@ -952,7 +954,7 @@ public class PlotAnalyzeHandler implements HttpHandler {
                         + "&daily=precipitation_sum,shortwave_radiation_sum,wind_speed_10m_max"
                         + "&forecast_days=7&timezone=auto",
                 g.centroidLat, g.centroidLon);
-        Map<?, ?> root = HttpJson.getMap(url, 8);
+        Map<?, ?> root = HttpJson.getMap(url);
         if (root == null) return w;
 
         w.temp = HttpJson.dbl(root, "current", "temperature_2m");

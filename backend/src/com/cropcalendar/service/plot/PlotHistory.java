@@ -1,5 +1,6 @@
 package com.cropcalendar.service.plot;
 
+import com.cropcalendar.util.AppTime;
 import com.cropcalendar.util.Json;
 import java.time.ZoneId;
 import com.cropcalendar.util.JsonParser;
@@ -92,7 +93,7 @@ public final class PlotHistory {
             List<Map<String, Object>> all = readAll(userId);
             String recordId = "rec_" + Long.toString(System.currentTimeMillis(), 36)
                     + "_" + Integer.toString((int) (Math.random() * 100000), 36);
-            String now = java.time.LocalDateTime.now(SH).toString();
+            String now = AppTime.now().toString();
             Map<String, Object> rec = new LinkedHashMap<>();
             rec.put("recordId", recordId);
             rec.put("plotId", str(record.get("plotId")));
@@ -441,11 +442,11 @@ public final class PlotHistory {
     }
 
     private static int extractYear(String date) {
-        if (date == null || date.length() < 4) return java.time.LocalDate.now(SH).getYear();
+        if (date == null || date.length() < 4) return AppTime.today().getYear();
         try {
             return Integer.parseInt(date.substring(0, 4));
         } catch (Exception e) {
-            return java.time.LocalDate.now(SH).getYear();
+            return AppTime.today().getYear();
         }
     }
 

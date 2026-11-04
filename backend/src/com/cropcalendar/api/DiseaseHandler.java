@@ -92,32 +92,52 @@ public class DiseaseHandler implements HttpHandler {
         }
         scored.sort((a, b) -> Double.compare(b.score, a.score));
 
-        // 文字只命中一两条时，用同作物其余常见病害补齐到 3 条（置信度压到 0.25），
-        // 相当于"其他可能"，比只甩一条结论更接近真实的鉴别诊断。
-        boolean imageOnly = scored.isEmpty() && hasImage;
-        if (crop != null && scored.size() < TOP_N) {
+        // T16：文字问诊不再拿同作物的其他病害凑满 3 条。
+        // 有命中就只给命中的；一条都没命中就直说"没匹配到"并转人工。
+        // 只有"仅上传图片、没有文字"时，才按颜色特征 / 常见病害给候选，并在 note 里写明这不是匹配结果。
+        // 只保留"说得出依据"的结果：要么命中至少一条典型症状，要么用户直接写了病名。
+        // 光靠零散字词凑出来的低分项（覆盖率 >0 但一条症状都没对上）不给展示，
+        // 否则又变成"有分数、没依据"。
+        List<Scored> real = new ArrayList<>();
+        for (Scored s : scored) {
+            if (s.nameHit || !s.matchedSymptoms.isEmpty()) real.add(s);
+        }
+        boolean fallbackByImage = real.isEmpty() && hasImage;
+        if (fallbackByImage) {
             java.util.Set<String> used = new java.util.HashSet<>();
-            for (Scored s : scored) used.add(str(s.disease.get("id")));
             for (Map<String, Object> d : lib) {
-                if (scored.size() >= TOP_N) break;
+                if (real.size() >= TOP_N) break;
                 if (!used.add(str(d.get("id")))) continue;
-                if (!matchesCrop(d, crop)) continue;
-                scored.add(new Scored(d, 0.25, 0));
+                if (crop != null && !matchesCrop(d, crop)) continue;
+                real.add(new Scored(d, 0.25, 0, List.of(), false));
             }
         }
+        boolean needHuman = real.isEmpty() && !hasImage;
 
         List<String> items = new ArrayList<>();
-        for (int i = 0; i < Math.min(TOP_N, scored.size()); i++) {
-            Scored s = scored.get(i);
+        for (int i = 0; i < Math.min(TOP_N, real.size()); i++) {
+            Scored s = real.get(i);
             Map<String, Object> d = s.disease;
+            List<String> evidence = new ArrayList<>();
+            for (String kw : s.matchedSymptoms) evidence.add(Json.str("症状：" + kw));
+            if (s.nameHit) evidence.add(Json.str("病名直接命中"));
+            // 匹配度是"该病害的典型症状被覆盖了多少"，与命中词条一起给出，
+            // 不再只甩一个看不出由来的小数
+            int matchRate = s.nameHit ? 100 : (int) Math.round(s.coverage * 100);
             items.add(Json.obj(
                     "id", Json.str(str(d.get("id"))),
                     "name", Json.str(str(d.get("name"))),
                     "type", Json.str(str(d.get("type"))),
                     "confidence", Json.num(s.score),
+                    "matchRate", String.valueOf(matchRate),
+                    "matchedSymptoms", strArray(s.matchedSymptoms),
+                    "evidence", Json.arr(evidence),
                     "pathogen", Json.str(str(d.get("pathogen"))),
                     "conditions", Json.str(str(d.get("conditions"))),
-                    "matchedKeywords", String.valueOf(s.hits),
+                    "safetyInterval", d.get("safetyInterval") == null ? "null" : String.valueOf(d.get("safetyInterval")),
+                    "safetyNote", Json.str(str(d.get("safetyNote"))),
+                    "scope", Json.str(str(d.get("scope"))),
+                    "source", Json.str(str(d.get("source"))),
                     "symptoms", strArray(d.get("symptoms")),
                     "treatment", strArray(d.get("treatment")),
                     "medicine", strArray(d.get("medicine")),
@@ -128,20 +148,26 @@ public class DiseaseHandler implements HttpHandler {
         if (hint != null) {
             note = "图片已按颜色特征参与排序（" + featureLabel(hint)
                     + " 占比最高），属规则匹配，不是训练模型识别；结论请结合文字描述与田间观察";
-        } else if (hasImage && imageOnly) {
-            note = "图片已收到，但未提取到可用的颜色特征，以下结果按作物常见病害给出，置信度仅供参考";
+        } else if (fallbackByImage) {
+            note = norm.isEmpty()
+                    ? "没有文字描述，无法做症状匹配。以下按该作物常见病害列出候选，仅供参考，请补充症状或转人工"
+                    : "文字未匹配到已知病害，以下按该作物常见病害列出候选，不代表匹配结果，请补齐症状描述或转人工";
         } else if (hasImage) {
             note = "图片未参与分析；结果来自文字描述匹配";
-        } else if (text != null && scored.isEmpty()) {
-            note = "没有匹配到已知病害，建议补充症状细节（部位、颜色、是否有霉层/虫体）";
+        } else if (needHuman) {
+            note = "没有匹配到已知病害。别硬猜：补一句症状细节，或直接转人工让农技人员看";
         }
 
         HttpSupport.write(ex, 200, Json.obj(
                 "crop", Json.str(crop),
                 "query", Json.str(text),
                 "imageUsed", String.valueOf(hint != null),
-                "imageMethod", Json.str(hint != null ? "color-feature" : (hasImage ? "none" : "none")),
+                "imageMethod", Json.str(hint != null ? "color-feature" : "none"),
                 "note", Json.str(note),
+                "needHuman", String.valueOf(needHuman),
+                "humanHint", Json.str(needHuman
+                        ? "点「转人工」把这段描述发给客服，或在「客服」里发起咨询；也可以补一句部位、颜色、有没有霉层"
+                        : null),
                 "total", String.valueOf(items.size()),
                 "matches", Json.arr(items)));
     }
@@ -196,45 +222,57 @@ public class DiseaseHandler implements HttpHandler {
         return Math.min(0.12, hit * 0.03);
     }
 
-    private record Scored(Map<String, Object> disease, double score, int hits) {
+    /**
+     * 一条打分结果。
+     *
+     * @param coverage      典型症状被覆盖的比例（0~1），用来当"匹配度"
+     * @param matchedSymptoms 命中的典型症状原文，直接展示给用户当依据
+     * @param nameHit       用户是否直接写了病名
+     */
+    private record Scored(Map<String, Object> disease, double score, double coverage,
+                          List<String> matchedSymptoms, boolean nameHit) {
     }
 
     /** 症状词命中度：完全包含记 1，否则按二元组覆盖率折算，避免用户措辞不同就零分 */
     private Scored score(Map<String, Object> disease, String text, String hint) {
         List<?> symptoms = disease.get("symptoms") instanceof List<?> l ? l : List.of();
         if (symptoms.isEmpty()) {
-            return new Scored(disease, 0, 0);
+            return new Scored(disease, 0, 0, List.of(), false);
         }
         // 只有图片没有文字时，用颜色特征给同作物病害排序，而不是任意挑三条
         if (text.isEmpty()) {
             double b = hint == null ? 0 : hintBonus(disease, hint);
-            return new Scored(disease, b > 0 ? 0.3 + b : 0, 0);
+            return new Scored(disease, b > 0 ? 0.3 + b : 0, 0, List.of(), false);
         }
         double sum = 0;
-        int exact = 0;
+        List<String> matched = new ArrayList<>();
         for (Object o : symptoms) {
-            String kw = normalize(str(o));
+            String raw = str(o);
+            String kw = normalize(raw);
             if (kw.isEmpty()) continue;
             double r = keywordScore(text, kw);
-            if (r >= 1.0) exact++;
+            // 过半二元组命中就算"这条典型症状对上了"，作为展示依据；
+            // 阈值不能取 1.0 —— 用户写"黄色条状孢子堆"、库里写"鲜黄色…"是很正常的事
+            if (r >= 0.3) matched.add(raw);
             sum += r;
         }
         double coverage = sum / symptoms.size();
         // 名称命中额外加权：用户常常直接写"晚疫病"
         String name = normalize(str(disease.get("name")));
-        if (!name.isEmpty() && text.contains(name)) {
+        boolean nameHit = !name.isEmpty() && text.contains(name);
+        if (nameHit) {
             coverage = Math.min(1.0, coverage + 0.35);
-            exact++;
         }
         if (coverage < 0.12) {
-            return new Scored(disease, 0, exact);
+            return new Scored(disease, 0, coverage, matched, nameHit);
         }
         // 置信度压在 0.35~0.95，避免出现"99% 确诊"这种不负责任的数字
         double conf = 0.35 + 0.6 * Math.min(1.0, coverage);
         // 颜色特征只做小幅加分（最多 +0.12），不能盖过文字描述
         double bonus = hint == null ? 0 : hintBonus(disease, hint);
         conf = Math.min(0.95, conf + bonus);
-        return new Scored(disease, Math.round(conf * 100) / 100.0, exact);
+        return new Scored(disease, Math.round(conf * 100) / 100.0,
+                Math.round(coverage * 1000) / 1000.0, matched, nameHit);
     }
 
     private double keywordScore(String text, String kw) {

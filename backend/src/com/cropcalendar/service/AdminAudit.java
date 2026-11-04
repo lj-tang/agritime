@@ -1,5 +1,6 @@
 package com.cropcalendar.service;
 
+import com.cropcalendar.util.AppTime;
 import com.cropcalendar.config.AppConfig;
 
 import java.io.IOException;
@@ -29,7 +30,7 @@ public final class AdminAudit {
 
     public static void log(String actor, String action, String target, String detail) {
         String line = String.join(" | ",
-                LocalDateTime.now().format(TS),
+                AppTime.now().format(TS),
                 clean(actor), clean(action), clean(target), clean(detail));
         synchronized (LOCK) {
             try {

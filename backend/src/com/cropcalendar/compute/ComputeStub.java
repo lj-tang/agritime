@@ -1,5 +1,6 @@
 package com.cropcalendar.compute;
 
+import com.cropcalendar.util.AppTime;
 import com.cropcalendar.config.AppConfig;
 import com.cropcalendar.service.crop.CropProperties;
 import com.cropcalendar.util.Json;
@@ -320,7 +321,7 @@ public final class ComputeStub {
     // ============================================================
 
     private static final HttpClient HTTP = HttpClient.newBuilder()
-            .connectTimeout(Duration.ofSeconds(3))
+            .connectTimeout(Duration.ofMillis(AppConfig.httpConnectTimeoutMs()))
             .build();
 
     /** archive + forecast 双请求并行专用线程池（A1：串行 ~3s → 并行 ~1.5s） */
@@ -343,7 +344,7 @@ public final class ComputeStub {
         }
         if (wanted.isEmpty()) return WeatherWindow.unavailable("日期序列为空");
 
-        LocalDate today = LocalDate.now(SHANGHAI);
+        LocalDate today = AppTime.today();
         LocalDate min = wanted.get(0);
         LocalDate max = wanted.get(wanted.size() - 1);
 
@@ -409,7 +410,7 @@ public final class ComputeStub {
                 + "&start_date=" + from + "&end_date=" + to;
         try {
             HttpRequest req = HttpRequest.newBuilder(URI.create(url))
-                    .timeout(Duration.ofSeconds(5))
+                    .timeout(Duration.ofMillis(AppConfig.httpReadTimeoutMs()))
                     .header("Accept", "application/json")
                     .GET().build();
             HttpResponse<String> resp = HTTP.send(req, HttpResponse.BodyHandlers.ofString());

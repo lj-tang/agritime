@@ -1346,9 +1346,9 @@ test('V5.3 去重：共享层已抽取', () => {
 test('V5 任务书：与 V4 同体例，编号自 T16 续接', () => {
   const tb = read(path.resolve(__dirname, '..', '..', 'docs', 'taskbook-v5.md'));
   assert.ok(tb.includes('**任务编号：T16**'), '首个任务应为 T16，与 V4 的 T00-T15 续接');
-  assert.ok(tb.includes('**任务编号：T21**'), '末项应为 T21（提醒/工单/播期/改期/地块历史/指导换算/茬口校验落地后已删项并重编号）');
+  assert.ok(tb.includes('**任务编号：T18**'), '末项应为 T18（提醒/工单/播期/改期/地块历史/指导换算/茬口校验/病害/工程兜底/养殖核算落地后已删项并重编号）');
   const ids = tb.match(/\*\*任务编号：T\d+\*\*/g) || [];
-  assert.equal(ids.length, 6, '应有 6 个待办任务（T16-T21）');
+  assert.equal(ids.length, 3, '应有 3 个待办任务（T16-T18）');
   // 编号必须连续不重复，否则中途插任务时容易乱
   const nums = ids.map(x => parseInt(x.replace(/\D/g, ''), 10));
   nums.forEach((n, i) => assert.equal(n, 16 + i, '任务编号应从 T16 连续递增'));
@@ -1361,7 +1361,7 @@ test('V5 任务书：与 V4 同体例，编号自 T16 续接', () => {
   // 任务书只列未完成任务，不把已完成项写进来占编号
   assert.ok(!/\*\*状态\*\*：已完成/.test(tb), '不应出现"已完成"状态标记');
   const prio = tb.match(/\*\*优先级\*\*：P\d/g) || [];
-  assert.equal(prio.length, 6, '每个任务都应有优先级');
+  assert.equal(prio.length, 3, '每个任务都应有优先级');
   assert.ok(!tb.includes('commit') && !tb.includes('350259d'), '不写提交号，避免把已完成记录混进待办');
 });
 
@@ -1527,7 +1527,7 @@ test('T18 提醒记录：按账号落盘、去重、已读与过期清理', () =
   assert.ok(store.includes('Asia/Shanghai'), '过期判定应显式用北京时间');
   assert.ok(store.includes('old.get("read")'), '重复推送不应把已读顶回未读');
   assert.ok(!taskbook.includes('模块18：提醒服务'), '已完成任务应从任务书移除');
-  assert.ok(/共 6 项/.test(taskbook), '任务书应重编号为 6 项待办');
+  assert.ok(/共 3 项/.test(taskbook), '任务书应重编号为 3 项待办');
   assert.ok(!taskbook.includes('模块18：客服工单流转'), '已完成工单任务应从任务书移除');
 });
 
@@ -1736,4 +1736,98 @@ test('T16 病害库：50 条起，每条带来源、适用范围与安全间隔�
   ['小麦', '玉米', '水稻', '番茄'].forEach((c) => assert.ok(crops.has(c), '应覆盖 ' + c));
   const rust = lib.diseases.find((d) => d.name === '小麦条锈病');
   assert.ok(rust && rust.symptoms.some((x) => x.includes('条状孢子堆')), '小麦条锈病应有可命中的症状描述');
+});
+
+// ---------------- T16 病害问诊深化（匹配度 / 依据 / 转人工） ----------------
+
+test('T16 病害问诊：匹配度与命中依据成对出现，没命中不硬凑', () => {
+  const dh = read(path.resolve(__dirname, '..', '..', 'backend', 'src', 'com', 'cropcalendar', 'api', 'DiseaseHandler.java'));
+  const js = read(path.resolve(__dirname, '..', 'assets', 'js', 'disease.js'));
+  const css = read(path.join(CSS, 'disease.css'));
+  const html = read(path.resolve(__dirname, '..', 'pages', 'index.html'));
+
+  assert.ok(dh.includes('"matchRate"'), '接口应输出匹配度');
+  assert.ok(dh.includes('"matchedSymptoms"') && dh.includes('"evidence"'), '应输出命中的症状词条');
+  assert.ok(dh.includes('"needHuman"'), '无匹配应给出转人工标记');
+  assert.ok(dh.includes('!s.matchedSymptoms.isEmpty()'), '没有依据的结果不应展示');
+  assert.ok(dh.includes('"safetyInterval"') && dh.includes('"safetyNote"'), '应透传安全间隔期与施药安全提示');
+  assert.ok(dh.includes('"scope"') && dh.includes('"source"'), '应透传适用范围与来源');
+
+  assert.ok(js.includes('匹配度'), '前端应显示匹配度而不是裸百分比');
+  assert.ok(js.includes('disease-evidence-chip'), '前端应列出判断依据');
+  assert.ok(js.includes('安全间隔期'), '前端应显示安全间隔期');
+  assert.ok(js.includes('renderNeedHuman') && js.includes('goHuman'), '无匹配应给转人工入口');
+  assert.ok(js.includes("switchModule('service')"), '转人工应切到客服板块');
+  assert.ok(css.includes('.disease-evidence-chip') && css.includes('.disease-safety'), '缺少依据与用药安全样式');
+  assert.ok(html.includes('不承诺识别率'), '图像识别应标注仅辅助、不承诺识别率');
+});
+
+// ---------------- T17 工程兜底：时区、超时、缓存 ----------------
+
+test('T17 工程兜底：时间走 AppTime，超时收口到 AppConfig，推荐结果有缓存', () => {
+  const fs_ = require('fs');
+  const timeUtil = read(path.resolve(__dirname, '..', '..', 'backend', 'src', 'com', 'cropcalendar', 'util', 'AppTime.java'));
+  const cfg = read(path.resolve(__dirname, '..', '..', 'backend', 'src', 'com', 'cropcalendar', 'config', 'AppConfig.java'));
+  const server = read(path.resolve(__dirname, '..', '..', 'backend', 'src', 'com', 'cropcalendar', 'Server.java'));
+  const rec = read(path.resolve(__dirname, '..', '..', 'backend', 'src', 'com', 'cropcalendar', 'api', 'RecommendHandler.java'));
+  const timelineHtml = read(path.resolve(__dirname, '..', 'pages', 'timeline.html'));
+
+  assert.ok(timeUtil.includes('Asia/Shanghai'), 'AppTime 应固定北京时间');
+  assert.ok(server.includes('TimeZone.setDefault'), '启动时应固定 JVM 默认时区');
+  assert.ok(rec.includes('CACHE') && rec.includes('"cached"'), '推荐接口应有结果缓存');
+  assert.ok(rec.includes('AppTime.today()'), '缓存 key 应带上日期');
+  assert.ok(cfg.includes('httpConnectTimeoutMs') && cfg.includes('httpReadTimeoutMs'), '超时应由 AppConfig 统一定义');
+  assert.ok(timelineHtml.includes('天气未获取'), '天气不可用时页头应写「天气未获取」');
+
+  // 业务代码里不应该再有裸的 now()，否则容器跑 UTC 时会偏移 8 小时
+  const srcDir = path.resolve(__dirname, '..', '..', 'backend', 'src', 'com', 'cropcalendar');
+  const offenders = [];
+  (function walk(dir) {
+    fs_.readdirSync(dir, { withFileTypes: true }).forEach((e) => {
+      const full = path.join(dir, e.name);
+      if (e.isDirectory()) return walk(full);
+      if (!e.name.endsWith('.java') || e.name === 'AppTime.java') return;
+      const text = fs_.readFileSync(full, 'utf8');
+      if (/LocalDate\.now\(\)|LocalDateTime\.now\(\)/.test(text)) offenders.push(e.name);
+    });
+  })(srcDir);
+  assert.deepEqual(offenders, [], '仍有未指定时区的时间调用：' + offenders.join(', '));
+
+  // 出站请求的时长不应再散落在各 handler 里
+  const hardcoded = [];
+  (function walk2(dir) {
+    fs_.readdirSync(dir, { withFileTypes: true }).forEach((e) => {
+      const full = path.join(dir, e.name);
+      if (e.isDirectory()) return walk2(full);
+      if (!e.name.endsWith('.java')) return;
+      const text = fs_.readFileSync(full, 'utf8');
+      if (text.includes('Duration.ofSeconds') && e.name !== 'Server.java') hardcoded.push(e.name);
+    });
+  })(srcDir);
+  assert.deepEqual(hardcoded, [], '仍有硬编码超时：' + hardcoded.join(', '));
+});
+
+// ---------------- T20 养殖成本核算 ----------------
+
+test('T20 养殖核算：成本构成、估算/实际分离、起捕提示', () => {
+  const cost = read(path.resolve(__dirname, '..', '..', 'backend', 'src', 'com', 'cropcalendar', 'service', 'aqua', 'AquaCost.java'));
+  const handler = read(path.resolve(__dirname, '..', '..', 'backend', 'src', 'com', 'cropcalendar', 'api', 'IndustryHandler.java'));
+  const plotsJs = read(path.resolve(__dirname, '..', 'assets', 'js', 'my-plots.js'));
+  const plotsCss = read(path.join(CSS, 'my-plots.css'));
+  const model = JSON.parse(read(path.resolve(__dirname, '..', '..', 'data', 'industries', 'aquaculture', 'cost-model.json')));
+
+  assert.ok(cost.includes('estimate') && cost.includes('harvestHint'), '应有成本核算与起捕提示');
+  assert.ok(cost.includes('estimated'), '估算/实际必须能区分');
+  assert.ok(handler.includes('/cost') || handler.includes('"/cost"'), '应挂上成本接口');
+  assert.ok(handler.includes('costHint'), '起捕节点应带成本提示');
+
+  assert.ok(model.defaults && model.defaults.fcr > 0, '成本模型应有饲料系数');
+  assert.ok(model.defaults.survivalRate > 0, '成本模型应有成活率');
+  assert.ok(Object.keys(model.species).length >= 3, '至少覆盖 3 个养殖品类');
+
+  assert.ok(plotsJs.includes('/api/industry/cost'), '塘口详情应调用成本接口');
+  assert.ok(plotsJs.includes('估算值') && plotsJs.includes('按实际数据'), '估算与实际应分开标注');
+  assert.ok(plotsJs.includes('保本价'), '应给出保本价');
+  assert.ok(plotsJs.includes('pond-cost-hint'), '起捕节点应展示成本提示');
+  assert.ok(plotsCss.includes('.pond-cost') && plotsCss.includes('.pond-cost-row'), '缺少成本面板样式');
 });

@@ -1,5 +1,7 @@
 package com.cropcalendar.api;
 
+import com.cropcalendar.config.AppConfig;
+import com.cropcalendar.util.AppTime;
 import com.cropcalendar.orchestration.CacheStore;
 import com.cropcalendar.service.aqua.SpeciesCatalog;
 import com.cropcalendar.util.Json;
@@ -39,7 +41,7 @@ import java.util.concurrent.TimeUnit;
 public class PondStatusHandler implements HttpHandler {
 
     private static final HttpClient HTTP = HttpClient.newBuilder()
-            .connectTimeout(Duration.ofSeconds(3))
+            .connectTimeout(Duration.ofMillis(AppConfig.httpConnectTimeoutMs()))
             .build();
 
     private static final CacheStore CACHE = new CacheStore();
@@ -97,7 +99,7 @@ public class PondStatusHandler implements HttpHandler {
 
         String key = "pond:" + Math.round(lat * 100) + ":" + Math.round(lon * 100) + ":" + species
                 + ":" + Math.round(areaMu * 10) + ":" + Math.round(density) + ":" + Math.round(avgWeightG)
-                + ":" + LocalDate.now();
+                + ":" + AppTime.today();
         String cached = CACHE.get(key, String.class);
         if (cached != null) {
             HttpSupport.write(ex, 200, cached);
@@ -317,7 +319,7 @@ public class PondStatusHandler implements HttpHandler {
                 lat, lon);
         try {
             HttpRequest req = HttpRequest.newBuilder().uri(URI.create(url))
-                    .timeout(Duration.ofSeconds(8)).GET().build();
+                    .timeout(Duration.ofMillis(AppConfig.httpReadTimeoutMs())).GET().build();
             HttpResponse<String> resp = HTTP.send(req, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
             if (resp.statusCode() != 200) return w;
             String b = resp.body();

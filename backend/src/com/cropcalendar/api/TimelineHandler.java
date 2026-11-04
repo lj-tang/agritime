@@ -1,5 +1,6 @@
 package com.cropcalendar.api;
 
+import com.cropcalendar.util.AppTime;
 import com.cropcalendar.compute.ComputeStub;
 import com.cropcalendar.compute.ComputeStub.MarketHint;
 import com.cropcalendar.compute.ComputeStub.TermHint;
@@ -143,7 +144,7 @@ public class TimelineHandler implements HttpHandler {
 
     private static String toContractJson(TimelineResult r, String cropName, String requestedCrop,
                                          CropProperties.Props props, double areaMu) {
-        String today = LocalDate.now().toString();
+        String today = AppTime.today().toString();
         String dataSource = mapDataSource(r.weatherStatus());
         String dataTime = r.dataTime() != null ? r.dataTime() : null;
 
@@ -169,7 +170,7 @@ public class TimelineHandler implements HttpHandler {
             boolean forecastNote = false;
             if (!seasonal) {
                 try {
-                    forecastNote = LocalDate.parse(n.date()).isAfter(LocalDate.now().plusDays(4));
+                    forecastNote = LocalDate.parse(n.date()).isAfter(AppTime.today().plusDays(4));
                 } catch (Exception ignored) {
                     // 日期异常就不标注，避免误标
                 }

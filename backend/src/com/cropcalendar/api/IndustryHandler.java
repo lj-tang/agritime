@@ -3,6 +3,7 @@ package com.cropcalendar.api;
 import com.cropcalendar.compute.ComputeStub;
 import com.cropcalendar.compute.ComputeStub.WeatherWindow;
 import com.cropcalendar.orchestration.CacheStore;
+import com.cropcalendar.service.aqua.AquaCost;
 import com.cropcalendar.service.aqua.SpeciesCatalog;
 import com.cropcalendar.util.Json;
 import com.cropcalendar.util.JsonParser;
@@ -58,6 +59,8 @@ public class IndustryHandler implements HttpHandler {
             listSpecies(ex);
         } else if (path.endsWith("/timeline")) {
             timeline(ex);
+        } else if (path.endsWith("/cost")) {
+            cost(ex);
         } else {
             HttpSupport.write(ex, 404, Json.obj("code", Json.str("40400"), "message", Json.str("未知接口")));
         }
@@ -88,6 +91,8 @@ public class IndustryHandler implements HttpHandler {
         String stockDate = HttpSupport.trimToNull(q.get("stockDate"));
         double lat = HttpSupport.parseDouble(q.get("lat"), 30.33);
         double lon = HttpSupport.parseDouble(q.get("lon"), 112.24);
+        // 面积决定成本估算的规模；不传就按 10 亩，页面会写明这是估算口径
+        double areaMu = HttpSupport.parseDouble(q.get("areaMu"), 10);
 
         if (id == null) {
             HttpSupport.write(ex, 400, Json.obj("code", Json.str("40001"), "message", Json.str("缺少参数 species")));
@@ -104,8 +109,11 @@ public class IndustryHandler implements HttpHandler {
             HttpSupport.write(ex, 404, Json.obj("code", Json.str("40404"), "message", Json.str("没有这个养殖品类")));
             return;
         }
+        // 品类允许用中文名查询，但成本模型按 id 查表，这里统一归一到 id
+        id = str(sp.get("id"));
 
-        String cacheKey = "industry:" + id + ":" + stockDate + ":" + Math.round(lat * 100) + ":" + Math.round(lon * 100);
+        String cacheKey = "industry:" + id + ":" + stockDate + ":" + Math.round(lat * 100) + ":"
+                + Math.round(lon * 100) + ":" + Math.round(areaMu * 10);
         String cached = CACHE.get(cacheKey, String.class);
         if (cached != null) {
             HttpSupport.write(ex, 200, cached);
@@ -188,8 +196,13 @@ public class IndustryHandler implements HttpHandler {
                 }
             }
 
+            String costHint = "harvest".equals(str(m.get("opType")))
+                    ? AquaCost.harvestHint(id, areaMu)
+                    : null;
+
             nodes.add(Json.obj(
                     "nodeSeq", String.valueOf(seq),
+                    "costHint", Json.str(costHint),
                     "dayOffset", String.valueOf(off),
                     "date", Json.str(d.toString()),
                     "opType", Json.str(str(m.get("opType"))),
@@ -205,6 +218,7 @@ public class IndustryHandler implements HttpHandler {
                 "speciesId", Json.str(str(sp.get("id"))),
                 "stockDate", Json.str(stock.toString()),
                 "stockUnit", Json.str(str(sp.get("stockUnit"))),
+                "areaMu", Json.num(areaMu),
                 "stockSeason", Json.str(str(sp.get("stockSeason"))),
                 "tips", Json.str(str(sp.get("tips"))),
                 "waterTempMin", fmt(tMin),
@@ -221,6 +235,93 @@ public class IndustryHandler implements HttpHandler {
                 "data", data);
         CACHE.put(cacheKey, body, CACHE_TTL);
         HttpSupport.write(ex, 200, body);
+    }
+
+    /**
+     * GET /api/industry/cost —— 成本与产出核算（V5 T20）
+     *
+     * 参数全部可选：不传就用成本模型里的默认值，返回 mode=estimate；
+     * 传了 actualFeedKg / actualHarvestKg 就用实际值算，返回 mode=actual。
+     */
+    private void cost(HttpExchange ex) throws IOException {
+        Map<String, String> q = HttpSupport.query(ex.getRequestURI().getRawQuery());
+        String id = HttpSupport.trimToNull(q.get("species"));
+        if (id == null) {
+            HttpSupport.write(ex, 400, Json.obj("code", Json.str("40001"), "message", Json.str("缺少参数 species")));
+            return;
+        }
+        for (Map<String, Object> s : species()) {
+            if (id.equals(str(s.get("id"))) || id.equals(str(s.get("name")))) {
+                id = str(s.get("id"));
+                break;
+            }
+        }
+
+        AquaCost.Inputs in = new AquaCost.Inputs(
+                dblOrNull(q.get("areaMu")), dblOrNull(q.get("stockQty")),
+                dblOrNull(q.get("survivalRate")), dblOrNull(q.get("fcr")),
+                dblOrNull(q.get("feedPricePerKg")), dblOrNull(q.get("seedPricePerFish")),
+                dblOrNull(q.get("harvestSizeKg")), dblOrNull(q.get("marketPricePerKg")),
+                dblOrNull(q.get("electricityPerMu")), dblOrNull(q.get("medicinePerMu")),
+                dblOrNull(q.get("laborPerMu")), dblOrNull(q.get("rentPerMu")),
+                dblOrNull(q.get("actualFeedKg")), dblOrNull(q.get("actualHarvestKg")));
+
+        AquaCost.Result r;
+        try {
+            r = AquaCost.estimate(id, in);
+        } catch (Exception e) {
+            HttpSupport.write(ex, 500, Json.obj("code", Json.str("50001"),
+                    "message", Json.str("成本模型读取失败：" + e.getMessage())));
+            return;
+        }
+        if (r == null) {
+            HttpSupport.write(ex, 404, Json.obj("code", Json.str("40404"), "message", Json.str("没有这个养殖品类")));
+            return;
+        }
+
+        List<String> assumptions = new ArrayList<>();
+        for (String a : r.assumptions()) assumptions.add(Json.str(a));
+
+        HttpSupport.write(ex, 200, Json.obj(
+                "code", Json.str("0"),
+                "message", Json.str("ok"),
+                "data", Json.obj(
+                        "speciesId", Json.str(r.speciesId()),
+                        "species", Json.str(r.speciesName()),
+                        "mode", Json.str(r.mode()),
+                        "estimated", String.valueOf(r.estimated()),
+                        "inputs", Json.obj(
+                                "areaMu", Json.num(r.areaMu()),
+                                "stockQty", Json.num(r.stockQty()),
+                                "survivalRate", Json.num(r.survivalRate()),
+                                "harvestKg", Json.num(r.harvestKg()),
+                                "feedKg", Json.num(r.feedKg())),
+                        "cost", Json.obj(
+                                "seed", Json.num(r.seedCost()),
+                                "feed", Json.num(r.feedCost()),
+                                "electricity", Json.num(r.electricityCost()),
+                                "medicine", Json.num(r.medicineCost()),
+                                "labor", Json.num(r.laborCost()),
+                                "rent", Json.num(r.rentCost()),
+                                "total", Json.num(r.totalCost())),
+                        "output", Json.obj(
+                                "harvestKg", Json.num(r.harvestKg()),
+                                "revenue", Json.num(r.revenue()),
+                                "profit", Json.num(r.profit()),
+                                "breakEvenPricePerKg", Json.num(r.breakEvenPricePerKg())),
+                        "assumptions", Json.arr(assumptions),
+                        "note", Json.str(r.estimated()
+                                ? "估算值，非实际账目；填入实际投喂量与出塘量后会按实际值重算"
+                                : "按你填写的实际投喂量与出塘量计算"))));
+    }
+
+    private static Double dblOrNull(String raw) {
+        if (raw == null || raw.isBlank()) return null;
+        try {
+            return Double.parseDouble(raw.trim());
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     private static List<Map<String, Object>> species() {

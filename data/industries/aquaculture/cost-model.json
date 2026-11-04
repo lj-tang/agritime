@@ -1,0 +1,42 @@
+{
+  "version": "1.0.0",
+  "comment": "养殖成本核算默认参数（V5 T20）。数值是行业参考区间，不是某地实际账目；界面必须标注『估算值』，用户可用实际数据覆盖。",
+  "defaults": {
+    "survivalRate": 0.75,
+    "fcr": 1.8,
+    "feedPricePerKg": 5.2,
+    "electricityPerMu": 320,
+    "medicinePerMu": 180,
+    "laborPerMu": 600,
+    "rentPerMu": 900,
+    "areaMu": 10
+  },
+  "species": {
+    "grass_carp": {
+      "name": "草鱼",
+      "stockDensityPerMu": 1000,
+      "seedPricePerFish": 0.6,
+      "harvestSizeKg": 1.5,
+      "marketPricePerKg": 14,
+      "cycleDays": 180
+    },
+    "common_carp": {
+      "name": "鲤鱼",
+      "stockDensityPerMu": 1200,
+      "seedPricePerFish": 0.5,
+      "harvestSizeKg": 1.2,
+      "marketPricePerKg": 12,
+      "cycleDays": 200
+    },
+    "mitten_crab": {
+      "name": "大闸蟹",
+      "stockDensityPerMu": 800,
+      "seedPricePerFish": 1.2,
+      "harvestSizeKg": 0.15,
+      "marketPricePerKg": 90,
+      "cycleDays": 260,
+      "fcr": 2.4,
+      "feedPricePerKg": 6.8
+    }
+  }
+}

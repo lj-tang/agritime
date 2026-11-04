@@ -1,5 +1,6 @@
 package com.cropcalendar.api;
 
+import com.cropcalendar.config.AppConfig;
 import com.cropcalendar.orchestration.CacheStore;
 import com.cropcalendar.util.Json;
 import com.cropcalendar.util.JsonParser;
@@ -29,7 +30,7 @@ import java.util.concurrent.CompletableFuture;
 public class PlotHandler implements HttpHandler {
 
     private static final HttpClient HTTP = HttpClient.newBuilder()
-            .connectTimeout(Duration.ofSeconds(3))
+            .connectTimeout(Duration.ofMillis(AppConfig.httpConnectTimeoutMs()))
             .build();
 
     private static final double EARTH_R = 6371.0;
@@ -180,7 +181,7 @@ public class PlotHandler implements HttpHandler {
         try {
             HttpRequest req = HttpRequest.newBuilder()
                     .uri(URI.create(url))
-                    .timeout(Duration.ofSeconds(5))
+                    .timeout(Duration.ofMillis(AppConfig.httpReadTimeoutMs()))
                     .GET().build();
             HttpResponse<String> resp = HTTP.send(req, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
             if (resp.statusCode() != 200) return new WeatherCurrent(null, null, null, null, null, null, null);
@@ -309,7 +310,7 @@ public class PlotHandler implements HttpHandler {
         try {
             HttpRequest req = HttpRequest.newBuilder()
                     .uri(URI.create(url))
-                    .timeout(Duration.ofSeconds(4))
+                    .timeout(Duration.ofMillis(AppConfig.httpReadTimeoutMs()))
                     .GET().build();
             HttpResponse<String> resp = HTTP.send(req, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
             if (resp.statusCode() != 200) return null;

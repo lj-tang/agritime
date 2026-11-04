@@ -1,5 +1,6 @@
 package com.cropcalendar.service.reminder;
 
+import com.cropcalendar.util.AppTime;
 import com.cropcalendar.config.AppConfig;
 import com.cropcalendar.util.Json;
 import com.cropcalendar.util.JsonParser;
@@ -115,7 +116,7 @@ public final class ReminderStore {
                 }
             }
 
-            LocalDate cutoff = LocalDate.now(ZONE).minusDays(PRUNE_AFTER_DAYS);
+            LocalDate cutoff = AppTime.today().minusDays(PRUNE_AFTER_DAYS);
             items.removeIf(it -> {
                 String d = text(it.get("date"));
                 if (d == null) return false;
@@ -151,7 +152,7 @@ public final class ReminderStore {
                 "settings", Json.stringify(s.settings()),
                 "unreadCount", String.valueOf(unread),
                 "storage", Json.str("server"),
-                "serverDate", Json.str(LocalDate.now(ZONE).format(DATE)));
+                "serverDate", Json.str(AppTime.today().format(DATE)));
     }
 
     private static Comparator<Map<String, Object>> comparator() {
@@ -264,7 +265,7 @@ public final class ReminderStore {
         Map<String, Object> root = new LinkedHashMap<>();
         root.put("items", s.items());
         root.put("settings", s.settings());
-        root.put("updatedAt", java.time.LocalDateTime.now(ZONE).toString());
+        root.put("updatedAt", AppTime.now().toString());
         try {
             Files.createDirectories(p.getParent());
             Path tmp = p.resolveSibling(p.getFileName() + ".tmp");

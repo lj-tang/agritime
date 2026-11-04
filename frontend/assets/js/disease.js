@@ -1,7 +1,7 @@
 /**
- * 病害检查（V4 T13）
- * 文字描述 → /api/disease/detect → Top3 判断 + 应对策略。
- * 图片目前只留档不参与识别，界面上明确写出来，不假装能看图。
+ * 病害检查（V4 T13 / V5 T16）
+ * 文字描述 → /api/disease/detect → 命中的病害 + 判断依据 + 用药安全。
+ * 图片只做颜色特征辅助排序，不承诺识别率；没命中时给转人工入口，不硬凑 Top3。
  */
 (function () {
   var API = '/api/disease/detect';
@@ -178,6 +178,11 @@
       resultBox.appendChild(note);
     }
     var matches = data.matches || [];
+    // T16：没命中就明确说"没匹配到"，并给转人工入口，不硬凑 Top3
+    if (data.needHuman) {
+      renderNeedHuman(data.humanHint || data.note, data.query);
+      return;
+    }
     if (!matches.length) {
       showMessage('没有匹配到已知病害，建议补充症状细节（部位、颜色、有没有霉层或虫体）');
       return;
@@ -191,12 +196,15 @@
 
     var head = document.createElement('div');
     head.className = 'disease-card-head';
+    // 匹配度 = 该病害的典型症状被描述覆盖的比例，和下面的"判断依据"成对出现，
+    // 不再是孤零零一个 44% 让人猜
+    var rate = m.matchRate != null ? m.matchRate : Math.round((m.confidence || 0) * 100);
     head.innerHTML =
       '<span class="disease-rank">' + (index + 1) + '</span>' +
       '<span class="disease-name"></span>' +
       '<span class="disease-type disease-type--' + (m.type === 'pest' ? 'pest' : 'disease') + '">' +
       (TYPE_LABEL[m.type] || '病害') + '</span>' +
-      '<span class="disease-conf">' + Math.round((m.confidence || 0) * 100) + '%</span>';
+      '<span class="disease-conf">匹配度 ' + rate + '%</span>';
     head.querySelector('.disease-name').textContent = m.name;
     card.appendChild(head);
 
@@ -204,9 +212,25 @@
     bar.className = 'disease-bar';
     var fill = document.createElement('div');
     fill.className = 'disease-bar-fill';
-    fill.style.width = Math.round((m.confidence || 0) * 100) + '%';
+    fill.style.width = Math.max(4, rate) + '%';
     bar.appendChild(fill);
     card.appendChild(bar);
+
+    if (m.evidence && m.evidence.length) {
+      var ev = document.createElement('div');
+      ev.className = 'disease-evidence';
+      var evTitle = document.createElement('div');
+      evTitle.className = 'disease-evidence-title';
+      evTitle.textContent = '判断依据';
+      ev.appendChild(evTitle);
+      m.evidence.forEach(function (t) {
+        var chip = document.createElement('span');
+        chip.className = 'disease-evidence-chip';
+        chip.textContent = t;
+        ev.appendChild(chip);
+      });
+      card.appendChild(ev);
+    }
 
     if (m.conditions) {
       var cond = document.createElement('p');
@@ -218,9 +242,82 @@
     card.appendChild(section('典型症状', m.symptoms));
     card.appendChild(section('怎么处理', m.treatment));
     card.appendChild(section('可用药剂', m.medicine, true));
+
+    // T16：用药必须能查到安全间隔期，否则"打完就采"会出事
+    if (m.safetyInterval != null || m.safetyNote) {
+      var safety = document.createElement('div');
+      safety.className = 'disease-safety';
+      var sTitle = document.createElement('div');
+      sTitle.className = 'disease-safety-title';
+      sTitle.textContent = m.safetyInterval != null
+        ? '安全间隔期 ' + m.safetyInterval + ' 天'
+        : '用药安全';
+      safety.appendChild(sTitle);
+      if (m.safetyNote) {
+        var sNote = document.createElement('p');
+        sNote.className = 'disease-safety-note';
+        sNote.textContent = m.safetyNote;
+        safety.appendChild(sNote);
+      }
+      card.appendChild(safety);
+    }
+
     card.appendChild(section('下次预防', m.prevention));
 
+    if (m.scope || m.source) {
+      var src = document.createElement('p');
+      src.className = 'disease-source';
+      src.textContent = [m.scope ? '适用范围：' + m.scope : '', m.source ? '来源：' + m.source : '']
+        .filter(Boolean).join(' · ');
+      card.appendChild(src);
+    }
+
     return card;
+  }
+
+  /**
+   * 未匹配到时的转人工入口（T16）。
+   * 不在病害页重复造一个工单表单：切到「客服」板块，用现有新建咨询表单，
+   * 把作物与症状描述带过去，用户只需补一句就能提交。
+   */
+  function renderNeedHuman(hint, desc) {
+    var text = hint || '没有匹配到已知病害，可以转人工让农技人员判断';
+    if (window.UiState) {
+      window.UiState.empty(resultBox, {
+        icon: '🌾',
+        text: text,
+        actionText: '转人工',
+        onAction: function () { goHuman(desc); }
+      });
+    } else {
+      resultBox.innerHTML = '<div class="disease-empty">' + text + '</div>';
+    }
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'btn btn-ghost disease-human-btn';
+    btn.textContent = '把这段描述转给客服';
+    btn.addEventListener('click', function () { goHuman(desc); });
+    resultBox.appendChild(btn);
+  }
+
+  function goHuman(desc) {
+    try {
+      if (window.Sidebar && window.Sidebar.switchModule) window.Sidebar.switchModule('service');
+      var newBtn = document.getElementById('service-new-btn');
+      if (newBtn) newBtn.click();
+      var subject = document.getElementById('service-subject');
+      var content = document.getElementById('service-content');
+      var category = document.getElementById('service-category');
+      if (subject) subject.value = '病害问诊未匹配，请帮忙判断';
+      if (content) {
+        content.value = '作物：' + ((cropSel && cropSel.value) || '未填')
+          + '\n症状描述：' + (desc || (textInput && textInput.value) || '');
+      }
+      if (category) category.value = '病虫害';
+      if (content) content.focus();
+    } catch (e) {
+      showMessage('打开客服面板失败，请在左侧「客服」里新建咨询并粘贴描述');
+    }
   }
 
   function section(title, items, pill) {

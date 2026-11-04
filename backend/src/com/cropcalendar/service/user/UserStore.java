@@ -1,5 +1,6 @@
 package com.cropcalendar.service.user;
 
+import com.cropcalendar.util.AppTime;
 import com.cropcalendar.config.AppConfig;
 import com.cropcalendar.model.User;
 import com.cropcalendar.util.Json;
@@ -278,7 +279,7 @@ public final class UserStore {
     }
 
     public static String now() {
-        return LocalDateTime.now().format(TS);
+        return AppTime.now().format(TS);
     }
 
     // ---------------- 内部实现 ----------------

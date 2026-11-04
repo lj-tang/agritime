@@ -1,5 +1,6 @@
 package com.cropcalendar.api;
 
+import com.cropcalendar.util.AppTime;
 import com.cropcalendar.middleware.Auth;
 import com.cropcalendar.model.User;
 import com.cropcalendar.service.AdminAudit;
@@ -224,8 +225,8 @@ public class AdminHandler implements HttpHandler {
     }
 
     private void stats(HttpExchange ex) throws IOException {
-        String today = LocalDate.now().format(DAY);
-        String weekAgo = LocalDate.now().minusDays(7).format(DAY);
+        String today = AppTime.today().format(DAY);
+        String weekAgo = AppTime.today().minusDays(7).format(DAY);
 
         int adminCount = 0;
         int bannedCount = 0;

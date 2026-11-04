@@ -1,5 +1,7 @@
 package com.cropcalendar.api;
 
+import com.cropcalendar.config.AppConfig;
+import com.cropcalendar.util.AppTime;
 import com.cropcalendar.compute.ComputeStub;
 import com.cropcalendar.compute.ComputeStub.RawNode;
 import com.cropcalendar.orchestration.CacheStore;
@@ -46,7 +48,7 @@ import java.util.concurrent.TimeUnit;
 public class CropStatusHandler implements HttpHandler {
 
     private static final HttpClient HTTP = HttpClient.newBuilder()
-            .connectTimeout(Duration.ofSeconds(3))
+            .connectTimeout(Duration.ofMillis(AppConfig.httpConnectTimeoutMs()))
             .build();
 
     private static final DateTimeFormatter D = DateTimeFormatter.ISO_LOCAL_DATE;
@@ -82,7 +84,7 @@ public class CropStatusHandler implements HttpHandler {
         }
 
         String key = "crop-status:" + crop + ":" + sowDate + ":" + Math.round(lat * 100) + ":" + Math.round(lon * 100)
-                + ":" + LocalDate.now();
+                + ":" + AppTime.today();
         String cached = CACHE.get(key, String.class);
         if (cached != null) {
             HttpSupport.write(ex, 200, cached);
@@ -110,7 +112,7 @@ public class CropStatusHandler implements HttpHandler {
         List<RawNode> nodes = new ArrayList<>(ComputeStub.buildNodes(buildId, sowDate, lat));
         nodes.sort(Comparator.comparingInt(RawNode::dayOffset));
 
-        LocalDate today = LocalDate.now();
+        LocalDate today = AppTime.today();
         long daysSince = java.time.temporal.ChronoUnit.DAYS.between(sow, today);
         int totalDays = props != null && props.totalDays() > 0 ? props.totalDays() : 120;
         if (!nodes.isEmpty()) {
@@ -250,7 +252,7 @@ public class CropStatusHandler implements HttpHandler {
                                int dayDelta, String crop) {
         // 未来 7 天预报：用时间线同一套窗口数据，保证两边天气说法一致
         List<String> dates = new ArrayList<>();
-        LocalDate t = LocalDate.now();
+        LocalDate t = AppTime.today();
         for (int i = 0; i < 7; i++) dates.add(t.plusDays(i).format(D));
         ComputeStub.WeatherWindow w = null;
         try {
@@ -343,7 +345,7 @@ public class CropStatusHandler implements HttpHandler {
                 lat, lon, from.format(D), to.format(D));
         try {
             HttpRequest req = HttpRequest.newBuilder().uri(URI.create(url))
-                    .timeout(Duration.ofSeconds(9)).GET().build();
+                    .timeout(Duration.ofMillis(AppConfig.httpReadTimeoutMs())).GET().build();
             HttpResponse<String> resp = HTTP.send(req, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
             if (resp.statusCode() != 200) return null;
             Object o = JsonParser.parse(resp.body());
