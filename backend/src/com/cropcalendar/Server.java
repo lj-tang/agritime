@@ -14,6 +14,7 @@ import com.cropcalendar.api.PlotAnalyzeHandler;
 import com.cropcalendar.api.PlotHistoryHandler;
 import com.cropcalendar.api.CropStatusHandler;
 import com.cropcalendar.api.PondStatusHandler;
+import com.cropcalendar.api.SensorHandler;
 import com.cropcalendar.api.SowCheckHandler;
 import com.cropcalendar.api.RecognitionHandler;
 import com.cropcalendar.api.RecommendHandler;
@@ -75,6 +76,7 @@ public class Server {
         server.createContext("/api/crop-status", new CropStatusHandler());
         server.createContext("/api/pond-status", new PondStatusHandler());
         server.createContext("/api/sow-check", new SowCheckHandler());
+        server.createContext("/api/sensor", new SensorHandler());
         server.createContext("/api/reminders", new ReminderHandler());
         server.setExecutor(Executors.newFixedThreadPool(8));
 

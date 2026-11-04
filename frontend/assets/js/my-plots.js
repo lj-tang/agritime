@@ -1395,6 +1395,168 @@
     recalcBtn.addEventListener('click', runCost);
     runCost();
 
+    // T17：设备接入。设备地址由用户填，服务端负责拉取与阈值判断，
+    // 告警直接写进该账号的提醒档案（type=sensor），不再另存一份。
+    var devBox = document.createElement('div');
+    devBox.className = 'pond-devices';
+    var devHead = document.createElement('div');
+    devHead.className = 'pond-devices-head';
+    var devTitle = document.createElement('div');
+    devTitle.className = 'pond-devices-title';
+    devTitle.textContent = '设备与实时读数';
+    var devTag = document.createElement('span');
+    devTag.className = 'pond-devices-tag';
+    devTag.textContent = '未接入';
+    devHead.appendChild(devTitle);
+    devHead.appendChild(devTag);
+    devBox.appendChild(devHead);
+
+    var devList = document.createElement('div');
+    devList.className = 'pond-devices-list';
+    devList.textContent = '还没有接入设备。';
+    devBox.appendChild(devList);
+
+    var devForm = document.createElement('div');
+    devForm.className = 'pond-devices-form';
+    function devField(label, id, placeholder) {
+      var wrap = document.createElement('label');
+      wrap.className = 'pond-cost-field';
+      wrap.textContent = label;
+      var input = document.createElement('input');
+      input.type = 'text';
+      input.id = id;
+      input.placeholder = placeholder || '';
+      wrap.appendChild(input);
+      devForm.appendChild(wrap);
+      return input;
+    }
+    var nameIn = devField('设备名', 'pond-dev-name', '如：1 号塘溶氧仪');
+    var urlIn = devField('数据地址', 'pond-dev-url', 'https://…/reading.json');
+    var doIn = devField('溶氧下限', 'pond-dev-do', '4.0');
+    var saveBtn = document.createElement('button');
+    saveBtn.type = 'button';
+    saveBtn.className = 'my-plots-3d-view';
+    saveBtn.textContent = '保存设备';
+    var pullBtn = document.createElement('button');
+    pullBtn.type = 'button';
+    pullBtn.className = 'my-plots-3d-view';
+    pullBtn.textContent = '立即拉取';
+    devForm.appendChild(saveBtn);
+    devForm.appendChild(pullBtn);
+    devBox.appendChild(devForm);
+
+    var devOut = document.createElement('div');
+    devOut.className = 'pond-devices-out';
+    devBox.appendChild(devOut);
+    box.appendChild(devBox);
+
+    function devHeaders() { return { 'Content-Type': 'application/json' }; }
+
+    function renderDevices(list) {
+      devList.innerHTML = '';
+      if (!list.length) {
+        devList.textContent = '还没有接入设备。';
+        devTag.textContent = '未接入';
+        devTag.className = 'pond-devices-tag';
+        return;
+      }
+      devTag.textContent = list.length + ' 台设备';
+      devTag.className = 'pond-devices-tag is-on';
+      list.forEach(function (d) {
+        var row = document.createElement('div');
+        row.className = 'pond-device-row';
+        var name = document.createElement('strong');
+        name.textContent = d.name || '未命名设备';
+        var status = document.createElement('span');
+        var map = { online: '在线', offline: '离线', unknown: '待拉取', unconfigured: '未配置地址' };
+        status.className = 'pond-device-status is-' + (d.status || 'unknown');
+        status.textContent = map[d.status] || d.status || '待拉取';
+        var when = document.createElement('span');
+        when.className = 'pond-device-when';
+        when.textContent = d.lastOnline ? ('最近在线 ' + d.lastOnline.replace('T', ' ').slice(0, 16)) : '';
+        row.appendChild(name);
+        row.appendChild(status);
+        row.appendChild(when);
+        devList.appendChild(row);
+      });
+    }
+
+    function loadDevices() {
+      fetch('/api/sensor/devices?plotId=' + encodeURIComponent(plot.plotId))
+        .then(function (r) {
+          if (r.status === 401) throw new Error('AUTH');
+          if (!r.ok) throw new Error('HTTP ' + r.status);
+          return r.json();
+        })
+        .then(function (body) {
+          var list = (body && body.data && body.data.devices) || [];
+          renderDevices(list);
+        })
+        .catch(function (e) {
+          if (e.message === 'AUTH') {
+            devTag.textContent = '需登录';
+            devList.textContent = '登录后可接入设备，由服务端定时拉取并告警；未登录时上面的手动读数仍可用。';
+            return;
+          }
+          devList.textContent = '设备读取失败：' + e.message;
+        });
+    }
+
+    saveBtn.addEventListener('click', function () {
+      var name = (nameIn.value || '').trim();
+      var url = (urlIn.value || '').trim();
+      if (!name || !url) { devOut.textContent = '设备名和数据地址都要填'; return; }
+      var payload = { plotId: plot.plotId, name: name, url: url, thresholds: {} };
+      var doMin = parseFloat(doIn.value);
+      if (isFinite(doMin)) payload.thresholds.dissolvedOxygen = { min: doMin };
+      devOut.textContent = '正在保存…';
+      fetch('/api/sensor/devices', {
+        method: 'POST', headers: devHeaders(), body: JSON.stringify(payload)
+      }).then(function (r) {
+        if (r.status === 401) throw new Error('AUTH');
+        return r.json().then(function (b) { if (!r.ok || (b && b.code && b.code !== 0)) throw new Error((b && b.message) || '保存失败'); return b; });
+      }).then(function () {
+        devOut.textContent = '已保存。点「立即拉取」试一次。';
+        loadDevices();
+      }).catch(function (e) {
+        devOut.textContent = e.message === 'AUTH' ? '请先登录再接入设备' : ('保存失败：' + e.message);
+      });
+    });
+
+    pullBtn.addEventListener('click', function () {
+      devOut.textContent = '正在拉取…';
+      fetch('/api/sensor/poll', {
+        method: 'POST', headers: devHeaders(), body: JSON.stringify({ plotId: plot.plotId })
+      }).then(function (r) {
+        if (r.status === 401) throw new Error('AUTH');
+        return r.json().then(function (b) { if (!r.ok || (b && b.code && b.code !== 0)) throw new Error((b && b.message) || '拉取失败'); return b; });
+      }).then(function (b) {
+        var d = b.data || {};
+        var results = d.results || [];
+        devOut.innerHTML = '';
+        if (!results.length) {
+          devOut.textContent = '没有拉取到数据：设备离线或地址不可用（已拦截内网地址）。';
+        } else {
+          results.forEach(function (r) {
+            var line = document.createElement('div');
+            line.className = 'pond-device-reading';
+            var kv = Object.keys(r.values || {}).map(function (k) { return k + ' ' + r.values[k]; }).join(' · ');
+            line.textContent = (r.deviceId || '') + '：' + kv;
+            devOut.appendChild(line);
+          });
+        }
+        var tip = document.createElement('p');
+        tip.className = 'pond-cost-note';
+        tip.textContent = '本次成功 ' + (d.polled || 0) + ' 台，产生告警 ' + (d.alerts || 0) + ' 条（告警已进提醒中心）';
+        devOut.appendChild(tip);
+        loadDevices();
+      }).catch(function (e) {
+        devOut.textContent = e.message === 'AUTH' ? '请先登录再拉取设备' : ('拉取失败：' + e.message);
+      });
+    });
+
+    loadDevices();
+
     detail.appendChild(box);
   }
 

@@ -1346,9 +1346,9 @@ test('V5.3 去重：共享层已抽取', () => {
 test('V5 任务书：与 V4 同体例，编号自 T16 续接', () => {
   const tb = read(path.resolve(__dirname, '..', '..', 'docs', 'taskbook-v5.md'));
   assert.ok(tb.includes('**任务编号：T16**'), '首个任务应为 T16，与 V4 的 T00-T15 续接');
-  assert.ok(tb.includes('**任务编号：T18**'), '末项应为 T18（提醒/工单/播期/改期/地块历史/指导换算/茬口校验/病害/工程兜底/养殖核算落地后已删项并重编号）');
+  assert.ok(tb.includes('**任务编号：T17**'), '末项应为 T17（提醒/工单/播期/改期/地块历史/指导换算/茬口校验/病害/工程兜底/养殖核算/传感器落地后已删项并重编号）');
   const ids = tb.match(/\*\*任务编号：T\d+\*\*/g) || [];
-  assert.equal(ids.length, 3, '应有 3 个待办任务（T16-T18）');
+  assert.equal(ids.length, 2, '应有 2 个待办任务（T16-T17）');
   // 编号必须连续不重复，否则中途插任务时容易乱
   const nums = ids.map(x => parseInt(x.replace(/\D/g, ''), 10));
   nums.forEach((n, i) => assert.equal(n, 16 + i, '任务编号应从 T16 连续递增'));
@@ -1361,7 +1361,7 @@ test('V5 任务书：与 V4 同体例，编号自 T16 续接', () => {
   // 任务书只列未完成任务，不把已完成项写进来占编号
   assert.ok(!/\*\*状态\*\*：已完成/.test(tb), '不应出现"已完成"状态标记');
   const prio = tb.match(/\*\*优先级\*\*：P\d/g) || [];
-  assert.equal(prio.length, 3, '每个任务都应有优先级');
+  assert.equal(prio.length, 2, '每个任务都应有优先级');
   assert.ok(!tb.includes('commit') && !tb.includes('350259d'), '不写提交号，避免把已完成记录混进待办');
 });
 
@@ -1527,7 +1527,7 @@ test('T18 提醒记录：按账号落盘、去重、已读与过期清理', () =
   assert.ok(store.includes('Asia/Shanghai'), '过期判定应显式用北京时间');
   assert.ok(store.includes('old.get("read")'), '重复推送不应把已读顶回未读');
   assert.ok(!taskbook.includes('模块18：提醒服务'), '已完成任务应从任务书移除');
-  assert.ok(/共 3 项/.test(taskbook), '任务书应重编号为 3 项待办');
+  assert.ok(/共 2 项/.test(taskbook), '任务书应重编号为 2 项待办');
   assert.ok(!taskbook.includes('模块18：客服工单流转'), '已完成工单任务应从任务书移除');
 });
 
@@ -1830,4 +1830,35 @@ test('T20 养殖核算：成本构成、估算/实际分离、起捕提示', () 
   assert.ok(plotsJs.includes('保本价'), '应给出保本价');
   assert.ok(plotsJs.includes('pond-cost-hint'), '起捕节点应展示成本提示');
   assert.ok(plotsCss.includes('.pond-cost') && plotsCss.includes('.pond-cost-row'), '缺少成本面板样式');
+});
+
+// ---------------- T17 传感器拉取与设备告警 ----------------
+
+test('T17 传感器：接口鉴权、SSRF 防护、告警进提醒中心', () => {
+  const handler = read(path.resolve(__dirname, '..', '..', 'backend', 'src', 'com', 'cropcalendar', 'api', 'SensorHandler.java'));
+  const poller = read(path.resolve(__dirname, '..', '..', 'backend', 'src', 'com', 'cropcalendar', 'service', 'sensor', 'SensorPoller.java'));
+  const store = read(path.resolve(__dirname, '..', '..', 'backend', 'src', 'com', 'cropcalendar', 'service', 'sensor', 'SensorStore.java'));
+  const server = read(path.resolve(__dirname, '..', '..', 'backend', 'src', 'com', 'cropcalendar', 'Server.java'));
+  const reminderStore = read(path.resolve(__dirname, '..', '..', 'backend', 'src', 'com', 'cropcalendar', 'service', 'reminder', 'ReminderStore.java'));
+  const plotsJs = read(path.resolve(__dirname, '..', 'assets', 'js', 'my-plots.js'));
+  const plotsCss = read(path.join(CSS, 'my-plots.css'));
+  const centerJs = read(path.resolve(__dirname, '..', 'components', 'reminder-center', 'reminder-center.js'));
+
+  assert.ok(handler.includes('Auth.current') && handler.includes('401'), '设备接口必须登录后才能用');
+  assert.ok(server.includes('"/api/sensor"'), '应注册 /api/sensor 路由');
+
+  assert.ok(poller.includes('assertPublicUrl') && poller.includes('isPrivate'), '拉取前必须做 SSRF 校验');
+  assert.ok(poller.includes('isLoopbackAddress') && poller.includes('isSiteLocalAddress'), '应拦回环与内网地址');
+  assert.ok(poller.includes('169') && poller.includes('100') , '应拦云元数据与 CGNAT 段');
+  assert.ok(poller.includes('ReminderStore.sync'), '告警应写进提醒档案，而不是另存一份');
+  assert.ok(poller.includes('sensor|'), '告警 id 应对同指标同日去重');
+
+  assert.ok(store.includes('"sensors"') && store.includes('safe(userId)'), '读数应按用户分目录存放');
+  assert.ok(store.includes('ATOMIC_MOVE'), '写入应原子替换');
+  assert.ok(reminderStore.includes('"sensor"'), '提醒类型应支持 sensor');
+  assert.ok(centerJs.includes('sensor:') && centerJs.includes('设备告警'), '提醒中心应识别设备告警');
+
+  assert.ok(plotsJs.includes('/api/sensor/devices') && plotsJs.includes('/api/sensor/poll'), '塘口详情应能接入并拉取设备');
+  assert.ok(plotsJs.includes('登录后可接入设备'), '未登录时应给明确提示');
+  assert.ok(plotsCss.includes('.pond-devices') && plotsCss.includes('.pond-device-status'), '缺少设备面板样式');
 });

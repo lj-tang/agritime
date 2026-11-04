@@ -14,4 +14,4 @@
 
 | 目录 | 内容 | 状态 |
 | --- | --- | --- |
-| `2026-11-sensor-sync/` | 传感器拉取（`SensorStore`/`SensorPoller`/`SensorHandler`）与多端同步（`SyncStore`/`SyncHandler`） | 能编译，但缺鉴权、有 SSRF 风险、告警写进另一套存储；接手 T19/T21 时按 README 改造 |
+| `2026-11-sensor-sync/` | 传感器拉取与多端同步的早期稿 | 传感器部分已于 2026-11-04 按安全口径重做并上线（见 `backend/src/com/cropcalendar/service/sensor/`）；`SyncStore`/`SyncHandler` 仍留档，未采用 |

@@ -39,7 +39,8 @@ public final class ReminderStore {
 
     private static final int MAX_ITEMS = 200;
     private static final int PRUNE_AFTER_DAYS = 7;
-    private static final Set<String> TYPES = Set.of("weather", "disease", "window");
+    // sensor：设备阈值告警（T17），由服务端写入，前端只读
+    private static final Set<String> TYPES = Set.of("weather", "disease", "window", "sensor");
     private static final Set<String> LEVELS = Set.of("high", "medium", "low");
 
     private static final Object LOCK = new Object();

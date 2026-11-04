@@ -38,6 +38,13 @@
 - **同步**：不要再加一套。`UserDataStore` + `user-sync.js` 已经在跑，
   缺的是服务端在文件存储之外提供 MySQL 后端（T21 的原意），在 `UserDataStore` 内部做后端切换即可。
 
+## 后续（2026-11-04）
+
+传感器部分已按本文件列出的四点要求重做并上线：
+`backend/src/com/cropcalendar/service/sensor/`（`SensorStore` / `SensorPoller`）+ `api/SensorHandler`。
+差异：按 userId 分目录、接口强制登录、拉取前做 SSRF 校验、告警写进 `ReminderStore`（type=sensor）。
+本目录只作历史留档，新代码不要再参考这里的鉴权与存储方式。
+
 ## 来源
 
 `/tmp/extra-src/com/cropcalendar/{api,service}`，2026-11-03 由部署机导出。

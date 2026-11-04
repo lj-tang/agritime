@@ -513,3 +513,55 @@
 }
 
 .pond-cost-loading { font-size: 12.5px; color: var(--muted); }
+
+/* T17：塘口设备接入。设备列表 + 地址 + 阈值，拉取结果直接回显 */
+.pond-devices {
+  margin-top: 16px;
+  padding: 14px;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+}
+
+.pond-devices-head { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+.pond-devices-title { font-size: 14px; font-weight: 600; color: var(--ink); }
+
+.pond-devices-tag {
+  font-size: 11.5px;
+  padding: 2px 9px;
+  border-radius: 999px;
+  color: var(--muted);
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+}
+
+.pond-devices-tag.is-on { color: #2f6b40; background: #eef7ee; border-color: #cfe4d0; }
+
+.pond-devices-list { font-size: 12.5px; color: var(--muted); line-height: 1.7; }
+
+.pond-device-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 0;
+  border-bottom: 1px dashed var(--line);
+}
+
+.pond-device-row strong { font-size: 13px; font-weight: 500; color: var(--ink); }
+.pond-device-status { font-size: 11.5px; padding: 1px 8px; border-radius: 999px; background: var(--surface-2); }
+.pond-device-status.is-online { color: #2f6b40; background: #eef7ee; }
+.pond-device-status.is-offline { color: var(--red); background: var(--red-soft); }
+.pond-device-when { margin-left: auto; font-size: 11.5px; color: var(--muted); }
+
+.pond-devices-form {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.pond-devices-form .pond-cost-field input { width: 140px; }
+
+.pond-devices-out { margin-top: 8px; font-size: 12.5px; color: var(--ink-soft); line-height: 1.7; }
+.pond-device-reading { font-family: var(--font-mono, monospace); font-size: 12px; color: var(--ink); }

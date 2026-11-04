@@ -21,7 +21,8 @@
   var TYPES = {
     weather: { label: '灾害天气', icon: '⛈', hint: '高温、暴雨、大风等天气预警' },
     disease: { label: '病害风险', icon: '🦠', hint: '高湿或高温时易发的病害' },
-    window: { label: '农事适宜窗口', icon: '🌤', hint: '适宜作业的节点与手动设的提醒' }
+    window: { label: '农事适宜窗口', icon: '🌤', hint: '适宜作业的节点与手动设的提醒' },
+    sensor: { label: '设备告警', icon: '🌡', hint: '溶氧、水温、氨氮等传感器超阈值' }
   };
   var LEVELS = {
     high: { label: '高风险', cls: 'rc-high' },
@@ -31,7 +32,7 @@
 
   var state = {
     items: [],
-    settings: { weather: true, disease: true, window: true },
+    settings: { weather: true, disease: true, window: true, sensor: true },
     storage: 'local',
     loaded: false,
     entry: null,
@@ -62,7 +63,7 @@
     try { stored = localStorage.getItem(KEY); } catch (e) { /* 隐私模式 */ }
     var data = stored ? safeParse(stored, null) : null;
     var items = data && Array.isArray(data.items) ? data.items : [];
-    var settings = Object.assign({ weather: true, disease: true, window: true },
+    var settings = Object.assign({ weather: true, disease: true, window: true, sensor: true },
       data && data.settings ? data.settings : {});
 
     // 一次性迁移 T04 的单标记：老用户以前打过钩的节点不能丢
@@ -136,7 +137,7 @@
     if (!data) return;
     if (Array.isArray(data.items)) state.items = data.items;
     if (data.settings) {
-      state.settings = Object.assign({ weather: true, disease: true, window: true }, data.settings);
+      state.settings = Object.assign({ weather: true, disease: true, window: true, sensor: true }, data.settings);
     }
     state.storage = 'server';
     saveLocal();
