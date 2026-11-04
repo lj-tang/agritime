@@ -1862,3 +1862,28 @@ test('T17 传感器：接口鉴权、SSRF 防护、告警进提醒中心', () =>
   assert.ok(plotsJs.includes('登录后可接入设备'), '未登录时应给明确提示');
   assert.ok(plotsCss.includes('.pond-devices') && plotsCss.includes('.pond-device-status'), '缺少设备面板样式');
 });
+
+// ---------------- T16 评分因子增补 ----------------
+
+test('T16 因子：质地/水源/交通接到真实数据源，取不到就退出', () => {
+  const geo = read(path.resolve(__dirname, '..', '..', 'backend', 'src', 'com', 'cropcalendar', 'service', 'geo', 'GeoFactors.java'));
+  const handler = read(path.resolve(__dirname, '..', '..', 'backend', 'src', 'com', 'cropcalendar', 'api', 'PlotAnalyzeHandler.java'));
+  const plotsJs = read(path.resolve(__dirname, '..', 'assets', 'js', 'my-plots.js'));
+  const plotsCss = read(path.join(CSS, 'my-plots.css'));
+
+  assert.ok(geo.includes('rest.isric.org'), '土壤质地应走 SoilGrids');
+  assert.ok(geo.includes('overpass-api.de'), '水源/交通应走 Overpass');
+  assert.ok(geo.includes('bucket('), '外部查询应按坐标缓存');
+  assert.ok(geo.includes('return null'), '取不到应返回 null，而不是默认值');
+
+  assert.ok(handler.includes('"texture"') && handler.includes('"water"') && handler.includes('"road"'), '应输出三个新因子');
+  assert.ok(handler.includes('extended'), '深度因子应由开关控制，避免拖慢框地');
+  assert.ok(handler.includes('factorNotes'), '缺项原因应回传给前端');
+  assert.ok(handler.includes('factorSource') && handler.includes('factorMethod'), '因子应带来源与算法说明');
+  assert.ok(handler.includes('wsum'), '权重应按实际参与的因子归一');
+
+  assert.ok(plotsJs.includes('extended: true'), '地块详情应开启深度因子');
+  assert.ok(plotsJs.includes('因子说明'), '前端应有因子说明面板');
+  assert.ok(plotsJs.includes('plot-factor-missing'), '缺项应提示而不是悄悄消失');
+  assert.ok(plotsCss.includes('.plot-factor-detail'), '缺少因子说明样式');
+});

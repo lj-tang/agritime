@@ -189,7 +189,7 @@
     fetch('/api/plots/analyze', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(withMeasured({ polygon: plot.polygon, type: plot.type || 'farmland' }, plot.plotId))
+      body: JSON.stringify(withMeasured({ polygon: plot.polygon, type: plot.type || 'farmland', extended: true }, plot.plotId))
     }).then(function (r) {
       if (!r.ok) throw new Error('HTTP ' + r.status);
       return r.json();
@@ -489,7 +489,7 @@
         row.appendChild(k);
         row.appendChild(bar);
         row.appendChild(v);
-        row.title = fa.note || '';
+        row.title = [fa.note, fa.source, fa.method].filter(Boolean).join('\n');
         wrap.appendChild(row);
       });
       box.appendChild(wrap);
@@ -499,6 +499,30 @@
         return fa.label + ' ' + Math.round(fa.weight * 100) + '%';
       }).join(' · ');
       box.appendChild(note);
+
+      // T16：因子说明。每个因子都要能回答"数从哪来、怎么算、占多少权重"
+      var detail = document.createElement('details');
+      detail.className = 'plot-factor-detail';
+      var summary = document.createElement('summary');
+      summary.textContent = '因子说明（数据来源与算法）';
+      detail.appendChild(summary);
+      var ul = document.createElement('ul');
+      d.factors.forEach(function (fa) {
+        var li = document.createElement('li');
+        li.textContent = fa.label + '（权重 ' + Math.round(fa.weight * 100) + '%）：'
+          + (fa.source || '来源未标注') + '；' + (fa.method || '算法未标注');
+        ul.appendChild(li);
+      });
+      detail.appendChild(ul);
+      box.appendChild(detail);
+
+      // 取不到的因子要说清楚，而不是悄悄消失
+      if (d.factorNotes && d.factorNotes.length) {
+        var miss = document.createElement('p');
+        miss.className = 'plot-factor-missing';
+        miss.textContent = d.factorNotes.join('；');
+        box.appendChild(miss);
+      }
     }
 
     // 限制因子

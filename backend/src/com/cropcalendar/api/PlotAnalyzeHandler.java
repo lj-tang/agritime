@@ -1,6 +1,7 @@
 package com.cropcalendar.api;
 
 import com.cropcalendar.config.AppConfig;
+import com.cropcalendar.service.geo.GeoFactors;
 import com.cropcalendar.util.AppTime;
 import com.cropcalendar.orchestration.CacheStore;
 import com.cropcalendar.service.crop.AgroZone;
@@ -101,6 +102,8 @@ public class PlotAnalyzeHandler implements HttpHandler {
             return;
         }
         String type = rm.get("type") instanceof String s ? s : "farmland";
+        // 深度因子（质地/水源/交通）要打外部慢接口，只在详情页显式开启
+        boolean extended = Boolean.TRUE.equals(rm.get("extended"));
         // 用户接了传感器就用实测覆盖模型值，没接就保持 null 走估算
         Double measuredMoisture = HttpJson.num(rm.get("soilMoisture"));
         Double measuredSoilTemp = HttpJson.num(rm.get("soilTemp"));
@@ -108,7 +111,7 @@ public class PlotAnalyzeHandler implements HttpHandler {
 
         // 实测值必须进缓存键：否则同一块地先算过模型值，接入传感器后仍会返回旧结论
         String key = cacheKey(ring, type) + ":" + fmtKey(measuredMoisture) + ":" + fmtKey(measuredSoilTemp)
-                + ":" + fmtKey(measuredWaterTemp);
+                + ":" + fmtKey(measuredWaterTemp) + ":" + (extended ? "ext" : "fast");
         String cached = CACHE.get(key, String.class);
         if (cached != null) {
             HttpSupport.write(ex, 200, cached);
@@ -116,7 +119,7 @@ public class PlotAnalyzeHandler implements HttpHandler {
         }
 
         try {
-            String out = analyze(ring, type, measuredMoisture, measuredSoilTemp, measuredWaterTemp);
+            String out = analyze(ring, type, measuredMoisture, measuredSoilTemp, measuredWaterTemp, extended);
             CACHE.put(key, out, TTL_SECONDS);
             HttpSupport.write(ex, 200, out);
         } catch (Exception e) {
@@ -127,7 +130,8 @@ public class PlotAnalyzeHandler implements HttpHandler {
     // ------------------------------------------------------------------ 主流程
 
     private String analyze(List<double[]> ring, String type,
-                           Double measuredMoisture, Double measuredSoilTemp, Double measuredWaterTemp) throws Exception {
+                           Double measuredMoisture, Double measuredSoilTemp, Double measuredWaterTemp,
+                           boolean extended) throws Exception {
         Geometry g = Geometry.of(ring);
 
         // 高程采样与气象/土壤抓取并行：两路上游互不依赖，串行会慢一倍
@@ -165,6 +169,23 @@ public class PlotAnalyzeHandler implements HttpHandler {
         addDrainageFactor(factors, t, w, g, limits);
         addLightFactor(factors, t, w, g, limits, pond);
         addWindFactor(factors, t, w, limits);
+        // T16：三个"有真实数据源"的因子，默认只在"详情刷新"时算（extended=true）。
+        // 它们要走 SoilGrids 与 Overpass，首次 5~15 秒；不能让"框完地立刻看结果"也等这么久。
+        List<String> factorNotes = new ArrayList<>();
+        if (extended) {
+            // 两个外部源互不依赖，并行取；单个超时不影响另一个
+            CompletableFuture<GeoFactors.Soil> soilFuture =
+                    CompletableFuture.supplyAsync(() -> GeoFactors.soilTexture(g.centroidLat, g.centroidLon));
+            CompletableFuture<GeoFactors.Access> accessFuture =
+                    CompletableFuture.supplyAsync(() -> GeoFactors.accessibility(g.centroidLat, g.centroidLon));
+            GeoFactors.Soil soil = soilFuture.completeOnTimeout(null, 16, TimeUnit.SECONDS).join();
+            GeoFactors.Access access = accessFuture.completeOnTimeout(null, 7, TimeUnit.SECONDS).join();
+            addTextureFactor(factors, factorNotes, soil);
+            addWaterFactor(factors, factorNotes, access);
+            addRoadFactor(factors, factorNotes, access);
+        } else {
+            factorNotes.add("未启用深度因子（土壤质地/水源/交通），打开地块详情会自动补充");
+        }
 
         double total = 0, wsum = 0;
         for (Factor f : factors) { total += f.score * f.weight; wsum += f.weight; }
@@ -183,8 +204,13 @@ public class PlotAnalyzeHandler implements HttpHandler {
                     "label", Json.str(f.label),
                     "score", Json.num((double) Math.round(f.score)),
                     "weight", Json.num(Math.round(f.weight / wsum * 100) / 100.0),
+                    "source", Json.str(factorSource(f.key)),
+                    "method", Json.str(factorMethod(f.key)),
                     "note", Json.str(f.note)));
         }
+
+        List<String> noteJson = new ArrayList<>();
+        for (String n : factorNotes) noteJson.add(Json.str(n));
 
         List<String> lj = new ArrayList<>();
         limits.sort(Comparator.comparingInt(l -> l.severity));
@@ -220,6 +246,7 @@ public class PlotAnalyzeHandler implements HttpHandler {
                 "level", Json.str(level),
                 "summary", Json.str(summaryOf(level, t, g, w, pond)),
                 "factors", Json.arr(fj),
+                "factorNotes", Json.arr(noteJson),
                 "limits", Json.arr(lj),
                 "suggestions", Json.arr(sj),
                 "suitableCrops", Json.arr(cj),
@@ -227,7 +254,9 @@ public class PlotAnalyzeHandler implements HttpHandler {
                         "elevation", Json.str("Open-Meteo Elevation（90m DEM，批量采样 " + t.sampleCount + " 点）"),
                         "soil", Json.str("Open-Meteo 土壤模型（0cm/6cm 地温、0-1cm 体积含水率）"),
                         "climate", Json.str("Open-Meteo 预报（实时气温湿度 + 未来 7 天降水）"),
-                        "crops", Json.str("作物属性库 properties.json + 区域/坡度/墒情规则匹配")),
+                        "crops", Json.str("作物属性库 properties.json + 区域/坡度/墒情规则匹配"),
+                        "texture", Json.str("SoilGrids 2.0（0-5cm 黏粒/砂粒，每公里缓存 24 小时）"),
+                        "access", Json.str("OpenStreetMap / Overpass（1.5 公里内水体与道路，缓存 6 小时）")),
                 "analyzedAt", Json.str(AppTime.today().toString()));
     }
 
@@ -673,6 +702,139 @@ public class PlotAnalyzeHandler implements HttpHandler {
                     + " m/s，喷药请选清晨或傍晚风小的时段", 1));
         }
         f.add(x);
+    }
+
+    /**
+     * 土壤质地（T16）：SoilGrids 0-5cm 黏粒/砂粒占比。
+     * 取不到就不加这个因子 —— 区划土壤类型是"推断面不是实测"，不能用它顶替。
+     */
+    private void addTextureFactor(List<Factor> f, List<String> notes, GeoFactors.Soil soil) {
+        if (soil == null) {
+            notes.add("土壤质地：SoilGrids 未返回数据，本项不参与评分");
+            return;
+        }
+        Factor x = new Factor();
+        x.key = "texture";
+        x.label = "土壤质地";
+        x.weight = 0.08;
+        x.score = switch (soil.texture()) {
+            case "壤土" -> 95;
+            case "黏壤" -> 88;
+            case "砂壤" -> 82;
+            case "黏土" -> 68;
+            case "砂土" -> 58;
+            default -> 75;
+        };
+        x.note = soil.texture() + "（黏粒 " + fmt1(soil.clayPct()) + "%、砂粒 " + fmt1(soil.sandPct()) + "%）";
+        f.add(x);
+    }
+
+    /** 水源可达性（T16）：Overpass 最近水体/河渠距离，1.5 公里内有效。 */
+    private void addWaterFactor(List<Factor> f, List<String> notes, GeoFactors.Access access) {
+        if (access == null) {
+            notes.add("水源可达性：OpenStreetMap 未返回周边数据，本项不参与评分");
+            return;
+        }
+        if (access.waterKm() < 0) {
+            notes.add("水源可达性：1.5 公里内未找到水体/河渠，按偏远处理");
+        }
+        Factor x = new Factor();
+        x.key = "water";
+        x.label = "水源可达性";
+        x.weight = 0.07;
+        double km = access.waterKm();
+        if (km < 0) x.score = 45;
+        else if (km <= 0.3) x.score = 96;
+        else if (km <= 0.8) x.score = 88;
+        else if (km <= 1.5) x.score = 72;
+        else x.score = 55;
+        x.note = km < 0 ? "1.5 公里内无水体" : ("最近水体约 " + fmt2(km) + " 公里");
+        f.add(x);
+    }
+
+    /** 交通可达性（T16）：Overpass 最近可通车道路距离与等级。 */
+    private void addRoadFactor(List<Factor> f, List<String> notes, GeoFactors.Access access) {
+        if (access == null) {
+            notes.add("交通可达性：OpenStreetMap 未返回周边数据，本项不参与评分");
+            return;
+        }
+        Factor x = new Factor();
+        x.key = "road";
+        x.label = "交通可达性";
+        x.weight = 0.06;
+        double km = access.roadKm();
+        String cls = access.roadClass();
+        if (km < 0) {
+            x.score = 40;
+            x.note = "1.5 公里内无通车道路";
+        } else {
+            double base;
+            if (km <= 0.3) base = 95;
+            else if (km <= 1.0) base = 85;
+            else if (km <= 1.5) base = 70;
+            else base = 55;
+            // 干道比村道更利于农机与运输进出，小幅加分，不改变量级
+            boolean arterial = "motorway".equals(cls) || "trunk".equals(cls) || "primary".equals(cls);
+            x.score = Math.min(100, base + (arterial ? 5 : 0));
+            x.note = "最近道路约 " + fmt2(km) + " 公里（" + roadLabel(cls) + "）";
+        }
+        f.add(x);
+    }
+
+    private static String roadLabel(String cls) {
+        if (cls == null) return "未分级";
+        return switch (cls) {
+            case "motorway" -> "高速";
+            case "trunk" -> "国道";
+            case "primary" -> "主干道";
+            case "secondary" -> "次干道";
+            case "tertiary" -> "县乡道";
+            case "unclassified" -> "村道";
+            case "residential" -> "居民区道路";
+            default -> cls;
+        };
+    }
+
+    private static String fmt1(double v) {
+        return String.valueOf(Math.round(v * 10) / 10.0);
+    }
+
+    private static String fmt2(double v) {
+        return String.valueOf(Math.round(v * 100) / 100.0);
+    }
+
+    /** 因子数据来源（展示用）：每个因子都必须能说清楚"数从哪来"。 */
+    private static String factorSource(String key) {
+        return switch (key) {
+            case "terrain" -> "Copernicus DEM（坡度/高程）";
+            case "soil" -> "Open-Meteo 土壤温湿度 + 区划土壤类型";
+            case "climate" -> "Open-Meteo 实时预报";
+            case "shape" -> "地块边界（用户框选）";
+            case "drainage" -> "DEM 坡度 + 预报降水";
+            case "light" -> "DEM 坡向 + 纬度日照";
+            case "wind" -> "Open-Meteo 风速";
+            case "texture" -> "SoilGrids 2.0（0-5cm 黏粒/砂粒）";
+            case "water" -> "OpenStreetMap / Overpass（水体、河渠）";
+            case "road" -> "OpenStreetMap / Overpass（道路等级）";
+            default -> "站内计算";
+        };
+    }
+
+    /** 因子算法说明（展示用）。 */
+    private static String factorMethod(String key) {
+        return switch (key) {
+            case "texture" -> "按 0-5cm 黏粒/砂粒占比分为黏土/黏壤/壤土/砂壤/砂土，壤土最高分";
+            case "water" -> "取 1.5 公里内最近水体或河渠的直线距离，越近越高";
+            case "road" -> "取 1.5 公里内最近通车道路的直线距离；高速/国道/主干道小幅加分";
+            case "terrain" -> "坡度越缓越高，超过 15° 触发限制项";
+            case "soil" -> "土壤温湿度偏离作物适宜区间越远分越低";
+            case "climate" -> "按生育期温度与降水匹配度打分";
+            case "shape" -> "紧凑度与面积综合，越小越碎分越低";
+            case "drainage" -> "坡度与降水共同判断易涝/易旱";
+            case "light" -> "坡向与纬度估算日照条件";
+            case "wind" -> "风速过大扣分，风口地块提示防护";
+            default -> "站内规则计算";
+        };
     }
 
     private void addShapeFactor(List<Factor> f, Geometry g, List<Limit> limits) {

@@ -59,6 +59,16 @@ public final class AppConfig {
         return intOf("http.archive.timeout.ms", 15000);
     }
 
+    /** Overpass（OSM）查询超时：水源/道路可达性用，慢就降级不硬等 */
+    public static int overpassTimeoutMs() {
+        return intOf("geo.overpass.timeout.ms", 5000);
+    }
+
+    /** SoilGrids 查询超时：土壤质地用，官方接口常见 8~12 秒 */
+    public static int soilGridsTimeoutMs() {
+        return intOf("geo.soilgrids.timeout.ms", 15000);
+    }
+
     /** 缓存有效期 */
     public static int cacheTtlSeconds() {
         return intOf("cache.ttl.seconds", 900);
