@@ -245,7 +245,11 @@ public final class GeoFactors {
                     .GET()
                     .build();
             HttpResponse<String> resp = HTTP.send(req, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
-            if (resp.statusCode() != 200) return null;
+            if (resp.statusCode() != 200) {
+                // 把状态码记下来：403/429 与"超时"是两类问题，排查时不能混为一谈
+                System.err.println("[geo] " + url.split("\\?")[0] + " 返回 HTTP " + resp.statusCode());
+                return null;
+            }
             return resp.body();
         } catch (Exception e) {
             System.err.println("[geo] 请求失败 " + url.split("\\?")[0] + "：" + e.getMessage());
