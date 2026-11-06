@@ -1,0 +1,1358 @@
+/*
+ * 知农时 · 基础样式与设计系统
+ *
+ * 布局与尺度对齐 WorkBuddy：侧栏 216px、内容区 860px、卡片 12px 圆角、
+ * 正文 14px、控件 38px 高、行高 1.55。
+ * 配色沿用 V4 的暖色田园色板：底色 #f4efe3、卡片 #fffdf7、主色叶片绿 #2f6b40，
+ * 主按钮仍是绿色渐变。改版只动骨架与密度，不动颜色。
+ *
+ * 旧变量名（--paper / --leaf / --radius ...）全部保留，模块 CSS 无需改动。
+ */
+
+:root {
+  /* ---- 暖色田园色板：沿用 V4 的取值，不换色 ---- */
+  --bg: #f4efe3;
+  --surface: #fffdf7;
+  --surface-2: #f7f2e6;
+  --surface-3: #ece5d6;
+
+  --ink: #23301f;
+  --ink-soft: #55634e;
+  --muted: #8b9382;
+
+  --line: #e4ddcb;
+  --line-soft: #ece5d6;
+
+  /* 主色：叶片绿 */
+  --brand: #2f6b40;
+  --brand-hover: #3f8f56;
+  --brand-soft: #e6f0e3;
+  --brand-line: #cfe0c9;
+
+  /* ---- 旧变量名（模块 CSS 依赖），值与本段一致 ---- */
+  --paper: #f4efe3;
+  --paper-2: #ece5d6;
+  --card: #fffdf7;
+  --leaf: #2f6b40;
+  --leaf-2: #3f8f56;
+  --leaf-soft: #e6f0e3;
+  --leaf-wash: rgba(47, 107, 64, 0.06);
+  --sun: #d99b2b;
+  --sun-soft: #fbf0d8;
+  --rain: #3d6f96;
+  --rain-soft: #e8f0f6;
+  --red: #c65547;
+  --red-soft: #f8e7e3;
+
+  /* 圆角与间距沿用新版尺度（形状不动），阴影色换回暖调 */
+  --radius: 12px;
+  --radius-sm: 8px;
+  --radius-xs: 6px;
+  --shadow: 0 14px 34px -16px rgba(43, 58, 38, 0.28);
+  --shadow-soft: 0 6px 18px -10px rgba(43, 58, 38, 0.22);
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Noto Sans SC",
+    "Microsoft YaHei", "Helvetica Neue", Arial, sans-serif;
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--ink);
+  background: var(--bg);
+  -webkit-text-size-adjust: 100%;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ============================================================
+   应用外壳
+   ============================================================ */
+
+body[data-layout="app"] {
+  display: block;
+  min-height: 100vh;
+  /* 面板（.content-pane）是与 .app-main 平级的 body 子节点，
+     所以留白必须加在 body 上；加在 .app-main 上会把面板挤到视口下面 */
+  padding-left: 216px;
+  background: var(--bg);
+}
+
+body[data-layout="app"] .sidebar {
+  position: fixed;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 216px;
+  background: var(--surface);
+  border-right: 1px solid var(--line-soft);
+  display: flex;
+  flex-direction: column;
+  z-index: 100;
+  transition: transform 0.24s ease;
+}
+
+body[data-layout="app"] .app-main {
+  min-height: 100vh;
+  /* 透明才能露出 body 上的暖色光晕；这里若填 --bg 会把光晕整块盖掉 */
+  background: transparent;
+}
+
+body[data-layout="app"] .page--home {
+  flex: 1;
+  width: 100%;
+  max-width: 860px;
+  margin: 0 auto;
+  /* 撑满视口高度，否则内容不足一屏时背景块会在中部留下可见的矩形边缘 */
+  min-height: 100vh;
+  padding: 26px 28px calc(64px + env(safe-area-inset-bottom));
+  /* V4 的两团暖色光晕：收在内容列内，宽屏上才不会糊成一片 */
+  background:
+    radial-gradient(620px 300px at 92% -12%, rgba(217, 155, 43, 0.14), transparent 62%),
+    radial-gradient(480px 260px at -8% 2%, rgba(63, 143, 86, 0.12), transparent 64%);
+  background-repeat: no-repeat;
+}
+
+body[data-layout="app"].pane-mode .app-main {
+  min-height: 0;
+}
+
+body[data-layout="app"]:not(.pane-mode) .content-pane {
+  display: none;
+}
+
+body[data-layout="app"] .content-pane {
+  flex: 1;
+  min-width: 0;
+  padding: 22px 24px 48px;
+  overflow-y: auto;
+}
+
+body[data-layout="app"] .content-pane > * {
+  max-width: 1080px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* 兼容旧结构 */
+.page {
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 26px 28px calc(64px + env(safe-area-inset-bottom));
+  min-height: 100vh;
+}
+
+.page--home { padding-top: 26px; position: relative; z-index: 1; }
+
+/* ============================================================
+   页头
+   ============================================================ */
+
+.home-top { margin-bottom: 16px; }
+
+.brand-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  justify-content: space-between;
+}
+
+.home-heading { min-width: 0; }
+
+.home-title {
+  margin: 0;
+  font-size: 20px;
+  line-height: 1.35;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+}
+
+.home-sub {
+  margin: 4px 0 0;
+  font-size: 12.5px;
+  color: var(--muted);
+}
+
+/* 旧品牌结构保留，避免其它页面引用时丢样式 */
+.brand { margin-bottom: 16px; }
+.brand-mark { display: inline-flex; align-items: center; justify-content: center; }
+.brand-mark svg, .brand-mark img { width: 22px; height: 22px; display: block; }
+.brand-name { font-size: 15px; font-weight: 600; color: var(--ink); }
+.brand-sub { font-size: 12px; color: var(--muted); margin-top: 2px; }
+.tagline { font-size: 12.5px; color: var(--muted); margin: 0 0 14px; }
+.tagline strong { color: var(--brand); font-weight: 600; }
+
+/* 账号入口（user-chip.js 动态插入） */
+.user-chip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12.5px;
+  color: var(--ink-soft);
+  flex-shrink: 0;
+}
+.user-chip a {
+  color: var(--ink-soft);
+  text-decoration: none;
+  padding: 4px 8px;
+  border-radius: var(--radius-xs);
+}
+.user-chip a:hover { background: var(--surface-2); color: var(--ink); }
+.user-chip button {
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--ink-soft);
+  font-size: 12px;
+  padding: 3px 8px;
+  border-radius: var(--radius-xs);
+  cursor: pointer;
+}
+.user-chip button:hover { background: var(--surface-2); }
+.user-chip-name { color: var(--ink); font-weight: 500; }
+
+/* ============================================================
+   天气：从大卡片改为一行状态条
+   ============================================================ */
+
+.weather-bg-layer {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.14;
+  background-size: cover;
+  background-position: center top;
+  background-repeat: no-repeat;
+  background-image: none;
+  /* 只在页面上半部透出，向下渐隐；不这么做宽屏上会糊成一整片灰 */
+  -webkit-mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.55) 0%, rgba(0, 0, 0, 0.38) 34%, transparent 62%);
+  mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.55) 0%, rgba(0, 0, 0, 0.38) 34%, transparent 62%);
+  transition: opacity 0.6s ease;
+}
+
+.page--home[data-weather="sunny"] .weather-bg-layer,
+.page--home[data-weather="rain"] .weather-bg-layer,
+.page--home[data-weather="cloudy"] .weather-bg-layer,
+.page--home[data-weather="snow"] .weather-bg-layer { opacity: 0.2; }
+
+/* 四类天气的叠加层：雨丝、日晕、云影、雪点 */
+.weather-bg-layer::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
+
+.page--home[data-weather="rain"] .weather-bg-layer::after {
+  opacity: 0.4;
+  background: repeating-linear-gradient(180deg, transparent 0, transparent 18px,
+    rgba(160, 180, 210, 0.3) 19px, rgba(160, 180, 210, 0.3) 20px, transparent 21px);
+  animation: weather-rain 24s linear infinite;
+}
+
+.page--home[data-weather="sunny"] .weather-bg-layer::after {
+  opacity: 0.15;
+  background: radial-gradient(circle at 80% 20%, rgba(255, 220, 100, 0.4), transparent 40%);
+  animation: weather-sunny 12s ease-in-out infinite;
+}
+
+.page--home[data-weather="cloudy"] .weather-bg-layer::after {
+  opacity: 0.2;
+  background:
+    radial-gradient(ellipse 200px 80px at 30% 30%, rgba(255, 255, 255, 0.4), transparent 60%),
+    radial-gradient(ellipse 250px 100px at 70% 50%, rgba(255, 255, 255, 0.3), transparent 60%);
+  animation: weather-cloudy 18s ease-in-out infinite;
+}
+
+.page--home[data-weather="snow"] .weather-bg-layer::after {
+  opacity: 0.3;
+  background-image:
+    radial-gradient(circle, rgba(255, 255, 255, 0.6) 1.5px, transparent 2px),
+    radial-gradient(circle, rgba(255, 255, 255, 0.4) 1px, transparent 1.5px);
+  background-size: 30px 30px, 50px 50px;
+  animation: weather-snow 30s linear infinite;
+}
+
+.weather-card {
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin: 0 0 14px;
+  padding: 6px 12px;
+  background: var(--surface);
+  border: 1px solid var(--line-soft);
+  border-radius: var(--radius-sm);
+  font-size: 12.5px;
+  color: var(--ink-soft);
+  box-shadow: none;
+}
+
+.weather-card[hidden] { display: none; }
+.weather-loc { font-weight: 500; color: var(--ink); }
+.weather-temp { font-size: 13px; font-weight: 600; color: var(--ink); font-variant-numeric: tabular-nums; }
+.weather-desc { color: var(--ink-soft); }
+.weather-extra { color: var(--muted); font-size: 12px; }
+
+.weather-fx-overlay { display: none; }
+
+/* ============================================================
+   节气刻度尺
+   ============================================================ */
+
+.term-ruler {
+  display: flex;
+  align-items: flex-end;
+  gap: 3px;
+  height: 26px;
+  margin: 0 0 14px;
+  padding: 0 2px;
+}
+
+.term-ruler i {
+  flex: 1;
+  display: block;
+  height: 8px;
+  border-radius: 2px;
+  background: var(--surface-3);
+}
+
+.term-ruler i.hi { background: var(--brand); opacity: 0.55; }
+
+/* ============================================================
+   卡片
+   ============================================================ */
+
+.card {
+  position: relative;
+  background: var(--surface);
+  border: 1px solid var(--line-soft);
+  border-radius: var(--radius);
+  padding: 20px;
+  box-shadow: var(--shadow-soft);
+}
+
+/* ============================================================
+   表单
+   ============================================================ */
+
+.field { position: relative; margin-bottom: 16px; }
+
+.field > label {
+  display: block;
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--ink-soft);
+  margin-bottom: 6px;
+}
+
+.field .hint {
+  font-weight: 400;
+  color: var(--muted);
+  margin-left: 4px;
+  font-size: 12px;
+}
+
+.field input {
+  width: 100%;
+  height: 38px;
+  padding: 0 12px;
+  font-size: 14px;
+  font-family: inherit;
+  color: var(--ink);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  outline: none;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.field input::placeholder { color: var(--muted); }
+
+.field input:focus { border-color: var(--ink); }
+
+/* 地块选择器与输入框保持同一套外观，避免原生 select 在深色行高下显得突兀 */
+.field select {
+  width: 100%;
+  height: auto;
+  min-height: 38px;
+  padding: 8px 12px;
+  font-size: 14px;
+  font-family: inherit;
+  color: var(--ink);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  outline: none;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.field select:focus { border-color: var(--ink); }
+
+.plot-select-hint {
+  margin-top: 6px;
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.field.invalid input { border-color: var(--red); }
+
+.field .error {
+  display: none;
+  margin-top: 5px;
+  font-size: 12px;
+  color: var(--red);
+}
+
+.field.invalid .error { display: block; }
+
+/* 语音按钮由 voice-input.js 追加到 .field 末尾，默认会独占一行，
+   把「作物品种」「所在地」两个字段撑出 30px 的多余高度。
+   这里让它悬浮在输入框右侧，并用 padding-right 让文字避让。 */
+.field { position: relative; }
+.field > .voice-btn {
+  position: absolute;
+  right: 5px;
+  top: 29px;
+  margin-left: 0;
+  border-color: transparent;
+  background: transparent;
+  color: var(--muted);
+}
+.field > .voice-btn:hover {
+  background: var(--surface-2);
+  border-color: transparent;
+  color: var(--ink);
+}
+.field:has(> .voice-btn) input { padding-right: 42px; }
+
+/* 联想下拉 */
+.suggestions {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: calc(100% - 14px);
+  z-index: 30;
+  display: none;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  box-shadow: 0 12px 28px -12px rgba(43, 58, 38, 0.18);
+  max-height: 260px;
+  overflow-y: auto;
+}
+
+.suggestions.show { display: block; }
+
+.suggestions button {
+  display: block;
+  width: 100%;
+  padding: 9px 12px;
+  border: none;
+  border-bottom: 1px solid var(--line-soft);
+  background: var(--surface);
+  text-align: left;
+  font-size: 13px;
+  font-family: inherit;
+  color: var(--ink);
+  cursor: pointer;
+}
+
+.suggestions button:last-child { border-bottom: none; }
+.suggestions button::before { content: none; }
+.suggestions button:hover, .suggestions button.active { background: var(--surface-2); }
+.suggestions button:active { background: var(--surface-3); }
+.suggestions button .hl { color: var(--brand); font-weight: 600; }
+
+/* 日期轮盘 */
+.date-picker { display: flex; gap: 8px; }
+
+.date-picker select {
+  height: 38px;
+  padding: 0 26px 0 10px;
+  font-size: 13.5px;
+  font-family: inherit;
+  color: var(--ink);
+  background-color: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  outline: none;
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%238a9099' stroke-width='1.4' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+}
+
+#date-year { flex: 1.3 1 0; }
+.date-picker select + select { flex: 1 1 0; }
+.date-picker select:focus { border-color: var(--ink); }
+.date-picker option:disabled { color: var(--muted); }
+.date-range-hint { font-size: 12px; color: var(--muted); margin: 6px 0 0; line-height: 1.5; }
+.field.invalid .date-picker select { border-color: var(--red); }
+
+/* ============================================================
+   按钮
+   ============================================================ */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  height: 38px;
+  padding: 0 16px;
+  font-family: inherit;
+  font-size: 13.5px;
+  font-weight: 500;
+  border-radius: var(--radius-sm);
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.btn svg { width: 16px; height: 16px; }
+
+/* 主按钮沿用 V4 的绿色渐变；尺寸/圆角按新尺度收小 */
+.btn-primary {
+  background: linear-gradient(155deg, var(--leaf-2), var(--leaf));
+  color: #fff;
+  border-color: transparent;
+  box-shadow: 0 12px 22px -12px rgba(47, 107, 64, 0.65);
+}
+
+.btn-primary:hover {
+  background: linear-gradient(155deg, #47a05f, #2f6b40);
+  border-color: transparent;
+}
+.btn-primary:active { background: linear-gradient(155deg, var(--leaf), #285c37); }
+.btn-primary:disabled {
+  background: var(--surface-3);
+  border-color: var(--surface-3);
+  color: var(--muted);
+  box-shadow: none;
+  cursor: not-allowed;
+}
+
+.btn-ghost {
+  background: transparent;
+  color: var(--leaf);
+  border-color: rgba(63, 143, 86, 0.45);
+}
+
+.btn-ghost:hover { background: var(--leaf-soft); border-color: var(--leaf-2); }
+.btn-ghost:active { background: var(--leaf-soft); }
+
+.photo-entry {
+  margin: 10px 0 0;
+  font-size: 12px;
+  color: var(--muted);
+  text-align: center;
+}
+
+.photo-channels { display: flex; gap: 8px; margin-top: 12px; }
+
+.photo-channels .btn {
+  width: auto;
+  flex: 1;
+  height: 34px;
+  font-size: 12.5px;
+  border-color: var(--line);
+  background: var(--surface);
+  color: var(--ink-soft);
+}
+
+.photo-channels .btn:hover { background: var(--surface-2); color: var(--ink); }
+
+/* ============================================================
+   提示条
+   ============================================================ */
+
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: 32px;
+  transform: translate(-50%, 12px);
+  z-index: 300;
+  display: none;
+  max-width: min(420px, calc(100vw - 40px));
+  padding: 9px 14px;
+  font-size: 13px;
+  border-radius: var(--radius-sm);
+  /* 沿用 V4 的浅底彩字，不用深色胶囊 */
+  background: var(--leaf-soft);
+  color: var(--leaf);
+  border: 1px solid var(--brand-line);
+  box-shadow: var(--shadow);
+}
+
+.toast.show { display: block; animation: wb-toast-in 0.18s ease forwards; }
+.toast.error { background: var(--red-soft); color: var(--red); border-color: #eec9c3; }
+.toast.info { background: var(--leaf-soft); color: var(--leaf); }
+
+@keyframes wb-toast-in {
+  from { opacity: 0; transform: translate(-50%, 16px); }
+  to { opacity: 1; transform: translate(-50%, 0); }
+}
+
+/* ============================================================
+   历史记录
+   ============================================================ */
+
+.history { margin-top: 20px; }
+.history.hidden { display: none; }
+
+.history-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.history-title { font-size: 12.5px; font-weight: 500; color: var(--muted); }
+
+.history-clear {
+  border: none;
+  background: none;
+  font-size: 12px;
+  color: var(--muted);
+  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: var(--radius-xs);
+}
+
+.history-clear:hover { background: var(--surface-2); color: var(--ink); }
+
+.history-list { display: flex; flex-direction: column; gap: 4px; }
+
+.history-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 8px 10px;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  font-size: 13px;
+  color: var(--ink-soft);
+  cursor: pointer;
+}
+
+.history-item:hover { background: var(--surface-2); border-color: var(--line-soft); color: var(--ink); }
+.history-item:active { background: var(--surface-3); }
+
+.history-row { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.history-item > span, .history-row > span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.history-del {
+  flex-shrink: 0;
+  width: 22px;
+  height: 22px;
+  border: none;
+  background: none;
+  color: var(--muted);
+  font-size: 15px;
+  cursor: pointer;
+  border-radius: var(--radius-xs);
+  line-height: 1;
+}
+
+.history-del:hover { background: var(--red-soft); color: var(--red); }
+
+/* ============================================================
+   时间线分屏
+   ============================================================ */
+
+body.split-active .page--home { display: none; }
+
+.timeline-pane { display: none; flex: 1; min-width: 0; padding: 0; }
+body.split-active .timeline-pane { display: block; }
+
+.timeline-iframe {
+  width: 100%;
+  height: 100vh;
+  border: none;
+  background: var(--bg);
+}
+
+.home-pane-back {
+  display: none;
+  position: fixed;
+  left: 228px;
+  top: 14px;
+  z-index: 60;
+  height: 30px;
+  padding: 0 12px;
+  font-size: 12.5px;
+  font-family: inherit;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--ink-soft);
+  cursor: pointer;
+}
+
+body.split-active .home-pane-back { display: inline-flex; align-items: center; }
+
+/* ============================================================
+   通用
+   ============================================================ */
+
+.hidden { display: none !important; }
+
+/* ============================================================
+   加载闸门
+   ============================================================ */
+
+#loading-gate {
+  position: fixed;
+  inset: 0;
+  z-index: 400;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  background: var(--bg);
+  font-size: 12.5px;
+}
+
+#loading-gate.hidden { display: none; }
+
+.loading-gate-text { color: var(--muted); }
+
+.loading-gate-spinner {
+  width: 18px;
+  height: 18px;
+  border: 2px solid var(--line);
+  border-top-color: var(--ink);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ============================================================
+   日历相关补充控件
+   ============================================================ */
+
+.crop-resolved-hint,
+.crop-props-hint {
+  margin: 6px 0 0;
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.term-sow-btn {
+  margin-top: 8px;
+  height: 30px;
+  padding: 0 10px;
+  font-family: inherit;
+  font-size: 12.5px;
+  color: var(--ink-soft);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+}
+
+.term-sow-btn:hover { background: var(--surface-2); color: var(--ink); }
+
+.term-sow-hint {
+  margin: 8px 0 0;
+  padding: 8px 10px;
+  font-size: 12.5px;
+  color: var(--ink-soft);
+  background: var(--surface-2);
+  border: 1px solid var(--line-soft);
+  border-radius: var(--radius-sm);
+  line-height: 1.6;
+}
+
+.term-sow-hint.is-error { color: var(--red); background: var(--red-soft); border-color: #f3d6d6; }
+
+/* T20：节气 / 积温 / 最晚播期三行并列 */
+.term-row {
+  display: flex;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 6px 8px;
+  padding: 5px 0;
+}
+.term-row + .term-row { border-top: 1px dashed var(--line-soft); }
+.term-row-label {
+  flex: none;
+  min-width: 56px;
+  font-weight: 700;
+  color: var(--brand);
+}
+.term-row-text { flex: 1 1 220px; }
+.term-row-btn {
+  flex: none;
+  margin-left: auto;
+  padding: 3px 10px;
+  font-family: inherit;
+  font-size: 12px;
+  color: var(--brand);
+  background: var(--surface);
+  border: 1px solid var(--brand-line);
+  border-radius: 999px;
+  cursor: pointer;
+}
+.term-row-btn:hover { background: var(--brand-soft); }
+.term-row-note { margin: 6px 0 0; color: var(--sun); }
+
+.voice-hint {
+  margin: 6px 0 0;
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.55;
+}
+
+.tl-forecast-note {
+  display: inline-block;
+  margin-top: 6px;
+  font-size: 11.5px;
+  color: var(--muted);
+}
+
+.tl-climate-note { color: var(--sun); }
+
+.tl-remind {
+  margin-top: 8px;
+  height: 28px;
+  padding: 0 10px;
+  font-family: inherit;
+  font-size: 12px;
+  color: var(--ink-soft);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+}
+
+.tl-remind.on { color: var(--brand); border-color: var(--brand-line); background: var(--brand-soft); }
+
+.reminder-panel {
+  margin-top: 12px;
+  padding: 14px;
+  background: var(--surface);
+  border: 1px solid var(--line-soft);
+  border-radius: var(--radius);
+}
+
+.reminder-panel h3 { margin: 0 0 8px; font-size: 13px; font-weight: 600; }
+
+.reminder-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 7px 0;
+  border-bottom: 1px solid var(--line-soft);
+  font-size: 12.5px;
+  color: var(--ink-soft);
+}
+
+.reminder-row:last-child { border-bottom: none; }
+.reminder-row .cd-day { color: var(--ink); font-variant-numeric: tabular-nums; }
+
+.reminder-row .del {
+  border: none;
+  background: none;
+  color: var(--muted);
+  font-size: 14px;
+  cursor: pointer;
+  border-radius: var(--radius-xs);
+  width: 20px;
+  height: 20px;
+}
+
+.reminder-row .del:hover { background: var(--red-soft); color: var(--red); }
+
+/* 农事指导块 */
+.tl-guide { font-size: 12.5px; color: var(--ink-soft); line-height: 1.65; }
+.tl-guide-title { font-weight: 600; color: var(--ink); margin: 8px 0 4px; }
+.tl-guide-title:first-child { margin-top: 0; }
+.tl-guide-line { margin: 2px 0; }
+.tl-guide-line b { color: var(--ink); font-weight: 500; }
+.tl-guide-basis { color: var(--muted); font-size: 11.5px; }
+.tl-guide-pest { margin: 4px 0 0; padding-left: 16px; }
+.tl-guide-med { color: var(--ink-soft); }
+.tl-guide-tools { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
+.tl-guide-tools span {
+  padding: 1px 8px;
+  border-radius: 999px;
+  background: var(--surface-2);
+  border: 1px solid var(--line-soft);
+  font-size: 11.5px;
+  color: var(--ink-soft);
+}
+.tl-guide ul { margin: 4px 0 0; padding-left: 16px; }
+
+/* T17：天气建议条（雨前施用 / 补灌 / 排渍），按风险级别着色 */
+.tl-guide-advice {
+  margin: 0 0 6px;
+  padding: 7px 10px;
+  border-radius: 8px;
+  background: var(--surface-2);
+  border-left: 3px solid var(--muted);
+  color: var(--ink);
+  font-size: 12.5px;
+  line-height: 1.55;
+}
+.tl-guide-advice--warn { background: #fdf3e6; border-left-color: var(--sun); }
+.tl-guide-advice--info { background: #f3fbf8; border-left-color: var(--leaf-2); }
+
+/* ============================================================
+   播种前校验（对齐新的语义色）
+   ============================================================ */
+
+.sow-check {
+  margin: 4px 0 14px;
+  padding: 12px 14px;
+  border-radius: var(--radius);
+  border: 1px solid var(--line);
+  background: var(--surface-2);
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.sow-check--block { border-color: #f0c9cd; background: #fdf6f6; }
+.sow-check--warn { border-color: #f2ddc2; background: #fdf3e6; }
+.sow-check--ok { border-color: var(--brand-line); background: #f3fbf8; }
+
+.sow-check-head { font-size: 13px; font-weight: 600; margin-bottom: 8px; color: var(--ink); }
+.sow-check--block .sow-check-head { color: var(--red); }
+.sow-check--warn .sow-check-head { color: var(--sun); }
+
+.sow-check-item { padding: 7px 0; border-top: 1px solid rgba(43, 58, 38, 0.05); }
+.sow-check-item:first-of-type { border-top: 0; padding-top: 0; }
+.sow-check-item strong { display: block; font-size: 12.5px; font-weight: 600; color: var(--ink); }
+.sow-check-item p { margin: 2px 0 0; font-size: 12px; color: var(--ink-soft); }
+.sow-check-item--block strong::before { content: "✕ "; color: var(--red); }
+.sow-check-item--warn strong::before { content: "! "; color: var(--sun); }
+.sow-check-item--ok strong::before { content: "✓ "; color: var(--brand); }
+.sow-check-tip { color: var(--brand) !important; }
+
+.sow-check-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+
+.sow-check-btn {
+  height: 30px;
+  padding: 0 12px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--ink-soft);
+  border-radius: var(--radius-sm);
+  font-size: 12.5px;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.sow-check-btn:hover { background: var(--surface-2); color: var(--ink); }
+
+.sow-check-btn--primary {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: #fff;
+}
+
+.sow-check-btn--primary:hover { background: #333; color: #fff; }
+
+/* ============================================================
+   响应式
+   ============================================================ */
+
+@media (max-width: 900px) {
+  body[data-layout="app"] .page--home { padding: 22px 18px 56px; }
+  body[data-layout="app"] .content-pane { padding: 18px 16px 44px; }
+}
+
+@media (max-width: 767px) {
+  body[data-layout="app"] .sidebar {
+    transform: translateX(-100%);
+    width: 248px;
+    box-shadow: 0 0 0 1px rgba(43, 58, 38, 0.06), 20px 0 40px -24px rgba(43, 58, 38, 0.3);
+  }
+  body[data-layout="app"] .sidebar.sidebar--open { transform: translateX(0); }
+  body[data-layout="app"] { padding-left: 0; }
+  body[data-layout="app"] .page--home { padding: 58px 16px 48px; }
+  .home-pane-back { left: 12px; }
+  .home-title { font-size: 18px; }
+}
+
+/* ============================================================
+   模块尺度统一
+   各功能板块早期各写了一套大标题（22px/800）和绿色渐变按钮，
+   在 WorkBuddy 这种 13-14px 的克制排版里会显得突兀，这里统一收敛。
+   ============================================================ */
+
+.my-plots-title,
+.my-crops-title,
+.recommend-title,
+.disease-title,
+.service-title,
+.admin-title,
+.industry-title,
+.industry-head-title {
+  font-size: 20px !important;
+  font-weight: 600 !important;
+  letter-spacing: -0.01em !important;
+  color: var(--ink) !important;
+  line-height: 1.35;
+}
+
+.pane-sub,
+.my-crops-sub,
+.recommend-sub,
+.disease-sub,
+.service-sub,
+.admin-sub {
+  font-size: 12.5px !important;
+  color: var(--muted) !important;
+  font-weight: 400 !important;
+}
+
+/* 模块主按钮：只统一尺寸，颜色各自沿用原配色 */
+.my-plots-add,
+.my-crops-add {
+  height: 32px !important;
+  padding: 0 12px !important;
+  font-family: inherit;
+  font-size: 12.5px !important;
+  font-weight: 500 !important;
+  border-radius: var(--radius-sm) !important;
+  box-shadow: none !important;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+/* 我的地块：绿色渐变实心（与 V4 一致） */
+.my-plots-add {
+  color: #fff !important;
+  background: linear-gradient(155deg, var(--leaf-2), var(--leaf)) !important;
+  border: 1px solid transparent !important;
+}
+.my-plots-add:hover { background: linear-gradient(155deg, #47a05f, var(--leaf)) !important; }
+
+/* 我的作物：叶绿浅底描边（与 V4 一致） */
+.my-crops-add {
+  color: var(--leaf) !important;
+  background: var(--leaf-soft) !important;
+  border: 1px solid var(--leaf-2) !important;
+}
+.my-crops-add:hover { background: var(--leaf) !important; color: #fff !important; }
+
+/* 卡片统一细边框 + 小圆角 */
+.my-plots-card,
+.my-crops-card,
+.recommend-card,
+.disease-card,
+.service-card {
+  border-radius: var(--radius) !important;
+  border-color: var(--line-soft) !important;
+  box-shadow: var(--shadow-soft) !important;
+}
+
+.my-plots-card:hover,
+.my-crops-card:hover { box-shadow: var(--shadow) !important; }
+
+/* 地图选点按钮同样被 append 到 .field 末尾，与语音按钮一起悬浮在输入框右侧。
+   有地图按钮时，语音按钮往左让一格，避免两个图标叠在一起。 */
+.field > .map-picker-btn {
+  position: absolute;
+  right: 5px;
+  top: 29px;
+  margin-left: 0;
+  width: 28px;
+  height: 28px;
+  border-color: transparent;
+  background: transparent;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.field > .map-picker-btn:hover {
+  background: var(--surface-2);
+  border-color: transparent;
+}
+
+.field:has(> .map-picker-btn) input { padding-right: 40px; }
+.field:has(> .map-picker-btn) > .voice-btn { right: 36px; }
+.field:has(> .map-picker-btn):has(> .voice-btn) input { padding-right: 72px; }
+
+/* 日期行里的语音按钮：保持同一视觉语言，不要描边框 */
+.date-picker > .voice-btn {
+  border-color: transparent;
+  background: transparent;
+  color: var(--muted);
+  margin-left: 2px;
+}
+.date-picker > .voice-btn:hover { background: var(--surface-2); border-color: transparent; }
+
+/* 节气刻度尺：保留 V4 的暖色渐变柱 */
+.term-ruler { height: 20px; margin-bottom: 16px; }
+.term-ruler i { flex: 1; height: 100%; background: linear-gradient(to top, var(--line), transparent); border-radius: 2px 2px 0 0; }
+.term-ruler i.hi { background: linear-gradient(to top, var(--sun), transparent); }
+
+
+/* ============================================================
+   天气氛围：四类天气的叠加层动画 + 时段呼吸
+   动画只作用在 ::after 叠加层上，不动整层，避免背景图整体漂移
+   ============================================================ */
+
+@keyframes weather-sunny {
+  0%, 100% { transform: scale(1); opacity: 0.15; }
+  50% { transform: scale(1.1); opacity: 0.25; }
+}
+
+@keyframes weather-rain {
+  from { background-position-y: 0; }
+  to { background-position-y: 40px; }
+}
+
+@keyframes weather-cloudy {
+  from { transform: translateX(-50px); }
+  to { transform: translateX(50px); }
+}
+
+@keyframes weather-snow {
+  from { background-position-y: 0, 0; }
+  to { background-position-y: 30px, 50px; }
+}
+
+@keyframes tea-morning {
+  0%, 100% { opacity: 0.1; }
+  50% { opacity: 0.14; }
+}
+
+@keyframes tea-forenoon {
+  0%, 100% { opacity: 0.11; }
+  50% { opacity: 0.15; }
+}
+
+@keyframes tea-noon {
+  0%, 100% { opacity: 0.12; }
+  50% { opacity: 0.16; }
+}
+
+@keyframes tea-afternoon {
+  0%, 100% { opacity: 0.11; }
+  50% { opacity: 0.15; }
+}
+
+@keyframes tea-evening {
+  0%, 100% { opacity: 0.09; }
+  50% { opacity: 0.13; }
+}
+
+@keyframes tea-night {
+  0%, 100% { opacity: 0.07; }
+  50% { opacity: 0.1; }
+}
+
+.page--home[data-weather="sunny"] .weather-bg-layer::after { animation-duration: 3s; }
+.page--home[data-weather="rain"] .weather-bg-layer::after { animation-duration: 0.6s; }
+.page--home[data-weather="cloudy"] .weather-bg-layer::after { animation-duration: 15s; }
+.page--home[data-weather="snow"] .weather-bg-layer::after { animation-duration: 4s; }
+
+[data-timeperiod="morning"] .weather-bg-layer { animation: tea-morning 16s ease-in-out infinite; }
+[data-timeperiod="forenoon"] .weather-bg-layer { animation: tea-forenoon 16s ease-in-out infinite; }
+[data-timeperiod="noon"] .weather-bg-layer { animation: tea-noon 16s ease-in-out infinite; }
+[data-timeperiod="afternoon"] .weather-bg-layer { animation: tea-afternoon 16s ease-in-out infinite; }
+[data-timeperiod="evening"] .weather-bg-layer { animation: tea-evening 18s ease-in-out infinite; }
+[data-timeperiod="night"] .weather-bg-layer { animation: tea-night 20s ease-in-out infinite; }
+
+/* 夜间：整层再压暗压淡，与白天的中性灰区分开 */
+[data-daynight="night"] .weather-bg-layer {
+  /* 夜间只是把天气图压淡，不做去饱和——去饱和会让暖底色发灰 */
+  opacity: 0.07;
+}
+
+/* ============================================================
+   断点与无障碍
+   ============================================================ */
+
+@media (min-width: 768px) {
+  body[data-layout="app"] .page--home { padding-left: 32px; padding-right: 32px; }
+}
+
+@media (min-width: 1024px) {
+  body[data-layout="app"] .page--home { max-width: 900px; }
+  body[data-layout="app"] .content-pane > * { max-width: 1120px; }
+}
+
+/* 桌面宽屏上天气插画会被拉伸成一块灰绿雾，和暖米黄底冲突；
+   氛围只保留在手机端，桌面用纯暖底 + 内容列微光 */
+@media (min-width: 768px) {
+  .weather-bg-layer { display: none; }
+}
+
+@media (max-width: 767px) {
+  /* 手机端也压到几乎不可见：灰绿天空压在暖米黄标题上会显脏 */
+  .weather-bg-layer {
+    opacity: 0.05;
+    -webkit-mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.5) 0%, transparent 45%);
+    mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.5) 0%, transparent 45%);
+  }
+}
+
+@media (max-width: 375px) {
+  body[data-layout="app"] .page--home { padding-left: 12px; padding-right: 12px; }
+  .weather-extra { display: none; }
+  .date-picker { gap: 6px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .weather-bg-layer,
+  .page--home[data-weather] .weather-bg-layer,
+  [data-timeperiod] .weather-bg-layer { animation: none !important; }
+  * { scroll-behavior: auto !important; }
+}
+
+/* ============================================================
+   四态：加载中 / 空 / 错误 / 部分数据（T20）
+   空态与错误态都给一个能点的动作，不留死胡同。
+   ============================================================ */
+
+.ui-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  /* 空态撑开一段高度，视觉上落在内容区中上部，不像贴着标题的零散文字 */
+  min-height: 260px;
+  padding: 36px 20px;
+  text-align: center;
+  color: var(--muted);
+}
+
+.ui-state-icon {
+  font-size: 26px;
+  line-height: 1;
+  opacity: 0.75;
+}
+
+.ui-state-text {
+  margin: 0;
+  font-size: 13.5px;
+  line-height: 1.6;
+  color: var(--ink-soft);
+  max-width: 360px;
+}
+
+.ui-state-hint {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--muted);
+  max-width: 360px;
+}
+
+.ui-state-action {
+  margin-top: 4px;
+  min-height: 34px;
+  padding: 0 14px;
+  border: 1px solid var(--leaf-2);
+  border-radius: var(--radius-sm);
+  background: var(--leaf-soft);
+  color: var(--leaf);
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.ui-state-action:hover {
+  background: var(--leaf);
+  color: #fff;
+}
+
+/* 加载中：图标做一点呼吸，别让页面看起来卡死 */
+.ui-state--loading .ui-state-icon { animation: ui-state-pulse 1.4s ease-in-out infinite; }
+@keyframes ui-state-pulse {
+  0%, 100% { opacity: 0.4; transform: translateY(0); }
+  50% { opacity: 0.9; transform: translateY(-2px); }
+}
+
+.ui-state--error .ui-state-text { color: #a32b2b; }
+
+.ui-state--error {
+  border: 1px dashed #eec9c3;
+  border-radius: var(--radius);
+  background: var(--red-soft);
+}
+
+/* 部分数据：顶部一条窄提示，不遮挡主体内容 */
+.ui-state--partial {
+  flex-direction: row;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 12px;
+  margin-bottom: 10px;
+  border: 1px solid #e6cfa8;
+  border-radius: var(--radius-sm);
+  background: var(--sun-soft);
+  color: #8a5a2a;
+  font-size: 12.5px;
+  text-align: left;
+  justify-content: flex-start;
+}
+
+/* 移动端触控热区：空态/错误态的按钮是最常点的，必须够 44px */
+@media (max-width: 767px) {
+  .ui-state { padding: 28px 16px; }
+  .ui-state-action { min-height: 44px; width: 100%; max-width: 280px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ui-state--loading .ui-state-icon { animation: none; }
+}
+
+/* T26：同步状态提示。服务不可用时必须明确告诉用户「现在看的是本地数据」 */
+.agri-sync-status {
+  position: fixed;
+  right: 16px;
+  bottom: 76px;
+  z-index: 240;
+  max-width: min(360px, calc(100vw - 24px));
+  padding: 9px 14px;
+  border: 1px solid rgba(217, 155, 43, 0.45);
+  border-radius: 8px;
+  background: var(--sun-soft);
+  color: #8a6415;
+  font-size: 12.5px;
+  line-height: 1.55;
+  box-shadow: var(--shadow-soft);
+}
+.agri-sync-status[hidden] { display: none; }
+
+@media (max-width: 767px) {
+  .agri-sync-status { left: 12px; right: 12px; bottom: 12px; max-width: none; }
+}

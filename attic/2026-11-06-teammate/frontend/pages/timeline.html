@@ -1,0 +1,1148 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#f4efe3" />
+  <title>知农时 · 农事时间线</title>
+  <link rel="icon" type="image/svg+xml" href="../assets/img/common-logo.svg" />
+  <link rel="stylesheet" href="../assets/css/common.css" />
+  <link rel="stylesheet" href="../assets/css/timeline.css" />
+  <link rel="stylesheet" href="../components/location-picker/location-picker.css" />
+  <link rel="stylesheet" href="../components/reminder-center/reminder-center.css" />
+</head>
+<body>
+  <main class="page">
+    <header class="brand">
+      <div class="brand-row">
+        <span class="brand-mark" aria-hidden="true">
+          <img class="brand-logo" src="../assets/img/common-logo.svg" width="24" height="24" alt="" aria-hidden="true" />
+        </span>
+        <div>
+          <div class="brand-name">知农时</div>
+          <div class="brand-sub" id="brand-sub">正在读取农时…</div>
+        </div>
+      </div>
+    </header>
+
+    <div class="timeline-map-container" id="timeline-map"></div>
+
+    <p class="crop-resolved-hint" id="crop-resolved-hint" hidden></p>
+    <p class="crop-props-hint" id="crop-props-hint" hidden></p>
+
+    <section class="timeline-header" id="conclusion-card" hidden>
+
+      <div class="conclusion" id="conclusion"></div>
+      <div class="data-meta" id="data-meta"></div>
+
+      <div class="sowing-actions">
+        <button type="button" class="sowing-btn" id="sowing-confirm">确认已播种</button>
+        <span class="sowing-hint" id="sowing-hint"></span>
+      </div>
+    </section>
+
+    <!-- T17：面积决定总用量。放页头常驻，改完立即按新面积重算，不用回首页重来 -->
+    <div class="area-bar" id="area-bar">
+      <label for="area-input">地块面积</label>
+      <div class="area-input-wrap">
+        <input id="area-input" type="number" min="0" step="0.1" inputmode="decimal" placeholder="0" aria-label="地块面积（亩）" />
+        <span class="area-unit">亩</span>
+      </div>
+      <span class="area-hint" id="area-hint">填入面积后按总面积换算用量</span>
+    </div>
+
+    <div class="loading" id="loading" role="status" aria-live="polite">
+      <div class="loading-bar" aria-hidden="true"><i></i></div>
+      <p class="loading-text" id="loading-text">正在读取农时…</p>
+      <div class="skeleton" aria-hidden="true"></div>
+      <div class="skeleton" aria-hidden="true"></div>
+      <div class="skeleton" aria-hidden="true"></div>
+    </div>
+
+    <div class="mode-switch" id="mode-switch" hidden>
+      <button type="button" class="mode-tab active" data-mode="node">时间节点</button>
+      <button type="button" class="mode-tab" data-mode="chart">函数图像</button>
+    </div>
+
+    <div class="reschedule-bar" id="reschedule-bar" hidden>
+      <span class="reschedule-text" id="reschedule-text"></span>
+      <button type="button" class="reschedule-reset" id="reschedule-reset">恢复按规程排期</button>
+    </div>
+
+    <div class="reminder-panel" id="reminder-panel" hidden>
+      <h3>我的农事提醒</h3>
+      <p class="reminder-countdown" id="reminder-countdown" hidden></p>
+      <div id="reminder-list"></div>
+    </div>
+
+    <section class="timeline" id="timeline" hidden></section>
+
+    <section class="chart-wrap" id="chart" hidden></section>
+
+    <section class="empty-state" id="empty-state" hidden>
+      <p>未生成节点，请检查作物或日期</p>
+      <button type="button" class="btn btn-primary" onclick="window.location.href='index.html'">返回修改</button>
+    </section>
+
+    <div class="timeline-footer" id="footer" hidden>
+      <button type="button" class="btn btn-ghost" onclick="window.location.href='index.html'">返回修改作物或日期</button>
+    </div>
+  </main>
+
+  <script src="../assets/mock/mock-data.js"></script>
+  <script src="../assets/js/crop-map.js"></script>
+  <script src="../assets/js/my-crops-store.js"></script>
+  <script src="../shared/utils/timeline-logic.js"></script>
+  <script src="../assets/js/chart-client.js"></script>
+  <script src="../components/location-picker/location-picker.js"></script>
+  <!-- 时间线页已有内嵌提醒面板，不再挂悬浮铃铛 -->
+  <script>window.__reminderCenterNoEntry = true;</script>
+  <script src="../components/reminder-center/reminder-center.js"></script>
+  <script>
+    (function () {
+      var STATUS_LABEL = { green: '适宜', yellow: '谨慎', red: '不宜' };
+      var DATE_ANCHOR_LABEL = { fixed: '固定公历', lunar: '农历浮动', perYear: '按年指定' };
+      var ICONS = {
+        term: '<svg viewBox="0 0 24 24" fill="none"><path d="M12 3v18M5 8c3 0 5-1.6 7-5 2 3.4 4 5 7 5" stroke="#2f6b40" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>'
+      };
+      var CONFIG = {
+        API_PATH: '/api/timeline',
+        TIMELINE_TIMEOUT_MS: 20000,
+        DEFAULTS: {
+          cropId: 'dry_garlic',
+          sowDate: '',
+          lat: 35.07,
+          lon: 116.31
+        }
+      };
+
+      function pad2(n) { return String(n).padStart(2, '0'); }
+      function dateToStr(d) { return d.getFullYear() + '-' + pad2(d.getMonth() + 1) + '-' + pad2(d.getDate()); }
+      (function () {
+        var d = new Date();
+        d.setDate(d.getDate() - 150);
+        CONFIG.DEFAULTS.sowDate = dateToStr(d);
+      })();
+
+      function parseQuery(search) {
+        var p = new URLSearchParams(search);
+        var cropName = (p.get('crop') || '').trim();
+        var sowDate = p.get('sowDate') || CONFIG.DEFAULTS.sowDate;
+        var lat = Number(p.get('lat'));
+        var lon = Number(p.get('lon'));
+        if (!isFinite(lat) || lat < -90 || lat > 90) lat = CONFIG.DEFAULTS.lat;
+        if (!isFinite(lon) || lon < -180 || lon > 180) lon = CONFIG.DEFAULTS.lon;
+        return {
+          crop: window.CropMap.buildCropParam(cropName),
+          cropName: cropName,
+          sowDate: sowDate,
+          lat: lat,
+          lon: lon,
+          county: p.get('location') || '',
+          // T17：面积从首页地块带过来；0 表示未填，只给亩均用量
+          areaMu: (function () {
+            var a = Number(p.get('areaMu'));
+            return isFinite(a) && a > 0 ? a : 0;
+          })()
+        };
+      }
+
+      function buildTimelineUrl(query) {
+        var params = new URLSearchParams();
+        params.set('crop', query.crop);
+        params.set('sowDate', query.sowDate);
+        params.set('lat', String(query.lat));
+        params.set('lon', String(query.lon));
+        if (query.areaMu > 0) params.set('areaMu', String(query.areaMu));
+        return CONFIG.API_PATH + '?' + params.toString();
+      }
+
+      var query = parseQuery(window.location.search);
+      var degradedSource = '';
+
+      if (window.LocationPicker) {
+        window.LocationPicker.initDisplay('timeline-map', query.lat, query.lon);
+      }
+
+      function getData() {
+        var tries = 0;
+        // 规程由大模型生成时，后端会先回 202（约 30 秒才生成完）。
+        // 这里自动等几秒重试，比直接把用户甩到错误页体验好；最多重试 3 次。
+        function attempt() {
+          var controller = new AbortController();
+          var timer = setTimeout(function () { controller.abort(); }, CONFIG.TIMELINE_TIMEOUT_MS);
+          return fetch(buildTimelineUrl(query), { method: 'GET', signal: controller.signal })
+          .then(function (res) {
+            if (res.status === 202) {
+              clearTimeout(timer);
+              if (tries < 3) {
+                tries++;
+                var lt = document.getElementById('loading-text');
+                if (lt) lt.textContent = '该作物的农事规程正在生成，请稍候（第 ' + tries + ' 次重试）…';
+                return new Promise(function (r) { setTimeout(r, 5000); }).then(attempt);
+              }
+              degradedSource = 'generating';
+              throw new Error('规程生成超时');
+            }
+            if (!res.ok) { degradedSource = 'http'; throw new Error('接口返回 ' + res.status); }
+            return res.json();
+          })
+          .then(function (data) {
+            clearTimeout(timer);
+            if (!data || typeof data !== 'object' || !Array.isArray(data.nodes)) {
+              degradedSource = 'invalid';
+              return window.MOCK_TIMELINE;
+            }
+            return data;
+          })
+          .catch(function (err) {
+            clearTimeout(timer);
+            if (!degradedSource) {
+              degradedSource = (err && err.name === 'AbortError') ? 'timeout' : 'offline';
+            }
+            return window.MOCK_TIMELINE;
+          });
+        }
+        return attempt();
+      }
+
+      function badge(status) {
+        var span = document.createElement('span');
+        span.className = 'badge ' + status;
+        span.textContent = STATUS_LABEL[status] || '';
+        return span;
+      }
+
+      function svgIcon(kind) {
+        var span = document.createElement('span');
+        span.className = 'icon';
+        span.innerHTML = ICONS[kind] || '';
+        return span;
+      }
+
+      var IMG_ICONS = {
+        weather: '../assets/img/timeline-weather-icon.svg',
+        festival: '../assets/img/timeline-holiday-icon.svg'
+      };
+
+      function nodeIcon(kind) {
+        if (kind === 'term') return svgIcon('term');
+        var img = document.createElement('img');
+        img.className = 'icon';
+        img.src = IMG_ICONS[kind] || IMG_ICONS.weather;
+        img.alt = kind === 'festival' ? '节日' : '天气';
+        return img;
+      }
+
+      function noteRow(cls) {
+        var div = document.createElement('div');
+        div.className = 'tl-note' + (cls ? ' ' + cls : '');
+        return div;
+      }
+
+      function renderConclusion(data) {
+        var card = document.getElementById('conclusion-card');
+        var box = document.getElementById('conclusion');
+        var meta = document.getElementById('data-meta');
+        var tc = data.todayConclusion || {};
+        var status = tc.status || 'green';
+        box.innerHTML = '';
+        box.appendChild(badge(status));
+        var text = document.createElement('span');
+        text.textContent = tc.copy || '';
+        box.appendChild(text);
+        card.className = 'timeline-header status-' + status;
+        card.hidden = false;
+
+        var hit = window.CropMap.getCropByName(query.cropName);
+        var displayCropName = hit ? hit.name : query.cropName;
+        document.getElementById('brand-sub').textContent = (displayCropName || '') + ' · ' + (query.sowDate || '');
+        var sourceText;
+        if (data.dataSource === 'realtime') sourceText = '实时天气';
+        else if (data.dataSource === 'cache') sourceText = '缓存天气';
+        else if (data.weatherSummary && data.weatherSummary.indexOf('按常年气候') === 0) sourceText = '按常年气候规划';
+        else sourceText = '天气未获取';
+        var degradedText = { timeout: '接口超时', http: '接口异常', invalid: '数据异常', offline: '网络异常' }[degradedSource] || '';
+        var extra = degradedSource ? ' · 本地兜底数据（' + degradedText + '）' : '';
+        meta.textContent = '数据来源：' + sourceText + (data.dataTime ? ' · 数据时间 ' + new Date(data.dataTime).toLocaleString() : '') + extra;
+        meta.className = 'data-meta' + ((data.dataSource === 'realtime' && !degradedSource) ? '' : ' warn');
+
+        bindSowingConfirm(displayCropName);
+      }
+
+      /**
+       * 确认播种 → 写入「我的作物」（T12 日历联动）
+       *
+       * 日历通常嵌在主页的 iframe 里，CustomEvent 跨不过 iframe 边界，
+       * 所以嵌在主页时用 postMessage 交给父页面处理；单独打开时直接写本地存储，
+       * 两条路径只走其中一条，避免同一条记录被加两次。
+       */
+      function bindSowingConfirm(displayCropName) {
+        var btn = document.getElementById('sowing-confirm');
+        var hint = document.getElementById('sowing-hint');
+        if (!btn) return;
+
+        btn.disabled = false;
+        btn.textContent = '确认已播种';
+        if (hint) hint.textContent = '';
+
+        btn.onclick = function () {
+          var detail = {
+            cropName: displayCropName,
+            cropId: query.crop || null,
+            sownDate: query.sowDate || null,
+            lat: query.lat,
+            lon: query.lon
+          };
+          // 地点与地块单独赋值：位置主参数仍是 lat/lon 标量，地名只作展示与归档
+          detail.location = query.location || null;
+          // 从地块详情带过来的 plotId 要一路传下去，否则记录永远关联不上地块
+          detail.plotId = query.plotId || null;
+
+          if (window.parent && window.parent !== window) {
+            window.parent.postMessage({ type: 'agritime:sowing-confirmed', detail: detail }, '*');
+          } else if (window.MyCropsStore) {
+            var rec = {
+              cropName: detail.cropName,
+              cropId: detail.cropId,
+              sownDate: detail.sownDate,
+              source: 'calendar'
+            };
+            rec.location = detail.location;
+            rec.plotId = detail.plotId;
+            window.MyCropsStore.add(rec);
+          }
+
+          btn.disabled = true;
+          btn.textContent = '已加入我的作物';
+          if (hint) hint.textContent = '到「我的作物」可补充发芽情况和长势';
+        };
+      }
+
+      function renderWeather(card, node) {
+        var logic = window.TimelineLogic;
+        var factors = logic.normalizeFactors(node.weatherFactors);
+        var hasWeather = node.weatherIcon != null || node.suitability != null ||
+          node.severeWeatherAlert != null || factors.length > 0;
+
+        if (!hasWeather) {
+          var neutral = noteRow('tl-weather-neutral');
+          neutral.appendChild(nodeIcon('weather'));
+          var nt = document.createElement('span');
+          nt.textContent = node.precision === 'season' ? '按常年气候规划，临近再看预报' : '天气数据暂不可用';
+          neutral.appendChild(nt);
+          card.appendChild(neutral);
+          return;
+        }
+
+        var alert = logic.getSevereAlert(node.severeWeatherAlert);
+        if (alert) {
+          var aNote = noteRow('tl-alert');
+          var at = document.createElement('span');
+          at.textContent = '⚠ 天气警示 · ' + alert.label + (alert.tip ? '：' + alert.tip : '');
+          aNote.appendChild(at);
+          card.appendChild(aNote);
+          if (node.suitability === 'green') {
+            var aTip = noteRow('tl-alert-tip');
+            aTip.textContent = '虽有适宜条件但存在极端天气，建议调整';
+            card.appendChild(aTip);
+          }
+        }
+
+        var wi = logic.getWeatherIcon(node.weatherIcon);
+        if (wi) {
+          var wNote = noteRow('tl-weather');
+          wNote.appendChild(nodeIcon('weather'));
+          var wt = document.createElement('span');
+          wt.textContent = '天气 · ' + wi.label;
+          wNote.appendChild(wt);
+          card.appendChild(wNote);
+        }
+
+        var suit = logic.getSuitability(node.suitability);
+        if (suit) {
+          var sNote = noteRow('tl-suitability ' + suit.class);
+          var st = document.createElement('span');
+          st.textContent = '适宜度 · ' + suit.label;
+          sNote.appendChild(st);
+          card.appendChild(sNote);
+        }
+
+        if (factors.length) {
+          var fNote = noteRow('tl-factors');
+          var ft = document.createElement('span');
+          ft.textContent = '天气因子 · ' + factors.join('；');
+          fNote.appendChild(ft);
+          card.appendChild(fNote);
+        }
+      }
+
+      function renderNode(node, index) {
+        var wrap = document.createElement('div');
+        var seasonal = node.precision === 'season';
+        wrap.className = 'tl-node '
+          + (seasonal ? 'seasonal' : (node.certainty === 'predicted' ? 'predicted' : 'certain'))
+          + ' status-' + (node.status || 'green');
+
+        var dot = document.createElement('span');
+        dot.className = 'tl-dot';
+        wrap.appendChild(dot);
+
+        var card = document.createElement('div');
+        card.className = 'tl-card';
+        card.addEventListener('click', function () { card.classList.toggle('open'); });
+
+        var action = document.createElement('div');
+        action.className = 'tl-action';
+        var name = document.createElement('span');
+        name.className = 'name';
+        name.textContent = node.name || '';
+        var date = document.createElement('span');
+        date.className = 'date';
+        date.textContent = node.date || '';
+        action.appendChild(name);
+        action.appendChild(date);
+
+        // T22：改期标识 + 单节点改期入口
+        if (node.manualReschedule) {
+          var rbadge = document.createElement('span');
+          rbadge.className = 'tl-reschedule-badge';
+          rbadge.textContent = '已改期 · 原 ' + (node.originalDate || '');
+          action.appendChild(rbadge);
+        } else if (node.rescheduled) {
+          var sbadge = document.createElement('span');
+          sbadge.className = 'tl-shift-badge';
+          sbadge.textContent = '顺延';
+          action.appendChild(sbadge);
+        }
+        if (node.date && node.precision !== 'season') {
+          var editBtn = document.createElement('button');
+          editBtn.type = 'button';
+          editBtn.className = 'tl-edit-date';
+          editBtn.textContent = '改期';
+          editBtn.addEventListener('click', function (ev) {
+            ev.stopPropagation();
+            openDateEditor(card, index, node);
+          });
+          action.appendChild(editBtn);
+        }
+
+        card.appendChild(action);
+
+        var decision = document.createElement('div');
+        decision.className = 'tl-decision';
+        decision.textContent = node.copy || '';
+        card.appendChild(decision);
+
+        if (node.rescheduleAdvice) {
+          var advice = document.createElement('div');
+          advice.className = 'tl-advice';
+          advice.textContent = '↳ ' + node.rescheduleAdvice;
+          card.appendChild(advice);
+        }
+
+        if (node.solarTerm) {
+          var termNote = noteRow('tl-term');
+          termNote.appendChild(svgIcon('term'));
+          var tt = document.createElement('span');
+          tt.textContent = '节气 · ' + node.solarTerm + (node.solarTermTip ? '：' + node.solarTermTip : '');
+          termNote.appendChild(tt);
+          card.appendChild(termNote);
+        }
+
+        renderWeather(card, node);
+
+        // T04：未来第 5 天起标注天气为预报值
+        if (node.forecastNote) {
+          var fn = document.createElement('span');
+          fn.className = 'tl-forecast-note';
+          fn.textContent = '天气为预测数据，仅供参考';
+          card.appendChild(fn);
+        }
+        // 远期节点：只说时段气候，不给具体某天的结论
+        if (seasonal) {
+          var chip = document.createElement('span');
+          chip.className = 'tl-season-chip';
+          chip.textContent = '远期计划 · 非预报';
+          card.appendChild(chip);
+
+          var o = node.outlook;
+          if (o && o.available) {
+            var ol = document.createElement('div');
+            ol.className = 'tl-outlook';
+            ol.textContent = '常年同期：日均 ' + o.meanTempC + '℃（'
+              + o.minTempC + '~' + o.maxTempC + '℃），约 '
+              + Math.round((o.rainDayRatio || 0) * 100) + '% 的日子有雨 · 近 '
+              + o.years + ' 年统计';
+            card.appendChild(ol);
+          }
+        }
+
+        // T04：关键节点可开启提醒，前端展示倒计时
+        if (node.date && node.date >= todayStr()) {
+          var rb = document.createElement('button');
+          rb.type = 'button';
+          rb.className = 'tl-remind';
+          var key = reminderKey(node);
+          var on = isReminded(node);
+          rb.textContent = on ? '🔔 已设提醒' : '🔔 设提醒';
+          if (on) rb.classList.add('on');
+          rb.addEventListener('click', function (ev) {
+            ev.stopPropagation();
+            toggleReminder(node);
+            var now = isReminded(node);
+            rb.textContent = now ? '🔔 已设提醒' : '🔔 设提醒';
+            rb.classList.toggle('on', now);
+            renderMyReminders();
+          });
+          card.appendChild(rb);
+        }
+
+        var detail = document.createElement('div');
+        detail.className = 'tl-detail';
+        var desc = document.createElement('p');
+        desc.textContent = node.description || '';
+        detail.appendChild(desc);
+        if (node.reasons && node.reasons.length) {
+          var ul = document.createElement('ul');
+          node.reasons.forEach(function (r) { var li = document.createElement('li'); li.textContent = r; ul.appendChild(li); });
+          detail.appendChild(ul);
+        }
+        renderGuidance(detail, node.guidance);
+        card.appendChild(detail);
+
+        wrap.appendChild(card);
+        return wrap;
+      }
+
+      // T22：单节点改期编辑器。保存后由纯函数重算，违反间隔直接拒绝。
+      function openDateEditor(card, index, node) {
+        var old = card.querySelector('.tl-date-editor');
+        if (old) old.remove();
+
+        var box = document.createElement('div');
+        box.className = 'tl-date-editor';
+
+        var label = document.createElement('span');
+        label.className = 'tl-date-editor-label';
+        label.textContent = '调整「' + (node.name || '该节点') + '」日期';
+
+        var input = document.createElement('input');
+        input.type = 'date';
+        input.value = node.date || '';
+
+        var save = document.createElement('button');
+        save.type = 'button';
+        save.className = 'tl-date-save';
+        save.textContent = '保存';
+
+        var cancel = document.createElement('button');
+        cancel.type = 'button';
+        cancel.className = 'tl-date-cancel';
+        cancel.textContent = '取消';
+
+        var err = document.createElement('span');
+        err.className = 'tl-date-error';
+
+        box.appendChild(label);
+        box.appendChild(input);
+        box.appendChild(save);
+        box.appendChild(cancel);
+        box.appendChild(err);
+        card.appendChild(box);
+        input.focus();
+
+        save.addEventListener('click', function (ev) {
+          ev.stopPropagation();
+          if (!window.TimelineLogic || !window.TimelineLogic.reschedule) return;
+          var res = window.TimelineLogic.reschedule(currentNodes, index, input.value);
+          if (!res.ok) { err.textContent = res.error; return; }
+
+          var diff = window.TimelineLogic.diffDates(protocolNodes, res.nodes);
+          if (!overrides) overrides = { dates: {}, manual: {} };
+          overrides.dates = diff;
+          overrides.manual = overrides.manual || {};
+          var key = window.TimelineLogic.nodeKey(protocolNodes[index]);
+          if (diff[key] && !overrides.manual[key]) overrides.manual[key] = protocolNodes[index].date;
+          Object.keys(overrides.manual).forEach(function (k) {
+            if (!diff[k]) delete overrides.manual[k];
+          });
+
+          if (window.TimelineLogic.hasOverrides(overrides)) saveOverrides(overrideScope, overrides);
+          else { clearOverrides(overrideScope); overrides = null; }
+
+          // 用 applyOverrides 重放一次，保证「已改期/顺延」标记与持久化后的渲染完全一致
+          currentNodes = window.TimelineLogic.applyOverrides(protocolNodes, overrides);
+          renderTimelineNodes();
+        });
+
+        cancel.addEventListener('click', function (ev) {
+          ev.stopPropagation();
+          box.remove();
+        });
+      }
+
+      // T03：四类农事指导（浇水/施肥/病虫害/农具）+ 天气调整依据
+      function renderGuidance(host, g) {
+        if (!g) return;
+        var box = document.createElement('div');
+        box.className = 'tl-guide';
+
+        function section(titleText) {
+          var h = document.createElement('div');
+          h.className = 'tl-guide-title';
+          h.textContent = titleText;
+          box.appendChild(h);
+        }
+        function line(label, value) {
+          if (!value) return;
+          var p = document.createElement('p');
+          p.className = 'tl-guide-line';
+          var b = document.createElement('b');
+          b.textContent = label;
+          p.appendChild(b);
+          p.appendChild(document.createTextNode(' ' + value));
+          box.appendChild(p);
+        }
+
+        // T17：亩均 + 总面积。没填面积时只给亩均，并说明为什么没有总量
+        function doseText(dose) {
+          if (!dose || !dose.perMu) return '';
+          if (dose.total && dose.total.text) return dose.perMu.text + '，共 ' + dose.total.text;
+          return dose.perMu.text + '（未填面积，按亩计）';
+        }
+
+        // 天气建议放最前面：用户先看"今天该不该干"，再看具体用量
+        if (g.weatherAdvice && g.weatherAdvice.text) {
+          var advice = document.createElement('div');
+          advice.className = 'tl-guide-advice tl-guide-advice--' + (g.weatherAdvice.level || 'info');
+          advice.textContent = g.weatherAdvice.text;
+          box.appendChild(advice);
+        }
+
+        if (g.watering) {
+          section('浇水');
+          line(g.watering.method || '方式',
+            [g.watering.duration, doseText(g.watering.dose) || g.watering.waterPerMu].filter(Boolean).join(' · '));
+          if (g.watering.tips) line('要点', g.watering.tips);
+          if (g.watering.basis) {
+            var basis = document.createElement('p');
+            basis.className = 'tl-guide-basis';
+            basis.textContent = '依据：' + g.watering.basis;
+            box.appendChild(basis);
+          }
+        }
+
+        if (g.fertilize && g.fertilize.type) {
+          section('施肥');
+          line(g.fertilize.type,
+            'N-P-K ' + (g.fertilize.npk || '—') + ' · ' +
+            (doseText(g.fertilize.dose) || g.fertilize.amount || ''));
+          if (g.fertilize.method) line('方法', g.fertilize.method);
+          if (g.fertilize.tips) line('要点', g.fertilize.tips);
+        }
+
+        if (g.pest && g.pest.length) {
+          section('病虫害');
+          g.pest.forEach(function (p) {
+            var item = document.createElement('div');
+            item.className = 'tl-guide-pest';
+            var n = document.createElement('b'); n.textContent = p.name || '';
+            item.appendChild(n);
+            if (p.symptom) item.appendChild(document.createTextNode('：' + p.symptom));
+            if (p.solution) {
+              var s = document.createElement('span');
+              s.className = 'tl-guide-med';
+              var dose = doseText(p.dose);
+              s.textContent = '用药：' + p.solution
+                + (dose ? '（' + dose + '）' : (p.dosage ? '（' + p.dosage + '）' : ''));
+              item.appendChild(s);
+            }
+            box.appendChild(item);
+          });
+          if (g.pestSource) {
+            var src = document.createElement('p');
+            src.className = 'tl-guide-basis';
+            src.textContent = '来源：' + g.pestSource;
+            box.appendChild(src);
+          }
+        }
+
+        if (g.tools && g.tools.length) {
+          section('农具');
+          var chips = document.createElement('div');
+          chips.className = 'tl-guide-tools';
+          g.tools.forEach(function (t) {
+            var c = document.createElement('span');
+            c.textContent = t;
+            chips.appendChild(c);
+          });
+          box.appendChild(chips);
+        }
+
+        if (g.notes && g.notes.length) {
+          section('提示');
+          var ul = document.createElement('ul');
+          g.notes.forEach(function (n) { var li = document.createElement('li'); li.textContent = n; ul.appendChild(li); });
+          box.appendChild(ul);
+        }
+
+        // 面积缺失时给一句可执行的提示，而不是让用户自己琢磨"为什么没有总量"
+        if (g.area && g.area.hint) {
+          var areaHint = document.createElement('p');
+          areaHint.className = 'tl-guide-basis';
+          areaHint.textContent = g.area.hint;
+          box.appendChild(areaHint);
+        }
+
+        host.appendChild(box);
+      }
+
+      // ---------------- T18 提醒中心 ----------------
+      // T04 只在 localStorage 存一个"打过钩"的标记，换设备就没了。现在统一交给
+      // ReminderCenter：分类/三级风险/已读/开关都持久化，登录同步到账号，
+      // 旧版标记由组件自动迁移。这里只保留四个旧函数名，避免改动节点渲染代码。
+      var REMIND_KEY = window.ReminderCenter ? window.ReminderCenter.KEY : 'agritime.reminders.center.v1';
+
+      function todayStr() {
+        var d = new Date();
+        return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+      }
+      function reminderCrop() {
+        return window.__cropStandardName || query.cropName || '';
+      }
+      function reminderKey(node) {
+        if (window.ReminderCenter) {
+          return window.ReminderCenter.manualId(reminderCrop(), node.date, node.name);
+        }
+        return reminderCrop() + '|' + (node.date || '') + '|' + (node.name || '');
+      }
+      function isReminded(node) {
+        return window.ReminderCenter ? window.ReminderCenter.has(reminderKey(node)) : false;
+      }
+      function toggleReminder(node) {
+        if (window.ReminderCenter) window.ReminderCenter.toggleManual(node, reminderCrop());
+      }
+      /** 展示层也兜一次过期清理：节点过去 7 天以上就不再占位（落盘清理由组件/服务端做）。 */
+      function pruneReminders(list) {
+        var cut = new Date();
+        cut.setDate(cut.getDate() - 7);
+        var cutStr = cut.getFullYear() + '-' + String(cut.getMonth() + 1).padStart(2, '0')
+          + '-' + String(cut.getDate()).padStart(2, '0');
+        return (list || []).filter(function (r) { return !r.date || r.date >= cutStr; });
+      }
+      function renderMyReminders() {
+        var panel = document.getElementById('reminder-panel');
+        var box = document.getElementById('reminder-list');
+        if (!panel || !box || !window.ReminderCenter) return;
+
+        // 面板顶部给一句"最近一条提醒还有几天"，延续 T04 的倒计时信息
+        var hint = document.getElementById('reminder-countdown');
+        if (hint && window.TimelineLogic && window.TimelineLogic.calcCountdown) {
+          var next = pruneReminders(window.ReminderCenter.list()).filter(function (r) { return !r.read; })[0];
+          if (next) {
+            var cd = window.TimelineLogic.calcCountdown(next.date);
+            hint.textContent = cd.state === 'today' ? '今天有提醒'
+              : cd.state === 'past' ? '有已过期的提醒，建议清理'
+                : '最近一条提醒还有 ' + cd.days + ' 天';
+            hint.hidden = false;
+          } else {
+            hint.hidden = true;
+          }
+        }
+        window.ReminderCenter.renderInto(box);
+        panel.hidden = window.ReminderCenter.list().length === 0;
+      }
+
+      function renderReminder(r) {
+        var wrap = document.createElement('div');
+        wrap.className = 'tl-node certain';
+        var dot = document.createElement('span');
+        dot.className = 'tl-dot';
+        wrap.appendChild(dot);
+        var card = document.createElement('div');
+        card.className = 'tl-card tl-festival';
+        var action = document.createElement('div');
+        action.className = 'tl-action';
+        var name = document.createElement('span');
+        name.className = 'name';
+        name.textContent = r.festivalName ? r.festivalName + ' · 销售窗口' : '销售窗口';
+        var date = document.createElement('span');
+        date.className = 'date';
+        date.textContent = r.festivalDate || '';
+        action.appendChild(name); action.appendChild(date);
+        card.appendChild(action);
+
+        var cd = window.TimelineLogic.calcCountdown(r.festivalDate);
+        var cdText = '';
+        if (cd.state === 'future') cdText = '距 ' + (r.festivalName || '该节点') + ' 还有 ' + cd.days + ' 天';
+        else if (cd.state === 'today') cdText = (r.festivalName || '该节点') + ' 就是今天';
+        else if (cd.state === 'past') cdText = (r.festivalName || '该节点') + ' 已过';
+        if (cdText) {
+          var cdNote = noteRow('tl-countdown');
+          cdNote.textContent = cdText;
+          card.appendChild(cdNote);
+        }
+
+        if (r.dateAnchor) {
+          var anchorNote = noteRow('tl-anchor');
+          anchorNote.textContent = '日期锚点 · ' + (DATE_ANCHOR_LABEL[r.dateAnchor] || r.dateAnchor);
+          card.appendChild(anchorNote);
+        }
+
+        var copy = r.salesCopy || r.reminderCopy;
+        if (copy) {
+          var note = noteRow('tl-festival-copy');
+          note.appendChild(nodeIcon('festival'));
+          var t = document.createElement('span');
+          t.textContent = copy;
+          note.appendChild(t);
+          card.appendChild(note);
+        }
+
+        if (r.applicableCrops) {
+          var cropsNote = noteRow('tl-crops');
+          cropsNote.textContent = '适用作物 · ' + r.applicableCrops;
+          card.appendChild(cropsNote);
+        }
+
+        wrap.appendChild(card);
+        return wrap;
+      }
+
+      var CHART_CONFIG = {
+        VIEWBOX_W: 360, VIEWBOX_H: 200,
+        PADDING_LEFT: 40, PADDING_BOTTOM: 30, PADDING_TOP: 10, PADDING_RIGHT: 10,
+        SIGMA: 15, SAMPLE_STEP: 2, PEAK_LEVEL: 1,
+        PLACEHOLDER_TEXT: '数据待接入'
+      };
+      var SVG_NS = 'http://www.w3.org/2000/svg';
+      var currentMode = 'node';
+      var chartRendered = false;
+      var cachedData = null;
+
+      // ---------------- T22 节点改期 ----------------
+      // 改期档案按「作物 + 播期 + 地点」存本地，换查询不串味，跨会话保留。
+      var OVERRIDE_KEY = 'agritime.timeline.overrides.v1';
+      var protocolNodes = null;   // 后端规程原始节点
+      var currentNodes = null;    // 应用改期后的节点
+      var overrideScope = '';
+      var overrides = null;
+
+      function readOverrideStore() {
+        try { return JSON.parse(localStorage.getItem(OVERRIDE_KEY) || '{}') || {}; }
+        catch (e) { return {}; }
+      }
+      function writeOverrideStore(all) {
+        try { localStorage.setItem(OVERRIDE_KEY, JSON.stringify(all)); }
+        catch (e) { /* 配额满就放弃本地落盘，页面仍按内存改期 */ }
+      }
+      function loadOverrides(scope) { return readOverrideStore()[scope] || null; }
+      function saveOverrides(scope, ov) {
+        var all = readOverrideStore();
+        all[scope] = ov;
+        writeOverrideStore(all);
+      }
+      function clearOverrides(scope) {
+        var all = readOverrideStore();
+        delete all[scope];
+        writeOverrideStore(all);
+      }
+      function overrideScopeKey(data) {
+        return (data.cropName || query.cropName || query.crop) + '|' + query.sowDate + '|'
+          + Number(query.lat).toFixed(2) + ',' + Number(query.lon).toFixed(2);
+      }
+
+      function gaussianPath(cx, sigma, xStart, xEnd, yBase, yPeak) {
+        var d = '';
+        for (var px = xStart; px <= xEnd; px += CHART_CONFIG.SAMPLE_STEP) {
+          var gauss = Math.exp(-Math.pow(px - cx, 2) / (2 * sigma * sigma));
+          var py = yBase - gauss * (yBase - yPeak);
+          d += (d ? 'L' : 'M') + px.toFixed(1) + ',' + py.toFixed(1) + ' ';
+        }
+        return d;
+      }
+
+      function buildEmptyChartSVG() {
+        var ns = SVG_NS;
+        var svg = document.createElementNS(ns, 'svg');
+        svg.setAttribute('viewBox', '0 0 ' + CHART_CONFIG.VIEWBOX_W + ' ' + CHART_CONFIG.VIEWBOX_H);
+        svg.setAttribute('class', 'chart-svg');
+        var yBase = CHART_CONFIG.VIEWBOX_H - CHART_CONFIG.PADDING_BOTTOM;
+        var yPeak = CHART_CONFIG.PADDING_TOP;
+        var xStart = CHART_CONFIG.PADDING_LEFT;
+        var xEnd = CHART_CONFIG.VIEWBOX_W - CHART_CONFIG.PADDING_RIGHT;
+        var axisY = document.createElementNS(ns, 'line');
+        axisY.setAttribute('x1', xStart); axisY.setAttribute('y1', yPeak);
+        axisY.setAttribute('x2', xStart); axisY.setAttribute('y2', yBase);
+        axisY.setAttribute('class', 'chart-axis');
+        svg.appendChild(axisY);
+        var axisX = document.createElementNS(ns, 'line');
+        axisX.setAttribute('x1', xStart); axisX.setAttribute('y1', yBase);
+        axisX.setAttribute('x2', xEnd); axisX.setAttribute('y2', yBase);
+        axisX.setAttribute('class', 'chart-axis');
+        svg.appendChild(axisX);
+        var labelHigh = document.createElementNS(ns, 'text');
+        labelHigh.setAttribute('x', xStart - 6); labelHigh.setAttribute('y', yPeak + 8);
+        labelHigh.setAttribute('text-anchor', 'end'); labelHigh.setAttribute('class', 'chart-placeholder');
+        labelHigh.textContent = '高';
+        svg.appendChild(labelHigh);
+        var labelLow = document.createElementNS(ns, 'text');
+        labelLow.setAttribute('x', xStart - 6); labelLow.setAttribute('y', yBase + 4);
+        labelLow.setAttribute('text-anchor', 'end'); labelLow.setAttribute('class', 'chart-placeholder');
+        labelLow.textContent = '低';
+        svg.appendChild(labelLow);
+        var placeholder = document.createElementNS(ns, 'text');
+        placeholder.setAttribute('x', CHART_CONFIG.VIEWBOX_W / 2);
+        placeholder.setAttribute('y', CHART_CONFIG.VIEWBOX_H / 2);
+        placeholder.setAttribute('text-anchor', 'middle'); placeholder.setAttribute('class', 'chart-placeholder');
+        placeholder.textContent = CHART_CONFIG.PLACEHOLDER_TEXT;
+        svg.appendChild(placeholder);
+        return svg;
+      }
+
+      function buildChartSVG(nodes) {
+        var ns = SVG_NS;
+        var svg = document.createElementNS(ns, 'svg');
+        svg.setAttribute('viewBox', '0 0 ' + CHART_CONFIG.VIEWBOX_W + ' ' + CHART_CONFIG.VIEWBOX_H);
+        svg.setAttribute('class', 'chart-svg');
+        var yBase = CHART_CONFIG.VIEWBOX_H - CHART_CONFIG.PADDING_BOTTOM;
+        var yPeak = CHART_CONFIG.PADDING_TOP;
+        var xStart = CHART_CONFIG.PADDING_LEFT;
+        var xEnd = CHART_CONFIG.VIEWBOX_W - CHART_CONFIG.PADDING_RIGHT;
+        var plotW = xEnd - xStart;
+        var days = nodes.map(function (n) { return n.daysAfterSowing; }).filter(function (d) { return d != null; });
+        if (days.length === 0) return buildEmptyChartSVG();
+        var minDay = Math.min.apply(null, days);
+        var maxDay = Math.max.apply(null, days);
+        if (maxDay === minDay) maxDay = minDay + 1;
+        var axisY = document.createElementNS(ns, 'line');
+        axisY.setAttribute('x1', xStart); axisY.setAttribute('y1', yPeak);
+        axisY.setAttribute('x2', xStart); axisY.setAttribute('y2', yBase);
+        axisY.setAttribute('class', 'chart-axis');
+        svg.appendChild(axisY);
+        var axisX = document.createElementNS(ns, 'line');
+        axisX.setAttribute('x1', xStart); axisX.setAttribute('y1', yBase);
+        axisX.setAttribute('x2', xEnd); axisX.setAttribute('y2', yBase);
+        axisX.setAttribute('class', 'chart-axis');
+        svg.appendChild(axisX);
+        var sigma = CHART_CONFIG.SIGMA;
+        var d = '';
+        nodes.forEach(function (n) {
+          if (n.daysAfterSowing == null) return;
+          var cx = xStart + (n.daysAfterSowing - minDay) / (maxDay - minDay) * plotW;
+          d += gaussianPath(cx, sigma, xStart, xEnd, yBase, yPeak);
+        });
+        if (d) {
+          var path = document.createElementNS(ns, 'path');
+          path.setAttribute('d', d);
+          path.setAttribute('class', 'chart-curve');
+          svg.appendChild(path);
+        }
+        var labelHigh = document.createElementNS(ns, 'text');
+        labelHigh.setAttribute('x', xStart - 6); labelHigh.setAttribute('y', yPeak + 8);
+        labelHigh.setAttribute('text-anchor', 'end'); labelHigh.setAttribute('class', 'chart-placeholder');
+        labelHigh.textContent = '高';
+        svg.appendChild(labelHigh);
+        var labelLow = document.createElementNS(ns, 'text');
+        labelLow.setAttribute('x', xStart - 6); labelLow.setAttribute('y', yBase + 4);
+        labelLow.setAttribute('text-anchor', 'end'); labelLow.setAttribute('class', 'chart-placeholder');
+        labelLow.textContent = '低';
+        svg.appendChild(labelLow);
+        return svg;
+      }
+
+      function renderChart(data) {
+        var chart = document.getElementById('chart');
+        chart.innerHTML = '';
+        var nodes = (data && Array.isArray(data.nodes)) ? data.nodes : [];
+        var hasRealData = nodes.some(function (n) { return n.date != null || n.name != null; });
+        var hasValidDays = nodes.some(function (n) { return n.daysAfterSowing != null; });
+        var svg = (hasRealData && hasValidDays) ? buildChartSVG(nodes) : buildEmptyChartSVG();
+        chart.appendChild(svg);
+        chartRendered = true;
+      }
+
+      function requestChart() {
+        var chart = document.getElementById('chart');
+        if (!window.ChartClient) { renderChart(cachedData); return; }
+        chart.innerHTML = '';
+        var loading = document.createElement('p');
+        loading.className = 'chart-loading';
+        loading.textContent = '正在生成图像…';
+        chart.appendChild(loading);
+        window.ChartClient.request({
+          crop: query.crop,
+          sowDate: query.sowDate,
+          lat: query.lat,
+          lon: query.lon,
+          nodes: (cachedData && cachedData.nodes) || []
+        }).then(function (res) {
+          if (res && res.ok && res.data) renderChart(res.data);
+          else renderChart(cachedData);
+        });
+      }
+
+      function renderModeSwitch() {
+        var sw = document.getElementById('mode-switch');
+        sw.hidden = false;
+        sw.querySelectorAll('.mode-tab').forEach(function (tab) {
+          tab.addEventListener('click', function () { switchMode(this.getAttribute('data-mode')); });
+        });
+      }
+
+      function switchMode(mode) {
+        if (mode !== 'node' && mode !== 'chart') return;
+        currentMode = mode;
+        var sw = document.getElementById('mode-switch');
+        sw.querySelectorAll('.mode-tab').forEach(function (tab) {
+          if (tab.getAttribute('data-mode') === mode) tab.classList.add('active');
+          else tab.classList.remove('active');
+        });
+        document.getElementById('timeline').hidden = (mode !== 'node');
+        document.getElementById('chart').hidden = (mode !== 'chart');
+        if (mode === 'chart' && !chartRendered) requestChart();
+      }
+
+      // T22：按当前改期状态重绘节点区（不动结论卡与模式开关）
+      function renderTimelineNodes() {
+        var timeline = document.getElementById('timeline');
+        timeline.innerHTML = '';
+        (currentNodes || []).forEach(function (n, i) {
+          timeline.appendChild(renderNode(n, i));
+        });
+        var reminders = (cachedData && Array.isArray(cachedData.reminders)) ? cachedData.reminders : [];
+        reminders.forEach(function (r) {
+          if (r && (r.festivalName || r.festivalDate || r.reminderCopy || r.salesCopy)) {
+            timeline.appendChild(renderReminder(r));
+          }
+        });
+        timeline.hidden = false;
+        updateRescheduleBar();
+      }
+
+      function updateRescheduleBar() {
+        var bar = document.getElementById('reschedule-bar');
+        var text = document.getElementById('reschedule-text');
+        if (!bar) return;
+        if (!window.TimelineLogic || !window.TimelineLogic.hasOverrides(overrides)) {
+          bar.hidden = true;
+          return;
+        }
+        var total = Object.keys(overrides.dates || {}).length;
+        var manual = Object.keys(overrides.manual || {}).length;
+        var shifted = total - manual;
+        bar.hidden = false;
+        if (text) {
+          text.textContent = '已手工改期 ' + manual + ' 个节点'
+            + (shifted > 0 ? '，' + shifted + ' 个节点按原有间隔顺延' : '');
+        }
+      }
+
+      function restoreProtocol() {
+        if (!protocolNodes) return;
+        overrides = null;
+        clearOverrides(overrideScope);
+        currentNodes = protocolNodes.map(function (n) { return Object.assign({}, n); });
+        renderTimelineNodes();
+      }
+
+      var resetBtn = document.getElementById('reschedule-reset');
+      if (resetBtn) resetBtn.addEventListener('click', restoreProtocol);
+
+      function render(data) {
+        document.getElementById('loading').hidden = true;
+        if (!data || typeof data !== 'object') data = { todayConclusion: {}, nodes: [] };
+        if (!Array.isArray(data.nodes)) data = { todayConclusion: data.todayConclusion || {}, nodes: [] };
+        // 提醒键要用标准作物名：否则同一作物用俗称（西红柿）和标准名（番茄）
+        // 各存一条，用户会看到重复提醒
+        if (data.cropName) window.__cropStandardName = data.cropName;
+        // T02：后端会把俗称归一到标准名，这里如实告诉用户映射结果
+        if (data.cropName && data.requestedCrop && data.cropName !== data.requestedCrop) {
+          var hint = document.getElementById('crop-resolved-hint');
+          if (hint) {
+            hint.hidden = false;
+            hint.textContent = '「' + data.requestedCrop + '」已识别为作物：' + data.cropName;
+          }
+        }
+        // T07：作物属性（熟制/年限）——解释"为什么这个作物会有两季/跨年节点"
+        if (data.cropProperties) {
+          var cp = data.cropProperties;
+          var propsEl = document.getElementById('crop-props-hint');
+          if (propsEl) {
+            propsEl.hidden = false;
+            var parts = [];
+            if (cp.lifespanLabel) parts.push(cp.lifespanLabel);
+            else if (cp.lifespan === 'perennial') parts.push('多年生');
+            if (cp.croppingSystem === 'single') parts.push('一年一熟');
+            else if (cp.croppingSystem === 'double') parts.push('一年多熟');
+            else if (cp.croppingSystem === 'multi') parts.push('一年多茬');
+            if (cp.totalDays) parts.push('全生育期约 ' + cp.totalDays + ' 天');
+            if (cp.suitableSeason) parts.push(cp.suitableSeason);
+            propsEl.textContent = '作物属性：' + parts.join(' · ')
+              + (cp.source === 'category-rule' ? '（属性按类别推定）' : '');
+          }
+        }
+        if (data.nodes.length === 0) {
+          document.getElementById('empty-state').hidden = false;
+          return;
+        }
+        renderConclusion(data);
+        cachedData = data;
+        protocolNodes = data.nodes.map(function (n) { return Object.assign({}, n); });
+        overrideScope = overrideScopeKey(data);
+        overrides = loadOverrides(overrideScope);
+        currentNodes = window.TimelineLogic.applyOverrides(protocolNodes, overrides);
+        renderModeSwitch();
+        renderTimelineNodes();
+        document.getElementById('footer').hidden = false;
+      }
+
+      // 提醒档案变化（自动生成、手动设提醒、服务端同步回来）时，
+      // 内嵌面板的显隐与倒计时都要跟着刷新，不能只在启动时算一次
+      document.addEventListener('agritime:reminders-changed', function () {
+        renderMyReminders();
+      });
+
+      // T17：面积改动只影响用量换算，防抖后重新拉一次数据即可，
+      // 不走整页刷新，用户选中的节点与滚动位置都还在
+      (function initAreaBar() {
+        var input = document.getElementById('area-input');
+        var hint = document.getElementById('area-hint');
+        if (!input) return;
+        if (query.areaMu > 0) input.value = query.areaMu;
+
+        function updateHint() {
+          if (!hint) return;
+          hint.textContent = query.areaMu > 0
+            ? '按 ' + query.areaMu + ' 亩换算总用量（亩均量不变）'
+            : '填入面积后按总面积换算用量';
+        }
+        updateHint();
+
+        var timer = null;
+        input.addEventListener('input', function () {
+          var v = Number(input.value);
+          query.areaMu = isFinite(v) && v > 0 ? v : 0;
+          updateHint();
+          clearTimeout(timer);
+          timer = setTimeout(function () {
+            getData().then(paint);
+          }, 600);
+        });
+      })();
+
+      function paint(data) {
+        render(data);
+        if (window.ReminderCenter) window.ReminderCenter.generateFromTimeline(data);
+        renderMyReminders();
+      }
+
+      // 先等提醒档案加载完，再画节点：否则「已设提醒」会先按空数据画一遍，
+      // 服务端数据回来后再覆盖，按钮会闪一下；自动生成的风险提醒也要排在同步之后。
+      var boot = window.ReminderCenter ? window.ReminderCenter.ready() : Promise.resolve();
+      boot.then(function () { return getData(); }).then(paint);
+    })();
+  </script>
+</body>
+</html>

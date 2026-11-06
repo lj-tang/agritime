@@ -1355,7 +1355,7 @@ test('V5 任务书：15 项 T16–T30 全量留档并标注状态', () => {
     assert.ok(tb.includes('**' + k + '**') || tb.includes('- **' + k + '**'), '每个任务应含「' + k + '」');
   });
   assert.ok(tb.includes('执行状态总览'), '应有执行状态总览章节');
-  assert.ok(tb.includes('12 项已完成'), '总览应写明 12 项已完成');
+  assert.ok(tb.includes('13 项已完成'), '总览应写明 13 项已完成');
   assert.ok(tb.includes('**状态**'), '每项都应标注状态（已完成/部分完成）');
   assert.ok(tb.includes('## 四、三人分工建议'), '应保留分工章节');
   assert.ok(tb.includes('## 五、开发与认领规则'), '应保留认领规则');
