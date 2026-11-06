@@ -10,17 +10,16 @@
 #   bash deploy/rollback-to-file.sh
 set -euo pipefail
 
-HOST="${MYSQL_HOST:-127.0.0.1}"
 USER="${MYSQL_USER:-root}"
 DB="${MYSQL_DB:-agritime}"
 
 mkdir -p backend/var/userdata
 
 # 一行一条：k \t data。data 里可能有换行，按主键一条条取，避免按行切坏 JSON。
-mysql -N -B --raw -h"$HOST" -u"$USER" "$DB" \
+mysql -N -B --raw -u"$USER" "$DB" \
   -e "SELECT k FROM userdata ORDER BY k" | while IFS= read -r k; do
     [ -z "$k" ] && continue
-    data=$(mysql -N -B --raw -h"$HOST" -u"$USER" "$DB" \
+    data=$(mysql -N -B --raw -u"$USER" "$DB" \
       -e "SELECT data FROM userdata WHERE k='$k'")
     printf '%s' "$data" > "backend/var/userdata/$k.json"
     echo "已回滚 $k"
