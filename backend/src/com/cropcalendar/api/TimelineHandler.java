@@ -1,5 +1,6 @@
 package com.cropcalendar.api;
 
+import com.cropcalendar.config.AppConfig;
 import com.cropcalendar.util.AppTime;
 import com.cropcalendar.compute.ComputeStub;
 import com.cropcalendar.compute.ComputeStub.MarketHint;
@@ -19,6 +20,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -37,6 +39,22 @@ public class TimelineHandler implements HttpHandler {
             "/api/timeline?crop=dry_garlic&sowDate=2025-03-15&lat=35.07&lon=116.31";
 
     private final TimelineOrchestrator orchestrator = new TimelineOrchestrator();
+
+    /**
+     * 结果缓存（性能）：同一作物 + 播种日 + 地点 + 面积的整条时间线是确定的，
+     * 冷启动拉天气要 3~6 秒，重复请求没必要每次都重算编排、评分、指导。
+     * key 里带日期，跨天自动失效；条数上限防止无限增长。
+     */
+    private static final int MAX_CACHE = 200;
+    private static final Map<String, Cached> CACHE = new LinkedHashMap<>(16, 0.75f, true) {
+        @Override
+        protected boolean removeEldestEntry(Map.Entry<String, Cached> eldest) {
+            return size() > MAX_CACHE;
+        }
+    };
+
+    private record Cached(long at, String body) {
+    }
 
     @Override
     public void handle(HttpExchange ex) throws IOException {
@@ -112,6 +130,20 @@ public class TimelineHandler implements HttpHandler {
             String protocolId = CropRegistry.protocolIdOf(standardName);
             String buildCropId = protocolId != null ? protocolId : standardName;
 
+            // 结果缓存：同作物同播期同地点同面积的重复请求直接命中，省掉冷启动拉天气
+            String cacheKey = buildCropId + "|" + sowDate + "|"
+                    + Math.round(lat * 100) / 100.0 + "|" + Math.round(lon * 100) / 100.0
+                    + "|" + areaMu + "|" + AppTime.today();
+            long nowMs = System.currentTimeMillis();
+            long ttlMs = Math.max(1, AppConfig.cacheTtlSeconds()) * 1000L;
+            synchronized (CACHE) {
+                Cached hit = CACHE.get(cacheKey);
+                if (hit != null && nowMs - hit.at() < ttlMs) {
+                    HttpSupport.write(ex, 200, hit.body().replace("\"cached\":false", "\"cached\":true"));
+                    return;
+                }
+            }
+
             CropProperties.Props props = CropProperties.of(buildCropId);
             TimelineResult r = orchestrator.build(buildCropId, sowDate, lat, lon, areaMu);
 
@@ -131,7 +163,13 @@ public class TimelineHandler implements HttpHandler {
                 return;
             }
 
-            HttpSupport.write(ex, 200, toContractJson(r, standardName, cropId, props, areaMu));
+            String body = toContractJson(r, standardName, cropId, props, areaMu);
+            // 注入缓存标记（toContractJson 以 } 结尾），命中时把 false 翻成 true
+            body = body.substring(0, body.length() - 1) + ",\"cached\":false}";
+            synchronized (CACHE) {
+                CACHE.put(cacheKey, new Cached(nowMs, body));
+            }
+            HttpSupport.write(ex, 200, body);
 
         } catch (IllegalArgumentException e) {
             HttpSupport.write(ex, 400, errJson("INVALID_INPUT", e.getMessage()));

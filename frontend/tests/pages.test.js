@@ -2094,3 +2094,16 @@ test('农事日历入口：选通用作物名后地点不再被清空，地点�
   assert.ok(html.includes("location = '山东济宁';"), '地点留空应回落到默认地点');
   assert.ok(html.includes('未填地点，将按默认地点山东济宁计算'), '应提示按默认地点计算');
 });
+
+// ---------------- timeline 结果缓存（性能） ----------------
+
+test('timeline 结果缓存：同作物同播期同地点直接命中，key 带日期跨天失效', () => {
+  const th = read(path.resolve(__dirname, '..', '..', 'backend', 'src', 'com', 'cropcalendar', 'api', 'TimelineHandler.java'));
+  assert.ok(th.includes('MAX_CACHE'), '应有缓存容量上限');
+  assert.ok(th.includes('removeEldestEntry'), '应按访问序淘汰最久未用');
+  assert.ok(th.includes('cached'), '应回传 cached 标记');
+  assert.ok(th.includes('AppTime.today()'), '缓存 key 应带日期，跨天自动失效');
+  assert.ok(th.includes('Math.round(lat * 100)'), 'key 应含地点，换地点重新计算');
+  assert.ok(th.includes('areaMu'), 'key 应含面积，换面积重新计算');
+  assert.ok(th.includes('AppConfig.cacheTtlSeconds()'), 'TTL 应由配置控制');
+});
