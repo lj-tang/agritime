@@ -403,6 +403,15 @@
     }
     box.appendChild(locLine);
 
+    // 没有任何作物匹配当地气候时，后端会回退全量并打 fellBack 标，这里必须说清楚，
+    // 不能把"都不合适"当成"都合适"展示给用户
+    if (String(data.fellBack) === 'true') {
+      var fb = document.createElement('div');
+      fb.className = 'recommend-context-line is-warn';
+      fb.textContent = '没有匹配当地气候带的作物，以下按综合评分列出，仅供参考；请结合品种适应性确认后再种';
+      box.appendChild(fb);
+    }
+
     if (plot && plot.top && plot.top.length) {
       var plotLine = document.createElement('div');
       plotLine.className = 'recommend-context-line is-ok';

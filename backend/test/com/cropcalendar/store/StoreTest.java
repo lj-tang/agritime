@@ -41,10 +41,13 @@ public class StoreTest {
         UserDataStore.delete(user);
         eq("{}", UserDataStore.read(user), "UserDataStore 删后为空");
 
-        // ---- 3. MySQL 后端可构造，backend() 正确（不实际连接） ----
-        BlobStore mysql = new MysqlBlobStore("a b-c");
+        // ---- 3. MySQL 后端可构造，backend() 正确（不实际连接）；连接失败回落文件 ----
+        BlobStore mysql = new MysqlBlobStore("a b-c", dir.toString());
         eq("mysql", mysql.backend(), "MySQL 后端标识");
-        eq("{}", mysql.read("nobody"), "无驱动时读取回落 {}，不抛异常");
+        eq("{}", mysql.read("nobody"), "无驱动时读取回落文件，不抛异常");
+        // 无驱动时写也应降级到文件而不是抛异常
+        mysql.write("fallback_key", "{\"v\":1}");
+        eq("{\"v\":1}", new FileBlobStore(dir.toString()).read("fallback_key"), "连接失败时写应落到文件后端");
 
         // ---- 4. StoreFactory 默认 file ----
         eq("file", StoreFactory.forCollection("userdata").backend(), "默认后端应为 file");

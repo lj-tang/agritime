@@ -1991,3 +1991,21 @@ test('时间线常年气候兜底：远期节点用常年气候概览，且字�
   assert.ok(handler.includes('n.weatherFactors()'), '接口应透传天气因子');
   assert.ok(logic.includes('getWeatherIcon') && logic.includes('getSuitability') && logic.includes('normalizeFactors'), '前端应已能消费这三个字段');
 });
+
+// ---------------- 健壮性加固（本轮） ----------------
+
+test('健壮性：body 限流 + MySQL 降级文件 + 推荐 fellBack 提示', () => {
+  const hs = read(path.resolve(__dirname, '..', '..', 'backend', 'src', 'com', 'cropcalendar', 'api', 'HttpSupport.java'));
+  const mysql = read(path.resolve(__dirname, '..', '..', 'backend', 'src', 'com', 'cropcalendar', 'store', 'MysqlBlobStore.java'));
+  const js = read(path.resolve(__dirname, '..', 'assets', 'js', 'recommend.js'));
+
+  assert.ok(hs.includes('readNBytes(64 * 1024 + 1)'), '请求体应限量读取，不能 readAllBytes 全量吞下');
+  assert.ok(hs.includes('Content-Length'), '应先看 Content-Length 提前拒绝大载荷');
+
+  assert.ok(mysql.includes('fileFallback'), 'MySQL 后端应持有文件后端做降级');
+  assert.ok(mysql.includes('已降级到文件存储'), '连接失败应降级到文件而不是 500');
+  assert.ok(mysql.includes('fileFallback.write'), '写失败应落到文件');
+
+  assert.ok(js.includes('data.fellBack'), '前端应处理 fellBack（无气候匹配）');
+  assert.ok(js.includes('没有匹配当地气候带的作物'), 'fellBack 时应明确提示而不是假装都合适');
+});

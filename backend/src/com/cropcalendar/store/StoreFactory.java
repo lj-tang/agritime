@@ -27,7 +27,7 @@ public final class StoreFactory {
     private static BlobStore mysqlOrFile(String collection, String fileDir) {
         if ("mysql".equalsIgnoreCase(AppConfig.storeBackend())) {
             if (mysqlAvailable()) {
-                return new MysqlBlobStore(collection);
+                return new MysqlBlobStore(collection, fileDir);
             }
             System.err.println("[store] 配置要求 mysql，但驱动/连接不可用，已回落到 file（数据不丢）");
         }

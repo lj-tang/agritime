@@ -17,13 +17,19 @@ import java.sql.SQLException;
  * 表结构见 {@code data/store-mysql.sql}。
  *
  * 表名会被清洗成 [A-Za-z0-9_]，拼进 SQL 不会注入；键与值走 PreparedStatement 占位。
+ *
+ * 健壮性：MySQL 连接失败时**降级到文件后端**，读写删都不丢数据、不 500 ——
+ * 这对应任务书里"切换失败可回滚到文件存储、服务不可用时降级读本地"。
+ * 恢复后再跑 migrate-to-mysql.py 把文件里的新数据搬回 MySQL 即可。
  */
 public final class MysqlBlobStore implements BlobStore {
 
     private final String table;
+    private final FileBlobStore fileFallback;
 
-    public MysqlBlobStore(String table) {
+    public MysqlBlobStore(String table, String fileDir) {
         this.table = safe(table);
+        this.fileFallback = new FileBlobStore(fileDir);
     }
 
     @Override
@@ -49,8 +55,8 @@ public final class MysqlBlobStore implements BlobStore {
             }
             return "{}";
         } catch (SQLException e) {
-            System.err.println("[store:mysql] 读取失败 " + key + "：" + e.getMessage());
-            return "{}";
+            warn("读取", key, e);
+            return fileFallback.read(key);
         }
     }
 
@@ -63,7 +69,8 @@ public final class MysqlBlobStore implements BlobStore {
             ps.setString(2, json);
             ps.executeUpdate();
         } catch (SQLException e) {
-            throw new IOException("MySQL 写入失败：" + e.getMessage(), e);
+            warn("写入", key, e);
+            fileFallback.write(key, json);
         }
     }
 
@@ -74,8 +81,14 @@ public final class MysqlBlobStore implements BlobStore {
             ps.setString(1, key);
             ps.executeUpdate();
         } catch (SQLException e) {
-            throw new IOException("MySQL 删除失败：" + e.getMessage(), e);
+            warn("删除", key, e);
+            fileFallback.delete(key);
         }
+    }
+
+    private void warn(String action, String key, SQLException e) {
+        System.err.println("[store:mysql] " + action + " " + key + " 失败，已降级到文件存储："
+                + e.getMessage());
     }
 
     private static String safe(String t) {
