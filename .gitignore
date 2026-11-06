@@ -15,7 +15,7 @@ backend/var/
 
 # 工具临时数据（CodeArts 索引 / 抓取数据集，非源码）
 .codeartsdoer/temp/
-.codeartsdoer/.codebase/file-index.db
+.codeartsdoer/.codebase/
 
 # 智能体工作目录（本地记忆，不入库）
 .workbuddy/
