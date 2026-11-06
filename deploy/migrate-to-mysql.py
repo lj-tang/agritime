@@ -16,7 +16,7 @@ import json
 import os
 import sys
 
-USERDATA_DIR = "var/userdata"
+USERDATA_DIR = "backend/var/userdata"
 
 
 def main():

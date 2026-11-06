@@ -14,7 +14,7 @@ HOST="${MYSQL_HOST:-127.0.0.1}"
 USER="${MYSQL_USER:-root}"
 DB="${MYSQL_DB:-agritime}"
 
-mkdir -p var/userdata
+mkdir -p backend/var/userdata
 
 # 一行一条：k \t data。data 里可能有换行，用 --raw 且按 k 分组读出会破坏换行，
 # 因此这里用逐行 LOOP 的方式，按主键一条条取，最稳妥。
@@ -23,7 +23,7 @@ mysql -N -B --raw -h"$HOST" -u"$USER" -p "$DB" \
     [ -z "$k" ] && continue
     data=$(mysql -N -B --raw -h"$HOST" -u"$USER" -p "$DB" \
       -e "SELECT data FROM userdata WHERE k='$k'")
-    printf '%s' "$data" > "var/userdata/$k.json"
+    printf '%s' "$data" > "backend/var/userdata/$k.json"
     echo "已回滚 $k"
   done
 
