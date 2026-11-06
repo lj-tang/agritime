@@ -230,31 +230,64 @@ public final class SensorStore {
         return AppConfig.sensorDefaultIntervalMin();
     }
 
+    /**
+     * 一次 load、在回调里批量改、一次 save（健壮性优化）。
+     *
+     * 之前调度器对每台设备都各自 load + save，同一个 plot 文件被反复读写 N 遍，
+     * 设备一多就是 O(n²) 的文件 IO。这里把整块处理收敛成 load 一次、save 一次。
+     *
+     * 注意并发语义：load 和 save 各自加锁，中间的回调在锁外执行（允许做网络 IO）。
+     * 调度器是单线程，不会与自身冲突；唯一可能的重叠是「手动拉取」与「调度拉取」
+     * 同时命中同一 plot，此时后者 save 会覆盖前者，代价最多是某条读数/状态回退一个
+     * 周期，下一个周期自动纠正 —— 传感器数据低频且非关键，这个取舍是可接受的。
+     */
+    public static void mutatePlot(String userId, String plotId,
+                                  java.util.function.Consumer<Map<String, Object>> fn) {
+        Map<String, Object> state;
+        synchronized (LOCK) {
+            state = load(userId, plotId);
+        }
+        fn.accept(state);
+        synchronized (LOCK) {
+            try {
+                save(userId, plotId, state);
+            } catch (IOException e) {
+                System.err.println("[sensor] 批量落盘失败 " + userId + "/" + plotId + "：" + e.getMessage());
+            }
+        }
+    }
+
+    /** 纯内存追加一条读数（不加锁、不落盘），返回记录，供批量路径复用。 */
+    static Map<String, Object> appendReadingInto(Map<String, Object> state, String deviceId,
+                                                 Map<String, Object> values, String source) {
+        @SuppressWarnings("unchecked")
+        Map<String, Object> readings = (Map<String, Object>) state.get("readings");
+        @SuppressWarnings("unchecked")
+        List<Map<String, Object>> list = readings.get(deviceId) instanceof List<?> l
+                ? new ArrayList<>((List<Map<String, Object>>) l)
+                : new ArrayList<>();
+
+        Map<String, Object> rec = new LinkedHashMap<>();
+        rec.put("ts", com.cropcalendar.util.AppTime.now().toString());
+        rec.put("source", first(source, "manual"));
+        Map<String, Object> v = new LinkedHashMap<>();
+        values.forEach((k, val) -> {
+            if (val instanceof Number || val instanceof String) v.put(k, val);
+        });
+        rec.put("values", v);
+        list.add(0, rec);
+        while (list.size() > MAX_READINGS) list.remove(list.size() - 1);
+        readings.put(deviceId, list);
+        return rec;
+    }
+
     // ---------------- 读数 ----------------
 
     public static Map<String, Object> addReading(String userId, String plotId, String deviceId,
                                                  Map<String, Object> values, String source) {
         synchronized (LOCK) {
             Map<String, Object> state = load(userId, plotId);
-            @SuppressWarnings("unchecked")
-            Map<String, Object> readings = (Map<String, Object>) state.get("readings");
-            @SuppressWarnings("unchecked")
-            List<Map<String, Object>> list = readings.get(deviceId) instanceof List<?> l
-                    ? new ArrayList<>((List<Map<String, Object>>) l)
-                    : new ArrayList<>();
-
-            Map<String, Object> rec = new LinkedHashMap<>();
-            rec.put("ts", com.cropcalendar.util.AppTime.now().toString());
-            rec.put("source", first(source, "manual"));
-            Map<String, Object> v = new LinkedHashMap<>();
-            values.forEach((k, val) -> {
-                if (val instanceof Number || val instanceof String) v.put(k, val);
-            });
-            rec.put("values", v);
-            list.add(0, rec);
-            while (list.size() > MAX_READINGS) list.remove(list.size() - 1);
-            readings.put(deviceId, list);
-
+            Map<String, Object> rec = appendReadingInto(state, deviceId, values, source);
             try {
                 save(userId, plotId, state);
             } catch (IOException e) {

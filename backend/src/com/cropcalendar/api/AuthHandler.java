@@ -30,6 +30,8 @@ public class AuthHandler implements HttpHandler {
     /** 同一用户名的连续失败次数：5 次锁 60 秒，挡一下弱口令撞库 */
     private static final int MAX_FAILS = 5;
     private static final long LOCK_MS = 60_000;
+    /** 撞库防护追踪条数上限：超过就清过期/重置计数，防止攻击者用海量随机用户名把 map 撑爆 */
+    private static final int MAX_TRACK = 10_000;
     private static final Map<String, int[]> FAILS = new ConcurrentHashMap<>();
     private static final Map<String, Long> LOCK_UNTIL = new ConcurrentHashMap<>();
     /** 「是否仍在用初始密码」的结果缓存，key 带密码哈希指纹 */
@@ -113,14 +115,19 @@ public class AuthHandler implements HttpHandler {
 
         String key = username.toLowerCase();
         Long until = LOCK_UNTIL.get(key);
-        if (until != null && until > System.currentTimeMillis()) {
-            long left = (until - System.currentTimeMillis()) / 1000 + 1;
-            HttpSupport.write(ex, 429, HttpSupport.error(429, "密码错误次数过多，" + left + " 秒后再试"));
-            return;
+        if (until != null) {
+            if (until > System.currentTimeMillis()) {
+                long left = (until - System.currentTimeMillis()) / 1000 + 1;
+                HttpSupport.write(ex, 429, HttpSupport.error(429, "密码错误次数过多，" + left + " 秒后再试"));
+                return;
+            }
+            // 锁定已到期，惰性清除，避免 LOCK_UNTIL 里堆满过期条目
+            LOCK_UNTIL.remove(key);
         }
 
         User u = UserStore.findByName(username);
         if (u == null || !UserStore.verify(u, password)) {
+            guardCapacity();
             int[] fails = FAILS.computeIfAbsent(key, k -> new int[1]);
             fails[0]++;
             if (fails[0] >= MAX_FAILS) {
@@ -147,6 +154,20 @@ public class AuthHandler implements HttpHandler {
         HttpSupport.write(ex, 200, HttpSupport.ok(Json.obj(
                 "user", updated.toJson(),
                 "mustChangePassword", String.valueOf(mustChangePassword(updated)))));
+    }
+
+    /**
+     * 撞库防护的容量守卫（健壮性）：追踪 map 只增不减会变成内存泄漏。
+     * 超过上限时先清掉已过期的锁定，仍超就重置失败计数 —— 后者只影响撞库防护，
+     * 不影响任何已登录用户。正常规模下根本走不到这里。
+     */
+    private static void guardCapacity() {
+        if (FAILS.size() + LOCK_UNTIL.size() < MAX_TRACK) return;
+        long now = System.currentTimeMillis();
+        LOCK_UNTIL.entrySet().removeIf(e -> e.getValue() <= now);
+        if (FAILS.size() + LOCK_UNTIL.size() >= MAX_TRACK) {
+            FAILS.clear();
+        }
     }
 
     private void logout(HttpExchange ex) throws IOException {

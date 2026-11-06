@@ -78,6 +78,15 @@ public class RecommendHandler implements HttpHandler {
                     "data", "null"));
             return;
         }
+        // 坐标范围校验（健壮性）：lat/lon 越界时打分全 fellBack，看起来像"没一个能种"，
+        // 其实是参数错了。直接 400 说清楚，别让用户对着怪结果猜。
+        if (lat < -90 || lat > 90 || lon < -180 || lon > 180) {
+            HttpSupport.write(ex, 400, Json.obj(
+                    "code", "40002",
+                    "message", Json.str("lat 需在 -90~90、lon 需在 -180~180 之间"),
+                    "data", "null"));
+            return;
+        }
 
         // 同地点同一天复用：key 里带日期、地块与作物条件，任何一项变了都重新算
         String cacheKey = month + "|" + Math.round(lat * 100) / 100.0 + "|" + Math.round(lon * 100) / 100.0

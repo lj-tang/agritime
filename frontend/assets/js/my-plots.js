@@ -2012,9 +2012,12 @@
       container.appendChild(riverTitle);
       var riverDiv = document.createElement('div');
       riverDiv.className = 'my-plots-env-river';
-      riverDiv.innerHTML = data.nearbyRivers.map(function (r) {
-        return r.name + '：约 ' + r.distance + ' km' + (r.waterGrade ? '（水质' + r.waterGrade + '）' : '');
-      }).join('<br>');
+      // 河名来自外部地理数据，走 textContent 避免把特殊字符当 HTML
+      data.nearbyRivers.forEach(function (r, i) {
+        if (i > 0) riverDiv.appendChild(document.createElement('br'));
+        riverDiv.appendChild(document.createTextNode(
+          r.name + '：约 ' + r.distance + ' km' + (r.waterGrade ? '（水质' + r.waterGrade + '）' : '')));
+      });
       container.appendChild(riverDiv);
     }
 

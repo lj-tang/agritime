@@ -318,9 +318,14 @@
   function bubble(who, content, time, side) {
     var b = document.createElement('div');
     b.className = 'service-bubble service-bubble--' + side;
-    b.innerHTML = '<div class="service-bubble-who">' + (who || '访客') + ' · ' + (time || '') + '</div>' +
-      '<div class="service-bubble-text"></div>';
-    b.querySelector('.service-bubble-text').textContent = content;
+    var whoDiv = document.createElement('div');
+    whoDiv.className = 'service-bubble-who';
+    whoDiv.textContent = (who || '访客') + ' · ' + (time || '');
+    var text = document.createElement('div');
+    text.className = 'service-bubble-text';
+    text.textContent = content;
+    b.appendChild(whoDiv);
+    b.appendChild(text);
     return b;
   }
 

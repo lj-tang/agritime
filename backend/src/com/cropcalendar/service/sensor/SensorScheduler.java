@@ -46,37 +46,49 @@ public final class SensorScheduler {
                 + AppConfig.sensorOfflineCycles() + " 个周期无数据判离线");
     }
 
-    /** 扫全量设备：到期拉取 + 超时判离线。异常吞掉，不让一个坏设备打断整轮。 */
+    /**
+     * 扫全量设备：到期拉取 + 超时判离线。异常吞掉，不让一个坏设备打断整轮。
+     *
+     * 每个 plot 走一次 {@link SensorStore#mutatePlot}：load 一次、批量处理、save 一次。
+     * 之前对每台设备各自 load + save，同一文件反复读写 N 遍（O(n²) IO），现在收敛成 N 台设备共享一次落盘。
+     */
     public static void pollDue() {
         int offlineCycles = Math.max(1, AppConfig.sensorOfflineCycles());
         LocalDateTime now = AppTime.now();
         for (String[] up : SensorStore.listPlots()) {
             String userId = up[0];
             String plotId = up[1];
-            for (Map<String, Object> dev : SensorStore.devices(userId, plotId)) {
-                try {
-                    String deviceId = SensorStore.str(dev.get("id"));
-                    double intervalMin = SensorStore.intervalMinOf(dev);
+            SensorStore.mutatePlot(userId, plotId,
+                    state -> processPlot(userId, plotId, state, now, offlineCycles));
+        }
+    }
 
-                    // 离线判定：用「最近一次在线」而不是「最近一次拉取」。
-                    // 拉取失败会立即标离线，但设备恢复后要等下一次拉取才回在线，
-                    // 用 lastOnline 判断才不会把"刚失败一次"的恢复期设备误判成长期离线。
-                    LocalDateTime lastOnline = parse(SensorStore.str(dev.get("lastOnline")));
-                    if (lastOnline != null
-                            && Duration.between(lastOnline, now).toMinutes() >= intervalMin * offlineCycles) {
-                        SensorStore.markStatus(userId, plotId, deviceId, "offline");
-                    }
+    @SuppressWarnings("unchecked")
+    private static void processPlot(String userId, String plotId, Map<String, Object> state,
+                                    LocalDateTime now, int offlineCycles) {
+        List<Map<String, Object>> devs = (List<Map<String, Object>>) state.get("devices");
+        if (devs == null) return;
+        for (Map<String, Object> dev : devs) {
+            try {
+                double intervalMin = SensorStore.intervalMinOf(dev);
 
-                    LocalDateTime lastPoll = parse(SensorStore.str(dev.get("lastPollAt")));
-                    boolean due = lastPoll == null
-                            || Duration.between(lastPoll, now).toMinutes() >= intervalMin;
-                    if (due) {
-                        SensorPoller.pollDevice(userId, plotId, dev);
-                        SensorStore.setLastPollAt(userId, plotId, deviceId);
-                    }
-                } catch (Exception e) {
-                    System.err.println("[sensor] 调度单设备异常：" + e.getMessage());
+                // 离线判定：用「最近一次在线」而不是「最近一次拉取」。
+                // 拉取失败会立即标离线，但设备恢复后要等下一次拉取才回在线，
+                // 用 lastOnline 判断才不会把"刚失败一次"的恢复期设备误判成长期离线。
+                LocalDateTime lastOnline = parse(SensorStore.str(dev.get("lastOnline")));
+                if (lastOnline != null
+                        && Duration.between(lastOnline, now).toMinutes() >= intervalMin * offlineCycles) {
+                    dev.put("status", "offline");
                 }
+
+                LocalDateTime lastPoll = parse(SensorStore.str(dev.get("lastPollAt")));
+                boolean due = lastPoll == null
+                        || Duration.between(lastPoll, now).toMinutes() >= intervalMin;
+                if (due) {
+                    SensorPoller.pollDeviceInto(userId, plotId, state, dev);
+                }
+            } catch (Exception e) {
+                System.err.println("[sensor] 调度单设备异常：" + e.getMessage());
             }
         }
     }

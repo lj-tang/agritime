@@ -85,8 +85,11 @@
       '<span class="service-item-subject"></span>' +
       '<span class="service-item-status service-status--' + (t.status || 'open') + '">' + (STATUS_LABEL[t.status] || t.status) + '</span>' +
       '</div>' +
-      '<div class="service-item-meta">' + (t.userName || '访客') + ' · ' + (t.category || '') + ' · ' + (t.createdAt || '') + '</div>';
+      '<div class="service-item-meta"></div>';
     item.querySelector('.service-item-subject').textContent = t.subject;
+    // 用户昵称走 textContent，杜绝把昵称里的 <script> 之类拼进 innerHTML
+    item.querySelector('.service-item-meta').textContent =
+      (t.userName || '访客') + ' · ' + (t.category || '') + ' · ' + (t.createdAt || '');
     item.addEventListener('click', function () { openDetail(t.id); });
     return item;
   }
@@ -106,8 +109,10 @@
     var head = document.createElement('div');
     head.className = 'service-detail-head';
     head.innerHTML = '<div class="service-detail-subject"></div>' +
-      '<div class="service-detail-meta">' + (t.userName || '访客') + ' · ' + (t.category || '') + ' · ' + (t.createdAt || '') + '</div>';
+      '<div class="service-detail-meta"></div>';
     head.querySelector('.service-detail-subject').textContent = t.subject;
+    head.querySelector('.service-detail-meta').textContent =
+      (t.userName || '访客') + ' · ' + (t.category || '') + ' · ' + (t.createdAt || '');
     detailBox.appendChild(head);
 
     detailBox.appendChild(bubble(t.userName, t.content, t.createdAt, 'user'));
@@ -147,9 +152,14 @@
   function bubble(who, content, time, side) {
     var b = document.createElement('div');
     b.className = 'service-bubble service-bubble--' + side;
-    b.innerHTML = '<div class="service-bubble-who">' + (who || '访客') + ' · ' + (time || '') + '</div>' +
-      '<div class="service-bubble-text"></div>';
-    b.querySelector('.service-bubble-text').textContent = content;
+    var whoDiv = document.createElement('div');
+    whoDiv.className = 'service-bubble-who';
+    whoDiv.textContent = (who || '访客') + ' · ' + (time || '');
+    var text = document.createElement('div');
+    text.className = 'service-bubble-text';
+    text.textContent = content;
+    b.appendChild(whoDiv);
+    b.appendChild(text);
     return b;
   }
 

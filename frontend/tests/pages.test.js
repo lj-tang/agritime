@@ -2009,3 +2009,37 @@ test('健壮性：body 限流 + MySQL 降级文件 + 推荐 fellBack 提示', ()
   assert.ok(js.includes('data.fellBack'), '前端应处理 fellBack（无气候匹配）');
   assert.ok(js.includes('没有匹配当地气候带的作物'), 'fellBack 时应明确提示而不是假装都合适');
 });
+
+// ---------------- 健壮性优化（本轮：IO / 坐标 / XSS / 撞库防泄漏） ----------------
+
+test('健壮性：传感器调度批量 IO + 推荐坐标校验 + XSS + 撞库防泄漏', () => {
+  const sched = read(path.resolve(__dirname, '..', '..', 'backend', 'src', 'com', 'cropcalendar', 'service', 'sensor', 'SensorScheduler.java'));
+  const sstore = read(path.resolve(__dirname, '..', '..', 'backend', 'src', 'com', 'cropcalendar', 'service', 'sensor', 'SensorStore.java'));
+  const poller = read(path.resolve(__dirname, '..', '..', 'backend', 'src', 'com', 'cropcalendar', 'service', 'sensor', 'SensorPoller.java'));
+  const rec = read(path.resolve(__dirname, '..', '..', 'backend', 'src', 'com', 'cropcalendar', 'api', 'RecommendHandler.java'));
+  const auth = read(path.resolve(__dirname, '..', '..', 'backend', 'src', 'com', 'cropcalendar', 'api', 'AuthHandler.java'));
+  const adminJs = read(path.resolve(__dirname, '..', 'assets', 'js', 'admin.js'));
+  const serviceJs = read(path.resolve(__dirname, '..', 'assets', 'js', 'service.js'));
+  const plotsJs = read(path.resolve(__dirname, '..', 'assets', 'js', 'my-plots.js'));
+
+  // 传感器调度：一次 load、批量处理、一次 save，不再每台设备各 load+save
+  assert.ok(sstore.includes('mutatePlot'), '应有批量处理入口 mutatePlot');
+  assert.ok(sstore.includes('appendReadingInto'), '应有纯内存追加读数');
+  assert.ok(poller.includes('pollDeviceInto'), '应有批量路径 pollDeviceInto');
+  assert.ok(sched.includes('mutatePlot') && sched.includes('processPlot'), '调度器应走批量路径');
+
+  // 推荐坐标范围校验
+  assert.ok(rec.includes('lat < -90 || lat > 90'), '纬度越界应 400');
+  assert.ok(rec.includes('lon < -180 || lon > 180'), '经度越界应 400');
+
+  // 撞库防护：追踪 map 有容量守卫 + 过期清理，不再无限增长
+  assert.ok(auth.includes('MAX_TRACK'), '撞库追踪应有容量上限');
+  assert.ok(auth.includes('guardCapacity'), '应有容量守卫');
+  assert.ok(auth.includes('LOCK_UNTIL.remove(key)'), '锁定到期应惰性清除');
+
+  // XSS：用户昵称与外部地理数据一律走 textContent，不进 innerHTML
+  assert.ok(adminJs.includes('whoDiv.textContent'), '客服气泡昵称应走 textContent');
+  assert.ok(serviceJs.includes('whoDiv.textContent'), '客服气泡昵称应走 textContent');
+  assert.ok(adminJs.includes("querySelector('.service-item-meta').textContent"), '工单 meta 昵称应走 textContent');
+  assert.ok(plotsJs.includes('createTextNode'), '附近河流名应走 createTextNode');
+});

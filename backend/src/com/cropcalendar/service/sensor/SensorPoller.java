@@ -68,6 +68,48 @@ public final class SensorPoller {
         }
     }
 
+    /**
+     * 批量路径：拉取一台设备并把结果直接写进已加载的 state（不落盘）。
+     *
+     * 与 {@link #pollDevice} 的差别：后者为手动单台拉取，会各自 load + save 一次；
+     * 这里供调度器在「一次 load、批量处理、一次 save」里复用，避免每台设备都读写盘。
+     * 语义完全等价：成功标 online + 记 lastOnline，失败标 offline，两者都记 lastPollAt。
+     */
+    static Map<String, Object> pollDeviceInto(String userId, String plotId,
+                                              Map<String, Object> state, Map<String, Object> dev) {
+        String deviceId = SensorStore.str(dev.get("id"));
+        String url = SensorStore.str(dev.get("url"));
+        String now = AppTime.now().toString();
+        if (url == null) {
+            dev.put("status", "unconfigured");
+            dev.put("lastPollAt", now);
+            return null;
+        }
+        try {
+            Map<String, Object> values = fetchOnce(url);
+            if (values == null) {
+                dev.put("status", "offline");
+                dev.put("lastPollAt", now);
+                return null;
+            }
+            SensorStore.appendReadingInto(state, deviceId, values, "auto");
+            dev.put("status", "online");
+            dev.put("lastOnline", now);
+            dev.put("lastPollAt", now);
+            List<Map<String, Object>> alerts = checkThresholds(userId, plotId, dev, values);
+            Map<String, Object> out = new LinkedHashMap<>();
+            out.put("deviceId", deviceId);
+            out.put("values", values);
+            out.put("alerts", alerts);
+            return out;
+        } catch (Exception e) {
+            System.err.println("[sensor] 拉取失败 " + deviceId + "：" + e.getMessage());
+            dev.put("status", "offline");
+            dev.put("lastPollAt", now);
+            return null;
+        }
+    }
+
     /** 拉取该地块全部设备，返回成功数量与明细。 */
     public static List<Map<String, Object>> pollPlot(String userId, String plotId) {
         List<Map<String, Object>> results = new ArrayList<>();
