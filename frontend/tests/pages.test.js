@@ -2107,3 +2107,17 @@ test('timeline 结果缓存：同作物同播期同地点直接命中，key 带�
   assert.ok(th.includes('areaMu'), 'key 应含面积，换面积重新计算');
   assert.ok(th.includes('AppConfig.cacheTtlSeconds()'), 'TTL 应由配置控制');
 });
+
+// ---------------- CropRegistry 归一（补测试 + 修项目根 cwd 读取路径） ----------------
+
+test('CropRegistry：别名/拼音/规程 id 归一与模糊闸门有单测，且项目根 cwd 能读到规程', () => {
+  const reg = read(path.resolve(__dirname, '..', '..', 'backend', 'src', 'com', 'cropcalendar', 'service', 'crop', 'CropRegistry.java'));
+  const t = read(path.resolve(__dirname, '..', '..', 'backend', 'test', 'com', 'cropcalendar', 'service', 'crop', 'CropRegistryTest.java'));
+
+  assert.ok(reg.includes('backend/crop-protocols.json'), 'PROTOCOL_PATHS 应含项目根 cwd 路径（否则测试/项目根运行读不到规程）');
+  assert.ok(reg.includes('allowFuzzy'), '应有模糊匹配闸门');
+  assert.ok(t.includes('西红柿'), '应测别名归一');
+  assert.ok(t.includes('shuidao'), '应测拼音归一');
+  assert.ok(t.includes('rice'), '应测规程 id 反查');
+  assert.ok(t.includes('大豆'), '应测首字不同的模糊闸门');
+});

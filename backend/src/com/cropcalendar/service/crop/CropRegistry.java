@@ -42,6 +42,7 @@ public final class CropRegistry {
     };
     private static final String[] PROTOCOL_PATHS = {
             "crop-protocols.json",
+            "backend/crop-protocols.json",
             "../backend/crop-protocols.json",
             "/agritime/backend/crop-protocols.json"
     };
