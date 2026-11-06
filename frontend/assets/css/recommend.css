@@ -133,3 +133,26 @@
 .recommend-why-row b { text-align: right; font-variant-numeric: tabular-nums; color: var(--muted); }
 .recommend-why-row.is-hit { color: var(--ink-soft); }
 .recommend-why-row.is-hit b { color: var(--leaf); }
+
+/* T16：落选原因。气候带不符的作物单独列出，附一句"为什么没推给你" */
+.recommend-rejected {
+  margin-top: 12px;
+  padding: 10px 12px;
+  border: 1px dashed var(--line);
+  border-radius: var(--radius-sm);
+}
+
+.recommend-rejected-list { margin-top: 8px; }
+
+.recommend-rejected-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 10px;
+  padding: 6px 0;
+  font-size: 12.5px;
+  color: var(--muted);
+  border-bottom: 1px dashed var(--line);
+}
+
+.recommend-rejected-row:last-child { border-bottom: 0; }
+.recommend-rejected-row strong { color: var(--ink-soft); font-weight: 600; }

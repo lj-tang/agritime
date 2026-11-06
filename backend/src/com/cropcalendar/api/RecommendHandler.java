@@ -112,10 +112,28 @@ public class RecommendHandler implements HttpHandler {
         }
         scored.sort((a, b) -> Double.compare(b.score, a.score));
 
+        // T16 修复：气候带不符的作物不得排在气候匹配的作物前面。
+        // 之前"气候带不符"只记 0 分不参与排序，导致广州仍把苹果、冬小麦排前二，
+        // 理由里却写着"不在适宜纬度带"——结论和依据自相矛盾。
+        // 现在主列表只留气候匹配的，气候不符的挪进 rejected（落选原因）；
+        // 只有当真没有一个作物匹配气候（极端纬度/规则缺失）才退回全量并打标。
+        List<Scored> recommended = new ArrayList<>();
+        List<Scored> rejected = new ArrayList<>();
+        for (Scored s : scored) {
+            if (s.climateMatch) recommended.add(s);
+            else rejected.add(s);
+        }
+        boolean fellBack = false;
+        if (recommended.isEmpty() && !rejected.isEmpty()) {
+            recommended.addAll(rejected);
+            rejected.clear();
+            fellBack = true;
+        }
+
         List<String> items = new ArrayList<>();
-        int n = Math.min(TOP_N, scored.size());
+        int n = Math.min(TOP_N, recommended.size());
         for (int i = 0; i < n; i++) {
-            Scored s = scored.get(i);
+            Scored s = recommended.get(i);
             Map<String, Object> r = s.rule;
             items.add(Json.obj(
                     "rank", String.valueOf(i + 1),
@@ -130,6 +148,16 @@ public class RecommendHandler implements HttpHandler {
                     "plotMatch", s.plotScore > 0 ? "true" : "false",
                     // 推荐依据拆开给，前端可展开看每一条为什么加分
                     "reasons", Json.arr(s.reasons)));
+        }
+
+        // 落选原因：气候带不符的作物单独列出，说明"为什么没推给你"
+        List<String> rejectedItems = new ArrayList<>();
+        for (Scored s : rejected) {
+            Map<String, Object> r = s.rule;
+            rejectedItems.add(Json.obj(
+                    "name", Json.str(str(r.get("name"))),
+                    "cropId", Json.str(str(r.get("cropId"))),
+                    "why", Json.str(s.climateNote == null ? "不适合本地气候" : s.climateNote + "，需确认品种适应性")));
         }
 
         String body = Json.obj(
@@ -148,7 +176,9 @@ public class RecommendHandler implements HttpHandler {
                         "name", Json.str(plotName),
                         "cropCount", String.valueOf(plotCrops.size()),
                         "used", plotCrops.isEmpty() ? "false" : "true"),
-                "recommendations", Json.arr(items));
+                "recommendations", Json.arr(items),
+                "rejected", Json.arr(rejectedItems),
+                "fellBack", String.valueOf(fellBack));
         synchronized (CACHE) {
             CACHE.put(cacheKey, new Cached(nowMs, body));
         }
@@ -156,7 +186,8 @@ public class RecommendHandler implements HttpHandler {
     }
 
     private record Scored(Map<String, Object> rule, double score, boolean monthMatch,
-                          boolean climateMatch, double plotScore, List<String> reasons) {
+                          boolean climateMatch, double plotScore, List<String> reasons,
+                          String climateNote) {
     }
 
     /** 解析前端传来的地块适宜作物："大蒜:86,小麦:74"。格式不对就当作没传。 */
@@ -199,8 +230,9 @@ public class RecommendHandler implements HttpHandler {
                     + joinMonths(rule.get("sowMonths")) + "），仅作参考", 0));
         }
 
-        // 纬度（气候带）匹配：命中 +25
+        // 纬度（气候带）匹配：命中 +25；不符则记下原因，供"落选"列表说明
         boolean climateMatch = false;
+        String climateNote = null;
         if (rule.get("latRange") instanceof List<?> lr && lr.size() >= 2) {
             try {
                 double lo = Double.parseDouble(str(lr.get(0)));
@@ -212,9 +244,10 @@ public class RecommendHandler implements HttpHandler {
                             "北纬 " + String.format("%.2f", lat) + "° 落在适宜纬度带 "
                                     + String.format("%.0f", lo) + "°–" + String.format("%.0f", hi) + "°", 25));
                 } else {
+                    climateNote = "北纬 " + String.format("%.2f", lat) + "° 不在适宜纬度带 "
+                            + String.format("%.0f", lo) + "°–" + String.format("%.0f", hi) + "°";
                     reasons.add(reason("climate", "气候带不符",
-                            "北纬 " + String.format("%.2f", lat) + "° 不在适宜纬度带 "
-                                    + String.format("%.0f", lo) + "°–" + String.format("%.0f", hi) + "°，需确认品种适应性", 0));
+                            climateNote + "，需确认品种适应性", 0));
                 }
             } catch (NumberFormatException ignore) { }
         }
@@ -252,7 +285,7 @@ public class RecommendHandler implements HttpHandler {
         s = Math.min(100, s);
 
         return new Scored(rule, Math.round(s * 10) / 10.0, monthMatch, climateMatch,
-                plotScore, reasons);
+                plotScore, reasons, climateNote);
     }
 
     private static String reason(String key, String label, String detail, double points) {

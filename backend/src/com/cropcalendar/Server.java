@@ -89,6 +89,9 @@ public class Server {
 
         ComputeStub.preloadCommonCrops();
 
+        // T28：设备定时拉取。守护线程，不影响主流程。
+        com.cropcalendar.service.sensor.SensorScheduler.start();
+
         startWarmup(port);
 
         String base = "http://localhost:" + port;

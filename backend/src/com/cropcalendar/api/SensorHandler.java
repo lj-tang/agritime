@@ -196,6 +196,8 @@ public class SensorHandler implements HttpHandler {
                 "url", Json.str(SensorStore.str(d.get("url"))),
                 "status", Json.str(SensorStore.str(d.get("status"))),
                 "lastOnline", Json.str(SensorStore.str(d.get("lastOnline"))),
+                "lastPollAt", Json.str(SensorStore.str(d.get("lastPollAt"))),
+                "intervalMin", Json.num(SensorStore.intervalMinOf(d)),
                 "thresholds", thresholds instanceof Map<?, ?> ? Json.stringify(thresholds) : "null");
     }
 }

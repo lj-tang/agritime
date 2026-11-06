@@ -1343,26 +1343,25 @@ test('V5.3 去重：共享层已抽取', () => {
   });
 });
 
-test('V5 任务书：与 V4 同体例，编号自 T16 续接', () => {
+test('V5 任务书：15 项 T16–T30 全量留档并标注状态', () => {
   const tb = read(path.resolve(__dirname, '..', '..', 'docs', 'taskbook-v5.md'));
   assert.ok(tb.includes('**任务编号：T16**'), '首个任务应为 T16，与 V4 的 T00-T15 续接');
-  assert.ok(tb.includes('**任务编号：T17**'), '末项应为 T17（提醒/工单/播期/改期/地块历史/指导换算/茬口校验/病害/工程兜底/养殖核算/传感器落地后已删项并重编号）');
+  assert.ok(tb.includes('**任务编号：T30**'), '末项应为 T30');
   const ids = tb.match(/\*\*任务编号：T\d+\*\*/g) || [];
-  assert.equal(ids.length, 2, '应有 2 个待办任务（T16-T17）');
-  // 编号必须连续不重复，否则中途插任务时容易乱
+  assert.equal(ids.length, 15, '应有 15 个任务（T16-T30）');
   const nums = ids.map(x => parseInt(x.replace(/\D/g, ''), 10));
   nums.forEach((n, i) => assert.equal(n, 16 + i, '任务编号应从 T16 连续递增'));
   ['任务描述', '验收标准', '对应目录'].forEach(k => {
     assert.ok(tb.includes('**' + k + '**') || tb.includes('- **' + k + '**'), '每个任务应含「' + k + '」');
   });
+  assert.ok(tb.includes('执行状态总览'), '应有执行状态总览章节');
+  assert.ok(tb.includes('12 项已完成'), '总览应写明 12 项已完成');
+  assert.ok(tb.includes('**状态**'), '每项都应标注状态（已完成/部分完成）');
   assert.ok(tb.includes('## 四、三人分工建议'), '应保留分工章节');
   assert.ok(tb.includes('## 五、开发与认领规则'), '应保留认领规则');
   assert.ok(tb.includes('## 六、最终验收标准'), '应保留最终验收');
-  // 任务书只列未完成任务，不把已完成项写进来占编号
-  assert.ok(!/\*\*状态\*\*：已完成/.test(tb), '不应出现"已完成"状态标记');
   const prio = tb.match(/\*\*优先级\*\*：P\d/g) || [];
-  assert.equal(prio.length, 2, '每个任务都应有优先级');
-  assert.ok(!tb.includes('commit') && !tb.includes('350259d'), '不写提交号，避免把已完成记录混进待办');
+  assert.equal(prio.length, 15, '每个任务都应有优先级');
 });
 
 test('V5 T16 推荐：地点真参与计算，地块真参与打分', () => {
@@ -1526,9 +1525,6 @@ test('T18 提醒记录：按账号落盘、去重、已读与过期清理', () =
   assert.ok(store.includes('PRUNE_AFTER_DAYS'), '过期提醒应清理');
   assert.ok(store.includes('Asia/Shanghai'), '过期判定应显式用北京时间');
   assert.ok(store.includes('old.get("read")'), '重复推送不应把已读顶回未读');
-  assert.ok(!taskbook.includes('模块18：提醒服务'), '已完成任务应从任务书移除');
-  assert.ok(/共 2 项/.test(taskbook), '任务书应重编号为 2 项待办');
-  assert.ok(!taskbook.includes('模块18：客服工单流转'), '已完成工单任务应从任务书移除');
 });
 
 // ---------------- T22 日历节点改期 ----------------
@@ -1886,4 +1882,96 @@ test('T16 因子：质地/水源/交通接到真实数据源，取不到就退�
   assert.ok(plotsJs.includes('因子说明'), '前端应有因子说明面板');
   assert.ok(plotsJs.includes('plot-factor-missing'), '缺项应提示而不是悄悄消失');
   assert.ok(plotsCss.includes('.plot-factor-detail'), '缺少因子说明样式');
+});
+
+// ---------------- T16 推荐气候门控与落选原因（修复） ----------------
+
+test('T16 推荐：气候带不符不再排在气候匹配前面，落选原因单独列出', () => {
+  const dh = read(path.resolve(__dirname, '..', '..', 'backend', 'src', 'com', 'cropcalendar', 'api', 'RecommendHandler.java'));
+  const js = read(path.resolve(__dirname, '..', 'assets', 'js', 'recommend.js'));
+  const css = read(path.join(CSS, 'recommend.css'));
+
+  assert.ok(dh.includes('"rejected"'), '接口应输出落选作物列表');
+  assert.ok(dh.includes('climateNote'), '应记录气候带不符的原因');
+  assert.ok(dh.includes('if (s.climateMatch) recommended.add(s)'), '气候匹配与不符应分区');
+  assert.ok(dh.includes('fellBack'), '无气候匹配作物时应退回全量并打标');
+  assert.ok(dh.includes('"why"'), '落选条目应带原因');
+
+  assert.ok(js.includes('renderRejected'), '前端应渲染落选列表');
+  assert.ok(js.includes('不适合本地气候的作物'), '落选区块应说明原因');
+  assert.ok(js.includes('山东济宁（默认）'), '默认地名应为真实坐标对应的山东济宁，而不是北京');
+  assert.ok(css.includes('.recommend-rejected'), '缺少落选样式');
+});
+
+// ---------------- T28 传感器定时拉取与离线判定（补齐） ----------------
+
+test('T28 传感器：后台定时拉取 + 间隔配置 + N 周期离线判定', () => {
+  const sched = read(path.resolve(__dirname, '..', '..', 'backend', 'src', 'com', 'cropcalendar', 'service', 'sensor', 'SensorScheduler.java'));
+  const store = read(path.resolve(__dirname, '..', '..', 'backend', 'src', 'com', 'cropcalendar', 'service', 'sensor', 'SensorStore.java'));
+  const server = read(path.resolve(__dirname, '..', '..', 'backend', 'src', 'com', 'cropcalendar', 'Server.java'));
+  const cfg = read(path.resolve(__dirname, '..', '..', 'backend', 'src', 'com', 'cropcalendar', 'config', 'AppConfig.java'));
+  const plotsJs = read(path.resolve(__dirname, '..', 'assets', 'js', 'my-plots.js'));
+
+  assert.ok(sched.includes('scheduleWithFixedDelay'), '应有后台定时调度');
+  assert.ok(sched.includes('pollDue') && sched.includes('SensorPoller.pollDevice'), '到期应自动拉取');
+  assert.ok(sched.includes('offlineCycles'), '离线判定应按 N 个周期');
+  assert.ok(sched.includes('intervalMinOf'), '拉取间隔应从设备配置读取');
+  assert.ok(store.includes('listPlots'), '应能枚举全量设备');
+  assert.ok(store.includes('setLastPollAt'), '应记录调度时间戳，避免重复拉');
+  assert.ok(server.includes('SensorScheduler.start()'), 'Server 启动应拉起调度器');
+  assert.ok(cfg.includes('sensorDefaultIntervalMin'), '默认间隔应可配置');
+  assert.ok(plotsJs.includes('拉取间隔（分）'), '前端应能让用户设置拉取间隔');
+  assert.ok(plotsJs.includes('自动拉取'), '设备列表应说明自动拉取');
+});
+
+// ---------------- T21 四态双主题与深色主题（补齐） ----------------
+
+test('T21 深色主题：变量随系统切换，四态与输入框可读', () => {
+  const common = read(path.join(CSS, 'common.css'));
+  const dark = read(path.join(CSS, 'theme-dark.css'));
+  const indexHtml = read(path.resolve(__dirname, '..', 'pages', 'index.html'));
+
+  assert.ok(common.includes('prefers-color-scheme: dark'), '应提供深色主题变量');
+  assert.ok(common.includes('color-scheme: dark'), '应声明 color-scheme 让原生控件跟主题走');
+  assert.ok(common.includes('--danger-text') && common.includes('--warn-text'), '四态语义色应变量化');
+  assert.ok(dark.includes('input:not([type])'), '深色下应覆盖输入框白底');
+  assert.ok(dark.includes('background: var(--surface-2)'), '深色输入框应用深色底');
+  assert.ok(indexHtml.includes('theme-dark.css'), '页面应最后加载深色主题兜底');
+});
+
+// ---------------- T27 地理抽检回归基线（补齐机制） ----------------
+
+test('T27 抽检基线：20 个地块 + 面积自动回归 + 坡度坡向待人工', () => {
+  const base = JSON.parse(read(path.resolve(__dirname, '..', '..', 'data', 'geo-baseline.json')));
+  const test = read(path.resolve(__dirname, '..', '..', 'backend', 'test', 'com', 'cropcalendar', 'service', 'geo', 'GeoBaselineTest.java'));
+
+  assert.ok(base.plots.length >= 20, '基线应覆盖 20 个地块');
+  base.plots.forEach((p) => {
+    assert.ok(p.expectedAreaMu > 0, p.name + ' 应有期望面积');
+    assert.ok(p.ring.length >= 3, p.name + ' 多边形应至少 3 个点');
+  });
+  assert.ok(test.includes('polygonAreaSqm'), '面积回归应走球面面积公式');
+  assert.ok(test.includes('0.005'), '面积应有容差，而不是精确相等');
+  assert.ok(test.includes('referenceSlopeDeg'), '坡度/坡向应留待人工核对字段');
+});
+
+// ---------------- T30 存储层可切换（file / mysql） ----------------
+
+test('T30 存储层：BlobStore 抽象 + file/mysql 双后端 + 迁移回滚', () => {
+  const iface = read(path.resolve(__dirname, '..', '..', 'backend', 'src', 'com', 'cropcalendar', 'store', 'BlobStore.java'));
+  const file = read(path.resolve(__dirname, '..', '..', 'backend', 'src', 'com', 'cropcalendar', 'store', 'FileBlobStore.java'));
+  const mysql = read(path.resolve(__dirname, '..', '..', 'backend', 'src', 'com', 'cropcalendar', 'store', 'MysqlBlobStore.java'));
+  const factory = read(path.resolve(__dirname, '..', '..', 'backend', 'src', 'com', 'cropcalendar', 'store', 'StoreFactory.java'));
+  const uds = read(path.resolve(__dirname, '..', '..', 'backend', 'src', 'com', 'cropcalendar', 'service', 'user', 'UserDataStore.java'));
+  const cfg = read(path.resolve(__dirname, '..', '..', 'backend', 'src', 'com', 'cropcalendar', 'config', 'AppConfig.java'));
+  const sql = read(path.resolve(__dirname, '..', '..', 'data', 'store-mysql.sql'));
+
+  assert.ok(iface.includes('interface BlobStore'), '应有存储抽象接口');
+  assert.ok(factory.includes('mysqlOrFile') && factory.includes('FileBlobStore'), '工厂应按配置选择后端');
+  assert.ok(factory.includes('回落到 file'), 'mysql 不可用应回落 file，数据不丢');
+  assert.ok(mysql.includes('java.sql'), 'MySQL 后端应只用 JDK 的 java.sql，编译零依赖');
+  assert.ok(mysql.includes('REPLACE INTO'), '迁移与写入应幂等（REPLACE INTO）');
+  assert.ok(uds.includes('StoreFactory.userData()'), 'UserDataStore 应走存储抽象');
+  assert.ok(cfg.includes('storeBackend'), '应有 store.backend 配置开关');
+  assert.ok(sql.includes('CREATE TABLE') && sql.includes('utf8mb4'), '应有 MySQL 建表脚本');
 });

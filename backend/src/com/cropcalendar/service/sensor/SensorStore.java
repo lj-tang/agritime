@@ -1,5 +1,6 @@
 package com.cropcalendar.service.sensor;
 
+import com.cropcalendar.config.AppConfig;
 import com.cropcalendar.util.Json;
 import com.cropcalendar.util.JsonParser;
 
@@ -119,6 +120,9 @@ public final class SensorStore {
             }
             dev.put("name", first(str(body.get("name")), "未命名设备"));
             dev.put("url", first(str(body.get("url")), ""));
+            // T28：拉取间隔（分钟）。用户可自定义，缺省用配置；下限 1 分钟防止打爆设备
+            double interval = dblOf(body.get("interval"), AppConfig.sensorDefaultIntervalMin());
+            dev.put("intervalMin", Math.max(1, interval));
             if (body.get("thresholds") instanceof Map<?, ?> th) {
                 Map<String, Object> clean = new LinkedHashMap<>();
                 th.forEach((k, v) -> {
@@ -175,6 +179,55 @@ public final class SensorStore {
                 }
             }
         }
+    }
+
+    /** 记录一次后台调度拉取的时间点（成功与否都记，避免同一设备在一个周期内被反复拉）。 */
+    public static void setLastPollAt(String userId, String plotId, String deviceId) {
+        synchronized (LOCK) {
+            Map<String, Object> state = load(userId, plotId);
+            @SuppressWarnings("unchecked")
+            List<Map<String, Object>> list = (List<Map<String, Object>>) state.get("devices");
+            for (Map<String, Object> d : list) {
+                if (deviceId != null && deviceId.equals(str(d.get("id")))) {
+                    d.put("lastPollAt", com.cropcalendar.util.AppTime.now().toString());
+                    try {
+                        save(userId, plotId, state);
+                    } catch (IOException ignored) {
+                        // 调度时间戳写失败不致命
+                    }
+                    return;
+                }
+            }
+        }
+    }
+
+    /** 枚举所有 (userId, plotId)：后台调度器靠它扫全量设备。 */
+    public static List<String[]> listPlots() {
+        List<String[]> out = new ArrayList<>();
+        Path root = Path.of("var", "sensors");
+        if (!Files.isDirectory(root)) return out;
+        try (var users = Files.list(root)) {
+            for (Path u : users.toList()) {
+                if (!Files.isDirectory(u)) continue;
+                String userId = u.getFileName().toString();
+                try (var files = Files.list(u)) {
+                    for (Path f : files.toList()) {
+                        String fn = f.getFileName().toString();
+                        if (!fn.endsWith(".json")) continue;
+                        out.add(new String[]{userId, fn.substring(0, fn.length() - ".json".length())});
+                    }
+                }
+            }
+        } catch (IOException e) {
+            System.err.println("[sensor] 枚举设备目录失败：" + e.getMessage());
+        }
+        return out;
+    }
+
+    public static double intervalMinOf(Map<String, Object> dev) {
+        Object v = dev.get("intervalMin");
+        if (v instanceof Number n) return Math.max(1, n.doubleValue());
+        return AppConfig.sensorDefaultIntervalMin();
     }
 
     // ---------------- 读数 ----------------
@@ -272,5 +325,14 @@ public final class SensorStore {
 
     private static String first(String a, String b) {
         return a != null ? a : b;
+    }
+
+    private static double dblOf(Object o, double fallback) {
+        if (o instanceof Number n) return n.doubleValue();
+        try {
+            return o == null ? fallback : Double.parseDouble(String.valueOf(o).trim());
+        } catch (Exception e) {
+            return fallback;
+        }
     }
 }

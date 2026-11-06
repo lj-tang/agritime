@@ -17,7 +17,7 @@
 
   var DEFAULT_LAT = 35.07;
   var DEFAULT_LON = 116.31;
-  var DEFAULT_NAME = '北京（默认）';
+  var DEFAULT_NAME = '山东济宁（默认）';
 
   var form, monthSel, locInput, latInput, lonInput, locBtn, resolveBtn;
   var locStatus, resultBox, plotSel;
@@ -204,7 +204,7 @@
   function resolveLocation(loud) {
     var text = (locInput.value || '').trim();
     if (!text) {
-      clearLoc('未填地点，将按默认地点（北京）计算', 'warn');
+      clearLoc('未填地点，将按默认地点（山东济宁）计算', 'warn');
       return;
     }
     if (locState.name === text && locState.lat != null) return; // 已经解析过
@@ -213,7 +213,7 @@
     geocode(text).then(function (res) {
       var hit = res.hit;
       if (!hit) {
-        clearLoc('没能解析「' + text + '」，将按默认地点（北京）计算；可换成更具体的市名', 'error');
+        clearLoc('没能解析「' + text + '」，将按默认地点（山东济宁）计算；可换成更具体的市名', 'error');
         return;
       }
       var lat = parseFloat(hit.lat);
@@ -347,6 +347,43 @@
       return;
     }
     list.forEach(function (r) { resultBox.appendChild(renderCard(r)); });
+
+    // T16：气候带不符的作物单独列出，说明"为什么没推给你"
+    var rejected = data.rejected || [];
+    if (rejected.length) resultBox.appendChild(renderRejected(rejected));
+  }
+
+  /** 落选原因：气候带不符的作物，附一句为什么（T16） */
+  function renderRejected(rejected) {
+    var box = document.createElement('div');
+    box.className = 'recommend-rejected';
+    var toggle = document.createElement('button');
+    toggle.type = 'button';
+    toggle.className = 'recommend-why-toggle';
+    toggle.textContent = '不适合本地气候的作物（' + rejected.length + '）▾';
+    var panel = document.createElement('div');
+    panel.className = 'recommend-rejected-list';
+    panel.hidden = true;
+    rejected.forEach(function (r) {
+      var row = document.createElement('div');
+      row.className = 'recommend-rejected-row';
+      var name = document.createElement('strong');
+      name.textContent = r.name;
+      var why = document.createElement('span');
+      why.textContent = r.why || '不适合本地气候';
+      row.appendChild(name);
+      row.appendChild(why);
+      panel.appendChild(row);
+    });
+    toggle.addEventListener('click', function () {
+      panel.hidden = !panel.hidden;
+      toggle.textContent = panel.hidden
+        ? '不适合本地气候的作物（' + rejected.length + '）▾'
+        : '不适合本地气候的作物（' + rejected.length + '）▴';
+    });
+    box.appendChild(toggle);
+    box.appendChild(panel);
+    return box;
   }
 
   function renderContext(data, plot) {
@@ -361,7 +398,7 @@
         + Number(loc.lon).toFixed(2) + '）计算';
       locLine.classList.add('is-ok');
     } else {
-      locLine.textContent = '未解析到地点，本次按默认地点（北京 35.07, 116.31）计算';
+      locLine.textContent = '未解析到地点，本次按默认地点（山东济宁 35.07, 116.31）计算';
       locLine.classList.add('is-warn');
     }
     box.appendChild(locLine);

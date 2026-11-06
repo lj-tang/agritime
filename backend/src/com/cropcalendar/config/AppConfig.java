@@ -74,6 +74,21 @@ public final class AppConfig {
         return intOf("cache.ttl.seconds", 900);
     }
 
+    /** 设备默认拉取间隔（分钟）：用户没填时用这个 */
+    public static int sensorDefaultIntervalMin() {
+        return intOf("sensor.default.interval.minutes", 15);
+    }
+
+    /** 后台调度器每多少秒扫一遍到期设备 */
+    public static int sensorPollTickSeconds() {
+        return intOf("sensor.poll.tick.seconds", 60);
+    }
+
+    /** 超过 N 个拉取周期仍无新数据，设备标离线 */
+    public static int sensorOfflineCycles() {
+        return intOf("sensor.offline.cycles", 3);
+    }
+
     /** 计算层是否还在用 mock（乙未交付时为 true） */
     public static boolean mockMode() {
         return boolOf("compute.mock", true);
@@ -151,6 +166,28 @@ public final class AppConfig {
     public static String authDataDir() {
         String v = raw("auth.data.dir");
         return (v != null && !v.isBlank()) ? v.trim() : "var/userdata";
+    }
+
+    /** 存储后端：file | mysql。默认 file；切 mysql 需装好驱动与库，否则自动回落 file */
+    public static String storeBackend() {
+        String v = raw("store.backend");
+        return (v != null && !v.isBlank()) ? v.trim() : "file";
+    }
+
+    /** MySQL 连接串，如 jdbc:mysql://127.0.0.1:3306/agritime?useUnicode=true&characterEncoding=utf8 */
+    public static String mysqlJdbcUrl() {
+        String v = raw("store.mysql.url");
+        return (v != null && !v.isBlank()) ? v.trim() : "";
+    }
+
+    public static String mysqlUser() {
+        String v = raw("store.mysql.user");
+        return (v != null && !v.isBlank()) ? v.trim() : "root";
+    }
+
+    public static String mysqlPassword() {
+        String v = raw("store.mysql.password");
+        return (v != null && !v.isBlank()) ? v.trim() : "";
     }
 
     /** 站点开关文件路径（禁用搜索 / 禁用大模型），默认 var/settings.json */

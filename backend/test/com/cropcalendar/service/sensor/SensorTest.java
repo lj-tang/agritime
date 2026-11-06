@@ -95,6 +95,25 @@ public class SensorTest {
         normal.put("dissolvedOxygen", 6.1);
         eq(0, SensorPoller.checkThresholds(user, plot, dev2, normal).size(), "正常读数不应告警");
 
+        // ---- 5.5 T28 定时拉取支撑：间隔默认/自定义、枚举、轮询时间戳 ----
+        check(Math.abs(SensorStore.intervalMinOf(dev2) - 15.0) < 1e-9, "未填间隔应回落默认 15 分钟");
+
+        Map<String, Object> b2 = new LinkedHashMap<>();
+        b2.put("deviceId", deviceId);
+        b2.put("interval", 5);
+        Map<String, Object> devUpd = SensorStore.upsertDevice(user, plot, b2);
+        check(Math.abs(SensorStore.intervalMinOf(devUpd) - 5.0) < 1e-9, "自定义间隔应生效");
+
+        SensorStore.setLastPollAt(user, plot, deviceId);
+        check(SensorStore.str(SensorStore.findDevice(user, plot, deviceId).get("lastPollAt")) != null,
+                "setLastPollAt 应写入时间戳");
+
+        boolean foundPlot = false;
+        for (String[] up : SensorStore.listPlots()) {
+            if (user.equals(up[0]) && plot.equals(up[1])) foundPlot = true;
+        }
+        check(foundPlot, "listPlots 应能枚举到该 (user, plot)");
+
         // ---- 6. 删除设备 ----
         check(SensorStore.deleteDevice(user, plot, deviceId), "设备应删除成功");
         eq(0, SensorStore.devices(user, plot).size(), "删除后设备数量");

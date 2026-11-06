@@ -1,12 +1,9 @@
 package com.cropcalendar.service.user;
 
-import com.cropcalendar.config.AppConfig;
+import com.cropcalendar.store.BlobStore;
+import com.cropcalendar.store.StoreFactory;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
 
 /**
  * 用户业务数据的存储（我的作物 / 我的地块 / 搜索历史）。
@@ -24,38 +21,21 @@ public final class UserDataStore {
     public static final int MAX_BYTES = 512 * 1024;
 
     public static String read(String userId) {
-        Path p = pathOf(userId);
-        try {
-            if (!Files.exists(p)) return "{}";
-            return Files.readString(p, StandardCharsets.UTF_8);
-        } catch (IOException e) {
-            System.err.println("[userdata] 读取失败 " + userId + "：" + e.getMessage());
-            return "{}";
-        }
+        return store().read(userId);
     }
 
     public static void write(String userId, String json) throws IOException {
-        Path p = pathOf(userId);
-        Path dir = p.getParent();
-        if (dir != null) Files.createDirectories(dir);
-        Path tmp = p.resolveSibling(p.getFileName() + ".tmp");
-        Files.writeString(tmp, json, StandardCharsets.UTF_8);
-        try {
-            Files.move(tmp, p, StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE);
-        } catch (IOException atomicUnsupported) {
-            Files.move(tmp, p, StandardCopyOption.REPLACE_EXISTING);
-        }
+        store().write(userId, json);
     }
 
-    /** 删号时一并删掉这个人的数据文件 */
+    /** 删号时一并删掉这个人的数据 */
     public static void delete(String userId) throws IOException {
-        Files.deleteIfExists(pathOf(userId));
+        store().delete(userId);
     }
 
-    private static Path pathOf(String userId) {
-        String safe = userId == null ? "anonymous" : userId.replaceAll("[^A-Za-z0-9_\\-]", "_");
-        String dir = AppConfig.authDataDir();
-        return Path.of(dir.isBlank() ? "var/userdata" : dir, safe + ".json");
+    /** 后端由 store.backend 配置决定：file（默认）或 mysql（驱动可用时）。 */
+    private static BlobStore store() {
+        return StoreFactory.userData();
     }
 
     private UserDataStore() {

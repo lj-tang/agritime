@@ -1457,6 +1457,7 @@
     var nameIn = devField('设备名', 'pond-dev-name', '如：1 号塘溶氧仪');
     var urlIn = devField('数据地址', 'pond-dev-url', 'https://…/reading.json');
     var doIn = devField('溶氧下限', 'pond-dev-do', '4.0');
+    var intervalIn = devField('拉取间隔（分）', 'pond-dev-interval', '15');
     var saveBtn = document.createElement('button');
     saveBtn.type = 'button';
     saveBtn.className = 'my-plots-3d-view';
@@ -1497,7 +1498,11 @@
         status.textContent = map[d.status] || d.status || '待拉取';
         var when = document.createElement('span');
         when.className = 'pond-device-when';
-        when.textContent = d.lastOnline ? ('最近在线 ' + d.lastOnline.replace('T', ' ').slice(0, 16)) : '';
+        var whenBits = [];
+        if (d.intervalMin) whenBits.push('每 ' + Math.round(d.intervalMin) + ' 分钟自动拉取');
+        if (d.lastPollAt) whenBits.push('最近拉取 ' + d.lastPollAt.replace('T', ' ').slice(0, 16));
+        if (d.lastOnline) whenBits.push('最近在线 ' + d.lastOnline.replace('T', ' ').slice(0, 16));
+        when.textContent = whenBits.join(' · ');
         row.appendChild(name);
         row.appendChild(status);
         row.appendChild(when);
@@ -1533,6 +1538,8 @@
       var payload = { plotId: plot.plotId, name: name, url: url, thresholds: {} };
       var doMin = parseFloat(doIn.value);
       if (isFinite(doMin)) payload.thresholds.dissolvedOxygen = { min: doMin };
+      var interval = parseInt(intervalIn.value, 10);
+      if (isFinite(interval) && interval >= 1) payload.interval = interval;
       devOut.textContent = '正在保存…';
       fetch('/api/sensor/devices', {
         method: 'POST', headers: devHeaders(), body: JSON.stringify(payload)
