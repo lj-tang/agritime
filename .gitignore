@@ -25,6 +25,8 @@ backend/var/
 node_modules/
 .DS_Store
 Thumbs.db
+# 服务器本地放的 JDBC 驱动（mysql/mariadb connector，运行时下载，不入库）
+/lib/
 
 # 本地开发工具与临时脚本（依赖、截图、调试脚本，不入库）
 .dev/

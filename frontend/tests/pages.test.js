@@ -1999,7 +1999,7 @@ test('健壮性：body 限流 + MySQL 降级文件 + 推荐 fellBack 提示', ()
   const mysql = read(path.resolve(__dirname, '..', '..', 'backend', 'src', 'com', 'cropcalendar', 'store', 'MysqlBlobStore.java'));
   const js = read(path.resolve(__dirname, '..', 'assets', 'js', 'recommend.js'));
 
-  assert.ok(hs.includes('readNBytes(64 * 1024 + 1)'), '请求体应限量读取，不能 readAllBytes 全量吞下');
+  assert.ok(hs.includes('readNBytes(maxBytes + 1)'), '请求体应限量读取，不能 readAllBytes 全量吞下');
   assert.ok(hs.includes('Content-Length'), '应先看 Content-Length 提前拒绝大载荷');
 
   assert.ok(mysql.includes('fileFallback'), 'MySQL 后端应持有文件后端做降级');
@@ -2042,4 +2042,40 @@ test('健壮性：传感器调度批量 IO + 推荐坐标校验 + XSS + 撞库�
   assert.ok(serviceJs.includes('whoDiv.textContent'), '客服气泡昵称应走 textContent');
   assert.ok(adminJs.includes("querySelector('.service-item-meta').textContent"), '工单 meta 昵称应走 textContent');
   assert.ok(plotsJs.includes('createTextNode'), '附近河流名应走 createTextNode');
+});
+
+// ---------------- 健壮性：请求体/上游响应统一限流（本轮） ----------------
+
+test('健壮性：所有请求体与上游响应都限量读取，不再 readAllBytes 全量吞', () => {
+  const hs = read(path.resolve(__dirname, '..', '..', 'backend', 'src', 'com', 'cropcalendar', 'api', 'HttpSupport.java'));
+  const chart = read(path.resolve(__dirname, '..', '..', 'backend', 'src', 'com', 'cropcalendar', 'api', 'ChartHandler.java'));
+  const sow = read(path.resolve(__dirname, '..', '..', 'backend', 'src', 'com', 'cropcalendar', 'api', 'SowCheckHandler.java'));
+  const tl = read(path.resolve(__dirname, '..', '..', 'backend', 'src', 'com', 'cropcalendar', 'api', 'TimelineHandler.java'));
+  const me = read(path.resolve(__dirname, '..', '..', 'backend', 'src', 'com', 'cropcalendar', 'api', 'MeHandler.java'));
+  const recog = read(path.resolve(__dirname, '..', '..', 'backend', 'src', 'com', 'cropcalendar', 'api', 'RecognitionHandler.java'));
+  const llm = read(path.resolve(__dirname, '..', '..', 'backend', 'src', 'com', 'cropcalendar', 'compute', 'LlmService.java'));
+  const gi = read(path.resolve(__dirname, '..', '..', '.gitignore'));
+
+  assert.ok(hs.includes('bodyBytes') && hs.includes('readNBytes(maxBytes + 1)'), 'HttpSupport 应提供带上限的限量读取');
+  assert.ok(chart.includes('HttpSupport.body(ex)'), 'ChartHandler 应走限量读取');
+  assert.ok(sow.includes('HttpSupport.body(ex)') && sow.includes('413'), 'SowCheckHandler 超限应 413');
+  assert.ok(tl.includes('HttpSupport.body(ex)') && tl.includes('413'), 'TimelineHandler 超限应 413');
+  assert.ok(me.includes('HttpSupport.body(ex, UserDataStore.MAX_BYTES)'), 'MeHandler 应按 512KB 限量');
+  assert.ok(recog.includes('HttpSupport.bodyBytes(ex, 512 * 1024)'), 'RecognitionHandler 图片应按 512KB 限量');
+  assert.ok(llm.includes('MAX_RESPONSE_BYTES') && llm.includes('readNBytes'), 'LLM 上游响应应限量');
+  assert.ok(gi.includes('/lib/'), '.gitignore 应忽略服务器驱动目录');
+
+  // 全仓不应再有 readAllBytes（业务路径都应收口到限量读取）
+  const fs_ = require('fs');
+  const offenders = [];
+  (function walk(dir) {
+    fs_.readdirSync(dir, { withFileTypes: true }).forEach((e) => {
+      const full = path.join(dir, e.name);
+      if (e.isDirectory()) return walk(full);
+      if (!e.name.endsWith('.java')) return;
+      const text = fs_.readFileSync(full, 'utf8');
+      if (text.includes('getRequestBody().readAllBytes()')) offenders.push(e.name);
+    });
+  })(path.resolve(__dirname, '..', '..', 'backend', 'src', 'com', 'cropcalendar', 'api'));
+  assert.deepEqual(offenders, [], 'API 层不应再有 readAllBytes：' + offenders.join(', '));
 });

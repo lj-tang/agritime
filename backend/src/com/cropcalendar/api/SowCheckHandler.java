@@ -64,7 +64,13 @@ public class SowCheckHandler implements HttpHandler {
         List<Map<String, Object>> records = List.of();
 
         if ("POST".equalsIgnoreCase(ex.getRequestMethod())) {
-            String body = new String(ex.getRequestBody().readAllBytes(), StandardCharsets.UTF_8);
+            String body;
+            try {
+                body = HttpSupport.body(ex);
+            } catch (IOException e) {
+                HttpSupport.write(ex, 413, Json.obj("error", Json.str("请求体过大")));
+                return;
+            }
             Object parsed = JsonParser.parse(body);
             if (!(parsed instanceof Map<?, ?> map)) {
                 HttpSupport.write(ex, 400, Json.obj("error", Json.str("请求体不是合法 JSON")));

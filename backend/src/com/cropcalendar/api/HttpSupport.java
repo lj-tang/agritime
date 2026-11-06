@@ -72,23 +72,33 @@ final class HttpSupport {
 
     /** 读请求体（UTF-8）。上限 64KB —— 账号接口不该有更大的载荷 */
     static String body(HttpExchange ex) throws IOException {
+        return body(ex, 64 * 1024);
+    }
+
+    /** 限量读请求体（UTF-8），最多 maxBytes；超限抛 IOException("请求体过大") */
+    static String body(HttpExchange ex, int maxBytes) throws IOException {
+        return new String(bodyBytes(ex, maxBytes), StandardCharsets.UTF_8);
+    }
+
+    /** 限量读请求体原始字节，最多 maxBytes；超限抛 IOException("请求体过大") */
+    static byte[] bodyBytes(HttpExchange ex, int maxBytes) throws IOException {
         // 先看 Content-Length：超限直接拒，不把整个 body 读进内存（防大载荷打爆内存）
         String cl = ex.getRequestHeaders().getFirst("Content-Length");
         if (cl != null && !cl.isBlank()) {
             try {
-                if (Long.parseLong(cl.trim()) > 64 * 1024) {
+                if (Long.parseLong(cl.trim()) > maxBytes) {
                     throw new IOException("请求体过大");
                 }
             } catch (NumberFormatException ignored) {
                 // Content-Length 不可信（可能是分块传输），下面按实际读取兜底
             }
         }
-        // 最多读 64KB+1：多出的那 1 字节用于判断是否超限，而不是靠 readAllBytes 全量吞下
-        byte[] bytes = ex.getRequestBody().readNBytes(64 * 1024 + 1);
-        if (bytes.length > 64 * 1024) {
+        // 最多读 maxBytes+1：多出的那 1 字节用于判断是否超限，而不是靠 readAllBytes 全量吞下
+        byte[] bytes = ex.getRequestBody().readNBytes(maxBytes + 1);
+        if (bytes.length > maxBytes) {
             throw new IOException("请求体过大");
         }
-        return new String(bytes, StandardCharsets.UTF_8);
+        return bytes;
     }
 
     /** 读请求体并解析成对象；不是合法 JSON 对象时返回 null，由调用方回 400 */

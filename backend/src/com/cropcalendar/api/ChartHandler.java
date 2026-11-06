@@ -38,7 +38,7 @@ public class ChartHandler implements HttpHandler {
         }
 
         try {
-            String body = new String(ex.getRequestBody().readAllBytes(), StandardCharsets.UTF_8);
+            String body = HttpSupport.body(ex);
             Object parsed = JsonParser.parse(body);
             String crop = "";
             int totalDays = 200;

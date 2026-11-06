@@ -33,6 +33,9 @@ public final class LlmService {
             {"cropEmoji":"🧄","cropColor":"#8bc34a","growthCurve":[{"day":0,"growth":5,"phase":"播种"}],"weatherAdvice":"建议","riskForecast":"风险","cartoonTexts":{"sowing":"🌱配文","irrigation":"💧配文","fertilize":"🍚配文","pesticide":"🛡️配文","harvest":"🌾配文"}}
             生长曲线%s天10-15点(growth 0-100)，卡通配文带emoji15字内。""";
 
+    /** 上游大模型响应体上限：正常返回远小于此，超出视为异常，避免 OOM */
+    private static final int MAX_RESPONSE_BYTES = 2 * 1024 * 1024;
+
     /**
      * 调大模型为指定作物生成农事规程。
      *
@@ -100,7 +103,12 @@ public final class LlmService {
                 return null;
             }
 
-            String response = new String(conn.getInputStream().readAllBytes(), StandardCharsets.UTF_8);
+            byte[] resp = conn.getInputStream().readNBytes(MAX_RESPONSE_BYTES + 1);
+            if (resp.length > MAX_RESPONSE_BYTES) {
+                System.err.println("[llm] 图表响应过大，已丢弃");
+                return null;
+            }
+            String response = new String(resp, StandardCharsets.UTF_8);
             return extractChartJson(response);
         } catch (Exception e) {
             System.err.println("[llm] 图表数据生成失败：" + e.getMessage());
@@ -169,7 +177,12 @@ public final class LlmService {
             return null;
         }
 
-        return new String(conn.getInputStream().readAllBytes(), StandardCharsets.UTF_8);
+        byte[] resp = conn.getInputStream().readNBytes(MAX_RESPONSE_BYTES + 1);
+        if (resp.length > MAX_RESPONSE_BYTES) {
+            System.err.println("[llm] 响应过大，已丢弃");
+            return null;
+        }
+        return new String(resp, StandardCharsets.UTF_8);
     }
 
     /**

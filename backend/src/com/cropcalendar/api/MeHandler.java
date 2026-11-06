@@ -45,12 +45,13 @@ public class MeHandler implements HttpHandler {
         }
 
         if ("PUT".equalsIgnoreCase(method) || "POST".equalsIgnoreCase(method)) {
-            byte[] raw = ex.getRequestBody().readAllBytes();
-            if (raw.length > UserDataStore.MAX_BYTES) {
+            String body;
+            try {
+                body = HttpSupport.body(ex, UserDataStore.MAX_BYTES).trim();
+            } catch (IOException e) {
                 HttpSupport.write(ex, 413, HttpSupport.error(413, "数据过大，请清理后再试"));
                 return;
             }
-            String body = new String(raw, StandardCharsets.UTF_8).trim();
             if (!isJsonObject(body)) {
                 HttpSupport.write(ex, 400, HttpSupport.error(400, "请求体必须是 JSON 对象"));
                 return;

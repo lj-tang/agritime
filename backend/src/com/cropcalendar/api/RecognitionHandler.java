@@ -37,7 +37,15 @@ public class RecognitionHandler implements HttpHandler {
             return;
         }
 
-        byte[] bodyBytes = ex.getRequestBody().readAllBytes();
+        byte[] bodyBytes;
+        try {
+            bodyBytes = HttpSupport.bodyBytes(ex, 512 * 1024);
+        } catch (IOException e) {
+            HttpSupport.write(ex, 413, Json.obj(
+                    "error", Json.str("INVALID_INPUT"),
+                    "message", Json.str("图片数据过大")));
+            return;
+        }
 
         try {
             List<Candidate> candidates;
