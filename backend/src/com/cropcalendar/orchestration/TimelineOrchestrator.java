@@ -70,7 +70,8 @@ public class TimelineOrchestrator {
 
     public record NodeView(int dayOffset, String date, String opType, String title,
                            String status, String suggest, String reason, String guidance,
-                           boolean climateNormal, String precision, String outlook) {
+                           boolean climateNormal, String precision, String outlook,
+                           String weatherIcon, String suitability, List<String> weatherFactors) {
     }
 
     public record TimelineResult(String cropId, String sowDate, String generatedAt,
@@ -144,7 +145,8 @@ public class TimelineOrchestrator {
                         date, areaMu, false);
                 nodes.add(new NodeView(n.dayOffset(), date, n.opType(), n.title(),
                         score.status(), score.suggest(), score.reason(), guidance, false,
-                        "forecast", ""));
+                        "forecast", "",
+                        weatherIconOf(slice), suitabilityOf(score.status()), weatherFactorsOf(slice)));
             } else {
                 ClimateNormals.Outlook o = ClimateNormals.window(lat, lon, nodeDate, 7);
                 String outlookJson = o.available()
@@ -164,8 +166,20 @@ public class TimelineOrchestrator {
                         "plan",
                         planSuggest(n.opType(), nodeDate, o, cropNameForGuidance),
                         outlookReason(nodeDate, o),
-                        guidance, false, "season", outlookJson));
+                        guidance, true, "season", outlookJson,
+                        climateIcon(o), "yellow", climateFactors(o)));
             }
+        }
+
+        // 短期有实时天气则用；长期无实时天气时按常年气候给出规划概览，
+        // 不再让 weatherSummary 为空导致前端显示"暂不可用"
+        String weatherSummary = summarizeWeather(fetched.window());
+        if (weatherSummary == null) {
+            ClimateNormals.Outlook sumOutlook = ClimateNormals.window(lat, lon, sow, 7);
+            weatherSummary = sumOutlook.available()
+                    ? "按常年气候规划：同期均温" + Math.round(sumOutlook.meanTempC()) + "℃，雨日占比"
+                        + Math.round(sumOutlook.rainDayRatio() * 100) + "%（近" + sumOutlook.years() + "年）"
+                    : "天气数据暂不可用，已按作物规程排期";
         }
 
         // ---- 步骤 6 叠加节气与行情提醒 ----
@@ -178,7 +192,7 @@ public class TimelineOrchestrator {
                 fetched.dataTime(),
                 fetched.window().degraded() ? "degraded" : "ok",
                 fetched.window().degraded() ? fetched.window().degradedReason() : fetched.source(),
-                summarizeWeather(fetched.window()),
+                weatherSummary,
                 term, nodes, market);
     }
 
@@ -250,6 +264,50 @@ public class TimelineOrchestrator {
             if (d.minTempC() < minTemp) minTemp = d.minTempC();
         }
         return w.byDate().size() + "天数据，" + rainyDays + "天有雨，最高" + (int) maxTemp + "℃最低" + (int) minTemp + "℃";
+    }
+
+    // ---- 天气 → 图标 / 适宜度 / 因子。短期用真实预报窗口，长期用常年气候 ----
+    private static String weatherIconOf(WeatherWindow w) {
+        if (w == null || w.isEmpty() || w.degraded()) return null;
+        double rain = w.maxRainMm();
+        double wind = w.maxWindMs();
+        if (rain >= 25) return "heavyRain";
+        if (rain >= 10) return "rain";
+        if (rain > 0.1) return "lightRain";
+        if (wind >= 10.8) return "windy";
+        return "sunny";
+    }
+
+    private static String suitabilityOf(String status) {
+        if ("ok".equalsIgnoreCase(status)) return "green";
+        if ("postpone".equalsIgnoreCase(status)) return "red";
+        return "yellow";
+    }
+
+    private static List<String> weatherFactorsOf(WeatherWindow w) {
+        if (w == null || w.isEmpty() || w.degraded()) return List.of();
+        List<String> f = new ArrayList<>();
+        double rain = w.maxRainMm();
+        if (rain > 0.1) f.add("降雨" + String.format(java.util.Locale.ROOT, "%.1f", rain) + "mm");
+        f.add("风速" + String.format(java.util.Locale.ROOT, "%.1f", w.maxWindMs()) + "m/s");
+        f.add("最高" + Math.round(w.maxTempC()) + "℃最低" + Math.round(w.minTempC()) + "℃");
+        return f;
+    }
+
+    private static String climateIcon(ClimateNormals.Outlook o) {
+        if (o == null || !o.available()) return null;
+        if (o.rainDayRatio() >= 0.6) return "rain";
+        if (o.rainDayRatio() >= 0.3) return "lightRain";
+        if (o.minTempC() <= 0) return "snow";
+        return "multiCloud";
+    }
+
+    private static List<String> climateFactors(ClimateNormals.Outlook o) {
+        if (o == null || !o.available()) return List.of("气候数据不足，按规程排期");
+        return List.of(
+                "常年同期均温" + Math.round(o.meanTempC()) + "℃",
+                "雨日占比" + Math.round(o.rainDayRatio() * 100) + "%",
+                "近" + o.years() + "年同期");
     }
 
     // ============================================================

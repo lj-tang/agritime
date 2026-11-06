@@ -35,11 +35,16 @@ public final class StoreFactory {
     }
 
     private static boolean mysqlAvailable() {
-        try {
-            Class.forName("com.mysql.cj.jdbc.Driver");
-            return true;
-        } catch (ClassNotFoundException e) {
-            return false;
+        // 兼容两种驱动：Oracle 的 mysql-connector-j 与 MariaDB 的 mariadb-java-client。
+        // 只要 classpath 上有其一，DriverManager 就会自动加载并连库。
+        for (String driver : new String[]{"com.mysql.cj.jdbc.Driver", "org.mariadb.jdbc.Driver"}) {
+            try {
+                Class.forName(driver);
+                return true;
+            } catch (ClassNotFoundException ignore) {
+                // 试下一个
+            }
         }
+        return false;
     }
 }

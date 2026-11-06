@@ -1975,3 +1975,19 @@ test('T30 存储层：BlobStore 抽象 + file/mysql 双后端 + 迁移回滚', (
   assert.ok(cfg.includes('storeBackend'), '应有 store.backend 配置开关');
   assert.ok(sql.includes('CREATE TABLE') && sql.includes('utf8mb4'), '应有 MySQL 建表脚本');
 });
+
+// ---------------- 时间线远期节点常年气候兜底（合并队友改动） ----------------
+
+test('时间线常年气候兜底：远期节点用常年气候概览，且字段与前端对齐', () => {
+  const orch = read(path.resolve(__dirname, '..', '..', 'backend', 'src', 'com', 'cropcalendar', 'orchestration', 'TimelineOrchestrator.java'));
+  const handler = read(path.resolve(__dirname, '..', '..', 'backend', 'src', 'com', 'cropcalendar', 'api', 'TimelineHandler.java'));
+  const logic = read(path.resolve(__dirname, '..', '..', 'shared', 'utils', 'timeline-logic.js'));
+
+  assert.ok(orch.includes('按常年气候规划'), '无实时天气时应给常年气候概览，而不是空');
+  assert.ok(orch.includes('weatherIconOf') && orch.includes('climateIcon'), '短期用预报图标、长期用气候图标');
+  assert.ok(orch.includes('suitabilityOf') && orch.includes('weatherFactorsOf'), '应输出适宜度与天气因子');
+  assert.ok(orch.includes('climateNormal'), '远期节点应标记 climateNormal');
+  assert.ok(handler.includes('n.climateNormal()'), '接口应透传 climateNormal 而不是写死 false');
+  assert.ok(handler.includes('n.weatherFactors()'), '接口应透传天气因子');
+  assert.ok(logic.includes('getWeatherIcon') && logic.includes('getSuitability') && logic.includes('normalizeFactors'), '前端应已能消费这三个字段');
+});

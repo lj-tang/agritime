@@ -1,6 +1,6 @@
 {
-  "version": "1.0.0",
-  "comment": "养殖成本核算默认参数（V5 T20）。数值是行业参考区间，不是某地实际账目；界面必须标注『估算值』，用户可用实际数据覆盖。",
+  "version": "1.1.0",
+  "comment": "养殖成本核算默认参数（V5 T20/T30）。数值是行业参考区间，不是某地实际账目；界面必须标注『估算值』，用户可用实际数据覆盖。50 个品种全覆盖，缺失品种按分类默认估算。",
   "defaults": {
     "survivalRate": 0.75,
     "fcr": 1.8,
@@ -28,6 +28,256 @@
       "marketPricePerKg": 12,
       "cycleDays": 200
     },
+    "crucian_carp": {
+      "name": "鲫鱼",
+      "stockDensityPerMu": 2000,
+      "seedPricePerFish": 0.15,
+      "harvestSizeKg": 0.3,
+      "marketPricePerKg": 14,
+      "cycleDays": 150
+    },
+    "silver_carp": {
+      "name": "鲢鱼",
+      "stockDensityPerMu": 300,
+      "seedPricePerFish": 0.5,
+      "harvestSizeKg": 1.5,
+      "marketPricePerKg": 8,
+      "cycleDays": 200,
+      "fcr": 0.5,
+      "feedPricePerKg": 2.0
+    },
+    "bighead_carp": {
+      "name": "鳙鱼",
+      "stockDensityPerMu": 250,
+      "seedPricePerFish": 0.6,
+      "harvestSizeKg": 2.0,
+      "marketPricePerKg": 10,
+      "cycleDays": 220,
+      "fcr": 0.5,
+      "feedPricePerKg": 2.0
+    },
+    "tilapia": {
+      "name": "罗非鱼",
+      "stockDensityPerMu": 2500,
+      "seedPricePerFish": 0.2,
+      "harvestSizeKg": 0.5,
+      "marketPricePerKg": 14,
+      "cycleDays": 150
+    },
+    "blunt_snout_bream": {
+      "name": "团头鲂",
+      "stockDensityPerMu": 1000,
+      "seedPricePerFish": 0.4,
+      "harvestSizeKg": 1.0,
+      "marketPricePerKg": 12,
+      "cycleDays": 180
+    },
+    "black_carp": {
+      "name": "青鱼",
+      "stockDensityPerMu": 600,
+      "seedPricePerFish": 1.5,
+      "harvestSizeKg": 3.0,
+      "marketPricePerKg": 18,
+      "cycleDays": 300
+    },
+    "catfish": {
+      "name": "鲶鱼",
+      "stockDensityPerMu": 1000,
+      "seedPricePerFish": 0.4,
+      "harvestSizeKg": 1.0,
+      "marketPricePerKg": 12,
+      "cycleDays": 180
+    },
+    "yellow_catfish": {
+      "name": "黄颡鱼",
+      "stockDensityPerMu": 1000,
+      "seedPricePerFish": 0.4,
+      "harvestSizeKg": 1.0,
+      "marketPricePerKg": 12,
+      "cycleDays": 180
+    },
+    "snakehead": {
+      "name": "乌鳢",
+      "stockDensityPerMu": 1000,
+      "seedPricePerFish": 0.4,
+      "harvestSizeKg": 1.0,
+      "marketPricePerKg": 12,
+      "cycleDays": 180
+    },
+    "mandarin_fish": {
+      "name": "鳜鱼",
+      "stockDensityPerMu": 800,
+      "seedPricePerFish": 1.2,
+      "harvestSizeKg": 0.6,
+      "marketPricePerKg": 45,
+      "cycleDays": 240,
+      "fcr": 4.0,
+      "feedPricePerKg": 8.0
+    },
+    "loach": {
+      "name": "泥鳅",
+      "stockDensityPerMu": 1000,
+      "seedPricePerFish": 0.4,
+      "harvestSizeKg": 1.0,
+      "marketPricePerKg": 12,
+      "cycleDays": 180
+    },
+    "swamp_eel": {
+      "name": "黄鳝",
+      "stockDensityPerMu": 1000,
+      "seedPricePerFish": 0.4,
+      "harvestSizeKg": 1.0,
+      "marketPricePerKg": 12,
+      "cycleDays": 180
+    },
+    "freshwater_bass": {
+      "name": "淡水鲈",
+      "stockDensityPerMu": 1000,
+      "seedPricePerFish": 0.4,
+      "harvestSizeKg": 1.0,
+      "marketPricePerKg": 12,
+      "cycleDays": 180
+    },
+    "dace": {
+      "name": "鲮鱼",
+      "stockDensityPerMu": 1000,
+      "seedPricePerFish": 0.4,
+      "harvestSizeKg": 1.0,
+      "marketPricePerKg": 12,
+      "cycleDays": 180
+    },
+    "topmouth_culter": {
+      "name": "翘嘴鲌",
+      "stockDensityPerMu": 1000,
+      "seedPricePerFish": 0.4,
+      "harvestSizeKg": 1.0,
+      "marketPricePerKg": 12,
+      "cycleDays": 180
+    },
+    "channel_catfish": {
+      "name": "斑点叉尾鮰",
+      "stockDensityPerMu": 1000,
+      "seedPricePerFish": 0.4,
+      "harvestSizeKg": 1.0,
+      "marketPricePerKg": 12,
+      "cycleDays": 180
+    },
+    "tench": {
+      "name": "丁桂",
+      "stockDensityPerMu": 1000,
+      "seedPricePerFish": 0.4,
+      "harvestSizeKg": 1.0,
+      "marketPricePerKg": 12,
+      "cycleDays": 180
+    },
+    "wuchang_bream": {
+      "name": "长春鳊",
+      "stockDensityPerMu": 1000,
+      "seedPricePerFish": 0.4,
+      "harvestSizeKg": 1.0,
+      "marketPricePerKg": 12,
+      "cycleDays": 180
+    },
+    "large_yellow_croaker": {
+      "name": "大黄鱼",
+      "stockDensityPerMu": 800,
+      "seedPricePerFish": 2.0,
+      "harvestSizeKg": 0.5,
+      "marketPricePerKg": 50,
+      "cycleDays": 300,
+      "fcr": 1.6,
+      "feedPricePerKg": 7.0
+    },
+    "flounder": {
+      "name": "牙鲆",
+      "stockDensityPerMu": 800,
+      "seedPricePerFish": 1.5,
+      "harvestSizeKg": 0.6,
+      "marketPricePerKg": 40,
+      "cycleDays": 240,
+      "fcr": 1.6,
+      "feedPricePerKg": 7.0
+    },
+    "turbot": {
+      "name": "大菱鲆",
+      "stockDensityPerMu": 800,
+      "seedPricePerFish": 1.5,
+      "harvestSizeKg": 0.6,
+      "marketPricePerKg": 40,
+      "cycleDays": 240,
+      "fcr": 1.6,
+      "feedPricePerKg": 7.0
+    },
+    "tongue_sole": {
+      "name": "半滑舌鳎",
+      "stockDensityPerMu": 800,
+      "seedPricePerFish": 1.5,
+      "harvestSizeKg": 0.6,
+      "marketPricePerKg": 40,
+      "cycleDays": 240,
+      "fcr": 1.6,
+      "feedPricePerKg": 7.0
+    },
+    "sea_bass": {
+      "name": "海鲈",
+      "stockDensityPerMu": 800,
+      "seedPricePerFish": 1.5,
+      "harvestSizeKg": 0.6,
+      "marketPricePerKg": 40,
+      "cycleDays": 240,
+      "fcr": 1.6,
+      "feedPricePerKg": 7.0
+    },
+    "red_seabream": {
+      "name": "真鲷",
+      "stockDensityPerMu": 800,
+      "seedPricePerFish": 1.5,
+      "harvestSizeKg": 0.6,
+      "marketPricePerKg": 40,
+      "cycleDays": 240,
+      "fcr": 1.6,
+      "feedPricePerKg": 7.0
+    },
+    "black_seabream": {
+      "name": "黑鲷",
+      "stockDensityPerMu": 800,
+      "seedPricePerFish": 1.5,
+      "harvestSizeKg": 0.6,
+      "marketPricePerKg": 40,
+      "cycleDays": 240,
+      "fcr": 1.6,
+      "feedPricePerKg": 7.0
+    },
+    "pufferfish": {
+      "name": "河豚",
+      "stockDensityPerMu": 800,
+      "seedPricePerFish": 1.5,
+      "harvestSizeKg": 0.6,
+      "marketPricePerKg": 40,
+      "cycleDays": 240,
+      "fcr": 1.6,
+      "feedPricePerKg": 7.0
+    },
+    "grouper": {
+      "name": "石斑鱼",
+      "stockDensityPerMu": 500,
+      "seedPricePerFish": 3.0,
+      "harvestSizeKg": 0.8,
+      "marketPricePerKg": 80,
+      "cycleDays": 360,
+      "fcr": 1.6,
+      "feedPricePerKg": 9.0
+    },
+    "cobia": {
+      "name": "军曹鱼",
+      "stockDensityPerMu": 800,
+      "seedPricePerFish": 1.5,
+      "harvestSizeKg": 0.6,
+      "marketPricePerKg": 40,
+      "cycleDays": 240,
+      "fcr": 1.6,
+      "feedPricePerKg": 7.0
+    },
     "mitten_crab": {
       "name": "大闸蟹",
       "stockDensityPerMu": 800,
@@ -37,6 +287,196 @@
       "cycleDays": 260,
       "fcr": 2.4,
       "feedPricePerKg": 6.8
+    },
+    "swimming_crab": {
+      "name": "梭子蟹",
+      "stockDensityPerMu": 800,
+      "seedPricePerFish": 1.0,
+      "harvestSizeKg": 0.15,
+      "marketPricePerKg": 60,
+      "cycleDays": 240,
+      "fcr": 2.0,
+      "feedPricePerKg": 6.0
+    },
+    "mud_crab": {
+      "name": "青蟹",
+      "stockDensityPerMu": 800,
+      "seedPricePerFish": 1.0,
+      "harvestSizeKg": 0.15,
+      "marketPricePerKg": 60,
+      "cycleDays": 240,
+      "fcr": 2.0,
+      "feedPricePerKg": 6.0
+    },
+    "white_shrimp": {
+      "name": "南美白对虾",
+      "stockDensityPerMu": 30000,
+      "seedPricePerFish": 0.03,
+      "harvestSizeKg": 0.02,
+      "marketPricePerKg": 45,
+      "cycleDays": 110,
+      "fcr": 1.2,
+      "feedPricePerKg": 6.5
+    },
+    "giant_freshwater_prawn": {
+      "name": "罗氏沼虾",
+      "stockDensityPerMu": 20000,
+      "seedPricePerFish": 0.1,
+      "harvestSizeKg": 0.03,
+      "marketPricePerKg": 50,
+      "cycleDays": 120,
+      "fcr": 1.2,
+      "feedPricePerKg": 6.5
+    },
+    "freshwater_shrimp": {
+      "name": "青虾",
+      "stockDensityPerMu": 30000,
+      "seedPricePerFish": 0.03,
+      "harvestSizeKg": 0.02,
+      "marketPricePerKg": 45,
+      "cycleDays": 110,
+      "fcr": 1.2,
+      "feedPricePerKg": 6.5
+    },
+    "black_tiger_shrimp": {
+      "name": "斑节对虾",
+      "stockDensityPerMu": 30000,
+      "seedPricePerFish": 0.03,
+      "harvestSizeKg": 0.02,
+      "marketPricePerKg": 45,
+      "cycleDays": 110,
+      "fcr": 1.2,
+      "feedPricePerKg": 6.5
+    },
+    "chinese_shrimp": {
+      "name": "中国对虾",
+      "stockDensityPerMu": 30000,
+      "seedPricePerFish": 0.03,
+      "harvestSizeKg": 0.02,
+      "marketPricePerKg": 45,
+      "cycleDays": 110,
+      "fcr": 1.2,
+      "feedPricePerKg": 6.5
+    },
+    "crayfish": {
+      "name": "小龙虾",
+      "stockDensityPerMu": 8000,
+      "seedPricePerFish": 0.3,
+      "harvestSizeKg": 0.03,
+      "marketPricePerKg": 30,
+      "cycleDays": 120,
+      "fcr": 1.2,
+      "feedPricePerKg": 6.0
+    },
+    "scallop": {
+      "name": "扇贝",
+      "stockDensityPerMu": 8000,
+      "seedPricePerFish": 0.05,
+      "harvestSizeKg": 0.03,
+      "marketPricePerKg": 20,
+      "cycleDays": 180,
+      "fcr": 0.4,
+      "feedPricePerKg": 3.0
+    },
+    "oyster": {
+      "name": "牡蛎",
+      "stockDensityPerMu": 8000,
+      "seedPricePerFish": 0.05,
+      "harvestSizeKg": 0.03,
+      "marketPricePerKg": 20,
+      "cycleDays": 180,
+      "fcr": 0.4,
+      "feedPricePerKg": 3.0
+    },
+    "clam": {
+      "name": "蛤蜊",
+      "stockDensityPerMu": 8000,
+      "seedPricePerFish": 0.05,
+      "harvestSizeKg": 0.03,
+      "marketPricePerKg": 20,
+      "cycleDays": 180,
+      "fcr": 0.4,
+      "feedPricePerKg": 3.0
+    },
+    "mussel": {
+      "name": "贻贝",
+      "stockDensityPerMu": 8000,
+      "seedPricePerFish": 0.05,
+      "harvestSizeKg": 0.03,
+      "marketPricePerKg": 20,
+      "cycleDays": 180,
+      "fcr": 0.4,
+      "feedPricePerKg": 3.0
+    },
+    "blood_clam": {
+      "name": "泥蚶",
+      "stockDensityPerMu": 8000,
+      "seedPricePerFish": 0.05,
+      "harvestSizeKg": 0.03,
+      "marketPricePerKg": 20,
+      "cycleDays": 180,
+      "fcr": 0.4,
+      "feedPricePerKg": 3.0
+    },
+    "ark_clam": {
+      "name": "毛蚶",
+      "stockDensityPerMu": 8000,
+      "seedPricePerFish": 0.05,
+      "harvestSizeKg": 0.03,
+      "marketPricePerKg": 20,
+      "cycleDays": 180,
+      "fcr": 0.4,
+      "feedPricePerKg": 3.0
+    },
+    "sea_cucumber": {
+      "name": "海参",
+      "stockDensityPerMu": 800,
+      "seedPricePerFish": 2.0,
+      "harvestSizeKg": 0.2,
+      "marketPricePerKg": 100,
+      "cycleDays": 360,
+      "fcr": 2.0,
+      "feedPricePerKg": 8.0
+    },
+    "soft_shell_turtle": {
+      "name": "中华鳖",
+      "stockDensityPerMu": 800,
+      "seedPricePerFish": 3.0,
+      "harvestSizeKg": 0.8,
+      "marketPricePerKg": 60,
+      "cycleDays": 300,
+      "fcr": 2.0,
+      "feedPricePerKg": 7.0
+    },
+    "bullfrog": {
+      "name": "牛蛙",
+      "stockDensityPerMu": 15000,
+      "seedPricePerFish": 0.2,
+      "harvestSizeKg": 0.25,
+      "marketPricePerKg": 15,
+      "cycleDays": 120,
+      "fcr": 1.2,
+      "feedPricePerKg": 5.0
+    },
+    "snail": {
+      "name": "田螺",
+      "stockDensityPerMu": 10000,
+      "seedPricePerFish": 0.02,
+      "harvestSizeKg": 0.01,
+      "marketPricePerKg": 8,
+      "cycleDays": 120,
+      "fcr": 0.3,
+      "feedPricePerKg": 2.0
+    },
+    "kelp": {
+      "name": "海带",
+      "stockDensityPerMu": 2000,
+      "seedPricePerFish": 0.1,
+      "harvestSizeKg": 0.5,
+      "marketPricePerKg": 3,
+      "cycleDays": 180,
+      "fcr": 0.0,
+      "feedPricePerKg": 0.0
     }
   }
 }

@@ -1,40 +1,95 @@
 {
-  "version": "1.0.0",
-  "comment": "渔业试点（T09）：鱼苗蟹苗类比种子，按放养日生成生产日历。温度区间为适宜生长水温，判定时用气温近似并明确标注。",
+  "version": "2.0.0",
+  "comment": "养殖品种目录（V5）。50 个常见品种；草鱼/鲤鱼/大闸蟹为手工详写，其余按分类给通用阶段与水温区间，仍以放苗日推具体日期。",
   "species": [
     {
       "id": "grass_carp",
       "name": "草鱼",
-      "category": "鱼类",
+      "category": "淡水鱼",
       "stockUnit": "夏花（3~5cm）",
       "waterTempMin": 18,
       "waterTempMax": 30,
       "stockSeason": "春放（3-4月）或秋放（9-10月）",
       "tips": "草鱼贪食，投喂过量易发肠炎；高温期注意增氧",
       "stages": [
-        { "dayOffset": 0, "opType": "stock", "title": "放苗", "detail": "夏花下塘，先肥水培育天然饵料，放养密度 800~1200 尾/亩" },
-        { "dayOffset": 10, "opType": "feed", "title": "开食训食", "detail": "用麸皮或破碎料引食，日投喂 2 次，投喂率 2%~3%" },
-        { "dayOffset": 30, "opType": "feed", "title": "常规投喂", "detail": "日投喂率 3%~5%，以 1 小时内吃完为准，剩饵及时捞出" },
-        { "dayOffset": 60, "opType": "water", "title": "换水与增氧", "detail": "每 10~15 天换水 1/3，闷热天提前开增氧机" },
-        { "dayOffset": 90, "opType": "health", "title": "病害防治", "detail": "重点防肠炎病与烂鳃病，定期用生石灰调节水质" },
-        { "dayOffset": 180, "opType": "harvest", "title": "起捕上市", "detail": "规格达 1.5kg 以上可起捕，捕前停食 1 天" }
+        {
+          "dayOffset": 0,
+          "opType": "stock",
+          "title": "放苗",
+          "detail": "夏花下塘，先肥水培育天然饵料，放养密度 800~1200 尾/亩"
+        },
+        {
+          "dayOffset": 10,
+          "opType": "feed",
+          "title": "开食训食",
+          "detail": "用麸皮或破碎料引食，日投喂 2 次，投喂率 2%~3%"
+        },
+        {
+          "dayOffset": 30,
+          "opType": "feed",
+          "title": "常规投喂",
+          "detail": "日投喂率 3%~5%，以 1 小时内吃完为准，剩饵及时捞出"
+        },
+        {
+          "dayOffset": 60,
+          "opType": "water",
+          "title": "换水与增氧",
+          "detail": "每 10~15 天换水 1/3，闷热天提前开增氧机"
+        },
+        {
+          "dayOffset": 90,
+          "opType": "health",
+          "title": "病害防治",
+          "detail": "重点防肠炎病与烂鳃病，定期用生石灰调节水质"
+        },
+        {
+          "dayOffset": 180,
+          "opType": "harvest",
+          "title": "起捕上市",
+          "detail": "规格达 1.5kg 以上可起捕，捕前停食 1 天"
+        }
       ]
     },
     {
       "id": "common_carp",
       "name": "鲤鱼",
-      "category": "鱼类",
+      "category": "淡水鱼",
       "stockUnit": "鱼种（50~100g）",
       "waterTempMin": 16,
       "waterTempMax": 28,
       "stockSeason": "春放（3-4月）",
       "tips": "鲤鱼耐低氧，但越冬期需保证水深 1.5m 以上",
       "stages": [
-        { "dayOffset": 0, "opType": "stock", "title": "放苗", "detail": "鱼种下塘前用 3% 食盐水浸浴 5~10 分钟消毒" },
-        { "dayOffset": 15, "opType": "feed", "title": "开食投喂", "detail": "水温稳定在 12℃ 以上开始投喂，日投喂率 2%" },
-        { "dayOffset": 45, "opType": "water", "title": "水质调控", "detail": "透明度保持 25~30cm，氨氮高于 0.5mg/L 时换水" },
-        { "dayOffset": 100, "opType": "health", "title": "病害防治", "detail": "防赤皮病与竖鳞病，避免拉网擦伤" },
-        { "dayOffset": 200, "opType": "harvest", "title": "起捕上市", "detail": "规格达 1kg 以上起捕，避开高温时段操作" }
+        {
+          "dayOffset": 0,
+          "opType": "stock",
+          "title": "放苗",
+          "detail": "鱼种下塘前用 3% 食盐水浸浴 5~10 分钟消毒"
+        },
+        {
+          "dayOffset": 15,
+          "opType": "feed",
+          "title": "开食投喂",
+          "detail": "水温稳定在 12℃ 以上开始投喂，日投喂率 2%"
+        },
+        {
+          "dayOffset": 45,
+          "opType": "water",
+          "title": "水质调控",
+          "detail": "透明度保持 25~30cm，氨氮高于 0.5mg/L 时换水"
+        },
+        {
+          "dayOffset": 100,
+          "opType": "health",
+          "title": "病害防治",
+          "detail": "防赤皮病与竖鳞病，避免拉网擦伤"
+        },
+        {
+          "dayOffset": 200,
+          "opType": "harvest",
+          "title": "起捕上市",
+          "detail": "规格达 1kg 以上起捕，避开高温时段操作"
+        }
       ]
     },
     {
@@ -47,11 +102,1944 @@
       "stockSeason": "春放（2-3月）",
       "tips": "蜕壳期严禁换水与惊扰，水草覆盖面积保持 40% 以上",
       "stages": [
-        { "dayOffset": 0, "opType": "stock", "title": "扣蟹放养", "detail": "放养密度 800~1000 只/亩，先试水确认无毒再下塘" },
-        { "dayOffset": 25, "opType": "feed", "title": "投喂管理", "detail": "前期投喂配合饲料，中期加投螺蛳与小鱼，日投喂率 5%~8%" },
-        { "dayOffset": 90, "opType": "health", "title": "蜕壳期管理", "detail": "蜕壳高峰期减量投喂，补钙并保持水位稳定" },
-        { "dayOffset": 150, "opType": "water", "title": "水质与水草养护", "detail": "每 7~10 天换水 1/4，控制水草覆盖率 40%~50%" },
-        { "dayOffset": 260, "opType": "harvest", "title": "起捕上市", "detail": "农历九月后膏满黄肥，用地笼分批起捕" }
+        {
+          "dayOffset": 0,
+          "opType": "stock",
+          "title": "扣蟹放养",
+          "detail": "放养密度 800~1000 只/亩，先试水确认无毒再下塘"
+        },
+        {
+          "dayOffset": 25,
+          "opType": "feed",
+          "title": "投喂管理",
+          "detail": "前期投喂配合饲料，中期加投螺蛳与小鱼，日投喂率 5%~8%"
+        },
+        {
+          "dayOffset": 90,
+          "opType": "health",
+          "title": "蜕壳期管理",
+          "detail": "蜕壳高峰期减量投喂，补钙并保持水位稳定"
+        },
+        {
+          "dayOffset": 150,
+          "opType": "water",
+          "title": "水质与水草养护",
+          "detail": "每 7~10 天换水 1/4，控制水草覆盖率 40%~50%"
+        },
+        {
+          "dayOffset": 260,
+          "opType": "harvest",
+          "title": "起捕上市",
+          "detail": "农历九月后膏满黄肥，用地笼分批起捕"
+        }
+      ]
+    },
+    {
+      "id": "crucian_carp",
+      "name": "鲫鱼",
+      "category": "淡水鱼",
+      "stockUnit": "苗种（3~5cm）",
+      "waterTempMin": 15,
+      "waterTempMax": 30,
+      "stockSeason": "春放（3-4月）或秋放（9-10月）",
+      "tips": "定期换水增氧，投喂以 1 小时内吃完为准；高温期防泛塘",
+      "stages": [
+        {
+          "dayOffset": 0,
+          "opType": "stock",
+          "title": "放苗",
+          "detail": "苗种下塘前先肥水，放养密度按品种调整"
+        },
+        {
+          "dayOffset": 15,
+          "opType": "feed",
+          "title": "开食投喂",
+          "detail": "用破碎料或粉料引食，日投喂 2 次，投喂率 2%~3%"
+        },
+        {
+          "dayOffset": 45,
+          "opType": "water",
+          "title": "水质调控",
+          "detail": "定期换水、增氧，保持溶氧充足"
+        },
+        {
+          "dayOffset": 90,
+          "opType": "health",
+          "title": "病害防治",
+          "detail": "注意常见细菌病，控制投喂、及时捞残饵"
+        },
+        {
+          "dayOffset": 30,
+          "opType": "harvest",
+          "title": "起捕上市",
+          "detail": "达到上市规格后分批起捕，错峰上市"
+        }
+      ]
+    },
+    {
+      "id": "silver_carp",
+      "name": "鲢鱼",
+      "category": "淡水鱼",
+      "stockUnit": "苗种（3~5cm）",
+      "waterTempMin": 15,
+      "waterTempMax": 30,
+      "stockSeason": "春放（3-4月）或秋放（9-10月）",
+      "tips": "定期换水增氧，投喂以 1 小时内吃完为准；高温期防泛塘",
+      "stages": [
+        {
+          "dayOffset": 0,
+          "opType": "stock",
+          "title": "放苗",
+          "detail": "苗种下塘前先肥水，放养密度按品种调整"
+        },
+        {
+          "dayOffset": 15,
+          "opType": "feed",
+          "title": "开食投喂",
+          "detail": "用破碎料或粉料引食，日投喂 2 次，投喂率 2%~3%"
+        },
+        {
+          "dayOffset": 45,
+          "opType": "water",
+          "title": "水质调控",
+          "detail": "定期换水、增氧，保持溶氧充足"
+        },
+        {
+          "dayOffset": 90,
+          "opType": "health",
+          "title": "病害防治",
+          "detail": "注意常见细菌病，控制投喂、及时捞残饵"
+        },
+        {
+          "dayOffset": 30,
+          "opType": "harvest",
+          "title": "起捕上市",
+          "detail": "达到上市规格后分批起捕，错峰上市"
+        }
+      ]
+    },
+    {
+      "id": "bighead_carp",
+      "name": "鳙鱼",
+      "category": "淡水鱼",
+      "stockUnit": "苗种（3~5cm）",
+      "waterTempMin": 15,
+      "waterTempMax": 30,
+      "stockSeason": "春放（3-4月）或秋放（9-10月）",
+      "tips": "定期换水增氧，投喂以 1 小时内吃完为准；高温期防泛塘",
+      "stages": [
+        {
+          "dayOffset": 0,
+          "opType": "stock",
+          "title": "放苗",
+          "detail": "苗种下塘前先肥水，放养密度按品种调整"
+        },
+        {
+          "dayOffset": 15,
+          "opType": "feed",
+          "title": "开食投喂",
+          "detail": "用破碎料或粉料引食，日投喂 2 次，投喂率 2%~3%"
+        },
+        {
+          "dayOffset": 45,
+          "opType": "water",
+          "title": "水质调控",
+          "detail": "定期换水、增氧，保持溶氧充足"
+        },
+        {
+          "dayOffset": 90,
+          "opType": "health",
+          "title": "病害防治",
+          "detail": "注意常见细菌病，控制投喂、及时捞残饵"
+        },
+        {
+          "dayOffset": 30,
+          "opType": "harvest",
+          "title": "起捕上市",
+          "detail": "达到上市规格后分批起捕，错峰上市"
+        }
+      ]
+    },
+    {
+      "id": "tilapia",
+      "name": "罗非鱼",
+      "category": "淡水鱼",
+      "stockUnit": "苗种（3~5cm）",
+      "waterTempMin": 15,
+      "waterTempMax": 30,
+      "stockSeason": "春放（3-4月）或秋放（9-10月）",
+      "tips": "定期换水增氧，投喂以 1 小时内吃完为准；高温期防泛塘",
+      "stages": [
+        {
+          "dayOffset": 0,
+          "opType": "stock",
+          "title": "放苗",
+          "detail": "苗种下塘前先肥水，放养密度按品种调整"
+        },
+        {
+          "dayOffset": 15,
+          "opType": "feed",
+          "title": "开食投喂",
+          "detail": "用破碎料或粉料引食，日投喂 2 次，投喂率 2%~3%"
+        },
+        {
+          "dayOffset": 45,
+          "opType": "water",
+          "title": "水质调控",
+          "detail": "定期换水、增氧，保持溶氧充足"
+        },
+        {
+          "dayOffset": 90,
+          "opType": "health",
+          "title": "病害防治",
+          "detail": "注意常见细菌病，控制投喂、及时捞残饵"
+        },
+        {
+          "dayOffset": 30,
+          "opType": "harvest",
+          "title": "起捕上市",
+          "detail": "达到上市规格后分批起捕，错峰上市"
+        }
+      ]
+    },
+    {
+      "id": "blunt_snout_bream",
+      "name": "团头鲂",
+      "category": "淡水鱼",
+      "stockUnit": "苗种（3~5cm）",
+      "waterTempMin": 15,
+      "waterTempMax": 30,
+      "stockSeason": "春放（3-4月）或秋放（9-10月）",
+      "tips": "定期换水增氧，投喂以 1 小时内吃完为准；高温期防泛塘",
+      "stages": [
+        {
+          "dayOffset": 0,
+          "opType": "stock",
+          "title": "放苗",
+          "detail": "苗种下塘前先肥水，放养密度按品种调整"
+        },
+        {
+          "dayOffset": 15,
+          "opType": "feed",
+          "title": "开食投喂",
+          "detail": "用破碎料或粉料引食，日投喂 2 次，投喂率 2%~3%"
+        },
+        {
+          "dayOffset": 45,
+          "opType": "water",
+          "title": "水质调控",
+          "detail": "定期换水、增氧，保持溶氧充足"
+        },
+        {
+          "dayOffset": 90,
+          "opType": "health",
+          "title": "病害防治",
+          "detail": "注意常见细菌病，控制投喂、及时捞残饵"
+        },
+        {
+          "dayOffset": 30,
+          "opType": "harvest",
+          "title": "起捕上市",
+          "detail": "达到上市规格后分批起捕，错峰上市"
+        }
+      ]
+    },
+    {
+      "id": "black_carp",
+      "name": "青鱼",
+      "category": "淡水鱼",
+      "stockUnit": "苗种（3~5cm）",
+      "waterTempMin": 15,
+      "waterTempMax": 30,
+      "stockSeason": "春放（3-4月）或秋放（9-10月）",
+      "tips": "定期换水增氧，投喂以 1 小时内吃完为准；高温期防泛塘",
+      "stages": [
+        {
+          "dayOffset": 0,
+          "opType": "stock",
+          "title": "放苗",
+          "detail": "苗种下塘前先肥水，放养密度按品种调整"
+        },
+        {
+          "dayOffset": 15,
+          "opType": "feed",
+          "title": "开食投喂",
+          "detail": "用破碎料或粉料引食，日投喂 2 次，投喂率 2%~3%"
+        },
+        {
+          "dayOffset": 45,
+          "opType": "water",
+          "title": "水质调控",
+          "detail": "定期换水、增氧，保持溶氧充足"
+        },
+        {
+          "dayOffset": 90,
+          "opType": "health",
+          "title": "病害防治",
+          "detail": "注意常见细菌病，控制投喂、及时捞残饵"
+        },
+        {
+          "dayOffset": 30,
+          "opType": "harvest",
+          "title": "起捕上市",
+          "detail": "达到上市规格后分批起捕，错峰上市"
+        }
+      ]
+    },
+    {
+      "id": "catfish",
+      "name": "鲶鱼",
+      "category": "淡水鱼",
+      "stockUnit": "苗种（3~5cm）",
+      "waterTempMin": 15,
+      "waterTempMax": 30,
+      "stockSeason": "春放（3-4月）或秋放（9-10月）",
+      "tips": "定期换水增氧，投喂以 1 小时内吃完为准；高温期防泛塘",
+      "stages": [
+        {
+          "dayOffset": 0,
+          "opType": "stock",
+          "title": "放苗",
+          "detail": "苗种下塘前先肥水，放养密度按品种调整"
+        },
+        {
+          "dayOffset": 15,
+          "opType": "feed",
+          "title": "开食投喂",
+          "detail": "用破碎料或粉料引食，日投喂 2 次，投喂率 2%~3%"
+        },
+        {
+          "dayOffset": 45,
+          "opType": "water",
+          "title": "水质调控",
+          "detail": "定期换水、增氧，保持溶氧充足"
+        },
+        {
+          "dayOffset": 90,
+          "opType": "health",
+          "title": "病害防治",
+          "detail": "注意常见细菌病，控制投喂、及时捞残饵"
+        },
+        {
+          "dayOffset": 30,
+          "opType": "harvest",
+          "title": "起捕上市",
+          "detail": "达到上市规格后分批起捕，错峰上市"
+        }
+      ]
+    },
+    {
+      "id": "yellow_catfish",
+      "name": "黄颡鱼",
+      "category": "淡水鱼",
+      "stockUnit": "苗种（3~5cm）",
+      "waterTempMin": 15,
+      "waterTempMax": 30,
+      "stockSeason": "春放（3-4月）或秋放（9-10月）",
+      "tips": "定期换水增氧，投喂以 1 小时内吃完为准；高温期防泛塘",
+      "stages": [
+        {
+          "dayOffset": 0,
+          "opType": "stock",
+          "title": "放苗",
+          "detail": "苗种下塘前先肥水，放养密度按品种调整"
+        },
+        {
+          "dayOffset": 15,
+          "opType": "feed",
+          "title": "开食投喂",
+          "detail": "用破碎料或粉料引食，日投喂 2 次，投喂率 2%~3%"
+        },
+        {
+          "dayOffset": 45,
+          "opType": "water",
+          "title": "水质调控",
+          "detail": "定期换水、增氧，保持溶氧充足"
+        },
+        {
+          "dayOffset": 90,
+          "opType": "health",
+          "title": "病害防治",
+          "detail": "注意常见细菌病，控制投喂、及时捞残饵"
+        },
+        {
+          "dayOffset": 30,
+          "opType": "harvest",
+          "title": "起捕上市",
+          "detail": "达到上市规格后分批起捕，错峰上市"
+        }
+      ]
+    },
+    {
+      "id": "snakehead",
+      "name": "乌鳢",
+      "category": "淡水鱼",
+      "stockUnit": "苗种（3~5cm）",
+      "waterTempMin": 15,
+      "waterTempMax": 30,
+      "stockSeason": "春放（3-4月）或秋放（9-10月）",
+      "tips": "定期换水增氧，投喂以 1 小时内吃完为准；高温期防泛塘",
+      "stages": [
+        {
+          "dayOffset": 0,
+          "opType": "stock",
+          "title": "放苗",
+          "detail": "苗种下塘前先肥水，放养密度按品种调整"
+        },
+        {
+          "dayOffset": 15,
+          "opType": "feed",
+          "title": "开食投喂",
+          "detail": "用破碎料或粉料引食，日投喂 2 次，投喂率 2%~3%"
+        },
+        {
+          "dayOffset": 45,
+          "opType": "water",
+          "title": "水质调控",
+          "detail": "定期换水、增氧，保持溶氧充足"
+        },
+        {
+          "dayOffset": 90,
+          "opType": "health",
+          "title": "病害防治",
+          "detail": "注意常见细菌病，控制投喂、及时捞残饵"
+        },
+        {
+          "dayOffset": 30,
+          "opType": "harvest",
+          "title": "起捕上市",
+          "detail": "达到上市规格后分批起捕，错峰上市"
+        }
+      ]
+    },
+    {
+      "id": "mandarin_fish",
+      "name": "鳜鱼",
+      "category": "淡水鱼",
+      "stockUnit": "苗种（3~5cm）",
+      "waterTempMin": 15,
+      "waterTempMax": 30,
+      "stockSeason": "春放（3-4月）或秋放（9-10月）",
+      "tips": "定期换水增氧，投喂以 1 小时内吃完为准；高温期防泛塘",
+      "stages": [
+        {
+          "dayOffset": 0,
+          "opType": "stock",
+          "title": "放苗",
+          "detail": "苗种下塘前先肥水，放养密度按品种调整"
+        },
+        {
+          "dayOffset": 15,
+          "opType": "feed",
+          "title": "开食投喂",
+          "detail": "用破碎料或粉料引食，日投喂 2 次，投喂率 2%~3%"
+        },
+        {
+          "dayOffset": 45,
+          "opType": "water",
+          "title": "水质调控",
+          "detail": "定期换水、增氧，保持溶氧充足"
+        },
+        {
+          "dayOffset": 90,
+          "opType": "health",
+          "title": "病害防治",
+          "detail": "注意常见细菌病，控制投喂、及时捞残饵"
+        },
+        {
+          "dayOffset": 30,
+          "opType": "harvest",
+          "title": "起捕上市",
+          "detail": "达到上市规格后分批起捕，错峰上市"
+        }
+      ]
+    },
+    {
+      "id": "loach",
+      "name": "泥鳅",
+      "category": "淡水鱼",
+      "stockUnit": "苗种（3~5cm）",
+      "waterTempMin": 15,
+      "waterTempMax": 30,
+      "stockSeason": "春放（3-4月）或秋放（9-10月）",
+      "tips": "定期换水增氧，投喂以 1 小时内吃完为准；高温期防泛塘",
+      "stages": [
+        {
+          "dayOffset": 0,
+          "opType": "stock",
+          "title": "放苗",
+          "detail": "苗种下塘前先肥水，放养密度按品种调整"
+        },
+        {
+          "dayOffset": 15,
+          "opType": "feed",
+          "title": "开食投喂",
+          "detail": "用破碎料或粉料引食，日投喂 2 次，投喂率 2%~3%"
+        },
+        {
+          "dayOffset": 45,
+          "opType": "water",
+          "title": "水质调控",
+          "detail": "定期换水、增氧，保持溶氧充足"
+        },
+        {
+          "dayOffset": 90,
+          "opType": "health",
+          "title": "病害防治",
+          "detail": "注意常见细菌病，控制投喂、及时捞残饵"
+        },
+        {
+          "dayOffset": 30,
+          "opType": "harvest",
+          "title": "起捕上市",
+          "detail": "达到上市规格后分批起捕，错峰上市"
+        }
+      ]
+    },
+    {
+      "id": "swamp_eel",
+      "name": "黄鳝",
+      "category": "淡水鱼",
+      "stockUnit": "苗种（3~5cm）",
+      "waterTempMin": 15,
+      "waterTempMax": 30,
+      "stockSeason": "春放（3-4月）或秋放（9-10月）",
+      "tips": "定期换水增氧，投喂以 1 小时内吃完为准；高温期防泛塘",
+      "stages": [
+        {
+          "dayOffset": 0,
+          "opType": "stock",
+          "title": "放苗",
+          "detail": "苗种下塘前先肥水，放养密度按品种调整"
+        },
+        {
+          "dayOffset": 15,
+          "opType": "feed",
+          "title": "开食投喂",
+          "detail": "用破碎料或粉料引食，日投喂 2 次，投喂率 2%~3%"
+        },
+        {
+          "dayOffset": 45,
+          "opType": "water",
+          "title": "水质调控",
+          "detail": "定期换水、增氧，保持溶氧充足"
+        },
+        {
+          "dayOffset": 90,
+          "opType": "health",
+          "title": "病害防治",
+          "detail": "注意常见细菌病，控制投喂、及时捞残饵"
+        },
+        {
+          "dayOffset": 30,
+          "opType": "harvest",
+          "title": "起捕上市",
+          "detail": "达到上市规格后分批起捕，错峰上市"
+        }
+      ]
+    },
+    {
+      "id": "freshwater_bass",
+      "name": "淡水鲈",
+      "category": "淡水鱼",
+      "stockUnit": "苗种（3~5cm）",
+      "waterTempMin": 15,
+      "waterTempMax": 30,
+      "stockSeason": "春放（3-4月）或秋放（9-10月）",
+      "tips": "定期换水增氧，投喂以 1 小时内吃完为准；高温期防泛塘",
+      "stages": [
+        {
+          "dayOffset": 0,
+          "opType": "stock",
+          "title": "放苗",
+          "detail": "苗种下塘前先肥水，放养密度按品种调整"
+        },
+        {
+          "dayOffset": 15,
+          "opType": "feed",
+          "title": "开食投喂",
+          "detail": "用破碎料或粉料引食，日投喂 2 次，投喂率 2%~3%"
+        },
+        {
+          "dayOffset": 45,
+          "opType": "water",
+          "title": "水质调控",
+          "detail": "定期换水、增氧，保持溶氧充足"
+        },
+        {
+          "dayOffset": 90,
+          "opType": "health",
+          "title": "病害防治",
+          "detail": "注意常见细菌病，控制投喂、及时捞残饵"
+        },
+        {
+          "dayOffset": 30,
+          "opType": "harvest",
+          "title": "起捕上市",
+          "detail": "达到上市规格后分批起捕，错峰上市"
+        }
+      ]
+    },
+    {
+      "id": "dace",
+      "name": "鲮鱼",
+      "category": "淡水鱼",
+      "stockUnit": "苗种（3~5cm）",
+      "waterTempMin": 15,
+      "waterTempMax": 30,
+      "stockSeason": "春放（3-4月）或秋放（9-10月）",
+      "tips": "定期换水增氧，投喂以 1 小时内吃完为准；高温期防泛塘",
+      "stages": [
+        {
+          "dayOffset": 0,
+          "opType": "stock",
+          "title": "放苗",
+          "detail": "苗种下塘前先肥水，放养密度按品种调整"
+        },
+        {
+          "dayOffset": 15,
+          "opType": "feed",
+          "title": "开食投喂",
+          "detail": "用破碎料或粉料引食，日投喂 2 次，投喂率 2%~3%"
+        },
+        {
+          "dayOffset": 45,
+          "opType": "water",
+          "title": "水质调控",
+          "detail": "定期换水、增氧，保持溶氧充足"
+        },
+        {
+          "dayOffset": 90,
+          "opType": "health",
+          "title": "病害防治",
+          "detail": "注意常见细菌病，控制投喂、及时捞残饵"
+        },
+        {
+          "dayOffset": 30,
+          "opType": "harvest",
+          "title": "起捕上市",
+          "detail": "达到上市规格后分批起捕，错峰上市"
+        }
+      ]
+    },
+    {
+      "id": "topmouth_culter",
+      "name": "翘嘴鲌",
+      "category": "淡水鱼",
+      "stockUnit": "苗种（3~5cm）",
+      "waterTempMin": 15,
+      "waterTempMax": 30,
+      "stockSeason": "春放（3-4月）或秋放（9-10月）",
+      "tips": "定期换水增氧，投喂以 1 小时内吃完为准；高温期防泛塘",
+      "stages": [
+        {
+          "dayOffset": 0,
+          "opType": "stock",
+          "title": "放苗",
+          "detail": "苗种下塘前先肥水，放养密度按品种调整"
+        },
+        {
+          "dayOffset": 15,
+          "opType": "feed",
+          "title": "开食投喂",
+          "detail": "用破碎料或粉料引食，日投喂 2 次，投喂率 2%~3%"
+        },
+        {
+          "dayOffset": 45,
+          "opType": "water",
+          "title": "水质调控",
+          "detail": "定期换水、增氧，保持溶氧充足"
+        },
+        {
+          "dayOffset": 90,
+          "opType": "health",
+          "title": "病害防治",
+          "detail": "注意常见细菌病，控制投喂、及时捞残饵"
+        },
+        {
+          "dayOffset": 30,
+          "opType": "harvest",
+          "title": "起捕上市",
+          "detail": "达到上市规格后分批起捕，错峰上市"
+        }
+      ]
+    },
+    {
+      "id": "channel_catfish",
+      "name": "斑点叉尾鮰",
+      "category": "淡水鱼",
+      "stockUnit": "苗种（3~5cm）",
+      "waterTempMin": 15,
+      "waterTempMax": 30,
+      "stockSeason": "春放（3-4月）或秋放（9-10月）",
+      "tips": "定期换水增氧，投喂以 1 小时内吃完为准；高温期防泛塘",
+      "stages": [
+        {
+          "dayOffset": 0,
+          "opType": "stock",
+          "title": "放苗",
+          "detail": "苗种下塘前先肥水，放养密度按品种调整"
+        },
+        {
+          "dayOffset": 15,
+          "opType": "feed",
+          "title": "开食投喂",
+          "detail": "用破碎料或粉料引食，日投喂 2 次，投喂率 2%~3%"
+        },
+        {
+          "dayOffset": 45,
+          "opType": "water",
+          "title": "水质调控",
+          "detail": "定期换水、增氧，保持溶氧充足"
+        },
+        {
+          "dayOffset": 90,
+          "opType": "health",
+          "title": "病害防治",
+          "detail": "注意常见细菌病，控制投喂、及时捞残饵"
+        },
+        {
+          "dayOffset": 30,
+          "opType": "harvest",
+          "title": "起捕上市",
+          "detail": "达到上市规格后分批起捕，错峰上市"
+        }
+      ]
+    },
+    {
+      "id": "tench",
+      "name": "丁桂",
+      "category": "淡水鱼",
+      "stockUnit": "苗种（3~5cm）",
+      "waterTempMin": 15,
+      "waterTempMax": 30,
+      "stockSeason": "春放（3-4月）或秋放（9-10月）",
+      "tips": "定期换水增氧，投喂以 1 小时内吃完为准；高温期防泛塘",
+      "stages": [
+        {
+          "dayOffset": 0,
+          "opType": "stock",
+          "title": "放苗",
+          "detail": "苗种下塘前先肥水，放养密度按品种调整"
+        },
+        {
+          "dayOffset": 15,
+          "opType": "feed",
+          "title": "开食投喂",
+          "detail": "用破碎料或粉料引食，日投喂 2 次，投喂率 2%~3%"
+        },
+        {
+          "dayOffset": 45,
+          "opType": "water",
+          "title": "水质调控",
+          "detail": "定期换水、增氧，保持溶氧充足"
+        },
+        {
+          "dayOffset": 90,
+          "opType": "health",
+          "title": "病害防治",
+          "detail": "注意常见细菌病，控制投喂、及时捞残饵"
+        },
+        {
+          "dayOffset": 30,
+          "opType": "harvest",
+          "title": "起捕上市",
+          "detail": "达到上市规格后分批起捕，错峰上市"
+        }
+      ]
+    },
+    {
+      "id": "wuchang_bream",
+      "name": "长春鳊",
+      "category": "淡水鱼",
+      "stockUnit": "苗种（3~5cm）",
+      "waterTempMin": 15,
+      "waterTempMax": 30,
+      "stockSeason": "春放（3-4月）或秋放（9-10月）",
+      "tips": "定期换水增氧，投喂以 1 小时内吃完为准；高温期防泛塘",
+      "stages": [
+        {
+          "dayOffset": 0,
+          "opType": "stock",
+          "title": "放苗",
+          "detail": "苗种下塘前先肥水，放养密度按品种调整"
+        },
+        {
+          "dayOffset": 15,
+          "opType": "feed",
+          "title": "开食投喂",
+          "detail": "用破碎料或粉料引食，日投喂 2 次，投喂率 2%~3%"
+        },
+        {
+          "dayOffset": 45,
+          "opType": "water",
+          "title": "水质调控",
+          "detail": "定期换水、增氧，保持溶氧充足"
+        },
+        {
+          "dayOffset": 90,
+          "opType": "health",
+          "title": "病害防治",
+          "detail": "注意常见细菌病，控制投喂、及时捞残饵"
+        },
+        {
+          "dayOffset": 30,
+          "opType": "harvest",
+          "title": "起捕上市",
+          "detail": "达到上市规格后分批起捕，错峰上市"
+        }
+      ]
+    },
+    {
+      "id": "large_yellow_croaker",
+      "name": "大黄鱼",
+      "category": "海水鱼",
+      "stockUnit": "苗种",
+      "waterTempMin": 18,
+      "waterTempMax": 28,
+      "stockSeason": "春放（4-5月）",
+      "tips": "海水鱼对盐度与溶氧敏感，注意水质盐度稳定",
+      "stages": [
+        {
+          "dayOffset": 0,
+          "opType": "stock",
+          "title": "放苗",
+          "detail": "苗种先试水再下池，密度按品种调整"
+        },
+        {
+          "dayOffset": 15,
+          "opType": "feed",
+          "title": "开食投喂",
+          "detail": "用优质配合饲料，日投喂 2~3 次"
+        },
+        {
+          "dayOffset": 45,
+          "opType": "water",
+          "title": "水质调控",
+          "detail": "控盐度、增氧、定期换水"
+        },
+        {
+          "dayOffset": 90,
+          "opType": "health",
+          "title": "病害防治",
+          "detail": "防寄生虫与细菌病，保持水质清洁"
+        },
+        {
+          "dayOffset": 30,
+          "opType": "harvest",
+          "title": "起捕上市",
+          "detail": "达上市规格分批起捕"
+        }
+      ]
+    },
+    {
+      "id": "flounder",
+      "name": "牙鲆",
+      "category": "海水鱼",
+      "stockUnit": "苗种",
+      "waterTempMin": 18,
+      "waterTempMax": 28,
+      "stockSeason": "春放（4-5月）",
+      "tips": "海水鱼对盐度与溶氧敏感，注意水质盐度稳定",
+      "stages": [
+        {
+          "dayOffset": 0,
+          "opType": "stock",
+          "title": "放苗",
+          "detail": "苗种先试水再下池，密度按品种调整"
+        },
+        {
+          "dayOffset": 15,
+          "opType": "feed",
+          "title": "开食投喂",
+          "detail": "用优质配合饲料，日投喂 2~3 次"
+        },
+        {
+          "dayOffset": 45,
+          "opType": "water",
+          "title": "水质调控",
+          "detail": "控盐度、增氧、定期换水"
+        },
+        {
+          "dayOffset": 90,
+          "opType": "health",
+          "title": "病害防治",
+          "detail": "防寄生虫与细菌病，保持水质清洁"
+        },
+        {
+          "dayOffset": 30,
+          "opType": "harvest",
+          "title": "起捕上市",
+          "detail": "达上市规格分批起捕"
+        }
+      ]
+    },
+    {
+      "id": "turbot",
+      "name": "大菱鲆",
+      "category": "海水鱼",
+      "stockUnit": "苗种",
+      "waterTempMin": 18,
+      "waterTempMax": 28,
+      "stockSeason": "春放（4-5月）",
+      "tips": "海水鱼对盐度与溶氧敏感，注意水质盐度稳定",
+      "stages": [
+        {
+          "dayOffset": 0,
+          "opType": "stock",
+          "title": "放苗",
+          "detail": "苗种先试水再下池，密度按品种调整"
+        },
+        {
+          "dayOffset": 15,
+          "opType": "feed",
+          "title": "开食投喂",
+          "detail": "用优质配合饲料，日投喂 2~3 次"
+        },
+        {
+          "dayOffset": 45,
+          "opType": "water",
+          "title": "水质调控",
+          "detail": "控盐度、增氧、定期换水"
+        },
+        {
+          "dayOffset": 90,
+          "opType": "health",
+          "title": "病害防治",
+          "detail": "防寄生虫与细菌病，保持水质清洁"
+        },
+        {
+          "dayOffset": 30,
+          "opType": "harvest",
+          "title": "起捕上市",
+          "detail": "达上市规格分批起捕"
+        }
+      ]
+    },
+    {
+      "id": "tongue_sole",
+      "name": "半滑舌鳎",
+      "category": "海水鱼",
+      "stockUnit": "苗种",
+      "waterTempMin": 18,
+      "waterTempMax": 28,
+      "stockSeason": "春放（4-5月）",
+      "tips": "海水鱼对盐度与溶氧敏感，注意水质盐度稳定",
+      "stages": [
+        {
+          "dayOffset": 0,
+          "opType": "stock",
+          "title": "放苗",
+          "detail": "苗种先试水再下池，密度按品种调整"
+        },
+        {
+          "dayOffset": 15,
+          "opType": "feed",
+          "title": "开食投喂",
+          "detail": "用优质配合饲料，日投喂 2~3 次"
+        },
+        {
+          "dayOffset": 45,
+          "opType": "water",
+          "title": "水质调控",
+          "detail": "控盐度、增氧、定期换水"
+        },
+        {
+          "dayOffset": 90,
+          "opType": "health",
+          "title": "病害防治",
+          "detail": "防寄生虫与细菌病，保持水质清洁"
+        },
+        {
+          "dayOffset": 30,
+          "opType": "harvest",
+          "title": "起捕上市",
+          "detail": "达上市规格分批起捕"
+        }
+      ]
+    },
+    {
+      "id": "sea_bass",
+      "name": "海鲈",
+      "category": "海水鱼",
+      "stockUnit": "苗种",
+      "waterTempMin": 18,
+      "waterTempMax": 28,
+      "stockSeason": "春放（4-5月）",
+      "tips": "海水鱼对盐度与溶氧敏感，注意水质盐度稳定",
+      "stages": [
+        {
+          "dayOffset": 0,
+          "opType": "stock",
+          "title": "放苗",
+          "detail": "苗种先试水再下池，密度按品种调整"
+        },
+        {
+          "dayOffset": 15,
+          "opType": "feed",
+          "title": "开食投喂",
+          "detail": "用优质配合饲料，日投喂 2~3 次"
+        },
+        {
+          "dayOffset": 45,
+          "opType": "water",
+          "title": "水质调控",
+          "detail": "控盐度、增氧、定期换水"
+        },
+        {
+          "dayOffset": 90,
+          "opType": "health",
+          "title": "病害防治",
+          "detail": "防寄生虫与细菌病，保持水质清洁"
+        },
+        {
+          "dayOffset": 30,
+          "opType": "harvest",
+          "title": "起捕上市",
+          "detail": "达上市规格分批起捕"
+        }
+      ]
+    },
+    {
+      "id": "red_seabream",
+      "name": "真鲷",
+      "category": "海水鱼",
+      "stockUnit": "苗种",
+      "waterTempMin": 18,
+      "waterTempMax": 28,
+      "stockSeason": "春放（4-5月）",
+      "tips": "海水鱼对盐度与溶氧敏感，注意水质盐度稳定",
+      "stages": [
+        {
+          "dayOffset": 0,
+          "opType": "stock",
+          "title": "放苗",
+          "detail": "苗种先试水再下池，密度按品种调整"
+        },
+        {
+          "dayOffset": 15,
+          "opType": "feed",
+          "title": "开食投喂",
+          "detail": "用优质配合饲料，日投喂 2~3 次"
+        },
+        {
+          "dayOffset": 45,
+          "opType": "water",
+          "title": "水质调控",
+          "detail": "控盐度、增氧、定期换水"
+        },
+        {
+          "dayOffset": 90,
+          "opType": "health",
+          "title": "病害防治",
+          "detail": "防寄生虫与细菌病，保持水质清洁"
+        },
+        {
+          "dayOffset": 30,
+          "opType": "harvest",
+          "title": "起捕上市",
+          "detail": "达上市规格分批起捕"
+        }
+      ]
+    },
+    {
+      "id": "black_seabream",
+      "name": "黑鲷",
+      "category": "海水鱼",
+      "stockUnit": "苗种",
+      "waterTempMin": 18,
+      "waterTempMax": 28,
+      "stockSeason": "春放（4-5月）",
+      "tips": "海水鱼对盐度与溶氧敏感，注意水质盐度稳定",
+      "stages": [
+        {
+          "dayOffset": 0,
+          "opType": "stock",
+          "title": "放苗",
+          "detail": "苗种先试水再下池，密度按品种调整"
+        },
+        {
+          "dayOffset": 15,
+          "opType": "feed",
+          "title": "开食投喂",
+          "detail": "用优质配合饲料，日投喂 2~3 次"
+        },
+        {
+          "dayOffset": 45,
+          "opType": "water",
+          "title": "水质调控",
+          "detail": "控盐度、增氧、定期换水"
+        },
+        {
+          "dayOffset": 90,
+          "opType": "health",
+          "title": "病害防治",
+          "detail": "防寄生虫与细菌病，保持水质清洁"
+        },
+        {
+          "dayOffset": 30,
+          "opType": "harvest",
+          "title": "起捕上市",
+          "detail": "达上市规格分批起捕"
+        }
+      ]
+    },
+    {
+      "id": "pufferfish",
+      "name": "河豚",
+      "category": "海水鱼",
+      "stockUnit": "苗种",
+      "waterTempMin": 18,
+      "waterTempMax": 28,
+      "stockSeason": "春放（4-5月）",
+      "tips": "海水鱼对盐度与溶氧敏感，注意水质盐度稳定",
+      "stages": [
+        {
+          "dayOffset": 0,
+          "opType": "stock",
+          "title": "放苗",
+          "detail": "苗种先试水再下池，密度按品种调整"
+        },
+        {
+          "dayOffset": 15,
+          "opType": "feed",
+          "title": "开食投喂",
+          "detail": "用优质配合饲料，日投喂 2~3 次"
+        },
+        {
+          "dayOffset": 45,
+          "opType": "water",
+          "title": "水质调控",
+          "detail": "控盐度、增氧、定期换水"
+        },
+        {
+          "dayOffset": 90,
+          "opType": "health",
+          "title": "病害防治",
+          "detail": "防寄生虫与细菌病，保持水质清洁"
+        },
+        {
+          "dayOffset": 30,
+          "opType": "harvest",
+          "title": "起捕上市",
+          "detail": "达上市规格分批起捕"
+        }
+      ]
+    },
+    {
+      "id": "grouper",
+      "name": "石斑鱼",
+      "category": "海水鱼",
+      "stockUnit": "苗种",
+      "waterTempMin": 18,
+      "waterTempMax": 28,
+      "stockSeason": "春放（4-5月）",
+      "tips": "海水鱼对盐度与溶氧敏感，注意水质盐度稳定",
+      "stages": [
+        {
+          "dayOffset": 0,
+          "opType": "stock",
+          "title": "放苗",
+          "detail": "苗种先试水再下池，密度按品种调整"
+        },
+        {
+          "dayOffset": 15,
+          "opType": "feed",
+          "title": "开食投喂",
+          "detail": "用优质配合饲料，日投喂 2~3 次"
+        },
+        {
+          "dayOffset": 45,
+          "opType": "water",
+          "title": "水质调控",
+          "detail": "控盐度、增氧、定期换水"
+        },
+        {
+          "dayOffset": 90,
+          "opType": "health",
+          "title": "病害防治",
+          "detail": "防寄生虫与细菌病，保持水质清洁"
+        },
+        {
+          "dayOffset": 30,
+          "opType": "harvest",
+          "title": "起捕上市",
+          "detail": "达上市规格分批起捕"
+        }
+      ]
+    },
+    {
+      "id": "cobia",
+      "name": "军曹鱼",
+      "category": "海水鱼",
+      "stockUnit": "苗种",
+      "waterTempMin": 18,
+      "waterTempMax": 28,
+      "stockSeason": "春放（4-5月）",
+      "tips": "海水鱼对盐度与溶氧敏感，注意水质盐度稳定",
+      "stages": [
+        {
+          "dayOffset": 0,
+          "opType": "stock",
+          "title": "放苗",
+          "detail": "苗种先试水再下池，密度按品种调整"
+        },
+        {
+          "dayOffset": 15,
+          "opType": "feed",
+          "title": "开食投喂",
+          "detail": "用优质配合饲料，日投喂 2~3 次"
+        },
+        {
+          "dayOffset": 45,
+          "opType": "water",
+          "title": "水质调控",
+          "detail": "控盐度、增氧、定期换水"
+        },
+        {
+          "dayOffset": 90,
+          "opType": "health",
+          "title": "病害防治",
+          "detail": "防寄生虫与细菌病，保持水质清洁"
+        },
+        {
+          "dayOffset": 30,
+          "opType": "harvest",
+          "title": "起捕上市",
+          "detail": "达上市规格分批起捕"
+        }
+      ]
+    },
+    {
+      "id": "swimming_crab",
+      "name": "梭子蟹",
+      "category": "蟹类",
+      "stockUnit": "扣蟹/蟹苗",
+      "waterTempMin": 15,
+      "waterTempMax": 28,
+      "stockSeason": "春放（3-4月）",
+      "tips": "脱壳期保持水草覆盖，避免应激",
+      "stages": [
+        {
+          "dayOffset": 0,
+          "opType": "stock",
+          "title": "放养",
+          "detail": "先试水再下塘，控制水草覆盖率"
+        },
+        {
+          "dayOffset": 15,
+          "opType": "feed",
+          "title": "投喂管理",
+          "detail": "配合饲料 + 螺蛳小鱼，日投喂率 5%~8%"
+        },
+        {
+          "dayOffset": 90,
+          "opType": "health",
+          "title": "蜕壳期管理",
+          "detail": "蜕壳高峰期减量投喂，补钙稳水位"
+        },
+        {
+          "dayOffset": 45,
+          "opType": "water",
+          "title": "水质与水草",
+          "detail": "每 7~10 天换水 1/4，水草覆盖 40%~50%"
+        },
+        {
+          "dayOffset": 30,
+          "opType": "harvest",
+          "title": "起捕上市",
+          "detail": "膏满后分批地笼起捕"
+        }
+      ]
+    },
+    {
+      "id": "mud_crab",
+      "name": "青蟹",
+      "category": "蟹类",
+      "stockUnit": "扣蟹/蟹苗",
+      "waterTempMin": 15,
+      "waterTempMax": 28,
+      "stockSeason": "春放（3-4月）",
+      "tips": "脱壳期保持水草覆盖，避免应激",
+      "stages": [
+        {
+          "dayOffset": 0,
+          "opType": "stock",
+          "title": "放养",
+          "detail": "先试水再下塘，控制水草覆盖率"
+        },
+        {
+          "dayOffset": 15,
+          "opType": "feed",
+          "title": "投喂管理",
+          "detail": "配合饲料 + 螺蛳小鱼，日投喂率 5%~8%"
+        },
+        {
+          "dayOffset": 90,
+          "opType": "health",
+          "title": "蜕壳期管理",
+          "detail": "蜕壳高峰期减量投喂，补钙稳水位"
+        },
+        {
+          "dayOffset": 45,
+          "opType": "water",
+          "title": "水质与水草",
+          "detail": "每 7~10 天换水 1/4，水草覆盖 40%~50%"
+        },
+        {
+          "dayOffset": 30,
+          "opType": "harvest",
+          "title": "起捕上市",
+          "detail": "膏满后分批地笼起捕"
+        }
+      ]
+    },
+    {
+      "id": "white_shrimp",
+      "name": "南美白对虾",
+      "category": "虾类",
+      "stockUnit": "虾苗（1~2cm）",
+      "waterTempMin": 22,
+      "waterTempMax": 32,
+      "stockSeason": "春放（4-5月）",
+      "tips": "虾类对溶氧敏感，脱壳期注意补钙增氧",
+      "stages": [
+        {
+          "dayOffset": 0,
+          "opType": "stock",
+          "title": "放苗",
+          "detail": "虾苗淡化或适应后下塘，密度按品种"
+        },
+        {
+          "dayOffset": 15,
+          "opType": "feed",
+          "title": "开食投喂",
+          "detail": "前期粉料，中期颗粒料，日投喂 2~3 次"
+        },
+        {
+          "dayOffset": 45,
+          "opType": "water",
+          "title": "水质调控",
+          "detail": "增氧、换水，保持透明度 30cm 左右"
+        },
+        {
+          "dayOffset": 90,
+          "opType": "health",
+          "title": "病害防治",
+          "detail": "防白斑、弧菌等，脱壳期补钙"
+        },
+        {
+          "dayOffset": 30,
+          "opType": "harvest",
+          "title": "起捕上市",
+          "detail": "达规格地笼或拉网起捕"
+        }
+      ]
+    },
+    {
+      "id": "giant_freshwater_prawn",
+      "name": "罗氏沼虾",
+      "category": "虾类",
+      "stockUnit": "虾苗（1~2cm）",
+      "waterTempMin": 22,
+      "waterTempMax": 32,
+      "stockSeason": "春放（4-5月）",
+      "tips": "虾类对溶氧敏感，脱壳期注意补钙增氧",
+      "stages": [
+        {
+          "dayOffset": 0,
+          "opType": "stock",
+          "title": "放苗",
+          "detail": "虾苗淡化或适应后下塘，密度按品种"
+        },
+        {
+          "dayOffset": 15,
+          "opType": "feed",
+          "title": "开食投喂",
+          "detail": "前期粉料，中期颗粒料，日投喂 2~3 次"
+        },
+        {
+          "dayOffset": 45,
+          "opType": "water",
+          "title": "水质调控",
+          "detail": "增氧、换水，保持透明度 30cm 左右"
+        },
+        {
+          "dayOffset": 90,
+          "opType": "health",
+          "title": "病害防治",
+          "detail": "防白斑、弧菌等，脱壳期补钙"
+        },
+        {
+          "dayOffset": 30,
+          "opType": "harvest",
+          "title": "起捕上市",
+          "detail": "达规格地笼或拉网起捕"
+        }
+      ]
+    },
+    {
+      "id": "freshwater_shrimp",
+      "name": "青虾",
+      "category": "虾类",
+      "stockUnit": "虾苗（1~2cm）",
+      "waterTempMin": 22,
+      "waterTempMax": 32,
+      "stockSeason": "春放（4-5月）",
+      "tips": "虾类对溶氧敏感，脱壳期注意补钙增氧",
+      "stages": [
+        {
+          "dayOffset": 0,
+          "opType": "stock",
+          "title": "放苗",
+          "detail": "虾苗淡化或适应后下塘，密度按品种"
+        },
+        {
+          "dayOffset": 15,
+          "opType": "feed",
+          "title": "开食投喂",
+          "detail": "前期粉料，中期颗粒料，日投喂 2~3 次"
+        },
+        {
+          "dayOffset": 45,
+          "opType": "water",
+          "title": "水质调控",
+          "detail": "增氧、换水，保持透明度 30cm 左右"
+        },
+        {
+          "dayOffset": 90,
+          "opType": "health",
+          "title": "病害防治",
+          "detail": "防白斑、弧菌等，脱壳期补钙"
+        },
+        {
+          "dayOffset": 30,
+          "opType": "harvest",
+          "title": "起捕上市",
+          "detail": "达规格地笼或拉网起捕"
+        }
+      ]
+    },
+    {
+      "id": "black_tiger_shrimp",
+      "name": "斑节对虾",
+      "category": "虾类",
+      "stockUnit": "虾苗（1~2cm）",
+      "waterTempMin": 22,
+      "waterTempMax": 32,
+      "stockSeason": "春放（4-5月）",
+      "tips": "虾类对溶氧敏感，脱壳期注意补钙增氧",
+      "stages": [
+        {
+          "dayOffset": 0,
+          "opType": "stock",
+          "title": "放苗",
+          "detail": "虾苗淡化或适应后下塘，密度按品种"
+        },
+        {
+          "dayOffset": 15,
+          "opType": "feed",
+          "title": "开食投喂",
+          "detail": "前期粉料，中期颗粒料，日投喂 2~3 次"
+        },
+        {
+          "dayOffset": 45,
+          "opType": "water",
+          "title": "水质调控",
+          "detail": "增氧、换水，保持透明度 30cm 左右"
+        },
+        {
+          "dayOffset": 90,
+          "opType": "health",
+          "title": "病害防治",
+          "detail": "防白斑、弧菌等，脱壳期补钙"
+        },
+        {
+          "dayOffset": 30,
+          "opType": "harvest",
+          "title": "起捕上市",
+          "detail": "达规格地笼或拉网起捕"
+        }
+      ]
+    },
+    {
+      "id": "chinese_shrimp",
+      "name": "中国对虾",
+      "category": "虾类",
+      "stockUnit": "虾苗（1~2cm）",
+      "waterTempMin": 22,
+      "waterTempMax": 32,
+      "stockSeason": "春放（4-5月）",
+      "tips": "虾类对溶氧敏感，脱壳期注意补钙增氧",
+      "stages": [
+        {
+          "dayOffset": 0,
+          "opType": "stock",
+          "title": "放苗",
+          "detail": "虾苗淡化或适应后下塘，密度按品种"
+        },
+        {
+          "dayOffset": 15,
+          "opType": "feed",
+          "title": "开食投喂",
+          "detail": "前期粉料，中期颗粒料，日投喂 2~3 次"
+        },
+        {
+          "dayOffset": 45,
+          "opType": "water",
+          "title": "水质调控",
+          "detail": "增氧、换水，保持透明度 30cm 左右"
+        },
+        {
+          "dayOffset": 90,
+          "opType": "health",
+          "title": "病害防治",
+          "detail": "防白斑、弧菌等，脱壳期补钙"
+        },
+        {
+          "dayOffset": 30,
+          "opType": "harvest",
+          "title": "起捕上市",
+          "detail": "达规格地笼或拉网起捕"
+        }
+      ]
+    },
+    {
+      "id": "crayfish",
+      "name": "小龙虾",
+      "category": "虾类",
+      "stockUnit": "虾苗（1~2cm）",
+      "waterTempMin": 22,
+      "waterTempMax": 32,
+      "stockSeason": "春放（4-5月）",
+      "tips": "虾类对溶氧敏感，脱壳期注意补钙增氧",
+      "stages": [
+        {
+          "dayOffset": 0,
+          "opType": "stock",
+          "title": "放苗",
+          "detail": "虾苗淡化或适应后下塘，密度按品种"
+        },
+        {
+          "dayOffset": 15,
+          "opType": "feed",
+          "title": "开食投喂",
+          "detail": "前期粉料，中期颗粒料，日投喂 2~3 次"
+        },
+        {
+          "dayOffset": 45,
+          "opType": "water",
+          "title": "水质调控",
+          "detail": "增氧、换水，保持透明度 30cm 左右"
+        },
+        {
+          "dayOffset": 90,
+          "opType": "health",
+          "title": "病害防治",
+          "detail": "防白斑、弧菌等，脱壳期补钙"
+        },
+        {
+          "dayOffset": 30,
+          "opType": "harvest",
+          "title": "起捕上市",
+          "detail": "达规格地笼或拉网起捕"
+        }
+      ]
+    },
+    {
+      "id": "scallop",
+      "name": "扇贝",
+      "category": "贝类",
+      "stockUnit": "苗种",
+      "waterTempMin": 10,
+      "waterTempMax": 28,
+      "stockSeason": "春秋放",
+      "tips": "滤食为主，注意水体肥度与底质",
+      "stages": [
+        {
+          "dayOffset": 0,
+          "opType": "stock",
+          "title": "放苗",
+          "detail": "底质整理后播苗，密度按品种"
+        },
+        {
+          "dayOffset": 45,
+          "opType": "water",
+          "title": "水质调控",
+          "detail": "控制水体肥度，防赤潮"
+        },
+        {
+          "dayOffset": 90,
+          "opType": "health",
+          "title": "病害防治",
+          "detail": "防敌害与污染，保持底质清洁"
+        },
+        {
+          "dayOffset": 30,
+          "opType": "harvest",
+          "title": "起捕上市",
+          "detail": "达规格采捕上市"
+        }
+      ]
+    },
+    {
+      "id": "oyster",
+      "name": "牡蛎",
+      "category": "贝类",
+      "stockUnit": "苗种",
+      "waterTempMin": 10,
+      "waterTempMax": 28,
+      "stockSeason": "春秋放",
+      "tips": "滤食为主，注意水体肥度与底质",
+      "stages": [
+        {
+          "dayOffset": 0,
+          "opType": "stock",
+          "title": "放苗",
+          "detail": "底质整理后播苗，密度按品种"
+        },
+        {
+          "dayOffset": 45,
+          "opType": "water",
+          "title": "水质调控",
+          "detail": "控制水体肥度，防赤潮"
+        },
+        {
+          "dayOffset": 90,
+          "opType": "health",
+          "title": "病害防治",
+          "detail": "防敌害与污染，保持底质清洁"
+        },
+        {
+          "dayOffset": 30,
+          "opType": "harvest",
+          "title": "起捕上市",
+          "detail": "达规格采捕上市"
+        }
+      ]
+    },
+    {
+      "id": "clam",
+      "name": "蛤蜊",
+      "category": "贝类",
+      "stockUnit": "苗种",
+      "waterTempMin": 10,
+      "waterTempMax": 28,
+      "stockSeason": "春秋放",
+      "tips": "滤食为主，注意水体肥度与底质",
+      "stages": [
+        {
+          "dayOffset": 0,
+          "opType": "stock",
+          "title": "放苗",
+          "detail": "底质整理后播苗，密度按品种"
+        },
+        {
+          "dayOffset": 45,
+          "opType": "water",
+          "title": "水质调控",
+          "detail": "控制水体肥度，防赤潮"
+        },
+        {
+          "dayOffset": 90,
+          "opType": "health",
+          "title": "病害防治",
+          "detail": "防敌害与污染，保持底质清洁"
+        },
+        {
+          "dayOffset": 30,
+          "opType": "harvest",
+          "title": "起捕上市",
+          "detail": "达规格采捕上市"
+        }
+      ]
+    },
+    {
+      "id": "mussel",
+      "name": "贻贝",
+      "category": "贝类",
+      "stockUnit": "苗种",
+      "waterTempMin": 10,
+      "waterTempMax": 28,
+      "stockSeason": "春秋放",
+      "tips": "滤食为主，注意水体肥度与底质",
+      "stages": [
+        {
+          "dayOffset": 0,
+          "opType": "stock",
+          "title": "放苗",
+          "detail": "底质整理后播苗，密度按品种"
+        },
+        {
+          "dayOffset": 45,
+          "opType": "water",
+          "title": "水质调控",
+          "detail": "控制水体肥度，防赤潮"
+        },
+        {
+          "dayOffset": 90,
+          "opType": "health",
+          "title": "病害防治",
+          "detail": "防敌害与污染，保持底质清洁"
+        },
+        {
+          "dayOffset": 30,
+          "opType": "harvest",
+          "title": "起捕上市",
+          "detail": "达规格采捕上市"
+        }
+      ]
+    },
+    {
+      "id": "blood_clam",
+      "name": "泥蚶",
+      "category": "贝类",
+      "stockUnit": "苗种",
+      "waterTempMin": 10,
+      "waterTempMax": 28,
+      "stockSeason": "春秋放",
+      "tips": "滤食为主，注意水体肥度与底质",
+      "stages": [
+        {
+          "dayOffset": 0,
+          "opType": "stock",
+          "title": "放苗",
+          "detail": "底质整理后播苗，密度按品种"
+        },
+        {
+          "dayOffset": 45,
+          "opType": "water",
+          "title": "水质调控",
+          "detail": "控制水体肥度，防赤潮"
+        },
+        {
+          "dayOffset": 90,
+          "opType": "health",
+          "title": "病害防治",
+          "detail": "防敌害与污染，保持底质清洁"
+        },
+        {
+          "dayOffset": 30,
+          "opType": "harvest",
+          "title": "起捕上市",
+          "detail": "达规格采捕上市"
+        }
+      ]
+    },
+    {
+      "id": "ark_clam",
+      "name": "毛蚶",
+      "category": "贝类",
+      "stockUnit": "苗种",
+      "waterTempMin": 10,
+      "waterTempMax": 28,
+      "stockSeason": "春秋放",
+      "tips": "滤食为主，注意水体肥度与底质",
+      "stages": [
+        {
+          "dayOffset": 0,
+          "opType": "stock",
+          "title": "放苗",
+          "detail": "底质整理后播苗，密度按品种"
+        },
+        {
+          "dayOffset": 45,
+          "opType": "water",
+          "title": "水质调控",
+          "detail": "控制水体肥度，防赤潮"
+        },
+        {
+          "dayOffset": 90,
+          "opType": "health",
+          "title": "病害防治",
+          "detail": "防敌害与污染，保持底质清洁"
+        },
+        {
+          "dayOffset": 30,
+          "opType": "harvest",
+          "title": "起捕上市",
+          "detail": "达规格采捕上市"
+        }
+      ]
+    },
+    {
+      "id": "sea_cucumber",
+      "name": "海参",
+      "category": "海参",
+      "stockUnit": "苗种",
+      "waterTempMin": 10,
+      "waterTempMax": 22,
+      "stockSeason": "春放（4-5月）",
+      "tips": "夏季高温注意降温，防夏眠",
+      "stages": [
+        {
+          "dayOffset": 0,
+          "opType": "stock",
+          "title": "放苗",
+          "detail": "投放附着基后放苗"
+        },
+        {
+          "dayOffset": 45,
+          "opType": "water",
+          "title": "水质调控",
+          "detail": "控温、增氧、定期换水"
+        },
+        {
+          "dayOffset": 90,
+          "opType": "health",
+          "title": "病害防治",
+          "detail": "防腐皮，保持水质"
+        },
+        {
+          "dayOffset": 30,
+          "opType": "harvest",
+          "title": "起捕上市",
+          "detail": "达规格采捕"
+        }
+      ]
+    },
+    {
+      "id": "soft_shell_turtle",
+      "name": "中华鳖",
+      "category": "爬行类",
+      "stockUnit": "幼体",
+      "waterTempMin": 22,
+      "waterTempMax": 32,
+      "stockSeason": "春夏放",
+      "tips": "晒背与投喂结合，防逃防敌害",
+      "stages": [
+        {
+          "dayOffset": 0,
+          "opType": "stock",
+          "title": "放苗",
+          "detail": "幼体下池，设晒背台"
+        },
+        {
+          "dayOffset": 15,
+          "opType": "feed",
+          "title": "投喂管理",
+          "detail": "鱼虾螺蛳等鲜活饵料为主"
+        },
+        {
+          "dayOffset": 90,
+          "opType": "health",
+          "title": "病害防治",
+          "detail": "防腐皮与白眼，保持水质"
+        },
+        {
+          "dayOffset": 30,
+          "opType": "harvest",
+          "title": "起捕上市",
+          "detail": "达规格起捕"
+        }
+      ]
+    },
+    {
+      "id": "bullfrog",
+      "name": "牛蛙",
+      "category": "两栖类",
+      "stockUnit": "蝌蚪/幼蛙",
+      "waterTempMin": 20,
+      "waterTempMax": 32,
+      "stockSeason": "春放",
+      "tips": "水质清洁，防逃防天敌",
+      "stages": [
+        {
+          "dayOffset": 0,
+          "opType": "stock",
+          "title": "放苗",
+          "detail": "蝌蚪或幼蛙下池，防逃"
+        },
+        {
+          "dayOffset": 15,
+          "opType": "feed",
+          "title": "投喂管理",
+          "detail": "活饵 + 配合饲料，日投喂 2 次"
+        },
+        {
+          "dayOffset": 90,
+          "opType": "health",
+          "title": "病害防治",
+          "detail": "防红腿病，保持水质"
+        },
+        {
+          "dayOffset": 30,
+          "opType": "harvest",
+          "title": "起捕上市",
+          "detail": "达规格起捕"
+        }
+      ]
+    },
+    {
+      "id": "snail",
+      "name": "田螺",
+      "category": "软体类",
+      "stockUnit": "苗种",
+      "waterTempMin": 15,
+      "waterTempMax": 30,
+      "stockSeason": "春放",
+      "tips": "注意底质与水质清洁",
+      "stages": [
+        {
+          "dayOffset": 0,
+          "opType": "stock",
+          "title": "放苗",
+          "detail": "底质准备后放苗"
+        },
+        {
+          "dayOffset": 45,
+          "opType": "water",
+          "title": "水质调控",
+          "detail": "保持水质与底质清洁"
+        },
+        {
+          "dayOffset": 60,
+          "opType": "health",
+          "title": "病害防治",
+          "detail": "保持水质与底质清洁，防敌害"
+        },
+        {
+          "dayOffset": 30,
+          "opType": "harvest",
+          "title": "起捕上市",
+          "detail": "达规格采捕上市"
+        }
+      ]
+    },
+    {
+      "id": "kelp",
+      "name": "海带",
+      "category": "藻类",
+      "stockUnit": "苗绳/苗种",
+      "waterTempMin": 5,
+      "waterTempMax": 20,
+      "stockSeason": "秋冬放",
+      "tips": "注意潮汐与光照，防赤潮",
+      "stages": [
+        {
+          "dayOffset": 0,
+          "opType": "stock",
+          "title": "下苗",
+          "detail": "夹苗挂绳，控制密度"
+        },
+        {
+          "dayOffset": 45,
+          "opType": "water",
+          "title": "水质管理",
+          "detail": "注意水温与光照"
+        },
+        {
+          "dayOffset": 60,
+          "opType": "health",
+          "title": "病害防治",
+          "detail": "防绿烂与敌害，及时清理附着物"
+        },
+        {
+          "dayOffset": 30,
+          "opType": "harvest",
+          "title": "采收",
+          "detail": "达规格采收晾晒"
+        }
       ]
     }
   ]

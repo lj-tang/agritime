@@ -189,12 +189,16 @@ public class TimelineHandler implements HttpHandler {
                     "reasons", reasons,
                     "guidance", n.guidance() != null ? n.guidance() : "null",
                     "forecastNote", String.valueOf(forecastNote),
-                    "climateNormal", "false",
+                    "climateNormal", String.valueOf(n.climateNormal()),
                     "precision", Json.str(n.precision() == null ? "forecast" : n.precision()),
                     "outlook", n.outlook() == null || n.outlook().isBlank() ? "null" : n.outlook(),
                     "rescheduleAdvice", "null",
                     "certainty", Json.str(certainty),
-                    "weatherIcon", "null",
+                    "weatherIcon", n.weatherIcon() != null ? Json.str(n.weatherIcon()) : "null",
+                    "suitability", n.suitability() != null ? Json.str(n.suitability()) : "null",
+                    "weatherFactors", n.weatherFactors() != null
+                            ? Json.arr(n.weatherFactors().stream().map(Json::str).toList())
+                            : "[]",
                     "festivalIcon", "null");
             nodesJson.add(nodeJson);
 
