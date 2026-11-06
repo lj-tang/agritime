@@ -366,6 +366,102 @@
 
 ---
 
+## 14. GET /api/recommend
+
+种植推荐：月份 + 纬度（气候带）+ 市场需求综合打分，输出 Top8。
+
+| 参数 | 必填 | 说明 |
+| --- | --- | --- |
+| month | 是 | 1~12 |
+| lat / lon | 否 | 地点坐标，越界返回 400 |
+| location / locationSource | 否 | 地点名与来源（default/resolved） |
+| plotName / plotCrops | 否 | 关联地块与已种作物，用于避重 |
+
+响应含 `recommendations[]`（name/score/reasons）、`rejected[]`（气候带不符的作物 + why）、
+`fellBack`（当地无气候匹配作物时回退全量并打标）。
+
+## 15. GET /api/disease
+
+病害问诊：文字描述 → 命中的病害 + 判断依据 + 用药安全。
+
+| 参数 | 必填 | 说明 |
+| --- | --- | --- |
+| crop | 否 | 限定作物，如「小麦」 |
+| q | 是 | 症状描述文字 |
+
+响应含 `matches[]`（name / matchRate 匹配度 / evidence 命中词条 / safetyInterval 安全间隔期 /
+safetyNote / scope / source）、`needHuman`（无匹配时转人工）。
+
+## 16. POST /api/sow-check
+
+茬口冲突校验：常识判定 + 同地块茬口 / 连作 / 跨地块农忙。
+
+```json
+{ "crop": "小麦", "sowDate": "2026-10-10", "lat": 34.8, "lon": 114.3,
+  "plotId": "p1", "records": [ { "recordId": "r1", "plotId": "p1", "cropName": "玉米",
+  "sowDate": "2026-06-01", "harvestDate": "2026-10-01" } ] }
+```
+
+响应 `verdict`（ok/warn/block）+ `items[]` + `suggestedSowDate`（最早可排期）。
+
+## 17. GET /api/reminders
+
+提醒中心（需登录）：天气/病害/适宜窗口/设备告警四类，分级、开关、未读。
+
+## 18. POST /api/plots/analyze
+
+地块评分：polygon 多边形 + 坡度/坡向/面积/墒情等因子，综合打分。
+
+| 参数 | 说明 |
+| --- | --- |
+| polygon | 多边形坐标数组 |
+| type | farmland / 等 |
+| extended | true 时追加土壤质地/水源/交通三因子（打外部慢接口） |
+
+响应 `score` / `level` / `factors[]`（每个带 source/method/note）/ `factorNotes`（取不到的因子说明）。
+
+## 19. GET /api/plots/history
+
+地块历史：某地块历年种植记录（按年倒序）+ 连作提示 + 产量趋势，支持 CSV 导出。
+
+## 20. GET|POST /api/sensor/*
+
+传感器设备与读数（需登录）：`devices` / `readings` / `poll`。
+设备地址用户填，服务端拉取前做 SSRF 校验；阈值告警写进提醒中心（type=sensor）。
+设备可配 `intervalMin` 拉取间隔，后台调度器到期自动拉，超 N 周期无数据标离线。
+
+## 21. GET|POST /api/support/*
+
+客服工单：`POST /ticket`（提交）/ `GET /tickets`（分页+状态筛选）/ `GET /ticket?id=`（详情）/
+`POST /reply`（回复）/ `POST /status`、`POST /close`（超管）。
+
+## 22. GET|PUT /api/me/data
+
+多端同步（需登录）：整份业务数据读写，`updatedAt` 合并 + 冲突留痕。
+
+## 23. GET /api/crop-status
+
+我的作物真实状态：`crop` + `sowDate` + `lat/lon` → 当前生育阶段与建议。
+
+## 24. GET|POST /api/pond-status
+
+鱼塘水质状态与投喂建议：`lat/lon` + `species` + `areaMu` + 密度/均重 + 实测 pH/氨氮/溶氧/水温。
+
+## 25. GET /api/site-config
+
+公开站点开关（注册开关、功能开关等）。
+
+## 26. GET /api/health/detail
+
+运维详情：缓存状态、作物数、LLM 配置等。
+
+## 27. GET /api/industry/cost
+
+养殖成本与盈亏：`species` + `areaMu` + 可选实际投喂/出塘/售价。
+估算模式（默认参数）与实际模式（填实际数据）分离，输出成本六项、保本价、盈亏。
+
+---
+
 ## REST 规范
 
 - 资源命名使用名词复数

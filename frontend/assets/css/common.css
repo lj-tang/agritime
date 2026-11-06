@@ -1063,9 +1063,7 @@ body.split-active .home-pane-back { display: inline-flex; align-items: center; }
 .recommend-title,
 .disease-title,
 .service-title,
-.admin-title,
-.industry-title,
-.industry-head-title {
+.admin-title {
   font-size: 20px !important;
   font-weight: 600 !important;
   letter-spacing: -0.01em !important;
