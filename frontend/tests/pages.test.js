@@ -2079,3 +2079,18 @@ test('健壮性：所有请求体与上游响应都限量读取，不再 readAll
   })(path.resolve(__dirname, '..', '..', 'backend', 'src', 'com', 'cropcalendar', 'api'));
   assert.deepEqual(offenders, [], 'API 层不应再有 readAllBytes：' + offenders.join(', '));
 });
+
+// ---------------- 农事日历入口：地点可留空，不再卡死"请先补全" ----------------
+
+test('农事日历入口：选通用作物名后地点不再被清空，地点留空按默认地点继续', () => {
+  const html = read(path.resolve(__dirname, '..', 'pages', 'index.html'));
+
+  // pickSuggestion 只在作物有产地时填地点，不把已填/已定位地点清成空串
+  assert.ok(html.includes('if (c.city) locationInput.value = c.city;'), '选作物建议不应无条件覆盖地点为空串');
+  // validate 不再把"地点必填"当作阻断项
+  assert.ok(html.includes("setInvalid('field-location', false);"), '地点应可留空');
+  assert.ok(!html.includes("if (!locationInput.value.trim()) { setInvalid('field-location', true); ok = false; }"), '地点必填的硬卡逻辑应已移除');
+  // 留空时用默认地点并明确提示
+  assert.ok(html.includes("location = '山东济宁';"), '地点留空应回落到默认地点');
+  assert.ok(html.includes('未填地点，将按默认地点山东济宁计算'), '应提示按默认地点计算');
+});
