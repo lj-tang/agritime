@@ -796,6 +796,10 @@ body[data-layout="app"] .content-pane > * {
 
 body.split-active .page--home { display: none; }
 
+/* 首页容器自己还有 min-height:100vh，只隐藏 .page--home 的话它仍占满一屏，
+   会把下面的时间线面板整个挤到视口之外（表现为"生成了但一片空白"）。 */
+body.split-active .app-main { display: none; }
+
 .timeline-pane { display: none; flex: 1; min-width: 0; padding: 0; }
 body.split-active .timeline-pane { display: block; }
 
