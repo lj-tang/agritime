@@ -21,7 +21,8 @@
         5,
         6
       ],
-      "sowMonthsNote": "露地基准窗口（华北/华中）；南方可适当延后"
+      "sowMonthsNote": "华北/东北 4 月中–5 月播种育秧；南方 3–6 月，华南可双季",
+      "sowMonthsSource": "华北/东北稻区栽培资料"
     },
     {
       "cropId": "C002",
@@ -41,7 +42,8 @@
         9,
         10
       ],
-      "sowMonthsNote": "露地基准窗口（华北/华中）；南方可适当延后"
+      "sowMonthsNote": "华北冬麦 9 月下旬–10 月上旬；东北春麦 3–4 月",
+      "sowMonthsSource": "华北冬麦区栽培资料"
     },
     {
       "cropId": "C003",
@@ -63,7 +65,8 @@
         6,
         7
       ],
-      "sowMonthsNote": "露地基准窗口（华北/华中）；南方可适当延后"
+      "sowMonthsNote": "春玉米 4 月中–5 上；夏玉米 6 月中–7 上（麦茬）",
+      "sowMonthsSource": "河北农作物种植月历"
     },
     {
       "cropId": "C004",
@@ -83,7 +86,8 @@
         6,
         7
       ],
-      "sowMonthsNote": "露地基准窗口（华北/华中）；南方可适当延后"
+      "sowMonthsNote": "夏大豆 6 月中–7 上；春大豆 4 下–5 中",
+      "sowMonthsSource": "华北农作物及收种时间"
     },
     {
       "cropId": "C005",
@@ -243,7 +247,8 @@
         3,
         8
       ],
-      "sowMonthsNote": "露地基准窗口（华北/华中）；南方可适当延后"
+      "sowMonthsNote": "华北春薯 3 月、秋薯 8 月；南方冬薯 10–11 月",
+      "sowMonthsSource": "华北农作物及收种时间"
     },
     {
       "cropId": "C014",
@@ -600,7 +605,8 @@
         7,
         8
       ],
-      "sowMonthsNote": "露地基准窗口（华北/华中）；南方可适当延后"
+      "sowMonthsNote": "春茬 1–3 月保护地育苗、5 月定植；秋茬 7–8 月育苗",
+      "sowMonthsSource": "北方设施/露地番茄茬口资料"
     },
     {
       "cropId": "C032",
@@ -621,7 +627,8 @@
         4,
         5
       ],
-      "sowMonthsNote": "露地基准窗口（华北/华中）；南方可适当延后"
+      "sowMonthsNote": "春茬 3 月育苗、5 月定植；南方 2–3 月可播",
+      "sowMonthsSource": "华北蔬菜茬口资料"
     },
     {
       "cropId": "C033",
@@ -642,7 +649,8 @@
         4,
         5
       ],
-      "sowMonthsNote": "露地基准窗口（华北/华中）；南方可适当延后"
+      "sowMonthsNote": "春茬 3 月育苗、5 月定植；南方 2–3 月可播",
+      "sowMonthsSource": "华北蔬菜茬口资料"
     },
     {
       "cropId": "C034",
@@ -666,7 +674,8 @@
         7,
         8
       ],
-      "sowMonthsNote": "露地基准窗口（华北/华中）；南方可适当延后"
+      "sowMonthsNote": "春茬 3–5 月、秋茬 7–8 月；华北露地 4 月中–5 上",
+      "sowMonthsSource": "北京农业信息网瓜类播期"
     },
     {
       "cropId": "C035",
@@ -796,7 +805,8 @@
         4,
         5
       ],
-      "sowMonthsNote": "露地基准窗口（华北/华中）；南方可适当延后"
+      "sowMonthsNote": "断霜后直播，华北 4 下–5 上；南方 3 月",
+      "sowMonthsSource": "蓝孩子农资网《各类种子最佳播种时间》"
     },
     {
       "cropId": "C041",
@@ -937,7 +947,8 @@
         9,
         10
       ],
-      "sowMonthsNote": "露地基准窗口（华北/华中）；南方可适当延后"
+      "sowMonthsNote": "华北 9 月底–10 月上中旬；南方 9 月，东北以春播为主",
+      "sowMonthsSource": "今日头条《9月种菜》/ 河北月历"
     },
     {
       "cropId": "C048",
