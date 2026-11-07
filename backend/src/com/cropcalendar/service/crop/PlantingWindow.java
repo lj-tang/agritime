@@ -88,8 +88,9 @@ public final class PlantingWindow {
      */
     public static Region regionFor(CropProperties.Props p, double lat, double lon) {
         if (p == null) return Region.NORTH;
-        if ("西南".equals(AgroZone.regionOf(lat, lon)) && p.hasSouthwest()) {
-            return Region.SOUTHWEST;
+        if ("西南".equals(AgroZone.regionOf(lat, lon))) {
+            // 西南有专门窗口就用；没有则退回华中基准 —— 不能因为昆明纬度低就套华南的热带窗口
+            return p.hasSouthwest() ? Region.SOUTHWEST : Region.NORTH;
         }
         if (p.hasSouthMonths() && lat < SOUTH_LAT) {
             return Region.SOUTH;
