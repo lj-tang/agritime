@@ -1303,7 +1303,7 @@
               if (!rec && info.suitable === false) {
                 // 本地露地种不熟：不给推荐日，也不自动生成日历，
                 // 只把结论说清楚，用户想要参考日历可点卡片上的「看参考日历」。
-                showToast('本地露地难以种成，已改为给出结论而不是推荐日', 'error');
+                showToast('本地露地难以种成，已改为给出结论而不是推荐日', 'info');
                 return;
               }
               if (rec) { sowingInput.value = rec; suggestedSowDate = rec; }

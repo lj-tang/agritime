@@ -276,8 +276,9 @@ public final class PlantingWindow {
         String note = chosen.note();
         if (!suitable) {
             String reason = "本地无霜期约 " + AgroZone.frostFreeDays(lat) + " 天，短于该作物 "
-                    + totalDays + " 天的生育期，露地种不熟";
-            note = join(note, reason + "；建议改保护地栽培、换早熟品种，或改种其他作物");
+                    + totalDays + " 天的生育期，露地种不熟；建议改保护地栽培、换早熟品种，或改种其他作物";
+            // 结论放最前：用户第一眼要看到"为什么不能种"，日期细节退到后面
+            note = join(reason, note);
         }
 
         String precision = p.hasSowMonths() ? p.precision() : "season-rule";
