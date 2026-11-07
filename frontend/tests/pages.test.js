@@ -194,6 +194,41 @@ test('速度：常见作物进本地规程库（免大模型），且带来源�
   assert.ok(llm.includes('temperature') && llm.includes('0.3'), '温度应降到 0.3，输出更稳定');
 });
 
+test('农艺判断：精确播期 + 霜期/越冬拦截，不排出冬天里的夏天作物', () => {
+  const props = JSON.parse(read(path.resolve(__dirname, '..', '..', 'data', 'crop-base', 'properties.json')));
+  const want = {
+    '番茄': [1, 2, 3, 7, 8],
+    '黄瓜': [3, 4, 5, 6, 7, 8],
+    '辣椒': [3, 4, 5],
+    '茄子': [3, 4, 5],
+    '大白菜': [7, 8],
+    '马铃薯': [2, 3, 8],
+    '萝卜': [8, 9],
+    '西瓜': [4, 5]
+  };
+  const byName = {};
+  (props.crops || []).forEach((c) => { byName[c.displayName] = c; });
+  Object.keys(want).forEach((name) => {
+    const c = byName[name];
+    assert.ok(c, '属性库应有 ' + name);
+    assert.deepStrictEqual(c.sowMonths, want[name], name + ' 应有精确播期');
+    assert.ok(!c.sowMonths.includes(11), name + ' 不应把 11 月列为露地播期');
+  });
+  assert.ok(byName['黄瓜'].tempRequirement.includes('喜温'), '黄瓜应被识别为喜温作物（原描述只有"喜湿"漏检）');
+
+  const check = read(path.resolve(__dirname, '..', '..', 'backend', 'src', 'com', 'cropcalendar', 'api', 'SowCheckHandler.java'));
+  assert.ok(check.includes('props.hasSowMonths()'), '播季校验应优先用精确播期');
+  assert.ok(check.includes('overwinter-risk'), '应有霜期/越冬拦截');
+  assert.ok(check.includes('收获期落在常年霜期内'), '应明确提示收获期撞霜');
+
+  const cp = read(path.resolve(__dirname, '..', '..', 'backend', 'src', 'com', 'cropcalendar', 'service', 'crop', 'CropProperties.java'));
+  assert.ok(cp.includes('winterRisk'), '第二季应判断是否会跨入霜期');
+  assert.ok(cp.includes('String sowDate'), 'expand 应接收播期以判断第二季是否越冬');
+
+  const zone = read(path.resolve(__dirname, '..', '..', 'backend', 'src', 'com', 'cropcalendar', 'service', 'crop', 'AgroZone.java'));
+  assert.ok(zone.includes('夜温低于'), '喜温判定应覆盖"夜温低于"这类描述');
+});
+
 test('流程对齐：作物映射共享模块完整且两页面共用', () => {
   ['dry_garlic', 'wheat_winter', 'corn_summer', 'rice', 'soybean'].forEach((id) => {
     assert.ok(cropMapJs.includes(id), 'crop-map.js 缺少 ' + id);

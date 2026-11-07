@@ -6,6 +6,7 @@ import com.cropcalendar.util.JsonParser;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -26,7 +27,13 @@ public final class CropProperties {
 
     public record Props(String cropId, String displayName, String growthCycle, String lifespan,
                         String croppingSystem, int totalDays, String suitableSeason,
-                        String suitableRegion, String tempRequirement, String source) {
+                        String suitableRegion, String tempRequirement, String source,
+                        List<Integer> sowMonths) {
+
+        /** 是否配置了精确播期（月份）。未配置时调用方回退到 suitableSeason 的粗粒度季节。 */
+        public boolean hasSowMonths() {
+            return sowMonths != null && !sowMonths.isEmpty();
+        }
     }
 
     private static final String[] PATHS = {
@@ -75,7 +82,8 @@ public final class CropProperties {
                             strOr(c.get("suitableSeason"), ""),
                             strOr(c.get("suitableRegion"), ""),
                             strOr(c.get("tempRequirement"), ""),
-                            strOr(c.get("source"), "category-rule")));
+                            strOr(c.get("source"), "category-rule"),
+                            intList(c.get("sowMonths"))));
                 }
                 return map;
             } catch (Exception e) {
@@ -100,7 +108,7 @@ public final class CropProperties {
      * @param p    作物属性，可为 null
      * @param lat  纬度：双季稻只在南方成立，北方不追加第二季
      */
-    public static List<RawNode> expand(List<RawNode> base, Props p, double lat) {
+    public static List<RawNode> expand(List<RawNode> base, Props p, double lat, String sowDate) {
         if (p == null || base == null || base.isEmpty()) return base;
 
         List<RawNode> out = new ArrayList<>(base);
@@ -118,8 +126,21 @@ public final class CropProperties {
             // 留 7 天整地/清园，multi（一年多茬）留 3 天。
             int gap = "multi".equals(p.croppingSystem()) ? 3 : 7;
             int shift = span + gap;
-            for (RawNode n : base) {
-                out.add(new RawNode(n.cropId(), n.opType(), n.dayOffset() + shift, "第二季·" + n.title()));
+            // 第二季若会跨进霜期，不耐寒作物就不排 —— 否则会排出
+            // "11 月播黄瓜、次年 1 月第二季、3 月采收"这种冬天里长夏天作物的笑话。
+            boolean winterRisk = false;
+            if (!AgroZone.isColdHardy(p.tempRequirement()) && sowDate != null && !sowDate.isBlank()) {
+                try {
+                    LocalDate secondHarvest = LocalDate.parse(sowDate).plusDays((long) shift + span);
+                    winterRisk = AgroZone.inFrostSeason(secondHarvest, lat);
+                } catch (Exception ignored) {
+                    // 播期格式非法时不做这层判断，交给上游的播期校验
+                }
+            }
+            if (!winterRisk) {
+                for (RawNode n : base) {
+                    out.add(new RawNode(n.cropId(), n.opType(), n.dayOffset() + shift, "第二季·" + n.title()));
+                }
             }
         }
 
@@ -150,5 +171,21 @@ public final class CropProperties {
         } catch (Exception e) {
             return def;
         }
+    }
+
+    /** 解析 [1,2,7,8] 这类月份数组；非法值直接忽略。 */
+    private static List<Integer> intList(Object o) {
+        List<Integer> out = new ArrayList<>();
+        if (o instanceof List<?> arr) {
+            for (Object v : arr) {
+                if (v instanceof Number n) {
+                    out.add(n.intValue());
+                } else if (v != null) {
+                    try { out.add(Integer.parseInt(String.valueOf(v).trim())); }
+                    catch (NumberFormatException ignored) { /* 跳过非法值 */ }
+                }
+            }
+        }
+        return out;
     }
 }

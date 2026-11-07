@@ -150,7 +150,10 @@ public final class AgroZone {
     public static boolean isWarmLoving(String tempRequirement) {
         if (tempRequirement == null) return false;
         return tempRequirement.contains("喜温") || tempRequirement.contains("喜热")
-                || tempRequirement.contains("耐热") || tempRequirement.contains("热带");
+                || tempRequirement.contains("耐热") || tempRequirement.contains("热带")
+                // 这些描述同样意味着"怕霜"：夜温一低就停滞、不耐寒/不耐霜
+                || tempRequirement.contains("夜温低于") || tempRequirement.contains("不耐寒")
+                || tempRequirement.contains("不耐霜");
     }
 
     public static boolean isColdHardy(String tempRequirement) {

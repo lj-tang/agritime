@@ -195,7 +195,13 @@
       "suitableSeason": "春播/秋播",
       "suitableRegion": "西南、华北",
       "tempRequirement": "喜冷凉，块茎形成期 15~20℃",
-      "source": "manual"
+      "source": "manual",
+      "sowMonths": [
+        2,
+        3,
+        8
+      ],
+      "sowMonthsNote": "露地基准窗口（华北/华中）；南方可适当延后"
     },
     {
       "cropId": "C014",
@@ -315,7 +321,12 @@
       "suitableSeason": "秋播",
       "suitableRegion": "华北、东北",
       "tempRequirement": "喜冷凉，结球期 10~20℃",
-      "source": "manual"
+      "source": "manual",
+      "sowMonths": [
+        7,
+        8
+      ],
+      "sowMonthsNote": "露地基准窗口（华北/华中）；南方可适当延后"
     },
     {
       "cropId": "C022",
@@ -465,7 +476,15 @@
       "suitableSeason": "春茬/秋茬",
       "suitableRegion": "全国设施栽培",
       "tempRequirement": "喜温，结果期 20~28℃",
-      "source": "manual"
+      "source": "manual",
+      "sowMonths": [
+        1,
+        2,
+        3,
+        7,
+        8
+      ],
+      "sowMonthsNote": "露地基准窗口（华北/华中）；南方可适当延后"
     },
     {
       "cropId": "C032",
@@ -480,7 +499,13 @@
       "suitableSeason": "春播",
       "suitableRegion": "全国",
       "tempRequirement": "喜温，需强光",
-      "source": "manual"
+      "source": "manual",
+      "sowMonths": [
+        3,
+        4,
+        5
+      ],
+      "sowMonthsNote": "露地基准窗口（华北/华中）；南方可适当延后"
     },
     {
       "cropId": "C033",
@@ -495,7 +520,13 @@
       "suitableSeason": "春播",
       "suitableRegion": "西南、华北",
       "tempRequirement": "喜温怕涝，坐果期需通风",
-      "source": "manual"
+      "source": "manual",
+      "sowMonths": [
+        3,
+        4,
+        5
+      ],
+      "sowMonthsNote": "露地基准窗口（华北/华中）；南方可适当延后"
     },
     {
       "cropId": "C034",
@@ -509,8 +540,17 @@
       "totalDays": 100,
       "suitableSeason": "春茬/秋茬",
       "suitableRegion": "全国设施栽培",
-      "tempRequirement": "喜湿，夜温低于 12℃ 生长停滞",
-      "source": "manual"
+      "tempRequirement": "喜温喜湿，夜温低于 12℃ 生长停滞",
+      "source": "manual",
+      "sowMonths": [
+        3,
+        4,
+        5,
+        6,
+        7,
+        8
+      ],
+      "sowMonthsNote": "露地基准窗口（华北/华中）；南方可适当延后"
     },
     {
       "cropId": "C035",
@@ -600,7 +640,12 @@
       "suitableSeason": "春播",
       "suitableRegion": "全国",
       "tempRequirement": "喜温耐旱，忌连作",
-      "source": "manual"
+      "source": "manual",
+      "sowMonths": [
+        4,
+        5
+      ],
+      "sowMonthsNote": "露地基准窗口（华北/华中）；南方可适当延后"
     },
     {
       "cropId": "C041",
@@ -765,7 +810,12 @@
       "suitableSeason": "秋播",
       "suitableRegion": "全国",
       "tempRequirement": "喜冷凉，肉质根膨大期需疏松土壤",
-      "source": "manual"
+      "source": "manual",
+      "sowMonths": [
+        8,
+        9
+      ],
+      "sowMonthsNote": "露地基准窗口（华北/华中）；南方可适当延后"
     },
     {
       "cropId": "C052",

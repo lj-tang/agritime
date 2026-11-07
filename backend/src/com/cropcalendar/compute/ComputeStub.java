@@ -160,7 +160,7 @@ public final class ComputeStub {
      */
     public static List<RawNode> buildNodes(String cropId, String sowDate, double lat) {
         List<RawNode> base = buildBaseNodes(cropId);
-        return CropProperties.expand(base, CropProperties.of(cropId), lat);
+        return CropProperties.expand(base, CropProperties.of(cropId), lat, sowDate);
     }
 
     private static List<RawNode> buildBaseNodes(String cropId) {

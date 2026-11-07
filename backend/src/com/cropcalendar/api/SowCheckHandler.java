@@ -16,6 +16,7 @@ import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -184,38 +185,64 @@ public class SowCheckHandler implements HttpHandler {
             }
 
             // ---- 3. 播季是否对口 ----
-            Set<Integer> months = AgroZone.sowMonths(props.suitableSeason());
+            // 优先用作物属性里的精确播期（月份）；没配才退回"春/夏/秋/冬"的粗粒度季节。
+            // 粗粒度季节会把大白菜的"秋播"算成 9~11 月，11 月也放行 —— 必须用精确窗口兜住。
+            Set<Integer> months = props.hasSowMonths()
+                    ? new LinkedHashSet<>(props.sowMonths())
+                    : AgroZone.sowMonths(props.suitableSeason());
+            String seasonText = props.hasSowMonths()
+                    ? AgroZone.monthsText(months) + "（精确播期）"
+                    : "「" + props.suitableSeason() + "」（约 " + AgroZone.monthsText(months) + "）";
             if (!months.isEmpty() && !months.contains(sow.getMonthValue())) {
                 boolean nearEdge = months.contains(sow.getMonthValue() - 1) || months.contains(sow.getMonthValue() + 1)
                         || months.contains(sow.getMonthValue() + 11) || months.contains(sow.getMonthValue() - 11);
                 if (nearEdge) {
                     items.add(item("warn", "season-edge", "播期贴近适播窗口边缘",
-                            standard + " 的适播期是「" + props.suitableSeason() + "」（约 " + AgroZone.monthsText(months)
-                                    + "），你选的 " + sow.getMonth() + " 月 " + sow.getDayOfMonth() + " 日在窗口外沿。",
+                            standard + " 的适播期是" + seasonText + "，你选的 " + sow.getMonth() + " 月 "
+                                    + sow.getDayOfMonth() + " 日在窗口外沿。",
                             "窗口外沿播种风险可控，但建议加盖地膜或改用早熟品种"));
                 } else {
                     items.add(item("block", "season-mismatch", "播期不在适播季",
-                            standard + " 的适播期是「" + props.suitableSeason() + "」（约 " + AgroZone.monthsText(months)
-                                    + "），你选的是 " + sow.getMonthValue() + " 月。",
+                            standard + " 的适播期是" + seasonText + "，你选的是 " + sow.getMonthValue() + " 月。",
                             "改到适播期内，或换一个适合" + AgroZone.seasonName(sow.getMonth()) + "季播种的作物"));
                 }
             }
 
-            // ---- 4. 生育期会不会撞上霜冻 ----
-            if (AgroZone.isWarmLoving(props.tempRequirement()) && !AgroZone.isColdHardy(props.tempRequirement())) {
+            // ---- 4. 霜期 / 越冬 ----
+            // 只有明确「耐寒/越冬」的作物才允许播在霜期、或让收获跨进霜期。
+            // 喜温作物霜前收不了就是不能种；喜冷凉作物能耐轻霜，只提醒不强拦。
+            if (!AgroZone.isColdHardy(props.tempRequirement())) {
                 int ff = AgroZone.frostFreeDays(lat);
-                if (AgroZone.inFrostSeason(sow, lat)) {
-                    items.add(item("block", "sow-in-frost", "播种时正处常年霜期",
-                            standard + " 喜温，而 " + sow + " 落在本地常年霜期内（无霜期约 " + ff + " 天），"
-                                    + "播种后难以出苗，出苗也会被冻死。",
-                            "等终霜过后再播，或改用温室育苗"));
+                boolean warm = AgroZone.isWarmLoving(props.tempRequirement());
+
+                if (props.hasSowMonths()) {
+                    // 精确播期本身就包含「此时能否播种」的判断（如番茄 1~2 月是保护地育苗），
+                    // 所以这里不再因为"播种当天有霜"就拦，只检查收获日会不会落进霜期。
+                    LocalDate harvest = sow.plusDays(Math.max(1, total));
+                    if (AgroZone.inFrostSeason(harvest, lat)) {
+                        items.add(item(warm ? "block" : "warn", "overwinter-risk",
+                                "收获期落在常年霜期内",
+                                standard + " 按这个播期约 " + harvest + " 收获，而本地 "
+                                        + harvest.getMonthValue() + " 月已进入常年霜期（无霜期约 " + ff
+                                        + " 天），露地难以正常成熟，更谈不上越冬。",
+                                warm ? "提前播种或改用温室/大棚；否则请换一个能在霜前收获的作物"
+                                        : "选早熟品种、适当提前播种，或准备防霜措施"));
+                    }
                 } else {
-                    LocalDate frost = AgroZone.firstFrostWithin(sow, total, lat);
-                    if (frost != null) {
-                        items.add(item("warn", "frost-risk", "生育后期可能遭遇霜冻",
-                                standard + " 喜温，" + total + " 天的生育期会在 " + frost + " 前后进入常年霜期"
-                                        + "（本地无霜期约 " + ff + " 天）。",
-                                "提前 7~10 天播种、选早熟品种，或准备防霜措施（覆盖、熏烟）"));
+                    if (AgroZone.inFrostSeason(sow, lat)) {
+                        items.add(item("block", "sow-in-frost", "播种时正处常年霜期",
+                                standard + " 不耐越冬，而 " + sow + " 落在本地常年霜期内（无霜期约 " + ff + " 天），"
+                                        + "露地播种难以出苗，出苗也会被冻死。",
+                                "等终霜过后再播；若确需此时种，请改用温室/大棚"));
+                    } else {
+                        LocalDate frost = AgroZone.firstFrostWithin(sow, total, lat);
+                        if (frost != null) {
+                            items.add(item(warm ? "block" : "warn", "overwinter-risk", "生育期会跨入霜期",
+                                    standard + " 需要约 " + total + " 天，而 " + frost + " 前后本地进入常年霜期"
+                                            + "（无霜期约 " + ff + " 天），收获前就会遇霜，不能露地越冬。",
+                                    warm ? "提前播种、改早熟品种，或改用设施栽培"
+                                            : "选早熟品种或提前播种，必要时准备防霜措施"));
+                        }
                     }
                 }
             }
