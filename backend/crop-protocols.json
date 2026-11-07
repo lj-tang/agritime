@@ -348,7 +348,7 @@
       "cropId": "cucumber",
       "name": "黄瓜（露地）",
       "standardName": "黄瓜",
-      "source": "镇赉县/巴彦淖尔《黄瓜夏季栽培管理技术要点》与岳阳市农业农村局《瓜类蔬菜栽培》（5~7月直播；全生育期追肥3~4次；播后45~60天始收；结瓜后每10~15天追肥一次，花后8~10天采嫩瓜）",
+      "source": "镇赉县/巴彦淖尔《黄瓜夏季栽培管理技术要点》与岳阳市农业农村局《瓜类蔬菜栽培》（5~7月直播；全生育期追肥3~4次；夏季播后45~60天、春季65~75天始收；结瓜后每10~15天追肥一次）",
       "reviewStatus": "pending_review",
       "nodes": [
         {
@@ -377,31 +377,31 @@
         },
         {
           "opType": "fertilize",
-          "dayOffset": 35,
+          "dayOffset": 38,
           "title": "初花期追肥",
           "desc": "开花结果起用0.5%复合肥液淋施，7~10天一次"
         },
         {
           "opType": "harvest",
-          "dayOffset": 45,
+          "dayOffset": 55,
           "title": "根瓜采收",
           "desc": "花后8~10天采嫩瓜，根瓜要早采防坠秧"
         },
         {
           "opType": "fertilize",
-          "dayOffset": 55,
+          "dayOffset": 65,
           "title": "盛瓜期追肥",
           "desc": "每10~15天追一次氮磷钾复合肥，配叶面喷磷酸二氢钾"
         },
         {
           "opType": "pesticide",
-          "dayOffset": 65,
+          "dayOffset": 75,
           "title": "盛瓜期病虫防治",
           "desc": "防霜霉病、角斑病、蚜虫、黄守瓜"
         },
         {
           "opType": "harvest",
-          "dayOffset": 75,
+          "dayOffset": 90,
           "title": "采收盛期",
           "desc": "隔天或每天采收，勤采保瓜条鲜嫩"
         }
