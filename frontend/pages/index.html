@@ -669,7 +669,8 @@
         if (h.date) bits.push('预计 ' + fmtMD(h.date) + ' 收获');
         if (h.perennial) bits.push('多年生，定植后按年管理');
         if (h.canMatureBeforeFrost === false) bits.push('本季霜前难以成熟');
-        if (info.latest && info.latest.date && info.latest.date !== (w.end || '')) {
+        if (info.latest && info.latest.date && info.latest.date !== (w.end || '')
+            && info.latest.date !== date) {
           bits.push('最晚 ' + fmtMD(info.latest.date));
         }
         if (w.precision === 'season-rule') {
