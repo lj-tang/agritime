@@ -1,66 +1,66 @@
 {
-  "version": "0.3.0",
-  "comment": "作物栽培规程表（契约①的数据载体）。新增一种作物：往 crops 数组里加一个对象即可，不需要改任何 Java 代码。opType 只能是 sowing/irrigation/fertilize/pesticide/harvest 五值之一；dayOffset 是相对播种日的天数（0 = 播种当天），必须单调递增；reviewStatus 为 pending_review 的内容属占位/推测，须经农技人员复核后才能当作事实（铁律 8：农艺数据必须可溯源）。 ｜ V5：每项新增 standardName（标准作物名），供 CropRegistry 把俗称归一到规程。 ｜ V5.1：新增番茄/黄瓜/辣椒/茄子/大白菜/马铃薯/萝卜/西瓜 8 种常见作物（公开农技资料整理，reviewStatus=pending_review），让这些作物无需调用大模型即可秒出日历。",
+  "version": "0.3.1",
+  "comment": "作物栽培规程表（契约①的数据载体）。新增一种作物：往 crops 数组里加一个对象即可，不需要改任何 Java 代码。opType 只能是 sowing/irrigation/fertilize/pesticide/harvest 五值之一；dayOffset 是相对播种日的天数（0 = 播种当天），必须单调递增；reviewStatus 为 pending_review 的内容属占位/推测，须经农技人员复核后才能当作事实（铁律 8：农艺数据必须可溯源）。 ｜ V5：每项新增 standardName（标准作物名），供 CropRegistry 把俗称归一到规程。 ｜ V5.1：新增番茄/黄瓜/辣椒/茄子/大白菜/马铃薯/萝卜/西瓜 8 种常见作物（公开农技资料整理，reviewStatus=pending_review），让这些作物无需调用大模型即可秒出日历。 ｜ V5.2：按生育期资料重排大蒜/小麦/玉米/水稻/大豆的时间轴（大蒜补足越冬期至 240 天、小麦春季各期后移、水稻改为从播种育秧起算）。",
   "crops": [
     {
       "cropId": "dry_garlic",
       "name": "山东金乡大蒜",
-      "source": "节点骨架（opType/dayOffset/title）取自 00-项目总纲.md 第七节的团队内部口径；desc 为常识性占位描述",
+      "source": "惠农网《大蒜几月份上市》与金乡大蒜生育期研究（9 月下旬~10 月中旬秋播，翌年 5 月下旬~6 月中旬收获，全生育期 220~260 天；返青 3 月上旬、蒜薹 4 月、鳞茎膨大 5 月）",
       "reviewStatus": "pending_review",
       "nodes": [
         {
           "opType": "sowing",
           "dayOffset": 0,
           "title": "播种下地",
-          "desc": "按株距下地覆土，浇透底墒水"
+          "desc": "秋播，日均温 15~18℃，越冬前长到 5~7 片功能叶"
         },
         {
           "opType": "irrigation",
-          "dayOffset": 12,
+          "dayOffset": 25,
           "title": "出苗水",
-          "desc": "出苗期小水轻浇，保持土壤湿润"
+          "desc": "播后 25~30 天齐苗，墒情不足时小水轻浇"
         },
         {
           "opType": "fertilize",
-          "dayOffset": 30,
-          "title": "苗期追肥",
-          "desc": "以氮肥为主，促苗壮不促旺"
+          "dayOffset": 45,
+          "title": "越冬前追肥",
+          "desc": "控氮促根，配磷钾肥，提高抗寒性"
         },
         {
           "opType": "irrigation",
-          "dayOffset": 55,
-          "title": "越冬前灌水",
-          "desc": "封冻前浇越冬水，稳地温防冻害"
+          "dayOffset": 60,
+          "title": "越冬水",
+          "desc": "11 月下旬~12 月上旬封冻前浇透，稳地温防冻害"
         },
         {
           "opType": "fertilize",
-          "dayOffset": 90,
+          "dayOffset": 150,
           "title": "返青肥",
-          "desc": "返青期追氮肥，配合中耕提地温"
+          "desc": "3 月上旬返青，高氮复合肥 15kg/亩 + 硼砂防空心"
         },
         {
           "opType": "fertilize",
-          "dayOffset": 120,
+          "dayOffset": 185,
           "title": "蒜薹伸长期追肥",
-          "desc": "薹期需水需肥量大，水肥齐攻"
+          "desc": "4 月上旬薹期水肥齐攻，促薹粗"
         },
         {
           "opType": "pesticide",
-          "dayOffset": 140,
+          "dayOffset": 200,
           "title": "抽薹前防病",
-          "desc": "抽薹前喷药预防叶枯病与疫病"
+          "desc": "4 月中旬防叶枯病、疫病，采薹前注意安全间隔期"
         },
         {
           "opType": "fertilize",
-          "dayOffset": 165,
+          "dayOffset": 220,
           "title": "蒜头膨大期追肥",
-          "desc": "膨大期补钾肥，控氮防叶片早衰"
+          "desc": "5 月上旬补钾控氮，防叶片早衰"
         },
         {
           "opType": "harvest",
-          "dayOffset": 190,
+          "dayOffset": 240,
           "title": "采收窗口开启",
-          "desc": "假茎变软、叶片大半枯黄即可采收，避开雨天"
+          "desc": "5 月下旬~6 月中旬，假茎变软、下部叶枯黄即可收，避开雨天"
         }
       ],
       "standardName": "大蒜"
@@ -68,56 +68,56 @@
     {
       "cropId": "wheat_winter",
       "name": "冬小麦",
-      "source": "常识性农事节点骨架（播种→越冬→返青→拔节→抽穗→灌浆→采收），具体天数待农技人员复核",
+      "source": "全国农业专业学位研究生教育指导委员会《小麦的生长周期及各阶段形态》（华北冬麦 10 月上中旬播种，返青 2 月下旬~3 月上旬，拔节 4 月上中旬，抽穗 4 月下旬~5 月上旬，灌浆 5 月中旬，成熟 6 月中下旬，全生育期 220~270 天）",
       "reviewStatus": "pending_review",
       "nodes": [
         {
           "opType": "sowing",
           "dayOffset": 0,
           "title": "播种下地",
-          "desc": "适播期播种，深度 3-5cm，播后镇压保墒"
+          "desc": "10 月上中旬，半冬性品种适播期 10 月 5~15 日"
         },
         {
           "opType": "irrigation",
-          "dayOffset": 10,
+          "dayOffset": 8,
           "title": "出苗水",
-          "desc": "出苗期轻浇，确保苗齐苗壮"
+          "desc": "播后 7~10 天出苗，墒情差时补浇"
         },
         {
           "opType": "irrigation",
-          "dayOffset": 40,
+          "dayOffset": 45,
           "title": "越冬前灌水",
-          "desc": "封冻前浇越冬水，防冻保苗安全越冬"
+          "desc": "11 月下旬封冻前浇越冬水，稳地温防冻"
         },
         {
           "opType": "fertilize",
-          "dayOffset": 130,
+          "dayOffset": 140,
           "title": "返青肥",
-          "desc": "返青期追氮肥，促苗早发，配合中耕"
+          "desc": "2 月底~3 月上旬返青，追尿素促分蘖成穗"
         },
         {
           "opType": "fertilize",
-          "dayOffset": 160,
+          "dayOffset": 175,
           "title": "拔节期追肥",
-          "desc": "拔节期重施氮肥，攻大穗"
+          "desc": "4 月上旬拔节，巩固有效分蘖、防倒伏"
         },
         {
           "opType": "pesticide",
-          "dayOffset": 180,
+          "dayOffset": 195,
           "title": "抽穗扬花期防病",
-          "desc": "预防赤霉病和蚜虫，扬花期前后喷药"
+          "desc": "4 月下旬~5 月上旬防赤霉病、蚜虫"
         },
         {
           "opType": "irrigation",
-          "dayOffset": 200,
+          "dayOffset": 215,
           "title": "灌浆水",
-          "desc": "灌浆期保证水分供应，增粒重"
+          "desc": "5 月中旬灌浆，保粒重，风大时防倒伏"
         },
         {
           "opType": "harvest",
-          "dayOffset": 230,
-          "title": "采收",
-          "desc": "蜡熟末期至完熟期收割，避开雨天"
+          "dayOffset": 245,
+          "title": "成熟收获",
+          "desc": "6 月中下旬蜡熟末~完熟期收获"
         }
       ],
       "standardName": "小麦"
@@ -125,56 +125,56 @@
     {
       "cropId": "corn_summer",
       "name": "夏玉米",
-      "source": "常识性农事节点骨架（播种→出苗→拔节→大喇叭口→抽雄→灌浆→采收），具体天数待农技人员复核",
+      "source": "公开栽培资料综合（夏玉米 100~120 天；出苗、拔节、大喇叭口、抽雄、灌浆、成熟六个关键期）",
       "reviewStatus": "pending_review",
       "nodes": [
         {
           "opType": "sowing",
           "dayOffset": 0,
           "title": "播种下地",
-          "desc": "麦后抢墒播种，深度 3-5cm"
+          "desc": "夏播 6 月（春播 4~5 月），足墒播种"
         },
         {
           "opType": "irrigation",
           "dayOffset": 7,
           "title": "出苗水",
-          "desc": "出苗期轻浇，保苗齐"
+          "desc": "播后 7 天出苗，干旱时补浇"
         },
         {
           "opType": "fertilize",
           "dayOffset": 25,
           "title": "苗期追肥",
-          "desc": "苗期轻施氮肥，促根壮苗"
+          "desc": "定苗后追提苗肥，促根系下扎"
         },
         {
           "opType": "fertilize",
           "dayOffset": 40,
           "title": "拔节期追肥",
-          "desc": "拔节期重施氮肥，攻秆促穗"
+          "desc": "拔节期追氮肥，促茎叶生长"
         },
         {
           "opType": "fertilize",
           "dayOffset": 55,
           "title": "大喇叭口期追肥",
-          "desc": "大喇叭口期追穗肥，决定穗粒数"
+          "desc": "重施穗肥，决定穗粒数"
         },
         {
           "opType": "irrigation",
           "dayOffset": 65,
           "title": "抽雄期灌溉",
-          "desc": "抽雄开花期需水临界期，保证供水"
+          "desc": "抽雄前后需水高峰，忌干旱"
         },
         {
           "opType": "irrigation",
           "dayOffset": 80,
           "title": "灌浆期灌溉",
-          "desc": "灌浆期保持土壤湿润，增粒重"
+          "desc": "灌浆期保持土壤湿润，保粒重"
         },
         {
           "opType": "harvest",
-          "dayOffset": 105,
-          "title": "采收",
-          "desc": "苞叶发白、籽粒乳线消失时收获"
+          "dayOffset": 110,
+          "title": "成熟采收",
+          "desc": "苞叶变黄、籽粒乳线消失后收"
         }
       ],
       "standardName": "玉米"
@@ -182,56 +182,62 @@
     {
       "cropId": "rice",
       "name": "水稻",
-      "source": "常识性农事节点骨架（插秧→返青→分蘖→拔节→抽穗→灌浆→采收），具体天数待农技人员复核",
+      "source": "公开栽培资料综合（单季中稻，秧龄 25~30 天，全生育期 130~150 天；返青、分蘖、晒田、拔节、抽穗、灌浆、收割）",
       "reviewStatus": "pending_review",
       "nodes": [
         {
           "opType": "sowing",
           "dayOffset": 0,
-          "title": "插秧",
-          "desc": "秧苗移栽，浅插匀插，行距 25-30cm"
-        },
-        {
-          "opType": "fertilize",
-          "dayOffset": 7,
-          "title": "返青肥",
-          "desc": "插秧后追返青肥，促早发新根"
-        },
-        {
-          "opType": "fertilize",
-          "dayOffset": 18,
-          "title": "分蘖期追肥",
-          "desc": "分蘖期施氮肥，促有效分蘖"
+          "title": "播种育秧",
+          "desc": "4~6 月播种，秧龄 25~30 天"
         },
         {
           "opType": "irrigation",
-          "dayOffset": 30,
-          "title": "晒田",
-          "desc": "分蘖末期晒田控蘖，壮秆防倒伏"
+          "dayOffset": 25,
+          "title": "插秧/移栽水",
+          "desc": "移栽后浅水返青，护苗促活"
         },
         {
           "opType": "fertilize",
-          "dayOffset": 40,
+          "dayOffset": 32,
+          "title": "返青肥",
+          "desc": "返青后追氮肥，促早发"
+        },
+        {
+          "opType": "fertilize",
+          "dayOffset": 43,
+          "title": "分蘖期追肥",
+          "desc": "分蘖肥促有效分蘖"
+        },
+        {
+          "opType": "irrigation",
+          "dayOffset": 55,
+          "title": "分蘖末期晒田",
+          "desc": "够苗后晒田控无效分蘖、防倒伏"
+        },
+        {
+          "opType": "fertilize",
+          "dayOffset": 65,
           "title": "拔节期追肥",
-          "desc": "拔节期施穗肥，攻大穗"
+          "desc": "穗肥促大穗"
         },
         {
           "opType": "pesticide",
-          "dayOffset": 55,
+          "dayOffset": 80,
           "title": "抽穗期防病",
-          "desc": "预防稻瘟病和稻飞虱，破口期前后喷药"
+          "desc": "防稻瘟病、纹枯病、稻飞虱"
         },
         {
           "opType": "irrigation",
-          "dayOffset": 70,
+          "dayOffset": 95,
           "title": "灌浆期管理",
-          "desc": "灌浆期干湿交替，保根护叶"
+          "desc": "干湿交替，防早衰"
         },
         {
           "opType": "harvest",
-          "dayOffset": 105,
-          "title": "采收",
-          "desc": "黄熟期收割，适时晒干"
+          "dayOffset": 130,
+          "title": "成熟收割",
+          "desc": "籽粒黄熟、穗轴变黄后收割"
         }
       ],
       "standardName": "水稻"
@@ -239,50 +245,50 @@
     {
       "cropId": "soybean",
       "name": "大豆",
-      "source": "常识性农事节点骨架（播种→出苗→分枝→开花→结荚→鼓粒→采收），具体天数待农技人员复核",
+      "source": "公开栽培资料综合（夏大豆 100~110 天；出苗、分枝、开花、结荚、鼓粒、成熟）",
       "reviewStatus": "pending_review",
       "nodes": [
         {
           "opType": "sowing",
           "dayOffset": 0,
           "title": "播种下地",
-          "desc": "适期播种，深度 3-5cm，合理密植"
+          "desc": "夏播 6 月，麦后抢墒播种"
         },
         {
           "opType": "irrigation",
           "dayOffset": 7,
           "title": "出苗水",
-          "desc": "出苗期轻浇，保苗齐"
+          "desc": "播后 7 天出苗，干旱时补浇"
         },
         {
           "opType": "fertilize",
           "dayOffset": 20,
           "title": "苗期追肥",
-          "desc": "苗期施磷钾肥，促根壮苗"
+          "desc": "弱苗补氮，旺苗不追，防徒长"
         },
         {
           "opType": "fertilize",
           "dayOffset": 45,
           "title": "花期追肥",
-          "desc": "初花期追氮肥，保花增荚"
+          "desc": "磷钾为主、控氮，保花保荚"
         },
         {
           "opType": "pesticide",
           "dayOffset": 55,
           "title": "结荚期防虫",
-          "desc": "防治豆荚螟和食心虫"
+          "desc": "防食心虫、蚜虫、豆荚螟"
         },
         {
           "opType": "irrigation",
-          "dayOffset": 70,
-          "title": "鼓粒期管理",
-          "desc": "鼓粒期保证水分供应，增粒重"
+          "dayOffset": 75,
+          "title": "鼓粒期灌溉",
+          "desc": "鼓粒期需水多，均匀供水防瘪粒"
         },
         {
           "opType": "harvest",
-          "dayOffset": 100,
-          "title": "采收",
-          "desc": "叶片大部落黄、荚呈黄褐色时收获"
+          "dayOffset": 105,
+          "title": "成熟采收",
+          "desc": "叶片脱落、籽粒圆鼓后收"
         }
       ],
       "standardName": "大豆"

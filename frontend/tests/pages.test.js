@@ -229,6 +229,34 @@ test('农艺判断：精确播期 + 霜期/越冬拦截，不排出冬天里的�
   assert.ok(zone.includes('夜温低于'), '喜温判定应覆盖"夜温低于"这类描述');
 });
 
+test('农艺逻辑：大蒜/小麦补足越冬期，水稻从播种起算', () => {
+  const p = JSON.parse(read(path.resolve(__dirname, '..', '..', 'backend', 'crop-protocols.json')));
+  const byId = {};
+  p.crops.forEach((c) => { byId[c.cropId] = c; });
+
+  const garlic = byId['dry_garlic'];
+  assert.ok(garlic.nodes[garlic.nodes.length - 1].dayOffset >= 220, '大蒜应越冬到次年 5~6 月（≥220 天）');
+  const garlicGaps = garlic.nodes.slice(1).map((n, i) => n.dayOffset - garlic.nodes[i].dayOffset);
+  assert.ok(Math.max.apply(null, garlicGaps) >= 80, '大蒜应有 80 天以上的越冬空档（封冻到返青）');
+
+  const wheat = byId['wheat_winter'];
+  assert.ok(wheat.nodes[wheat.nodes.length - 1].dayOffset >= 240, '冬小麦应到次年 6 月收获（≥240 天）');
+
+  const rice = byId['rice'];
+  assert.ok(rice.nodes[0].title.indexOf('播种') !== -1, '水稻第 0 天应是播种育秧，而不是插秧');
+  assert.ok(rice.nodes.some((n) => n.title.indexOf('插秧') !== -1), '水稻应有插秧节点');
+
+  const props = JSON.parse(read(path.resolve(__dirname, '..', '..', 'data', 'crop-base', 'properties.json')));
+  const byName = {};
+  props.crops.forEach((c) => { byName[c.displayName] = c; });
+  ['大蒜', '小麦', '玉米', '水稻', '大豆'].forEach((name) => {
+    assert.ok(byName[name] && Array.isArray(byName[name].sowMonths) && byName[name].sowMonths.length,
+      name + ' 应有精确播期');
+  });
+  assert.ok(byName['大蒜'].totalDays >= 220, '大蒜 totalDays 应≥220');
+  assert.ok(byName['小麦'].totalDays >= 240, '小麦 totalDays 应≥240');
+});
+
 test('流程对齐：作物映射共享模块完整且两页面共用', () => {
   ['dry_garlic', 'wheat_winter', 'corn_summer', 'rice', 'soybean'].forEach((id) => {
     assert.ok(cropMapJs.includes(id), 'crop-map.js 缺少 ' + id);

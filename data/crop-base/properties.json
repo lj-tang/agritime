@@ -11,11 +11,17 @@
       "lifespanLabel": "一年生",
       "croppingSystem": "double",
       "croppingSystemLabel": "一年多熟",
-      "totalDays": 150,
+      "totalDays": 135,
       "suitableSeason": "春播/夏播",
       "suitableRegion": "华南、长江流域",
       "tempRequirement": "喜温，≥10℃积温需 2500℃以上；华南可双季，北方单季",
-      "source": "manual"
+      "source": "manual",
+      "sowMonths": [
+        4,
+        5,
+        6
+      ],
+      "sowMonthsNote": "露地基准窗口（华北/华中）；南方可适当延后"
     },
     {
       "cropId": "C002",
@@ -26,11 +32,16 @@
       "lifespanLabel": "一年生",
       "croppingSystem": "single",
       "croppingSystemLabel": "一年一熟",
-      "totalDays": 230,
+      "totalDays": 245,
       "suitableSeason": "秋播",
       "suitableRegion": "黄淮海平原",
       "tempRequirement": "耐寒，越冬期可耐 -10℃",
-      "source": "manual"
+      "source": "manual",
+      "sowMonths": [
+        9,
+        10
+      ],
+      "sowMonthsNote": "露地基准窗口（华北/华中）；南方可适当延后"
     },
     {
       "cropId": "C003",
@@ -45,7 +56,14 @@
       "suitableSeason": "春播/夏播",
       "suitableRegion": "全国",
       "tempRequirement": "喜温，灌浆期需 25~30℃",
-      "source": "manual"
+      "source": "manual",
+      "sowMonths": [
+        4,
+        5,
+        6,
+        7
+      ],
+      "sowMonthsNote": "露地基准窗口（华北/华中）；南方可适当延后"
     },
     {
       "cropId": "C004",
@@ -56,11 +74,16 @@
       "lifespanLabel": "一年生",
       "croppingSystem": "single",
       "croppingSystemLabel": "一年一熟",
-      "totalDays": 110,
+      "totalDays": 105,
       "suitableSeason": "夏播",
       "suitableRegion": "东北、黄淮海",
       "tempRequirement": "短日照，结荚期需水多",
-      "source": "manual"
+      "source": "manual",
+      "sowMonths": [
+        6,
+        7
+      ],
+      "sowMonthsNote": "露地基准窗口（华北/华中）；南方可适当延后"
     },
     {
       "cropId": "C005",
@@ -746,11 +769,16 @@
       "lifespanLabel": "一年生",
       "croppingSystem": "single",
       "croppingSystemLabel": "一年一熟",
-      "totalDays": 190,
+      "totalDays": 240,
       "suitableSeason": "秋播",
       "suitableRegion": "山东金乡、河南",
       "tempRequirement": "耐寒，蒜薹期需水多",
-      "source": "manual"
+      "source": "manual",
+      "sowMonths": [
+        9,
+        10
+      ],
+      "sowMonthsNote": "露地基准窗口（华北/华中）；南方可适当延后"
     },
     {
       "cropId": "C048",
