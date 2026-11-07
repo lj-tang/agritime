@@ -220,6 +220,7 @@ test('农艺判断：精确播期 + 霜期/越冬拦截，不排出冬天里的�
   assert.ok(check.includes('props.hasSowMonths()'), '播季校验应优先用精确播期');
   assert.ok(check.includes('overwinter-risk'), '应有霜期/越冬拦截');
   assert.ok(check.includes('收获期落在常年霜期内'), '应明确提示收获期撞霜');
+  assert.ok(!check.includes('sow.getMonth() + " 月"'), '提示里不应输出英文月份名');
 
   const cp = read(path.resolve(__dirname, '..', '..', 'backend', 'src', 'com', 'cropcalendar', 'service', 'crop', 'CropProperties.java'));
   assert.ok(cp.includes('winterRisk'), '第二季应判断是否会跨入霜期');
@@ -255,6 +256,7 @@ test('农艺逻辑：大蒜/小麦补足越冬期，水稻从播种起算', () =
   });
   assert.ok(byName['大蒜'].totalDays >= 220, '大蒜 totalDays 应≥220');
   assert.ok(byName['小麦'].totalDays >= 240, '小麦 totalDays 应≥240');
+  assert.ok(byName['水稻'].suitableRegion.indexOf('华北') !== -1, '水稻产区应覆盖华北（小站稻）');
 });
 
 test('流程对齐：作物映射共享模块完整且两页面共用', () => {

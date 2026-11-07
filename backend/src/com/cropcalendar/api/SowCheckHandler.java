@@ -198,7 +198,7 @@ public class SowCheckHandler implements HttpHandler {
                         || months.contains(sow.getMonthValue() + 11) || months.contains(sow.getMonthValue() - 11);
                 if (nearEdge) {
                     items.add(item("warn", "season-edge", "播期贴近适播窗口边缘",
-                            standard + " 的适播期是" + seasonText + "，你选的 " + sow.getMonth() + " 月 "
+                            standard + " 的适播期是" + seasonText + "，你选的 " + sow.getMonthValue() + " 月 "
                                     + sow.getDayOfMonth() + " 日在窗口外沿。",
                             "窗口外沿播种风险可控，但建议加盖地膜或改用早熟品种"));
                 } else {
