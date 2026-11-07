@@ -26,6 +26,7 @@ COLLECTIONS = [
     ("backend/var/userdata", "userdata"),
     ("backend/var/reminders", "reminders"),
     ("backend/var/plot-history", "plot_history"),
+    ("backend/var/sensors", "sensors"),
 ]
 
 

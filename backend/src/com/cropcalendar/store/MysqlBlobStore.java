@@ -103,6 +103,20 @@ public final class MysqlBlobStore implements BlobStore {
         }
     }
 
+    @Override
+    public java.util.List<String> listKeys() {
+        java.util.List<String> out = new java.util.ArrayList<>();
+        try (Connection c = open();
+             PreparedStatement ps = c.prepareStatement("SELECT k FROM " + table);
+             java.sql.ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) out.add(rs.getString(1));
+            return out;
+        } catch (SQLException e) {
+            warn("枚举键", "", e);
+            return fileFallback.listKeys();
+        }
+    }
+
     private void warn(String action, String key, SQLException e) {
         System.err.println("[store:mysql] " + action + " " + key + " 失败，已降级到文件存储："
                 + e.getMessage());

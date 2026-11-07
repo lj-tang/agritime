@@ -1826,6 +1826,7 @@ test('T17 传感器：接口鉴权、SSRF 防护、告警进提醒中心', () =>
   const handler = read(path.resolve(__dirname, '..', '..', 'backend', 'src', 'com', 'cropcalendar', 'api', 'SensorHandler.java'));
   const poller = read(path.resolve(__dirname, '..', '..', 'backend', 'src', 'com', 'cropcalendar', 'service', 'sensor', 'SensorPoller.java'));
   const store = read(path.resolve(__dirname, '..', '..', 'backend', 'src', 'com', 'cropcalendar', 'service', 'sensor', 'SensorStore.java'));
+  const fileStoreJs = read(path.resolve(__dirname, '..', '..', 'backend', 'src', 'com', 'cropcalendar', 'store', 'FileBlobStore.java'));
   const server = read(path.resolve(__dirname, '..', '..', 'backend', 'src', 'com', 'cropcalendar', 'Server.java'));
   const reminderStore = read(path.resolve(__dirname, '..', '..', 'backend', 'src', 'com', 'cropcalendar', 'service', 'reminder', 'ReminderStore.java'));
   const plotsJs = read(path.resolve(__dirname, '..', 'assets', 'js', 'my-plots.js'));
@@ -1841,8 +1842,9 @@ test('T17 传感器：接口鉴权、SSRF 防护、告警进提醒中心', () =>
   assert.ok(poller.includes('ReminderStore.sync'), '告警应写进提醒档案，而不是另存一份');
   assert.ok(poller.includes('sensor|'), '告警 id 应对同指标同日去重');
 
-  assert.ok(store.includes('"sensors"') && store.includes('safe(userId)'), '读数应按用户分目录存放');
-  assert.ok(store.includes('ATOMIC_MOVE'), '写入应原子替换');
+  assert.ok(store.includes('StoreFactory.forCollection("sensors")'), '读数应按用户隔离走存储抽象');
+  assert.ok(store.includes('listKeys') && store.includes('readUser'), '调度器枚举应走 listKeys，档案按用户一份');
+  assert.ok(fileStoreJs.includes('ATOMIC_MOVE'), '写入应原子替换（存储层）');
   assert.ok(reminderStore.includes('"sensor"'), '提醒类型应支持 sensor');
   assert.ok(centerJs.includes('sensor:') && centerJs.includes('设备告警'), '提醒中心应识别设备告警');
 
@@ -1973,12 +1975,17 @@ test('T30 存储层：BlobStore 抽象 + file/mysql 双后端 + 迁移回滚', (
   assert.ok(uds.includes('StoreFactory.userData()'), 'UserDataStore 应走存储抽象');
   assert.ok(cfg.includes('storeBackend'), '应有 store.backend 配置开关');
   assert.ok(sql.includes('CREATE TABLE') && sql.includes('utf8mb4'), '应有 MySQL 建表脚本');
-  // 提醒与地块历史也接入存储抽象，file/mysql 可切换
+  // 提醒、地块历史、传感器都接入存储抽象，file/mysql 可切换
   assert.ok(sql.includes('CREATE TABLE IF NOT EXISTS reminders'), '应有 reminders 表');
   assert.ok(sql.includes('CREATE TABLE IF NOT EXISTS plot_history'), '应有 plot_history 表');
+  assert.ok(sql.includes('CREATE TABLE IF NOT EXISTS sensors'), '应有 sensors 表');
   assert.ok(reminderStore.includes('StoreFactory.forCollection("reminders")'), '提醒档案应走存储抽象');
   assert.ok(plotHistory.includes('StoreFactory.forCollection("plot_history")'), '地块历史应走存储抽象');
   assert.ok(plotHistory.includes('public static void delete'), '地块历史应支持按用户删除（注销清理）');
+  // 调度器枚举要能跨后端：BlobStore 提供 listKeys，File/Mysql 各自实现
+  assert.ok(iface.includes('listKeys'), '存储抽象应有 listKeys 枚举能力');
+  assert.ok(file.includes('listKeys'), '文件后端应实现 listKeys');
+  assert.ok(mysql.includes('listKeys') && mysql.includes('SELECT k'), 'MySQL 后端应实现 listKeys');
 });
 
 // ---------------- 时间线远期节点常年气候兜底（合并队友改动） ----------------

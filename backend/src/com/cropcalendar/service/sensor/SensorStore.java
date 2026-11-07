@@ -1,14 +1,12 @@
 package com.cropcalendar.service.sensor;
 
 import com.cropcalendar.config.AppConfig;
+import com.cropcalendar.store.BlobStore;
+import com.cropcalendar.store.StoreFactory;
 import com.cropcalendar.util.Json;
 import com.cropcalendar.util.JsonParser;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -18,12 +16,11 @@ import java.util.Map;
  * 传感器设备与读数持久化（V5 T17）。
  *
  * 与 attic 里那份队友稿的区别：那份按 plotId 存、没有用户目录，知道 plotId 就能读别人的塘。
- * 这里改成 var/sensors/&lt;userId&gt;/&lt;plotId&gt;.json，归属由登录态决定，plotId 只是用户内部的编号。
+ * 这里按用户隔离：store 的 key = userId，一份档案里放该用户全部地块
+ * （plots: {plotId: {devices, readings}}），归属由登录态决定，plotId 只是用户内部编号。
  *
- * 一个文件里放两段：
- *   devices  —— 设备清单（名称、拉取地址、阈值、在线状态）
- *   readings —— 每个设备最近 N 条读数
- * 写入统一走临时文件 + 原子替换。
+ * 存储走 {@link com.cropcalendar.store.StoreFactory}（T30）：file 后端是 var/sensors/&lt;userId&gt;.json，
+ * mysql 后端是同构的 sensors 表；两种后端可切换、可回落。后台调度器经 listKeys() 枚举全量设备。
  */
 public final class SensorStore {
 
@@ -33,52 +30,63 @@ public final class SensorStore {
     private SensorStore() {
     }
 
-    private static Path pathOf(String userId, String plotId) {
-        return Path.of("var", "sensors", safe(userId), safe(plotId) + ".json");
+    private static volatile BlobStore store;
+
+    private static BlobStore store() {
+        BlobStore s = store;
+        if (s == null) {
+            s = StoreFactory.forCollection("sensors");
+            store = s;
+        }
+        return s;
     }
 
-    private static String safe(String s) {
-        return s == null ? "unknown" : s.replaceAll("[^A-Za-z0-9_\\-]", "_");
-    }
-
-    private static Map<String, Object> load(String userId, String plotId) {
-        Path p = pathOf(userId, plotId);
-        Map<String, Object> out = new LinkedHashMap<>();
-        out.put("devices", new ArrayList<Map<String, Object>>());
-        out.put("readings", new LinkedHashMap<String, Object>());
-        if (!Files.isReadable(p)) return out;
+    /** 读某个用户的整份档案 {plots: {plotId: {devices, readings}}}。不存在返回空结构。 */
+    @SuppressWarnings("unchecked")
+    private static Map<String, Object> readUser(String userId) {
+        Map<String, Object> user = new LinkedHashMap<>();
+        user.put("plots", new LinkedHashMap<String, Object>());
+        String json = store().read(userId);
+        if (json == null || json.isBlank() || "{}".equals(json.trim())) return user;
         try {
-            Object root = JsonParser.parse(Files.readString(p, StandardCharsets.UTF_8));
-            if (root instanceof Map<?, ?> m) {
-                if (m.get("devices") instanceof List<?> l) {
-                    List<Map<String, Object>> ds = new ArrayList<>();
-                    for (Object o : l) {
-                        if (o instanceof Map<?, ?> dm) ds.add(copy(dm));
-                    }
-                    out.put("devices", ds);
+            Object root = JsonParser.parse(json);
+            if (root instanceof Map<?, ?> m && m.get("plots") instanceof Map<?, ?> plots) {
+                Map<String, Object> clean = new LinkedHashMap<>();
+                for (Map.Entry<?, ?> e : plots.entrySet()) {
+                    if (e.getValue() instanceof Map<?, ?> pm) clean.put(String.valueOf(e.getKey()), copy(pm));
                 }
-                if (m.get("readings") instanceof Map<?, ?> rm) {
-                    Map<String, Object> rs = new LinkedHashMap<>();
-                    rm.forEach((k, v) -> rs.put(String.valueOf(k), v));
-                    out.put("readings", rs);
-                }
+                user.put("plots", clean);
             }
         } catch (Exception e) {
-            System.err.println("[sensor] 读取失败 " + userId + "/" + plotId + "：" + e.getMessage());
+            System.err.println("[sensor] 档案解析失败 " + userId + "：" + e.getMessage() + "，按空档案处理");
+        }
+        return user;
+    }
+
+    private static void writeUser(String userId, Map<String, Object> user) throws IOException {
+        store().write(userId, Json.stringify(user));
+    }
+
+    /** 取某个地块的状态（devices/readings）。不存在返回带默认值的空结构。 */
+    @SuppressWarnings("unchecked")
+    private static Map<String, Object> load(String userId, String plotId) {
+        Map<String, Object> user = readUser(userId);
+        Map<String, Object> plots = (Map<String, Object>) user.get("plots");
+        Map<String, Object> out = (Map<String, Object>) plots.get(plotId);
+        if (out == null) {
+            out = new LinkedHashMap<>();
+            out.put("devices", new ArrayList<Map<String, Object>>());
+            out.put("readings", new LinkedHashMap<String, Object>());
         }
         return out;
     }
 
     private static void save(String userId, String plotId, Map<String, Object> state) throws IOException {
-        Path p = pathOf(userId, plotId);
-        Files.createDirectories(p.getParent());
-        Path tmp = p.resolveSibling(p.getFileName() + ".tmp");
-        Files.writeString(tmp, Json.stringify(state), StandardCharsets.UTF_8);
-        try {
-            Files.move(tmp, p, StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE);
-        } catch (IOException atomicUnsupported) {
-            Files.move(tmp, p, StandardCopyOption.REPLACE_EXISTING);
-        }
+        Map<String, Object> user = readUser(userId);
+        @SuppressWarnings("unchecked")
+        Map<String, Object> plots = (Map<String, Object>) user.get("plots");
+        plots.put(plotId, state);
+        writeUser(userId, user);
     }
 
     // ---------------- 设备 ----------------
@@ -201,25 +209,16 @@ public final class SensorStore {
         }
     }
 
-    /** 枚举所有 (userId, plotId)：后台调度器靠它扫全量设备。 */
+    /** 枚举所有 (userId, plotId)：后台调度器靠它扫全量设备。走 store.listKeys()，两种后端一致。 */
     public static List<String[]> listPlots() {
         List<String[]> out = new ArrayList<>();
-        Path root = Path.of("var", "sensors");
-        if (!Files.isDirectory(root)) return out;
-        try (var users = Files.list(root)) {
-            for (Path u : users.toList()) {
-                if (!Files.isDirectory(u)) continue;
-                String userId = u.getFileName().toString();
-                try (var files = Files.list(u)) {
-                    for (Path f : files.toList()) {
-                        String fn = f.getFileName().toString();
-                        if (!fn.endsWith(".json")) continue;
-                        out.add(new String[]{userId, fn.substring(0, fn.length() - ".json".length())});
-                    }
-                }
+        for (String userId : store().listKeys()) {
+            if (userId == null || userId.isBlank()) continue;
+            @SuppressWarnings("unchecked")
+            Map<String, Object> plots = (Map<String, Object>) readUser(userId).get("plots");
+            for (Object plotId : plots.keySet()) {
+                out.add(new String[]{userId, String.valueOf(plotId)});
             }
-        } catch (IOException e) {
-            System.err.println("[sensor] 枚举设备目录失败：" + e.getMessage());
         }
         return out;
     }
@@ -329,13 +328,8 @@ public final class SensorStore {
     /** 账号注销时清掉该用户的传感器档案，与提醒/作物档案一起删。 */
     public static void purge(String userId) {
         synchronized (LOCK) {
-            Path dir = Path.of("var", "sensors", safe(userId));
             try {
-                if (!Files.isDirectory(dir)) return;
-                try (var stream = Files.list(dir)) {
-                    for (Path p : stream.toList()) Files.deleteIfExists(p);
-                }
-                Files.deleteIfExists(dir);
+                store().delete(userId);
             } catch (IOException e) {
                 System.err.println("[sensor] 清理失败 " + userId + "：" + e.getMessage());
             }

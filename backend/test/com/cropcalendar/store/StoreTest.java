@@ -56,6 +56,16 @@ public class StoreTest {
         // ---- 4. StoreFactory 默认 file ----
         eq("file", StoreFactory.forCollection("userdata").backend(), "默认后端应为 file");
 
+        // ---- 5. listKeys 枚举（file 列文件；mysql 无连接时回落文件枚举）----
+        file.write("lk_a", "1");
+        file.write("lk_b", "2");
+        java.util.List<String> keys = file.listKeys();
+        check(keys.contains("lk_a") && keys.contains("lk_b"), "file 后端应能枚举到已写键");
+        keys = mysql.listKeys();
+        check(keys.contains("lk_a") && keys.contains("lk_b"), "mysql 无连接时应回落文件枚举");
+        file.delete("lk_a");
+        file.delete("lk_b");
+
         System.out.println("StoreTest: " + passed + " passed, " + failed + " failed");
         if (failed > 0) System.exit(1);
     }

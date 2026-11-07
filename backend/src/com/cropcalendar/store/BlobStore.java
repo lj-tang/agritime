@@ -1,6 +1,7 @@
 package com.cropcalendar.store;
 
 import java.io.IOException;
+import java.util.List;
 
 /**
  * 用户业务数据的键值存储抽象（T30）。
@@ -21,6 +22,9 @@ public interface BlobStore {
 
     /** 删除一段数据（账号注销时用）。 */
     void delete(String key) throws IOException;
+
+    /** 枚举所有已存在的键（后台调度器扫全量设备/提醒用）。失败返回空列表。 */
+    List<String> listKeys();
 
     /** 后端标识：file 或 mysql，用于健康检查与日志。 */
     String backend();

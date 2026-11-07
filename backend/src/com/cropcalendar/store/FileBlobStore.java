@@ -58,4 +58,21 @@ public final class FileBlobStore implements BlobStore {
     public void delete(String key) throws IOException {
         Files.deleteIfExists(pathOf(key));
     }
+
+    @Override
+    public java.util.List<String> listKeys() {
+        java.util.List<String> out = new java.util.ArrayList<>();
+        try {
+            if (!Files.isDirectory(dir)) return out;
+            try (java.util.stream.Stream<Path> s = Files.list(dir)) {
+                for (Path p : s.toList()) {
+                    String fn = p.getFileName().toString();
+                    if (fn.endsWith(".json")) out.add(fn.substring(0, fn.length() - ".json".length()));
+                }
+            }
+        } catch (IOException e) {
+            System.err.println("[store:file] 枚举键失败：" + e.getMessage());
+        }
+        return out;
+    }
 }
