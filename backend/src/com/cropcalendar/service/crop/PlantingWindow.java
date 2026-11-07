@@ -66,7 +66,38 @@ public final class PlantingWindow {
      */
     private static final double SOUTH_LAT = 26.5;
 
-    /** 该地块该用南方窗口还是北方窗口。 */
+    /** 窗口地域：华北基准 / 华南 / 西南。 */
+    public enum Region {
+        NORTH("north"), SOUTH("south"), SOUTHWEST("southwest");
+
+        private final String json;
+
+        Region(String json) {
+            this.json = json;
+        }
+
+        public String json() {
+            return json;
+        }
+    }
+
+    /**
+     * 该地块该用哪套窗口。
+     * 西南（川渝黔滇）有专门窗口就用，没有就退回华北基准并说明；
+     * 华南看纬度（26.5°N 以南）。
+     */
+    public static Region regionFor(CropProperties.Props p, double lat, double lon) {
+        if (p == null) return Region.NORTH;
+        if ("西南".equals(AgroZone.regionOf(lat, lon)) && p.hasSouthwest()) {
+            return Region.SOUTHWEST;
+        }
+        if (p.hasSouthMonths() && lat < SOUTH_LAT) {
+            return Region.SOUTH;
+        }
+        return Region.NORTH;
+    }
+
+    /** 兼容旧调用：是否走华南窗口。 */
     public static boolean useSouth(CropProperties.Props p, double lat) {
         return p != null && p.hasSouthMonths() && lat < SOUTH_LAT;
     }
@@ -88,7 +119,7 @@ public final class PlantingWindow {
      * 后者会把"五月播春茬"也放行，而这在多熟制地区已经是夏茬了）。
      */
     public static Set<Integer> monthsFor(CropProperties.Props p) {
-        return monthsFor(p, 35.0);
+        return monthsFor(p, 35.0, 116.31);
     }
 
     /**
@@ -100,12 +131,23 @@ public final class PlantingWindow {
      * 整段窗口都落在霜期里，推荐日和校验必然打架。
      */
     public static Set<Integer> monthsFor(CropProperties.Props p, double lat) {
+        return monthsFor(p, lat, 116.31);
+    }
+
+    /** 带经纬度的窗口推导：西南判定要用经度，只给纬度会退化成华北基准。 */
+    public static Set<Integer> monthsFor(CropProperties.Props p, double lat, double lon) {
         Set<Integer> out = new LinkedHashSet<>();
         if (p == null) return out;
         if (p.hasSowMonths()) {
-            // 南方（华南/长江以南）有单独窗口就用单独窗口，没有才退回通用窗口
-            boolean south = useSouth(p, lat);
-            out.addAll(new TreeSet<>(south ? p.sowMonthsSouth() : p.sowMonths()));
+            // 西南优先西南窗口，其次华南窗口，最后华北基准
+            Region region = regionFor(p, lat, lon);
+            if (region == Region.SOUTHWEST) {
+                out.addAll(new TreeSet<>(p.sowMonthsSouthwest()));
+            } else if (region == Region.SOUTH) {
+                out.addAll(new TreeSet<>(p.sowMonthsSouth()));
+            } else {
+                out.addAll(new TreeSet<>(p.sowMonths()));
+            }
             return out;
         }
         String s = p.suitableSeason() == null ? "" : p.suitableSeason();
@@ -183,11 +225,12 @@ public final class PlantingWindow {
      */
     public static Window of(CropProperties.Props p, double lat, double lon, LocalDate today) {
         if (p == null || today == null) return null;
-        Set<Integer> months = monthsFor(p, lat);
+        Set<Integer> months = monthsFor(p, lat, lon);
         if (months.isEmpty()) return null;
-        boolean south = useSouth(p, lat);
-        // 南方一季生育期更短（华南冬麦约 130 天，华北冬麦 245 天），不能共用
-        int totalDays = Math.max(1, p.daysFor(south));
+        Region region = regionFor(p, lat, lon);
+        boolean south = region == Region.SOUTH;
+        // 各区域一季生育期不同（华南冬麦约 130 天、西南约 200 天、华北 245 天）
+        int totalDays = Math.max(1, p.daysFor(region.json()));
 
         List<LocalDate[]> wins = windows(months, today);
         if (wins.isEmpty()) return null;
@@ -215,15 +258,25 @@ public final class PlantingWindow {
                     + totalDays + " 天的生育期，露地难以正常成熟，建议改早熟品种或保护地栽培");
         }
 
-        String precision = p.hasSowMonths() ? "researched" : "season-rule";
-        String basis = p.hasSowMonths()
-                ? (south ? "作物属性库中已校核的南方播期（" : "作物属性库中已校核的播期（")
-                        + monthsText(months) + "）"
-                        + (south
-                        ? (p.southNote().isBlank() ? "" : "；" + p.southNote())
-                        : (p.sowNote().isBlank() ? "" : "；" + p.sowNote()))
-                : "按适宜季节「" + safe(p.suitableSeason()) + "」并按本地纬度粗调（" + monthsText(months)
-                        + "），未逐品种校核，仅作参考";
+        String precision = p.hasSowMonths() ? p.precision() : "season-rule";
+        String basis;
+        if (p.hasSowMonths()) {
+            String head = switch (region) {
+                case SOUTHWEST -> "西南（川渝黔滇）播期（";
+                case SOUTH -> "南方（华南）播期（";
+                case NORTH -> (p.precision().equals("derived")
+                        ? "按近缘作物推定的播期（" : "作物属性库中已校核的播期（");
+            };
+            basis = head + monthsText(months) + "）"
+                    + (p.sowNote().isBlank() ? "" : "；" + p.sowNote());
+        } else {
+            basis = "按适宜季节「" + safe(p.suitableSeason()) + "」并按本地纬度粗调（" + monthsText(months)
+                    + "），未逐品种校核，仅作参考";
+        }
+        // 西南没有专门窗口时，明确告知是按华中基准给的
+        if (region == Region.NORTH && "西南".equals(AgroZone.regionOf(lat, lon))) {
+            basis += "；西南地区暂无专门窗口，按华中基准给出，请结合海拔调整";
+        }
 
         CropTemplates.Group group = CropTemplates.groupOf(p);
         return new Window(
@@ -234,7 +287,7 @@ public final class PlantingWindow {
                 group.action(),
                 group.label(),
                 precision,
-                south ? "south" : "north",
+                region.json(),
                 basis,
                 chosen.recommended().toString(),
                 (int) (chosen.recommended().toEpochDay() - today.toEpochDay()),

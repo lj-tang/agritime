@@ -29,7 +29,9 @@ public final class CropProperties {
                         String croppingSystem, int totalDays, String suitableSeason,
                         String suitableRegion, String tempRequirement, String source,
                         List<Integer> sowMonths, String sowMonthsNote,
-                        List<Integer> sowMonthsSouth, String sowMonthsSouthNote, int totalDaysSouth) {
+                        List<Integer> sowMonthsSouth, String sowMonthsSouthNote, int totalDaysSouth,
+                        List<Integer> sowMonthsSouthwest, String sowMonthsPrecision,
+                        int totalDaysSouthwest) {
 
         /** 是否配置了精确播期（月份）。未配置时调用方回退到 suitableSeason 的粗粒度季节。 */
         public boolean hasSowMonths() {
@@ -45,9 +47,31 @@ public final class CropProperties {
             return sowMonthsSouthNote == null ? "" : sowMonthsSouthNote;
         }
 
+        /** 是否有单独的西南窗口（四川/重庆/贵州/云南）。 */
+        public boolean hasSouthwest() {
+            return sowMonthsSouthwest != null && !sowMonthsSouthwest.isEmpty();
+        }
+
+        /**
+         * 播期数据的可信级别：
+         *   researched —— 逐品种查过资料
+         *   derived    —— 按近缘作物/品种推定（如红富士按苹果）
+         */
+        public String precision() {
+            return sowMonthsPrecision == null || sowMonthsPrecision.isBlank()
+                    ? "researched" : sowMonthsPrecision;
+        }
+
         /** 南方（华南/长江以南）的一季生育期；0 表示沿用通用值。 */
         public int daysFor(boolean south) {
             return south && totalDaysSouth > 0 ? totalDaysSouth : totalDays;
+        }
+
+        /** 按窗口地域取一季生育期：西南/华南/华北各自可能不同。 */
+        public int daysFor(String region) {
+            if ("south".equals(region) && totalDaysSouth > 0) return totalDaysSouth;
+            if ("southwest".equals(region) && totalDaysSouthwest > 0) return totalDaysSouthwest;
+            return totalDays;
         }
 
         /** 播期的地区/茬口说明（如"华北秋播 9 月上中旬"），用于向用户交代依据。 */
@@ -107,7 +131,10 @@ public final class CropProperties {
                             strOr(c.get("sowMonthsNote"), ""),
                             intList(c.get("sowMonthsSouth")),
                             strOr(c.get("sowMonthsSouthNote"), ""),
-                            intOr(c.get("totalDaysSouth"), 0)));
+                            intOr(c.get("totalDaysSouth"), 0),
+                            intList(c.get("sowMonthsSouthwest")),
+                            strOr(c.get("sowMonthsPrecision"), ""),
+                            intOr(c.get("totalDaysSouthwest"), 0)));
                 }
                 return map;
             } catch (Exception e) {

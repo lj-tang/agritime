@@ -1,6 +1,6 @@
 {
   "version": "2.0.0",
-  "comment": "作物属性体系（T07）。全部 400 种作物均带 growthCycle/lifespan/croppingSystem；source=manual 为人工校准（常见作物），source=category-rule 为按作物类别推定，不声称是实测农艺参数。croppingSystem=double 的作物会生成两轮农事周期，lifespan=perennial 的作物会追加翌年管理节点。 ｜ V5.4：常见作物播期校核扩到 50 种（含育苗起点，华北/华中基准）。 ｜ V5.5：校核播期扩到 100 种，并为常见作物补南方窗口。",
+  "comment": "作物属性体系（T07）。全部 400 种作物均带 growthCycle/lifespan/croppingSystem；source=manual 为人工校准（常见作物），source=category-rule 为按作物类别推定，不声称是实测农艺参数。croppingSystem=double 的作物会生成两轮农事周期，lifespan=perennial 的作物会追加翌年管理节点。 ｜ V5.4：常见作物播期校核扩到 50 种（含育苗起点，华北/华中基准）。 ｜ V5.5：校核播期扩到 100 种，并为常见作物补南方窗口。 ｜ V5.6：播期扩到 200 种（其中 100 种为按类别/近缘作物推定），新增西南窗口。",
   "crops": [
     {
       "cropId": "C001",
@@ -30,7 +30,12 @@
         7
       ],
       "sowMonthsSouthNote": "华南/长江以南基准，据公开栽培资料",
-      "totalDaysSouth": 110
+      "totalDaysSouth": 110,
+      "sowMonthsSouthwest": [
+        3,
+        4
+      ],
+      "totalDaysSouthwest": 140
     },
     {
       "cropId": "C002",
@@ -57,7 +62,12 @@
         11
       ],
       "sowMonthsSouthNote": "华南/长江以南基准，据公开栽培资料",
-      "totalDaysSouth": 130
+      "totalDaysSouth": 130,
+      "sowMonthsSouthwest": [
+        10,
+        11
+      ],
+      "totalDaysSouthwest": 200
     },
     {
       "cropId": "C003",
@@ -88,7 +98,13 @@
         8
       ],
       "sowMonthsSouthNote": "华南/长江以南基准，据公开栽培资料",
-      "totalDaysSouth": 100
+      "totalDaysSouth": 100,
+      "sowMonthsSouthwest": [
+        3,
+        4,
+        7
+      ],
+      "totalDaysSouthwest": 105
     },
     {
       "cropId": "C004",
@@ -116,7 +132,12 @@
         7
       ],
       "sowMonthsSouthNote": "华南/长江以南基准，据公开栽培资料",
-      "totalDaysSouth": 95
+      "totalDaysSouth": 95,
+      "sowMonthsSouthwest": [
+        4,
+        5
+      ],
+      "totalDaysSouthwest": 110
     },
     {
       "cropId": "C005",
@@ -143,7 +164,11 @@
         4
       ],
       "sowMonthsSouthNote": "华南/长江以南基准，据公开栽培资料",
-      "totalDaysSouth": 130
+      "totalDaysSouth": 130,
+      "sowMonthsSouthwest": [
+        4
+      ],
+      "totalDaysSouthwest": 150
     },
     {
       "cropId": "C006",
@@ -170,7 +195,12 @@
         11
       ],
       "sowMonthsSouthNote": "华南/长江以南基准，据公开栽培资料",
-      "totalDaysSouth": 180
+      "totalDaysSouth": 180,
+      "sowMonthsSouthwest": [
+        9,
+        10
+      ],
+      "totalDaysSouthwest": 210
     },
     {
       "cropId": "C007",
@@ -198,7 +228,12 @@
         7
       ],
       "sowMonthsSouthNote": "华南/长江以南基准，据公开栽培资料",
-      "totalDaysSouth": 110
+      "totalDaysSouth": 110,
+      "sowMonthsSouthwest": [
+        3,
+        4
+      ],
+      "totalDaysSouthwest": 120
     },
     {
       "cropId": "C008",
@@ -279,7 +314,11 @@
       ],
       "sowMonthsNote": "华北春播 4 下–5 上、夏播 6 月；南方 3 月育苗",
       "sowMonthsSource": "小杂粮网 / 枣强县旱作方案",
-      "propertiesSource": "公开栽培资料校正（V5.5）"
+      "propertiesSource": "公开栽培资料校正（V5.5）",
+      "sowMonthsSouthwest": [
+        3,
+        4
+      ]
     },
     {
       "cropId": "C011",
@@ -306,7 +345,11 @@
       ],
       "sowMonthsNote": "华北春播 5 上中、夏播 6 月底前；南方 3 月",
       "sowMonthsSource": "小杂粮网 / 莱西市杂粮意见",
-      "propertiesSource": "公开栽培资料校正（V5.5）"
+      "propertiesSource": "公开栽培资料校正（V5.5）",
+      "sowMonthsSouthwest": [
+        3,
+        4
+      ]
     },
     {
       "cropId": "C012",
@@ -332,7 +375,11 @@
       ],
       "sowMonthsNote": "华北 3 月育苗、4 月下旬–5 月上旬栽插；夏薯 6 月上中旬",
       "sowMonthsSource": "安徽农网《新增作物种植要点》/ 莱西市甘薯技术意见",
-      "propertiesSource": "公开栽培资料校正（V5.5）"
+      "propertiesSource": "公开栽培资料校正（V5.5）",
+      "sowMonthsSouthwest": [
+        3,
+        4
+      ]
     },
     {
       "cropId": "C013",
@@ -360,7 +407,13 @@
         11
       ],
       "sowMonthsSouthNote": "华南/长江以南基准，据公开栽培资料",
-      "totalDaysSouth": 90
+      "totalDaysSouth": 90,
+      "sowMonthsSouthwest": [
+        2,
+        3,
+        8
+      ],
+      "totalDaysSouthwest": 100
     },
     {
       "cropId": "C014",
@@ -386,7 +439,11 @@
       ],
       "sowMonthsNote": "华北 3–4 月、华南 2–3 月下种",
       "sowMonthsSource": "公开甘蔗栽培资料",
-      "propertiesSource": "公开栽培资料校正（V5.5）"
+      "propertiesSource": "公开栽培资料校正（V5.5）",
+      "sowMonthsSouthwest": [
+        2,
+        3
+      ]
     },
     {
       "cropId": "C015",
@@ -438,7 +495,11 @@
       ],
       "sowMonthsNote": "育苗 3–4 月（华北），南方 2–3 月",
       "sowMonthsSource": "公开烤烟栽培资料",
-      "propertiesSource": "公开栽培资料校正（V5.5）"
+      "propertiesSource": "公开栽培资料校正（V5.5）",
+      "sowMonthsSouthwest": [
+        2,
+        3
+      ]
     },
     {
       "cropId": "C017",
@@ -468,7 +529,13 @@
         2,
         3
       ],
-      "sowMonthsSouthNote": "华南/长江以南基准，据公开栽培资料"
+      "sowMonthsSouthNote": "华南/长江以南基准，据公开栽培资料",
+      "sowMonthsSouthwest": [
+        10,
+        11,
+        2,
+        3
+      ]
     },
     {
       "cropId": "C018",
@@ -547,7 +614,11 @@
         9,
         10
       ],
-      "sowMonthsSouthNote": "华南/长江以南基准，据公开栽培资料"
+      "sowMonthsSouthNote": "华南/长江以南基准，据公开栽培资料",
+      "sowMonthsSouthwest": [
+        8,
+        9
+      ]
     },
     {
       "cropId": "C022",
@@ -578,7 +649,12 @@
         11,
         12
       ],
-      "sowMonthsSouthNote": "华南/长江以南基准，据公开栽培资料"
+      "sowMonthsSouthNote": "华南/长江以南基准，据公开栽培资料",
+      "sowMonthsSouthwest": [
+        8,
+        9,
+        10
+      ]
     },
     {
       "cropId": "C023",
@@ -607,7 +683,11 @@
         10,
         11
       ],
-      "sowMonthsSouthNote": "华南/长江以南基准，据公开栽培资料"
+      "sowMonthsSouthNote": "华南/长江以南基准，据公开栽培资料",
+      "sowMonthsSouthwest": [
+        9,
+        10
+      ]
     },
     {
       "cropId": "C024",
@@ -637,7 +717,11 @@
         10,
         11
       ],
-      "sowMonthsSouthNote": "华南/长江以南基准，据公开栽培资料"
+      "sowMonthsSouthNote": "华南/长江以南基准，据公开栽培资料",
+      "sowMonthsSouthwest": [
+        8,
+        9
+      ]
     },
     {
       "cropId": "C025",
@@ -667,7 +751,11 @@
         11,
         12
       ],
-      "sowMonthsSouthNote": "华南/长江以南基准，据公开栽培资料"
+      "sowMonthsSouthNote": "华南/长江以南基准，据公开栽培资料",
+      "sowMonthsSouthwest": [
+        8,
+        9
+      ]
     },
     {
       "cropId": "C026",
@@ -767,7 +855,11 @@
         10,
         11
       ],
-      "sowMonthsSouthNote": "华南/长江以南基准，据公开栽培资料"
+      "sowMonthsSouthNote": "华南/长江以南基准，据公开栽培资料",
+      "sowMonthsSouthwest": [
+        8,
+        9
+      ]
     },
     {
       "cropId": "C030",
@@ -796,7 +888,11 @@
         10,
         11
       ],
-      "sowMonthsSouthNote": "华南/长江以南基准，据公开栽培资料"
+      "sowMonthsSouthNote": "华南/长江以南基准，据公开栽培资料",
+      "sowMonthsSouthwest": [
+        8,
+        9
+      ]
     },
     {
       "cropId": "C031",
@@ -826,7 +922,13 @@
         9,
         10
       ],
-      "sowMonthsSouthNote": "华南/长江以南基准，据公开栽培资料"
+      "sowMonthsSouthNote": "华南/长江以南基准，据公开栽培资料",
+      "sowMonthsSouthwest": [
+        2,
+        3,
+        7,
+        8
+      ]
     },
     {
       "cropId": "C032",
@@ -854,7 +956,12 @@
         3,
         8
       ],
-      "sowMonthsSouthNote": "华南/长江以南基准，据公开栽培资料"
+      "sowMonthsSouthNote": "华南/长江以南基准，据公开栽培资料",
+      "sowMonthsSouthwest": [
+        2,
+        3,
+        7
+      ]
     },
     {
       "cropId": "C033",
@@ -882,7 +989,12 @@
         3,
         8
       ],
-      "sowMonthsSouthNote": "华南/长江以南基准，据公开栽培资料"
+      "sowMonthsSouthNote": "华南/长江以南基准，据公开栽培资料",
+      "sowMonthsSouthwest": [
+        2,
+        3,
+        7
+      ]
     },
     {
       "cropId": "C034",
@@ -914,7 +1026,13 @@
         8,
         9
       ],
-      "sowMonthsSouthNote": "华南/长江以南基准，据公开栽培资料"
+      "sowMonthsSouthNote": "华南/长江以南基准，据公开栽培资料",
+      "sowMonthsSouthwest": [
+        2,
+        3,
+        7,
+        8
+      ]
     },
     {
       "cropId": "C035",
@@ -1080,7 +1198,11 @@
         3,
         4
       ],
-      "sowMonthsSouthNote": "华南/长江以南基准，据公开栽培资料"
+      "sowMonthsSouthNote": "华南/长江以南基准，据公开栽培资料",
+      "sowMonthsSouthwest": [
+        3,
+        4
+      ]
     },
     {
       "cropId": "C041",
@@ -1110,7 +1232,12 @@
         8,
         9
       ],
-      "sowMonthsSouthNote": "华南/长江以南基准，据公开栽培资料"
+      "sowMonthsSouthNote": "华南/长江以南基准，据公开栽培资料",
+      "sowMonthsSouthwest": [
+        3,
+        4,
+        7
+      ]
     },
     {
       "cropId": "C042",
@@ -1140,7 +1267,12 @@
         7,
         8
       ],
-      "sowMonthsSouthNote": "华南/长江以南基准，据公开栽培资料"
+      "sowMonthsSouthNote": "华南/长江以南基准，据公开栽培资料",
+      "sowMonthsSouthwest": [
+        3,
+        4,
+        6
+      ]
     },
     {
       "cropId": "C043",
@@ -1194,7 +1326,11 @@
       ],
       "sowMonthsNote": "华北春播 3 月中–4 月上旬；西南/长江流域秋播 10–11 月",
       "sowMonthsSource": "台湾农试所豆科蔬菜资料 / 自然农耕种植规范",
-      "propertiesSource": "公开栽培资料校正（V5.5）"
+      "propertiesSource": "公开栽培资料校正（V5.5）",
+      "sowMonthsSouthwest": [
+        10,
+        11
+      ]
     },
     {
       "cropId": "C045",
@@ -1237,7 +1373,11 @@
         10,
         11
       ],
-      "sowMonthsSouthNote": "华南/长江以南基准，据公开栽培资料"
+      "sowMonthsSouthNote": "华南/长江以南基准，据公开栽培资料",
+      "sowMonthsSouthwest": [
+        9,
+        10
+      ]
     },
     {
       "cropId": "C047",
@@ -1263,7 +1403,12 @@
         9
       ],
       "sowMonthsSouthNote": "华南/长江以南基准，据公开栽培资料",
-      "totalDaysSouth": 210
+      "totalDaysSouth": 210,
+      "sowMonthsSouthwest": [
+        9,
+        10
+      ],
+      "totalDaysSouthwest": 230
     },
     {
       "cropId": "C048",
@@ -1292,7 +1437,11 @@
         10,
         11
       ],
-      "sowMonthsSouthNote": "华南/长江以南基准，据公开栽培资料"
+      "sowMonthsSouthNote": "华南/长江以南基准，据公开栽培资料",
+      "sowMonthsSouthwest": [
+        8,
+        9
+      ]
     },
     {
       "cropId": "C049",
@@ -1375,7 +1524,11 @@
         9,
         10
       ],
-      "sowMonthsSouthNote": "华南/长江以南基准，据公开栽培资料"
+      "sowMonthsSouthNote": "华南/长江以南基准，据公开栽培资料",
+      "sowMonthsSouthwest": [
+        8,
+        9
+      ]
     },
     {
       "cropId": "C052",
@@ -1405,7 +1558,11 @@
         9,
         10
       ],
-      "sowMonthsSouthNote": "华南/长江以南基准，据公开栽培资料"
+      "sowMonthsSouthNote": "华南/长江以南基准，据公开栽培资料",
+      "sowMonthsSouthwest": [
+        7,
+        8
+      ]
     },
     {
       "cropId": "C053",
@@ -1486,7 +1643,11 @@
         3,
         4
       ],
-      "sowMonthsSouthNote": "华南/长江以南基准，据公开栽培资料"
+      "sowMonthsSouthNote": "华南/长江以南基准，据公开栽培资料",
+      "sowMonthsSouthwest": [
+        3,
+        4
+      ]
     },
     {
       "cropId": "C056",
@@ -1538,7 +1699,11 @@
         3,
         4
       ],
-      "sowMonthsSouthNote": "华南/长江以南基准，据公开栽培资料"
+      "sowMonthsSouthNote": "华南/长江以南基准，据公开栽培资料",
+      "sowMonthsSouthwest": [
+        3,
+        4
+      ]
     },
     {
       "cropId": "C058",
@@ -1567,7 +1732,11 @@
         10,
         11
       ],
-      "sowMonthsSouthNote": "华南/长江以南基准，据公开栽培资料"
+      "sowMonthsSouthNote": "华南/长江以南基准，据公开栽培资料",
+      "sowMonthsSouthwest": [
+        8,
+        9
+      ]
     },
     {
       "cropId": "C059",
@@ -1596,7 +1765,12 @@
         12,
         2
       ],
-      "sowMonthsSouthNote": "华南/长江以南基准，据公开栽培资料"
+      "sowMonthsSouthNote": "华南/长江以南基准，据公开栽培资料",
+      "sowMonthsSouthwest": [
+        2,
+        3,
+        11
+      ]
     },
     {
       "cropId": "C060",
@@ -1626,7 +1800,12 @@
         2,
         3
       ],
-      "sowMonthsSouthNote": "华南/长江以南基准，据公开栽培资料"
+      "sowMonthsSouthNote": "华南/长江以南基准，据公开栽培资料",
+      "sowMonthsSouthwest": [
+        2,
+        3,
+        11
+      ]
     },
     {
       "cropId": "C061",
@@ -1656,7 +1835,12 @@
         11,
         12
       ],
-      "sowMonthsSouthNote": "华南/长江以南基准，据公开栽培资料"
+      "sowMonthsSouthNote": "华南/长江以南基准，据公开栽培资料",
+      "sowMonthsSouthwest": [
+        2,
+        3,
+        11
+      ]
     },
     {
       "cropId": "C062",
@@ -1742,7 +1926,12 @@
         11,
         12
       ],
-      "sowMonthsSouthNote": "华南/长江以南基准，据公开栽培资料"
+      "sowMonthsSouthNote": "华南/长江以南基准，据公开栽培资料",
+      "sowMonthsSouthwest": [
+        2,
+        3,
+        11
+      ]
     },
     {
       "cropId": "C065",
@@ -1768,7 +1957,11 @@
         10,
         11
       ],
-      "sowMonthsSouthNote": "华南/长江以南基准，据公开栽培资料"
+      "sowMonthsSouthNote": "华南/长江以南基准，据公开栽培资料",
+      "sowMonthsSouthwest": [
+        9,
+        10
+      ]
     },
     {
       "cropId": "C066",
@@ -1798,7 +1991,13 @@
         11,
         12
       ],
-      "sowMonthsSouthNote": "华南/长江以南基准，据公开栽培资料"
+      "sowMonthsSouthNote": "华南/长江以南基准，据公开栽培资料",
+      "sowMonthsSouthwest": [
+        2,
+        3,
+        11,
+        12
+      ]
     },
     {
       "cropId": "C067",
@@ -1828,7 +2027,13 @@
         9,
         10
       ],
-      "sowMonthsSouthNote": "华南/长江以南基准，据公开栽培资料"
+      "sowMonthsSouthNote": "华南/长江以南基准，据公开栽培资料",
+      "sowMonthsSouthwest": [
+        2,
+        3,
+        9,
+        10
+      ]
     },
     {
       "cropId": "C068",
@@ -1899,7 +2104,11 @@
         3,
         4
       ],
-      "sowMonthsSouthNote": "华南/长江以南基准，据公开栽培资料"
+      "sowMonthsSouthNote": "华南/长江以南基准，据公开栽培资料",
+      "sowMonthsSouthwest": [
+        3,
+        4
+      ]
     },
     {
       "cropId": "C072",
@@ -1944,7 +2153,12 @@
         11,
         12
       ],
-      "sowMonthsSouthNote": "华南/长江以南基准，据公开栽培资料"
+      "sowMonthsSouthNote": "华南/长江以南基准，据公开栽培资料",
+      "sowMonthsSouthwest": [
+        2,
+        3,
+        11
+      ]
     },
     {
       "cropId": "C074",
@@ -2567,7 +2781,11 @@
         10,
         11
       ],
-      "sowMonthsSouthNote": "华南/长江以南基准，据公开栽培资料"
+      "sowMonthsSouthNote": "华南/长江以南基准，据公开栽培资料",
+      "sowMonthsSouthwest": [
+        9,
+        10
+      ]
     },
     {
       "cropId": "C102",
@@ -2926,7 +3144,11 @@
         3,
         4
       ],
-      "sowMonthsSouthNote": "华南/长江以南基准，据公开栽培资料"
+      "sowMonthsSouthNote": "华南/长江以南基准，据公开栽培资料",
+      "sowMonthsSouthwest": [
+        3,
+        4
+      ]
     },
     {
       "cropId": "C120",
@@ -3292,7 +3514,21 @@
       "suitableSeason": "春播",
       "suitableRegion": "全国",
       "tempRequirement": "属性按作物类别推定",
-      "source": "category-rule"
+      "source": "category-rule",
+      "sowMonths": [
+        3,
+        4,
+        10,
+        11
+      ],
+      "sowMonthsSouth": [
+        11,
+        12,
+        2
+      ],
+      "sowMonthsNote": "苹果品种，定植窗口同苹果",
+      "sowMonthsSource": "按苹果推定",
+      "sowMonthsPrecision": "derived"
     },
     {
       "cropId": "C142",
@@ -3307,7 +3543,21 @@
       "suitableSeason": "春播",
       "suitableRegion": "全国",
       "tempRequirement": "属性按作物类别推定",
-      "source": "category-rule"
+      "source": "category-rule",
+      "sowMonths": [
+        3,
+        4,
+        10,
+        11
+      ],
+      "sowMonthsSouth": [
+        11,
+        12,
+        2
+      ],
+      "sowMonthsNote": "苹果品种，定植窗口同苹果",
+      "sowMonthsSource": "按苹果推定",
+      "sowMonthsPrecision": "derived"
     },
     {
       "cropId": "C143",
@@ -3322,7 +3572,21 @@
       "suitableSeason": "春植",
       "suitableRegion": "适生区",
       "tempRequirement": "多年生，需按年管理",
-      "source": "category-rule"
+      "source": "category-rule",
+      "sowMonths": [
+        3,
+        4,
+        10,
+        11
+      ],
+      "sowMonthsSouth": [
+        11,
+        12,
+        2
+      ],
+      "sowMonthsNote": "苹果品种，定植窗口同苹果",
+      "sowMonthsSource": "按苹果推定",
+      "sowMonthsPrecision": "derived"
     },
     {
       "cropId": "C144",
@@ -3337,7 +3601,22 @@
       "suitableSeason": "春植",
       "suitableRegion": "适生区",
       "tempRequirement": "多年生，需按年管理",
-      "source": "category-rule"
+      "source": "category-rule",
+      "sowMonths": [
+        3,
+        4,
+        10,
+        11
+      ],
+      "sowMonthsSouth": [
+        11,
+        12,
+        2,
+        3
+      ],
+      "sowMonthsNote": "梨品种，定植窗口同梨",
+      "sowMonthsSource": "按梨推定",
+      "sowMonthsPrecision": "derived"
     },
     {
       "cropId": "C145",
@@ -3352,7 +3631,22 @@
       "suitableSeason": "春植",
       "suitableRegion": "适生区",
       "tempRequirement": "多年生，需按年管理",
-      "source": "category-rule"
+      "source": "category-rule",
+      "sowMonths": [
+        3,
+        4,
+        10,
+        11
+      ],
+      "sowMonthsSouth": [
+        11,
+        12,
+        2,
+        3
+      ],
+      "sowMonthsNote": "梨品种，定植窗口同梨",
+      "sowMonthsSource": "按梨推定",
+      "sowMonthsPrecision": "derived"
     },
     {
       "cropId": "C146",
@@ -3367,7 +3661,22 @@
       "suitableSeason": "春植",
       "suitableRegion": "适生区",
       "tempRequirement": "多年生，需按年管理",
-      "source": "category-rule"
+      "source": "category-rule",
+      "sowMonths": [
+        3,
+        4,
+        10,
+        11
+      ],
+      "sowMonthsSouth": [
+        11,
+        12,
+        2,
+        3
+      ],
+      "sowMonthsNote": "梨品种，定植窗口同梨",
+      "sowMonthsSource": "按梨推定",
+      "sowMonthsPrecision": "derived"
     },
     {
       "cropId": "C147",
@@ -3382,7 +3691,22 @@
       "suitableSeason": "春植",
       "suitableRegion": "适生区",
       "tempRequirement": "多年生，需按年管理",
-      "source": "category-rule"
+      "source": "category-rule",
+      "sowMonths": [
+        3,
+        4,
+        10,
+        11
+      ],
+      "sowMonthsSouth": [
+        11,
+        12,
+        2,
+        3
+      ],
+      "sowMonthsNote": "梨品种，定植窗口同梨",
+      "sowMonthsSource": "按梨推定",
+      "sowMonthsPrecision": "derived"
     },
     {
       "cropId": "C148",
@@ -3397,7 +3721,22 @@
       "suitableSeason": "春植",
       "suitableRegion": "适生区",
       "tempRequirement": "多年生，需按年管理",
-      "source": "category-rule"
+      "source": "category-rule",
+      "sowMonths": [
+        3,
+        4,
+        10,
+        11
+      ],
+      "sowMonthsSouth": [
+        2,
+        3,
+        11,
+        12
+      ],
+      "sowMonthsNote": "桃品种，定植窗口同桃",
+      "sowMonthsSource": "按桃推定",
+      "sowMonthsPrecision": "derived"
     },
     {
       "cropId": "C149",
@@ -3412,7 +3751,22 @@
       "suitableSeason": "春植",
       "suitableRegion": "适生区",
       "tempRequirement": "多年生，需按年管理",
-      "source": "category-rule"
+      "source": "category-rule",
+      "sowMonths": [
+        3,
+        4,
+        10,
+        11
+      ],
+      "sowMonthsSouth": [
+        2,
+        3,
+        11,
+        12
+      ],
+      "sowMonthsNote": "桃品种，定植窗口同桃",
+      "sowMonthsSource": "按桃推定",
+      "sowMonthsPrecision": "derived"
     },
     {
       "cropId": "C150",
@@ -3427,7 +3781,22 @@
       "suitableSeason": "春植",
       "suitableRegion": "适生区",
       "tempRequirement": "多年生，需按年管理",
-      "source": "category-rule"
+      "source": "category-rule",
+      "sowMonths": [
+        3,
+        4,
+        10,
+        11
+      ],
+      "sowMonthsSouth": [
+        2,
+        3,
+        11,
+        12
+      ],
+      "sowMonthsNote": "桃品种，定植窗口同桃",
+      "sowMonthsSource": "按桃推定",
+      "sowMonthsPrecision": "derived"
     },
     {
       "cropId": "C151",
@@ -3442,7 +3811,22 @@
       "suitableSeason": "春植",
       "suitableRegion": "适生区",
       "tempRequirement": "多年生，需按年管理",
-      "source": "category-rule"
+      "source": "category-rule",
+      "sowMonths": [
+        3,
+        4,
+        10,
+        11
+      ],
+      "sowMonthsSouth": [
+        2,
+        3,
+        11,
+        12
+      ],
+      "sowMonthsNote": "桃品种，定植窗口同桃",
+      "sowMonthsSource": "按桃推定",
+      "sowMonthsPrecision": "derived"
     },
     {
       "cropId": "C152",
@@ -3457,7 +3841,21 @@
       "suitableSeason": "春植",
       "suitableRegion": "适生区",
       "tempRequirement": "多年生，需按年管理",
-      "source": "category-rule"
+      "source": "category-rule",
+      "sowMonths": [
+        3,
+        4,
+        10,
+        11
+      ],
+      "sowMonthsSouth": [
+        11,
+        12,
+        2
+      ],
+      "sowMonthsNote": "枣品种，定植窗口同枣",
+      "sowMonthsSource": "按枣推定",
+      "sowMonthsPrecision": "derived"
     },
     {
       "cropId": "C153",
@@ -3472,7 +3870,21 @@
       "suitableSeason": "春植",
       "suitableRegion": "适生区",
       "tempRequirement": "多年生，需按年管理",
-      "source": "category-rule"
+      "source": "category-rule",
+      "sowMonths": [
+        3,
+        4,
+        10,
+        11
+      ],
+      "sowMonthsSouth": [
+        11,
+        12,
+        2
+      ],
+      "sowMonthsNote": "枣品种，定植窗口同枣",
+      "sowMonthsSource": "按枣推定",
+      "sowMonthsPrecision": "derived"
     },
     {
       "cropId": "C154",
@@ -3487,7 +3899,21 @@
       "suitableSeason": "春植",
       "suitableRegion": "适生区",
       "tempRequirement": "多年生，需按年管理",
-      "source": "category-rule"
+      "source": "category-rule",
+      "sowMonths": [
+        3,
+        4,
+        10,
+        11
+      ],
+      "sowMonthsSouth": [
+        11,
+        12,
+        2
+      ],
+      "sowMonthsNote": "枣品种，定植窗口同枣",
+      "sowMonthsSource": "按枣推定",
+      "sowMonthsPrecision": "derived"
     },
     {
       "cropId": "C155",
@@ -4276,7 +4702,20 @@
       "suitableSeason": "春播",
       "suitableRegion": "适生区",
       "tempRequirement": "药用作物，按品种差异大",
-      "source": "category-rule"
+      "source": "category-rule",
+      "sowMonths": [
+        3,
+        4,
+        9
+      ],
+      "sowMonthsSouth": [
+        3,
+        4,
+        9
+      ],
+      "sowMonthsNote": "根茎类药材春秋两季播种",
+      "sowMonthsSource": "中药材种植时间资料",
+      "sowMonthsPrecision": "derived"
     },
     {
       "cropId": "C202",
@@ -4291,7 +4730,20 @@
       "suitableSeason": "春播/夏播",
       "suitableRegion": "全国",
       "tempRequirement": "禾谷类，需氮肥充足",
-      "source": "category-rule"
+      "source": "category-rule",
+      "sowMonths": [
+        3,
+        4
+      ],
+      "sowMonthsSouth": [
+        2,
+        3,
+        9,
+        10
+      ],
+      "sowMonthsNote": "木本/根茎类药材以春季 3–4 月栽植为主",
+      "sowMonthsSource": "中药材种植时间资料",
+      "sowMonthsPrecision": "derived"
     },
     {
       "cropId": "C203",
@@ -4306,7 +4758,20 @@
       "suitableSeason": "春播",
       "suitableRegion": "适生区",
       "tempRequirement": "药用作物，按品种差异大",
-      "source": "category-rule"
+      "source": "category-rule",
+      "sowMonths": [
+        3,
+        4,
+        9
+      ],
+      "sowMonthsSouth": [
+        3,
+        4,
+        9
+      ],
+      "sowMonthsNote": "根茎类药材春秋两季播种",
+      "sowMonthsSource": "中药材种植时间资料",
+      "sowMonthsPrecision": "derived"
     },
     {
       "cropId": "C204",
@@ -4321,7 +4786,20 @@
       "suitableSeason": "春播",
       "suitableRegion": "适生区",
       "tempRequirement": "药用作物，按品种差异大",
-      "source": "category-rule"
+      "source": "category-rule",
+      "sowMonths": [
+        3,
+        4,
+        9
+      ],
+      "sowMonthsSouth": [
+        3,
+        4,
+        9
+      ],
+      "sowMonthsNote": "根茎类药材春秋两季播种",
+      "sowMonthsSource": "中药材种植时间资料",
+      "sowMonthsPrecision": "derived"
     },
     {
       "cropId": "C205",
@@ -4336,7 +4814,18 @@
       "suitableSeason": "春播",
       "suitableRegion": "适生区",
       "tempRequirement": "药用作物，按品种差异大",
-      "source": "category-rule"
+      "source": "category-rule",
+      "sowMonths": [
+        9,
+        10
+      ],
+      "sowMonthsSouth": [
+        9,
+        10
+      ],
+      "sowMonthsNote": "芍药科，秋季栽植",
+      "sowMonthsSource": "中药材种植时间资料",
+      "sowMonthsPrecision": "derived"
     },
     {
       "cropId": "C206",
@@ -4351,7 +4840,18 @@
       "suitableSeason": "春播",
       "suitableRegion": "适生区",
       "tempRequirement": "药用作物，按品种差异大",
-      "source": "category-rule"
+      "source": "category-rule",
+      "sowMonths": [
+        4,
+        5
+      ],
+      "sowMonthsSouth": [
+        3,
+        4
+      ],
+      "sowMonthsNote": "春播 4–5 月",
+      "sowMonthsSource": "中药材种植时间资料",
+      "sowMonthsPrecision": "derived"
     },
     {
       "cropId": "C207",
@@ -4366,7 +4866,20 @@
       "suitableSeason": "春播",
       "suitableRegion": "适生区",
       "tempRequirement": "药用作物，按品种差异大",
-      "source": "category-rule"
+      "source": "category-rule",
+      "sowMonths": [
+        3,
+        4
+      ],
+      "sowMonthsSouth": [
+        2,
+        3,
+        9,
+        10
+      ],
+      "sowMonthsNote": "木本/根茎类药材以春季 3–4 月栽植为主",
+      "sowMonthsSource": "中药材种植时间资料",
+      "sowMonthsPrecision": "derived"
     },
     {
       "cropId": "C208",
@@ -4381,7 +4894,20 @@
       "suitableSeason": "春播",
       "suitableRegion": "适生区",
       "tempRequirement": "药用作物，按品种差异大",
-      "source": "category-rule"
+      "source": "category-rule",
+      "sowMonths": [
+        3,
+        4
+      ],
+      "sowMonthsSouth": [
+        2,
+        3,
+        9,
+        10
+      ],
+      "sowMonthsNote": "木本/根茎类药材以春季 3–4 月栽植为主",
+      "sowMonthsSource": "中药材种植时间资料",
+      "sowMonthsPrecision": "derived"
     },
     {
       "cropId": "C209",
@@ -4396,7 +4922,20 @@
       "suitableSeason": "春播",
       "suitableRegion": "适生区",
       "tempRequirement": "药用作物，按品种差异大",
-      "source": "category-rule"
+      "source": "category-rule",
+      "sowMonths": [
+        3,
+        4
+      ],
+      "sowMonthsSouth": [
+        2,
+        3,
+        9,
+        10
+      ],
+      "sowMonthsNote": "木本/根茎类药材以春季 3–4 月栽植为主",
+      "sowMonthsSource": "中药材种植时间资料",
+      "sowMonthsPrecision": "derived"
     },
     {
       "cropId": "C210",
@@ -4411,7 +4950,20 @@
       "suitableSeason": "春植",
       "suitableRegion": "适生区",
       "tempRequirement": "多年生，需按年管理",
-      "source": "category-rule"
+      "source": "category-rule",
+      "sowMonths": [
+        3,
+        4
+      ],
+      "sowMonthsSouth": [
+        2,
+        3,
+        9,
+        10
+      ],
+      "sowMonthsNote": "木本/根茎类药材以春季 3–4 月栽植为主",
+      "sowMonthsSource": "中药材种植时间资料",
+      "sowMonthsPrecision": "derived"
     },
     {
       "cropId": "C211",
@@ -4426,7 +4978,20 @@
       "suitableSeason": "春植",
       "suitableRegion": "适生区",
       "tempRequirement": "多年生，需按年管理",
-      "source": "category-rule"
+      "source": "category-rule",
+      "sowMonths": [
+        3,
+        4
+      ],
+      "sowMonthsSouth": [
+        2,
+        3,
+        9,
+        10
+      ],
+      "sowMonthsNote": "木本/根茎类药材以春季 3–4 月栽植为主",
+      "sowMonthsSource": "中药材种植时间资料",
+      "sowMonthsPrecision": "derived"
     },
     {
       "cropId": "C212",
@@ -4441,7 +5006,20 @@
       "suitableSeason": "春植",
       "suitableRegion": "适生区",
       "tempRequirement": "多年生，需按年管理",
-      "source": "category-rule"
+      "source": "category-rule",
+      "sowMonths": [
+        3,
+        4
+      ],
+      "sowMonthsSouth": [
+        2,
+        3,
+        9,
+        10
+      ],
+      "sowMonthsNote": "木本/根茎类药材以春季 3–4 月栽植为主",
+      "sowMonthsSource": "中药材种植时间资料",
+      "sowMonthsPrecision": "derived"
     },
     {
       "cropId": "C213",
@@ -4456,7 +5034,20 @@
       "suitableSeason": "春植",
       "suitableRegion": "适生区",
       "tempRequirement": "多年生，需按年管理",
-      "source": "category-rule"
+      "source": "category-rule",
+      "sowMonths": [
+        3,
+        4,
+        10
+      ],
+      "sowMonthsSouth": [
+        2,
+        3,
+        10
+      ],
+      "sowMonthsNote": "藤本，春秋栽植",
+      "sowMonthsSource": "中药材种植时间资料",
+      "sowMonthsPrecision": "derived"
     },
     {
       "cropId": "C214",
@@ -4471,7 +5062,18 @@
       "suitableSeason": "春播",
       "suitableRegion": "适生区",
       "tempRequirement": "药用作物，按品种差异大",
-      "source": "category-rule"
+      "source": "category-rule",
+      "sowMonths": [
+        4,
+        5
+      ],
+      "sowMonthsSouth": [
+        4,
+        5
+      ],
+      "sowMonthsNote": "喜温，春末夏初播种",
+      "sowMonthsSource": "中药材种植时间资料",
+      "sowMonthsPrecision": "derived"
     },
     {
       "cropId": "C215",
@@ -4486,7 +5088,18 @@
       "suitableSeason": "春播/夏播",
       "suitableRegion": "全国",
       "tempRequirement": "禾谷类，需氮肥充足",
-      "source": "category-rule"
+      "source": "category-rule",
+      "sowMonths": [
+        5,
+        6
+      ],
+      "sowMonthsSouth": [
+        4,
+        5
+      ],
+      "sowMonthsNote": "喜温，地温 18℃ 以上播种",
+      "sowMonthsSource": "中药材种植时间资料",
+      "sowMonthsPrecision": "derived"
     },
     {
       "cropId": "C216",
@@ -4501,7 +5114,18 @@
       "suitableSeason": "春播",
       "suitableRegion": "全国",
       "tempRequirement": "属性按作物类别推定",
-      "source": "category-rule"
+      "source": "category-rule",
+      "sowMonths": [
+        3,
+        4
+      ],
+      "sowMonthsSouth": [
+        3,
+        4
+      ],
+      "sowMonthsNote": "种子繁殖，春季播种",
+      "sowMonthsSource": "中药材种植时间资料",
+      "sowMonthsPrecision": "derived"
     },
     {
       "cropId": "C217",
@@ -4516,7 +5140,18 @@
       "suitableSeason": "春播",
       "suitableRegion": "适生区",
       "tempRequirement": "药用作物，按品种差异大",
-      "source": "category-rule"
+      "source": "category-rule",
+      "sowMonths": [
+        3,
+        4
+      ],
+      "sowMonthsSouth": [
+        3,
+        4
+      ],
+      "sowMonthsNote": "种子繁殖，春季播种",
+      "sowMonthsSource": "中药材种植时间资料",
+      "sowMonthsPrecision": "derived"
     },
     {
       "cropId": "C218",
@@ -4531,7 +5166,18 @@
       "suitableSeason": "春播",
       "suitableRegion": "适生区",
       "tempRequirement": "药用作物，按品种差异大",
-      "source": "category-rule"
+      "source": "category-rule",
+      "sowMonths": [
+        3,
+        4
+      ],
+      "sowMonthsSouth": [
+        3,
+        4
+      ],
+      "sowMonthsNote": "种子繁殖，春季播种",
+      "sowMonthsSource": "中药材种植时间资料",
+      "sowMonthsPrecision": "derived"
     },
     {
       "cropId": "C219",
@@ -4546,7 +5192,20 @@
       "suitableSeason": "春植",
       "suitableRegion": "适生区",
       "tempRequirement": "多年生，需按年管理",
-      "source": "category-rule"
+      "source": "category-rule",
+      "sowMonths": [
+        3,
+        4
+      ],
+      "sowMonthsSouth": [
+        2,
+        3,
+        9,
+        10
+      ],
+      "sowMonthsNote": "木本/根茎类药材以春季 3–4 月栽植为主",
+      "sowMonthsSource": "中药材种植时间资料",
+      "sowMonthsPrecision": "derived"
     },
     {
       "cropId": "C220",
@@ -4561,7 +5220,20 @@
       "suitableSeason": "春植",
       "suitableRegion": "适生区",
       "tempRequirement": "多年生，需按年管理",
-      "source": "category-rule"
+      "source": "category-rule",
+      "sowMonths": [
+        3,
+        4
+      ],
+      "sowMonthsSouth": [
+        2,
+        3,
+        9,
+        10
+      ],
+      "sowMonthsNote": "木本/根茎类药材以春季 3–4 月栽植为主",
+      "sowMonthsSource": "中药材种植时间资料",
+      "sowMonthsPrecision": "derived"
     },
     {
       "cropId": "C221",
@@ -4576,7 +5248,20 @@
       "suitableSeason": "春播",
       "suitableRegion": "适生区",
       "tempRequirement": "药用作物，按品种差异大",
-      "source": "category-rule"
+      "source": "category-rule",
+      "sowMonths": [
+        3,
+        4,
+        9
+      ],
+      "sowMonthsSouth": [
+        3,
+        4,
+        9
+      ],
+      "sowMonthsNote": "根茎类药材春秋两季播种",
+      "sowMonthsSource": "中药材种植时间资料",
+      "sowMonthsPrecision": "derived"
     },
     {
       "cropId": "C222",
@@ -4591,7 +5276,20 @@
       "suitableSeason": "春播",
       "suitableRegion": "适生区",
       "tempRequirement": "药用作物，按品种差异大",
-      "source": "category-rule"
+      "source": "category-rule",
+      "sowMonths": [
+        3,
+        4
+      ],
+      "sowMonthsSouth": [
+        2,
+        3,
+        9,
+        10
+      ],
+      "sowMonthsNote": "木本/根茎类药材以春季 3–4 月栽植为主",
+      "sowMonthsSource": "中药材种植时间资料",
+      "sowMonthsPrecision": "derived"
     },
     {
       "cropId": "C223",
@@ -4606,7 +5304,20 @@
       "suitableSeason": "春播",
       "suitableRegion": "适生区",
       "tempRequirement": "药用作物，按品种差异大",
-      "source": "category-rule"
+      "source": "category-rule",
+      "sowMonths": [
+        3,
+        4
+      ],
+      "sowMonthsSouth": [
+        2,
+        3,
+        9,
+        10
+      ],
+      "sowMonthsNote": "木本/根茎类药材以春季 3–4 月栽植为主",
+      "sowMonthsSource": "中药材种植时间资料",
+      "sowMonthsPrecision": "derived"
     },
     {
       "cropId": "C224",
@@ -4621,7 +5332,18 @@
       "suitableSeason": "春播",
       "suitableRegion": "适生区",
       "tempRequirement": "药用作物，按品种差异大",
-      "source": "category-rule"
+      "source": "category-rule",
+      "sowMonths": [
+        8,
+        9
+      ],
+      "sowMonthsSouth": [
+        9,
+        10
+      ],
+      "sowMonthsNote": "秋播越冬",
+      "sowMonthsSource": "中药材种植时间资料",
+      "sowMonthsPrecision": "derived"
     },
     {
       "cropId": "C225",
@@ -4636,7 +5358,18 @@
       "suitableSeason": "春播",
       "suitableRegion": "适生区",
       "tempRequirement": "药用作物，按品种差异大",
-      "source": "category-rule"
+      "source": "category-rule",
+      "sowMonths": [
+        8,
+        9
+      ],
+      "sowMonthsSouth": [
+        9,
+        10
+      ],
+      "sowMonthsNote": "秋播越冬",
+      "sowMonthsSource": "中药材种植时间资料",
+      "sowMonthsPrecision": "derived"
     },
     {
       "cropId": "C226",
@@ -4651,7 +5384,20 @@
       "suitableSeason": "春播/秋播",
       "suitableRegion": "全国",
       "tempRequirement": "蔬菜类，生育期短，需水肥充足",
-      "source": "category-rule"
+      "source": "category-rule",
+      "sowMonths": [
+        3,
+        4,
+        9
+      ],
+      "sowMonthsSouth": [
+        3,
+        4,
+        9
+      ],
+      "sowMonthsNote": "根茎类药材春秋两季播种",
+      "sowMonthsSource": "中药材种植时间资料",
+      "sowMonthsPrecision": "derived"
     },
     {
       "cropId": "C227",
@@ -4666,7 +5412,20 @@
       "suitableSeason": "春播",
       "suitableRegion": "适生区",
       "tempRequirement": "药用作物，按品种差异大",
-      "source": "category-rule"
+      "source": "category-rule",
+      "sowMonths": [
+        3,
+        4
+      ],
+      "sowMonthsSouth": [
+        2,
+        3,
+        9,
+        10
+      ],
+      "sowMonthsNote": "木本/根茎类药材以春季 3–4 月栽植为主",
+      "sowMonthsSource": "中药材种植时间资料",
+      "sowMonthsPrecision": "derived"
     },
     {
       "cropId": "C228",
@@ -4681,7 +5440,20 @@
       "suitableSeason": "春播",
       "suitableRegion": "适生区",
       "tempRequirement": "药用作物，按品种差异大",
-      "source": "category-rule"
+      "source": "category-rule",
+      "sowMonths": [
+        3,
+        4
+      ],
+      "sowMonthsSouth": [
+        2,
+        3,
+        9,
+        10
+      ],
+      "sowMonthsNote": "木本/根茎类药材以春季 3–4 月栽植为主",
+      "sowMonthsSource": "中药材种植时间资料",
+      "sowMonthsPrecision": "derived"
     },
     {
       "cropId": "C229",
@@ -4696,7 +5468,20 @@
       "suitableSeason": "春播",
       "suitableRegion": "适生区",
       "tempRequirement": "药用作物，按品种差异大",
-      "source": "category-rule"
+      "source": "category-rule",
+      "sowMonths": [
+        3,
+        4
+      ],
+      "sowMonthsSouth": [
+        2,
+        3,
+        9,
+        10
+      ],
+      "sowMonthsNote": "木本/根茎类药材以春季 3–4 月栽植为主",
+      "sowMonthsSource": "中药材种植时间资料",
+      "sowMonthsPrecision": "derived"
     },
     {
       "cropId": "C230",
@@ -4711,7 +5496,20 @@
       "suitableSeason": "春播",
       "suitableRegion": "适生区",
       "tempRequirement": "药用作物，按品种差异大",
-      "source": "category-rule"
+      "source": "category-rule",
+      "sowMonths": [
+        3,
+        4
+      ],
+      "sowMonthsSouth": [
+        2,
+        3,
+        9,
+        10
+      ],
+      "sowMonthsNote": "木本/根茎类药材以春季 3–4 月栽植为主",
+      "sowMonthsSource": "中药材种植时间资料",
+      "sowMonthsPrecision": "derived"
     },
     {
       "cropId": "C231",
@@ -4726,7 +5524,22 @@
       "suitableSeason": "春植",
       "suitableRegion": "适生区",
       "tempRequirement": "多年生，需按年管理",
-      "source": "category-rule"
+      "source": "category-rule",
+      "sowMonths": [
+        3,
+        4,
+        10,
+        11
+      ],
+      "sowMonthsSouth": [
+        2,
+        3,
+        10,
+        11
+      ],
+      "sowMonthsNote": "落叶/常绿花木：春植 3–4 月、秋植 10–11 月",
+      "sowMonthsSource": "花卉栽培资料综合",
+      "sowMonthsPrecision": "derived"
     },
     {
       "cropId": "C232",
@@ -4741,7 +5554,22 @@
       "suitableSeason": "春植",
       "suitableRegion": "适生区",
       "tempRequirement": "多年生，需按年管理",
-      "source": "category-rule"
+      "source": "category-rule",
+      "sowMonths": [
+        3,
+        4,
+        10,
+        11
+      ],
+      "sowMonthsSouth": [
+        2,
+        3,
+        10,
+        11
+      ],
+      "sowMonthsNote": "落叶/常绿花木：春植 3–4 月、秋植 10–11 月",
+      "sowMonthsSource": "花卉栽培资料综合",
+      "sowMonthsPrecision": "derived"
     },
     {
       "cropId": "C233",
@@ -4756,7 +5584,18 @@
       "suitableSeason": "春植",
       "suitableRegion": "适生区",
       "tempRequirement": "多年生，需按年管理",
-      "source": "category-rule"
+      "source": "category-rule",
+      "sowMonths": [
+        9,
+        10
+      ],
+      "sowMonthsSouth": [
+        9,
+        10
+      ],
+      "sowMonthsNote": "分株/栽植以秋季 9–10 月为主",
+      "sowMonthsSource": "花卉栽培资料综合",
+      "sowMonthsPrecision": "derived"
     },
     {
       "cropId": "C234",
@@ -4771,7 +5610,18 @@
       "suitableSeason": "春播",
       "suitableRegion": "全国",
       "tempRequirement": "观赏/药用，喜光",
-      "source": "category-rule"
+      "source": "category-rule",
+      "sowMonths": [
+        9,
+        10
+      ],
+      "sowMonthsSouth": [
+        9,
+        10
+      ],
+      "sowMonthsNote": "分株/栽植以秋季 9–10 月为主",
+      "sowMonthsSource": "花卉栽培资料综合",
+      "sowMonthsPrecision": "derived"
     },
     {
       "cropId": "C235",
@@ -4786,7 +5636,18 @@
       "suitableSeason": "春播",
       "suitableRegion": "全国",
       "tempRequirement": "观赏/药用，喜光",
-      "source": "category-rule"
+      "source": "category-rule",
+      "sowMonths": [
+        4,
+        5
+      ],
+      "sowMonthsSouth": [
+        4,
+        5
+      ],
+      "sowMonthsNote": "扦插育苗 4–5 月，秋季开花",
+      "sowMonthsSource": "花卉栽培资料综合",
+      "sowMonthsPrecision": "derived"
     },
     {
       "cropId": "C236",
@@ -4801,7 +5662,20 @@
       "suitableSeason": "春播",
       "suitableRegion": "全国",
       "tempRequirement": "属性按作物类别推定",
-      "source": "category-rule"
+      "source": "category-rule",
+      "sowMonths": [
+        3,
+        4,
+        9
+      ],
+      "sowMonthsSouth": [
+        3,
+        4,
+        9
+      ],
+      "sowMonthsNote": "春秋两季定植",
+      "sowMonthsSource": "花卉栽培资料综合",
+      "sowMonthsPrecision": "derived"
     },
     {
       "cropId": "C237",
@@ -4816,7 +5690,22 @@
       "suitableSeason": "春播",
       "suitableRegion": "全国",
       "tempRequirement": "观赏/药用，喜光",
-      "source": "category-rule"
+      "source": "category-rule",
+      "sowMonths": [
+        3,
+        4,
+        9,
+        10
+      ],
+      "sowMonthsSouth": [
+        3,
+        4,
+        9,
+        10
+      ],
+      "sowMonthsNote": "种球春秋两季栽植",
+      "sowMonthsSource": "花卉栽培资料综合",
+      "sowMonthsPrecision": "derived"
     },
     {
       "cropId": "C238",
@@ -4831,7 +5720,18 @@
       "suitableSeason": "春播",
       "suitableRegion": "全国",
       "tempRequirement": "属性按作物类别推定",
-      "source": "category-rule"
+      "source": "category-rule",
+      "sowMonths": [
+        10,
+        11
+      ],
+      "sowMonthsSouth": [
+        10,
+        11
+      ],
+      "sowMonthsNote": "秋植球根，需低温春化",
+      "sowMonthsSource": "花卉栽培资料综合",
+      "sowMonthsPrecision": "derived"
     },
     {
       "cropId": "C239",
@@ -4846,7 +5746,20 @@
       "suitableSeason": "春植",
       "suitableRegion": "适生区",
       "tempRequirement": "多年生，需按年管理",
-      "source": "category-rule"
+      "source": "category-rule",
+      "sowMonths": [
+        3,
+        4
+      ],
+      "sowMonthsSouth": [
+        2,
+        3,
+        10,
+        11
+      ],
+      "sowMonthsNote": "常绿花木以春季 3–4 月栽植为主",
+      "sowMonthsSource": "花卉栽培资料综合",
+      "sowMonthsPrecision": "derived"
     },
     {
       "cropId": "C240",
@@ -4861,7 +5774,20 @@
       "suitableSeason": "春植",
       "suitableRegion": "适生区",
       "tempRequirement": "多年生，需按年管理",
-      "source": "category-rule"
+      "source": "category-rule",
+      "sowMonths": [
+        3,
+        4
+      ],
+      "sowMonthsSouth": [
+        2,
+        3,
+        10,
+        11
+      ],
+      "sowMonthsNote": "常绿花木以春季 3–4 月栽植为主",
+      "sowMonthsSource": "花卉栽培资料综合",
+      "sowMonthsPrecision": "derived"
     },
     {
       "cropId": "C241",
@@ -4876,7 +5802,20 @@
       "suitableSeason": "春植",
       "suitableRegion": "适生区",
       "tempRequirement": "多年生，需按年管理",
-      "source": "category-rule"
+      "source": "category-rule",
+      "sowMonths": [
+        3,
+        4
+      ],
+      "sowMonthsSouth": [
+        2,
+        3,
+        10,
+        11
+      ],
+      "sowMonthsNote": "常绿花木以春季 3–4 月栽植为主",
+      "sowMonthsSource": "花卉栽培资料综合",
+      "sowMonthsPrecision": "derived"
     },
     {
       "cropId": "C242",
@@ -4891,7 +5830,20 @@
       "suitableSeason": "春植",
       "suitableRegion": "适生区",
       "tempRequirement": "多年生，需按年管理",
-      "source": "category-rule"
+      "source": "category-rule",
+      "sowMonths": [
+        3,
+        4
+      ],
+      "sowMonthsSouth": [
+        2,
+        3,
+        10,
+        11
+      ],
+      "sowMonthsNote": "常绿花木以春季 3–4 月栽植为主",
+      "sowMonthsSource": "花卉栽培资料综合",
+      "sowMonthsPrecision": "derived"
     },
     {
       "cropId": "C243",
@@ -4906,7 +5858,20 @@
       "suitableSeason": "春植",
       "suitableRegion": "适生区",
       "tempRequirement": "多年生，需按年管理",
-      "source": "category-rule"
+      "source": "category-rule",
+      "sowMonths": [
+        3,
+        4
+      ],
+      "sowMonthsSouth": [
+        2,
+        3,
+        10,
+        11
+      ],
+      "sowMonthsNote": "常绿花木以春季 3–4 月栽植为主",
+      "sowMonthsSource": "花卉栽培资料综合",
+      "sowMonthsPrecision": "derived"
     },
     {
       "cropId": "C244",
@@ -4921,7 +5886,20 @@
       "suitableSeason": "春植",
       "suitableRegion": "适生区",
       "tempRequirement": "多年生，需按年管理",
-      "source": "category-rule"
+      "source": "category-rule",
+      "sowMonths": [
+        3,
+        4
+      ],
+      "sowMonthsSouth": [
+        2,
+        3,
+        10,
+        11
+      ],
+      "sowMonthsNote": "常绿花木以春季 3–4 月栽植为主",
+      "sowMonthsSource": "花卉栽培资料综合",
+      "sowMonthsPrecision": "derived"
     },
     {
       "cropId": "C245",
@@ -4936,7 +5914,20 @@
       "suitableSeason": "春植",
       "suitableRegion": "适生区",
       "tempRequirement": "多年生，需按年管理",
-      "source": "category-rule"
+      "source": "category-rule",
+      "sowMonths": [
+        3,
+        4
+      ],
+      "sowMonthsSouth": [
+        2,
+        3,
+        10,
+        11
+      ],
+      "sowMonthsNote": "常绿花木以春季 3–4 月栽植为主",
+      "sowMonthsSource": "花卉栽培资料综合",
+      "sowMonthsPrecision": "derived"
     },
     {
       "cropId": "C246",
@@ -4951,7 +5942,18 @@
       "suitableSeason": "春播",
       "suitableRegion": "全国",
       "tempRequirement": "观赏/药用，喜光",
-      "source": "category-rule"
+      "source": "category-rule",
+      "sowMonths": [
+        9,
+        10
+      ],
+      "sowMonthsSouth": [
+        9,
+        10
+      ],
+      "sowMonthsNote": "秋植球根",
+      "sowMonthsSource": "花卉栽培资料综合",
+      "sowMonthsPrecision": "derived"
     },
     {
       "cropId": "C247",
@@ -4966,7 +5968,18 @@
       "suitableSeason": "春播",
       "suitableRegion": "全国",
       "tempRequirement": "观赏/药用，喜光",
-      "source": "category-rule"
+      "source": "category-rule",
+      "sowMonths": [
+        3,
+        4
+      ],
+      "sowMonthsSouth": [
+        3,
+        4
+      ],
+      "sowMonthsNote": "水生花卉，地温回升后栽植",
+      "sowMonthsSource": "花卉栽培资料综合",
+      "sowMonthsPrecision": "derived"
     },
     {
       "cropId": "C248",
@@ -4981,7 +5994,18 @@
       "suitableSeason": "春播",
       "suitableRegion": "全国",
       "tempRequirement": "观赏/药用，喜光",
-      "source": "category-rule"
+      "source": "category-rule",
+      "sowMonths": [
+        3,
+        4
+      ],
+      "sowMonthsSouth": [
+        3,
+        4
+      ],
+      "sowMonthsNote": "水生花卉，地温回升后栽植",
+      "sowMonthsSource": "花卉栽培资料综合",
+      "sowMonthsPrecision": "derived"
     },
     {
       "cropId": "C249",
@@ -4996,7 +6020,20 @@
       "suitableSeason": "春播",
       "suitableRegion": "全国",
       "tempRequirement": "属性按作物类别推定",
-      "source": "category-rule"
+      "source": "category-rule",
+      "sowMonths": [
+        3,
+        4,
+        9
+      ],
+      "sowMonthsSouth": [
+        3,
+        4,
+        9
+      ],
+      "sowMonthsNote": "春秋分株",
+      "sowMonthsSource": "花卉栽培资料综合",
+      "sowMonthsPrecision": "derived"
     },
     {
       "cropId": "C250",
@@ -5011,7 +6048,18 @@
       "suitableSeason": "春播",
       "suitableRegion": "全国",
       "tempRequirement": "观赏/药用，喜光",
-      "source": "category-rule"
+      "source": "category-rule",
+      "sowMonths": [
+        3,
+        4
+      ],
+      "sowMonthsSouth": [
+        3,
+        4
+      ],
+      "sowMonthsNote": "块根春植",
+      "sowMonthsSource": "花卉栽培资料综合",
+      "sowMonthsPrecision": "derived"
     },
     {
       "cropId": "C251",
@@ -5026,7 +6074,20 @@
       "suitableSeason": "春播",
       "suitableRegion": "全国",
       "tempRequirement": "属性按作物类别推定",
-      "source": "category-rule"
+      "source": "category-rule",
+      "sowMonths": [
+        3,
+        4,
+        6
+      ],
+      "sowMonthsSouth": [
+        3,
+        4,
+        6
+      ],
+      "sowMonthsNote": "一年生草本，春播为主",
+      "sowMonthsSource": "花卉栽培资料综合",
+      "sowMonthsPrecision": "derived"
     },
     {
       "cropId": "C252",
@@ -5041,7 +6102,20 @@
       "suitableSeason": "春播",
       "suitableRegion": "全国",
       "tempRequirement": "观赏/药用，喜光",
-      "source": "category-rule"
+      "source": "category-rule",
+      "sowMonths": [
+        3,
+        4,
+        6
+      ],
+      "sowMonthsSouth": [
+        3,
+        4,
+        6
+      ],
+      "sowMonthsNote": "一年生草本，春播为主",
+      "sowMonthsSource": "花卉栽培资料综合",
+      "sowMonthsPrecision": "derived"
     },
     {
       "cropId": "C253",
@@ -5056,7 +6130,20 @@
       "suitableSeason": "春播",
       "suitableRegion": "适生区",
       "tempRequirement": "药用作物，按品种差异大",
-      "source": "category-rule"
+      "source": "category-rule",
+      "sowMonths": [
+        3,
+        4,
+        6
+      ],
+      "sowMonthsSouth": [
+        3,
+        4,
+        6
+      ],
+      "sowMonthsNote": "一年生草本，春播为主",
+      "sowMonthsSource": "花卉栽培资料综合",
+      "sowMonthsPrecision": "derived"
     },
     {
       "cropId": "C254",
@@ -5071,7 +6158,18 @@
       "suitableSeason": "春播",
       "suitableRegion": "全国",
       "tempRequirement": "属性按作物类别推定",
-      "source": "category-rule"
+      "source": "category-rule",
+      "sowMonths": [
+        8,
+        9
+      ],
+      "sowMonthsSouth": [
+        9,
+        10
+      ],
+      "sowMonthsNote": "秋播越冬，翌春开花",
+      "sowMonthsSource": "花卉栽培资料综合",
+      "sowMonthsPrecision": "derived"
     },
     {
       "cropId": "C255",
@@ -5086,7 +6184,20 @@
       "suitableSeason": "春播",
       "suitableRegion": "全国",
       "tempRequirement": "属性按作物类别推定",
-      "source": "category-rule"
+      "source": "category-rule",
+      "sowMonths": [
+        3,
+        4,
+        8
+      ],
+      "sowMonthsSouth": [
+        3,
+        4,
+        8
+      ],
+      "sowMonthsNote": "春秋两季播种",
+      "sowMonthsSource": "花卉栽培资料综合",
+      "sowMonthsPrecision": "derived"
     },
     {
       "cropId": "C256",
@@ -5101,7 +6212,18 @@
       "suitableSeason": "春播",
       "suitableRegion": "适生区",
       "tempRequirement": "药用作物，按品种差异大",
-      "source": "category-rule"
+      "source": "category-rule",
+      "sowMonths": [
+        8,
+        9
+      ],
+      "sowMonthsSouth": [
+        9,
+        10
+      ],
+      "sowMonthsNote": "秋播越冬，翌春开花",
+      "sowMonthsSource": "花卉栽培资料综合",
+      "sowMonthsPrecision": "derived"
     },
     {
       "cropId": "C257",
@@ -5116,7 +6238,20 @@
       "suitableSeason": "春植",
       "suitableRegion": "适生区",
       "tempRequirement": "多年生，需按年管理",
-      "source": "category-rule"
+      "source": "category-rule",
+      "sowMonths": [
+        3,
+        4,
+        9
+      ],
+      "sowMonthsSouth": [
+        3,
+        4,
+        9
+      ],
+      "sowMonthsNote": "春秋两季播种",
+      "sowMonthsSource": "花卉栽培资料综合",
+      "sowMonthsPrecision": "derived"
     },
     {
       "cropId": "C258",
@@ -5131,7 +6266,20 @@
       "suitableSeason": "春播",
       "suitableRegion": "全国",
       "tempRequirement": "属性按作物类别推定",
-      "source": "category-rule"
+      "source": "category-rule",
+      "sowMonths": [
+        3,
+        4,
+        9
+      ],
+      "sowMonthsSouth": [
+        3,
+        4,
+        9
+      ],
+      "sowMonthsNote": "春秋两季播种",
+      "sowMonthsSource": "花卉栽培资料综合",
+      "sowMonthsPrecision": "derived"
     },
     {
       "cropId": "C259",
@@ -6458,7 +7606,22 @@
       "suitableSeason": "春植",
       "suitableRegion": "适生区",
       "tempRequirement": "多年生，需按年管理",
-      "source": "category-rule"
+      "source": "category-rule",
+      "sowMonths": [
+        2,
+        3,
+        9,
+        10
+      ],
+      "sowMonthsSouth": [
+        2,
+        3,
+        9,
+        10
+      ],
+      "sowMonthsNote": "柑橘品种，定植窗口同柑橘",
+      "sowMonthsSource": "按柑橘推定",
+      "sowMonthsPrecision": "derived"
     },
     {
       "cropId": "C346",
@@ -6473,7 +7636,22 @@
       "suitableSeason": "春植",
       "suitableRegion": "适生区",
       "tempRequirement": "多年生，需按年管理",
-      "source": "category-rule"
+      "source": "category-rule",
+      "sowMonths": [
+        2,
+        3,
+        9,
+        10
+      ],
+      "sowMonthsSouth": [
+        2,
+        3,
+        9,
+        10
+      ],
+      "sowMonthsNote": "柑橘品种，定植窗口同柑橘",
+      "sowMonthsSource": "按柑橘推定",
+      "sowMonthsPrecision": "derived"
     },
     {
       "cropId": "C347",
@@ -6488,7 +7666,22 @@
       "suitableSeason": "春植",
       "suitableRegion": "适生区",
       "tempRequirement": "多年生，需按年管理",
-      "source": "category-rule"
+      "source": "category-rule",
+      "sowMonths": [
+        2,
+        3,
+        9,
+        10
+      ],
+      "sowMonthsSouth": [
+        2,
+        3,
+        9,
+        10
+      ],
+      "sowMonthsNote": "柑橘品种，定植窗口同柑橘",
+      "sowMonthsSource": "按柑橘推定",
+      "sowMonthsPrecision": "derived"
     },
     {
       "cropId": "C348",
@@ -6503,7 +7696,22 @@
       "suitableSeason": "春植",
       "suitableRegion": "适生区",
       "tempRequirement": "多年生，需按年管理",
-      "source": "category-rule"
+      "source": "category-rule",
+      "sowMonths": [
+        2,
+        3,
+        9,
+        10
+      ],
+      "sowMonthsSouth": [
+        2,
+        3,
+        9,
+        10
+      ],
+      "sowMonthsNote": "柑橘品种，定植窗口同柑橘",
+      "sowMonthsSource": "按柑橘推定",
+      "sowMonthsPrecision": "derived"
     },
     {
       "cropId": "C349",
@@ -6518,7 +7726,22 @@
       "suitableSeason": "春植",
       "suitableRegion": "适生区",
       "tempRequirement": "多年生，需按年管理",
-      "source": "category-rule"
+      "source": "category-rule",
+      "sowMonths": [
+        2,
+        3,
+        9,
+        10
+      ],
+      "sowMonthsSouth": [
+        2,
+        3,
+        9,
+        10
+      ],
+      "sowMonthsNote": "柑橘品种，定植窗口同柑橘",
+      "sowMonthsSource": "按柑橘推定",
+      "sowMonthsPrecision": "derived"
     },
     {
       "cropId": "C350",
@@ -6533,7 +7756,22 @@
       "suitableSeason": "春植",
       "suitableRegion": "适生区",
       "tempRequirement": "多年生，需按年管理",
-      "source": "category-rule"
+      "source": "category-rule",
+      "sowMonths": [
+        2,
+        3,
+        9,
+        10
+      ],
+      "sowMonthsSouth": [
+        2,
+        3,
+        9,
+        10
+      ],
+      "sowMonthsNote": "柑橘品种，定植窗口同柑橘",
+      "sowMonthsSource": "按柑橘推定",
+      "sowMonthsPrecision": "derived"
     },
     {
       "cropId": "C351",
@@ -6548,7 +7786,22 @@
       "suitableSeason": "春植",
       "suitableRegion": "适生区",
       "tempRequirement": "多年生，需按年管理",
-      "source": "category-rule"
+      "source": "category-rule",
+      "sowMonths": [
+        2,
+        3,
+        9,
+        10
+      ],
+      "sowMonthsSouth": [
+        2,
+        3,
+        9,
+        10
+      ],
+      "sowMonthsNote": "柑橘品种，定植窗口同柑橘",
+      "sowMonthsSource": "按柑橘推定",
+      "sowMonthsPrecision": "derived"
     },
     {
       "cropId": "C352",
@@ -6563,7 +7816,22 @@
       "suitableSeason": "春播",
       "suitableRegion": "全国",
       "tempRequirement": "属性按作物类别推定",
-      "source": "category-rule"
+      "source": "category-rule",
+      "sowMonths": [
+        2,
+        3,
+        9,
+        10
+      ],
+      "sowMonthsSouth": [
+        2,
+        3,
+        9,
+        10
+      ],
+      "sowMonthsNote": "柑橘品种，定植窗口同柑橘",
+      "sowMonthsSource": "按柑橘推定",
+      "sowMonthsPrecision": "derived"
     },
     {
       "cropId": "C353",
@@ -6998,7 +8266,20 @@
       "suitableSeason": "春植",
       "suitableRegion": "适生区",
       "tempRequirement": "多年生，需按年管理",
-      "source": "category-rule"
+      "source": "category-rule",
+      "sowMonths": [
+        3,
+        4
+      ],
+      "sowMonthsSouth": [
+        2,
+        3,
+        9,
+        10
+      ],
+      "sowMonthsNote": "木本香料，春季 3–4 月定植为主",
+      "sowMonthsSource": "香料作物栽培资料综合",
+      "sowMonthsPrecision": "derived"
     },
     {
       "cropId": "C382",
@@ -7013,7 +8294,20 @@
       "suitableSeason": "春植",
       "suitableRegion": "适生区",
       "tempRequirement": "多年生，需按年管理",
-      "source": "category-rule"
+      "source": "category-rule",
+      "sowMonths": [
+        3,
+        4
+      ],
+      "sowMonthsSouth": [
+        2,
+        3,
+        9,
+        10
+      ],
+      "sowMonthsNote": "木本香料，春季 3–4 月定植为主",
+      "sowMonthsSource": "香料作物栽培资料综合",
+      "sowMonthsPrecision": "derived"
     },
     {
       "cropId": "C383",
@@ -7028,7 +8322,20 @@
       "suitableSeason": "春播",
       "suitableRegion": "全国",
       "tempRequirement": "属性按作物类别推定",
-      "source": "category-rule"
+      "source": "category-rule",
+      "sowMonths": [
+        3,
+        4
+      ],
+      "sowMonthsSouth": [
+        2,
+        3,
+        9,
+        10
+      ],
+      "sowMonthsNote": "木本香料，春季 3–4 月定植为主",
+      "sowMonthsSource": "香料作物栽培资料综合",
+      "sowMonthsPrecision": "derived"
     },
     {
       "cropId": "C384",
@@ -7043,7 +8350,20 @@
       "suitableSeason": "春植",
       "suitableRegion": "适生区",
       "tempRequirement": "多年生，需按年管理",
-      "source": "category-rule"
+      "source": "category-rule",
+      "sowMonths": [
+        3,
+        4
+      ],
+      "sowMonthsSouth": [
+        2,
+        3,
+        9,
+        10
+      ],
+      "sowMonthsNote": "木本香料，春季 3–4 月定植为主",
+      "sowMonthsSource": "香料作物栽培资料综合",
+      "sowMonthsPrecision": "derived"
     },
     {
       "cropId": "C385",
@@ -7058,7 +8378,20 @@
       "suitableSeason": "春植",
       "suitableRegion": "适生区",
       "tempRequirement": "多年生，需按年管理",
-      "source": "category-rule"
+      "source": "category-rule",
+      "sowMonths": [
+        3,
+        4
+      ],
+      "sowMonthsSouth": [
+        2,
+        3,
+        9,
+        10
+      ],
+      "sowMonthsNote": "木本香料，春季 3–4 月定植为主",
+      "sowMonthsSource": "香料作物栽培资料综合",
+      "sowMonthsPrecision": "derived"
     },
     {
       "cropId": "C386",
@@ -7073,7 +8406,20 @@
       "suitableSeason": "春植",
       "suitableRegion": "适生区",
       "tempRequirement": "多年生，需按年管理",
-      "source": "category-rule"
+      "source": "category-rule",
+      "sowMonths": [
+        3,
+        4
+      ],
+      "sowMonthsSouth": [
+        2,
+        3,
+        9,
+        10
+      ],
+      "sowMonthsNote": "木本香料，春季 3–4 月定植为主",
+      "sowMonthsSource": "香料作物栽培资料综合",
+      "sowMonthsPrecision": "derived"
     },
     {
       "cropId": "C387",
@@ -7088,7 +8434,20 @@
       "suitableSeason": "春植",
       "suitableRegion": "适生区",
       "tempRequirement": "多年生，需按年管理",
-      "source": "category-rule"
+      "source": "category-rule",
+      "sowMonths": [
+        3,
+        4
+      ],
+      "sowMonthsSouth": [
+        2,
+        3,
+        9,
+        10
+      ],
+      "sowMonthsNote": "木本香料，春季 3–4 月定植为主",
+      "sowMonthsSource": "香料作物栽培资料综合",
+      "sowMonthsPrecision": "derived"
     },
     {
       "cropId": "C388",
@@ -7103,7 +8462,20 @@
       "suitableSeason": "春植",
       "suitableRegion": "适生区",
       "tempRequirement": "多年生，需按年管理",
-      "source": "category-rule"
+      "source": "category-rule",
+      "sowMonths": [
+        3,
+        4
+      ],
+      "sowMonthsSouth": [
+        2,
+        3,
+        9,
+        10
+      ],
+      "sowMonthsNote": "木本香料，春季 3–4 月定植为主",
+      "sowMonthsSource": "香料作物栽培资料综合",
+      "sowMonthsPrecision": "derived"
     },
     {
       "cropId": "C389",
@@ -7118,7 +8490,20 @@
       "suitableSeason": "春植",
       "suitableRegion": "适生区",
       "tempRequirement": "多年生，需按年管理",
-      "source": "category-rule"
+      "source": "category-rule",
+      "sowMonths": [
+        3,
+        4
+      ],
+      "sowMonthsSouth": [
+        2,
+        3,
+        9,
+        10
+      ],
+      "sowMonthsNote": "木本香料，春季 3–4 月定植为主",
+      "sowMonthsSource": "香料作物栽培资料综合",
+      "sowMonthsPrecision": "derived"
     },
     {
       "cropId": "C390",
@@ -7133,7 +8518,20 @@
       "suitableSeason": "春播",
       "suitableRegion": "全国",
       "tempRequirement": "属性按作物类别推定",
-      "source": "category-rule"
+      "source": "category-rule",
+      "sowMonths": [
+        3,
+        4
+      ],
+      "sowMonthsSouth": [
+        2,
+        3,
+        9,
+        10
+      ],
+      "sowMonthsNote": "木本香料，春季 3–4 月定植为主",
+      "sowMonthsSource": "香料作物栽培资料综合",
+      "sowMonthsPrecision": "derived"
     },
     {
       "cropId": "C391",
@@ -7148,7 +8546,18 @@
       "suitableSeason": "春植",
       "suitableRegion": "适生区",
       "tempRequirement": "多年生，需按年管理",
-      "source": "category-rule"
+      "source": "category-rule",
+      "sowMonths": [
+        3,
+        4
+      ],
+      "sowMonthsSouth": [
+        3,
+        4
+      ],
+      "sowMonthsNote": "春播",
+      "sowMonthsSource": "香料作物栽培资料综合",
+      "sowMonthsPrecision": "derived"
     },
     {
       "cropId": "C392",
@@ -7163,7 +8572,22 @@
       "suitableSeason": "春植",
       "suitableRegion": "适生区",
       "tempRequirement": "多年生，需按年管理",
-      "source": "category-rule"
+      "source": "category-rule",
+      "sowMonths": [
+        3,
+        4,
+        8,
+        9
+      ],
+      "sowMonthsSouth": [
+        3,
+        4,
+        8,
+        9
+      ],
+      "sowMonthsNote": "春秋两季播种",
+      "sowMonthsSource": "香料作物栽培资料综合",
+      "sowMonthsPrecision": "derived"
     },
     {
       "cropId": "C393",
@@ -7178,7 +8602,20 @@
       "suitableSeason": "春植",
       "suitableRegion": "适生区",
       "tempRequirement": "多年生，需按年管理",
-      "source": "category-rule"
+      "source": "category-rule",
+      "sowMonths": [
+        3,
+        4
+      ],
+      "sowMonthsSouth": [
+        2,
+        3,
+        9,
+        10
+      ],
+      "sowMonthsNote": "木本香料，春季 3–4 月定植为主",
+      "sowMonthsSource": "香料作物栽培资料综合",
+      "sowMonthsPrecision": "derived"
     },
     {
       "cropId": "C394",
@@ -7193,7 +8630,20 @@
       "suitableSeason": "春植",
       "suitableRegion": "适生区",
       "tempRequirement": "多年生，需按年管理",
-      "source": "category-rule"
+      "source": "category-rule",
+      "sowMonths": [
+        3,
+        4
+      ],
+      "sowMonthsSouth": [
+        2,
+        3,
+        9,
+        10
+      ],
+      "sowMonthsNote": "木本香料，春季 3–4 月定植为主",
+      "sowMonthsSource": "香料作物栽培资料综合",
+      "sowMonthsPrecision": "derived"
     },
     {
       "cropId": "C395",
@@ -7208,7 +8658,20 @@
       "suitableSeason": "春播",
       "suitableRegion": "全国",
       "tempRequirement": "属性按作物类别推定",
-      "source": "category-rule"
+      "source": "category-rule",
+      "sowMonths": [
+        3,
+        4
+      ],
+      "sowMonthsSouth": [
+        2,
+        3,
+        9,
+        10
+      ],
+      "sowMonthsNote": "木本香料，春季 3–4 月定植为主",
+      "sowMonthsSource": "香料作物栽培资料综合",
+      "sowMonthsPrecision": "derived"
     },
     {
       "cropId": "C396",
@@ -7223,7 +8686,20 @@
       "suitableSeason": "春植",
       "suitableRegion": "适生区",
       "tempRequirement": "多年生，需按年管理",
-      "source": "category-rule"
+      "source": "category-rule",
+      "sowMonths": [
+        3,
+        4,
+        9
+      ],
+      "sowMonthsSouth": [
+        3,
+        4,
+        9
+      ],
+      "sowMonthsNote": "多年生香草，春秋栽植",
+      "sowMonthsSource": "香料作物栽培资料综合",
+      "sowMonthsPrecision": "derived"
     },
     {
       "cropId": "C397",
@@ -7238,7 +8714,20 @@
       "suitableSeason": "春植",
       "suitableRegion": "适生区",
       "tempRequirement": "多年生，需按年管理",
-      "source": "category-rule"
+      "source": "category-rule",
+      "sowMonths": [
+        3,
+        4,
+        9
+      ],
+      "sowMonthsSouth": [
+        3,
+        4,
+        9
+      ],
+      "sowMonthsNote": "多年生香草，春秋栽植",
+      "sowMonthsSource": "香料作物栽培资料综合",
+      "sowMonthsPrecision": "derived"
     },
     {
       "cropId": "C398",
@@ -7253,7 +8742,20 @@
       "suitableSeason": "春植",
       "suitableRegion": "适生区",
       "tempRequirement": "多年生，需按年管理",
-      "source": "category-rule"
+      "source": "category-rule",
+      "sowMonths": [
+        3,
+        4,
+        9
+      ],
+      "sowMonthsSouth": [
+        3,
+        4,
+        9
+      ],
+      "sowMonthsNote": "多年生香草，春秋栽植",
+      "sowMonthsSource": "香料作物栽培资料综合",
+      "sowMonthsPrecision": "derived"
     },
     {
       "cropId": "C399",
@@ -7268,7 +8770,20 @@
       "suitableSeason": "春植",
       "suitableRegion": "适生区",
       "tempRequirement": "多年生，需按年管理",
-      "source": "category-rule"
+      "source": "category-rule",
+      "sowMonths": [
+        3,
+        4,
+        9
+      ],
+      "sowMonthsSouth": [
+        3,
+        4,
+        9
+      ],
+      "sowMonthsNote": "多年生香草，春秋栽植",
+      "sowMonthsSource": "香料作物栽培资料综合",
+      "sowMonthsPrecision": "derived"
     },
     {
       "cropId": "C400",
@@ -7283,7 +8798,18 @@
       "suitableSeason": "春植",
       "suitableRegion": "适生区",
       "tempRequirement": "多年生，需按年管理",
-      "source": "category-rule"
+      "source": "category-rule",
+      "sowMonths": [
+        9,
+        10
+      ],
+      "sowMonthsSouth": [
+        10,
+        11
+      ],
+      "sowMonthsNote": "秋植球茎",
+      "sowMonthsSource": "香料作物栽培资料综合",
+      "sowMonthsPrecision": "derived"
     }
   ]
 }

@@ -673,10 +673,14 @@
             && info.latest.date !== date) {
           bits.push('最晚 ' + fmtMD(info.latest.date));
         }
+        var regionLabel = w.region === 'south' ? '南方窗口'
+          : (w.region === 'southwest' ? '西南窗口' : '');
         if (w.precision === 'season-rule') {
           bits.push('窗口按季节推导，未逐品种校核');
+        } else if (w.precision === 'derived') {
+          bits.push(regionLabel ? regionLabel + '·近缘推定' : '按近缘作物推定');
         } else {
-          bits.push(w.region === 'south' ? '南方窗口·已校核' : '播期已校核');
+          bits.push(regionLabel ? regionLabel + '·已校核' : '播期已校核');
         }
         sub.textContent = bits.join(' · ');
         if (box) {

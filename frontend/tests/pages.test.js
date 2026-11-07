@@ -2401,11 +2401,29 @@ test('完善性：超管后台错误反馈走 toast，保留确认类交互', ()
 test('V5.4/V5.5 播期校核：100 种作物有精确月份，且区分南北窗口', () => {
   const props = JSON.parse(read(path.resolve(__dirname, '..', '..', 'data', 'crop-base', 'properties.json')));
   const checked = props.crops.filter((c) => Array.isArray(c.sowMonths) && c.sowMonths.length);
-  assert.ok(checked.length >= 100, '校核播期的作物应不少于 100 种，实际 ' + checked.length);
+  assert.ok(checked.length >= 200, '校核播期的作物应不少于 200 种，实际 ' + checked.length);
 
   // 南方窗口：至少 90 种有，且月份合法
   const south = checked.filter((c) => Array.isArray(c.sowMonthsSouth) && c.sowMonthsSouth.length);
-  assert.ok(south.length >= 90, '应有不少于 90 种带南方窗口，实际 ' + south.length);
+  assert.ok(south.length >= 100, '应有不少于 100 种带南方窗口，实际 ' + south.length);
+
+  // 精度分层：derived 必须显式标注，不能混进 researched
+  const derived = checked.filter((c) => c.sowMonthsPrecision === 'derived');
+  assert.ok(derived.length >= 100, '应至少有 100 种标注为推定，实际 ' + derived.length);
+  for (const c of derived) {
+    assert.ok(c.sowMonthsSource && c.sowMonthsSource.trim(),
+      c.displayName + ' 标为推定却没写来源');
+    assert.ok(c.sowMonthsNote && c.sowMonthsNote.trim(),
+      c.displayName + ' 标为推定却没写地区/茬口说明');
+  }
+  // 品种类必须写明"按某作物推定"，不能只写一个含糊来源
+  const cultivar = derived.find((c) => c.displayName === '红富士');
+  assert.ok(cultivar && cultivar.sowMonthsSource.includes('按苹果推定'),
+    '苹果品种应写明按苹果推定');
+
+  // 西南窗口：至少 40 种
+  const sw = checked.filter((c) => Array.isArray(c.sowMonthsSouthwest) && c.sowMonthsSouthwest.length);
+  assert.ok(sw.length >= 40, '应有不少于 40 种带西南窗口，实际 ' + sw.length);
   for (const c of south) {
     assert.ok(c.sowMonthsSouth.every((m) => Number.isInteger(m) && m >= 1 && m <= 12),
       c.displayName + ' 的 sowMonthsSouth 含非法月份');
@@ -2445,8 +2463,10 @@ test('V5.5 南北窗口按纬度切换：26.5°N 以南用南方窗口', () => {
   const win = read(path.resolve(__dirname, '..', '..', 'backend', 'src', 'com', 'cropcalendar', 'service', 'crop', 'PlantingWindow.java'));
   assert.ok(win.includes('SOUTH_LAT = 26.5'), '应有南方分界纬度');
   assert.ok(win.includes('public static boolean useSouth'), '应有南北窗口选择');
-  assert.ok(win.includes('south ? p.sowMonthsSouth() : p.sowMonths()'), '月窗口应按地域切换');
-  assert.ok(win.includes('south ? "south" : "north"'), '窗口应标注地域');
+  assert.ok(win.includes('p.sowMonthsSouthwest()'), '西南应使用西南窗口');
+  assert.ok(win.includes('p.sowMonthsSouth()'), '华南应使用南方窗口');
+  assert.ok(win.includes('Region.SOUTHWEST'), '应有西南窗口');
+  assert.ok(win.includes('region.json()'), '窗口应标注地域');
   const handler = read(path.resolve(__dirname, '..', '..', 'backend', 'src', 'com', 'cropcalendar', 'api', 'SowWindowHandler.java'));
   assert.ok(handler.includes('"region"'), '接口应返回窗口地域');
 });
@@ -2485,7 +2505,7 @@ test('V5.3 后端：窗口与校验共用一套月份规则，且不给过去的
   const timeline = read(path.resolve(__dirname, '..', '..', 'backend', 'src', 'com', 'cropcalendar', 'api', 'TimelineHandler.java'));
 
   assert.ok(win.includes('public static Set<Integer> monthsFor'), '月份规则应集中在一处');
-  assert.ok(check.includes('PlantingWindow.monthsFor(props, lat)'), '播期校验必须复用窗口规则（含纬度）');
+  assert.ok(check.includes('PlantingWindow.monthsFor(props, lat, lon)'), '播期校验必须复用窗口规则（含经纬度）');
   assert.ok(win.includes('public static Set<Integer> monthsFor(CropProperties.Props p, double lat)'), '窗口应做纬度粗调');
   assert.ok(!check.includes('AgroZone.sowMonths(props.suitableSeason())'), '不应保留第二套粗粒度季节规则');
   assert.ok(win.includes('if (e.isBefore(today)) continue'), '已结束的窗口不应再被选中');
