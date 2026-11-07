@@ -672,7 +672,11 @@
         if (info.latest && info.latest.date && info.latest.date !== (w.end || '')) {
           bits.push('最晚 ' + fmtMD(info.latest.date));
         }
-        if (w.precision === 'season-rule') bits.push('窗口按季节推导，未逐品种校核');
+        if (w.precision === 'season-rule') {
+          bits.push('窗口按季节推导，未逐品种校核');
+        } else {
+          bits.push('播期已校核');
+        }
         sub.textContent = bits.join(' · ');
         if (box) {
           box.classList.add('is-ready');

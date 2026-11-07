@@ -201,9 +201,11 @@ test('农艺判断：精确播期 + 霜期/越冬拦截，不排出冬天里的�
     '黄瓜': [3, 4, 5, 6, 7, 8],
     '辣椒': [3, 4, 5],
     '茄子': [3, 4, 5],
-    '大白菜': [7, 8],
+    // V5.4 按华北物候收敛：大白菜/秋萝卜都是立秋前后（8 月），
+    // 原来的 7–8 / 8–9 是长江流域口径，在华北会排出霜后收获
+    '大白菜': [8],
     '马铃薯': [2, 3, 8],
-    '萝卜': [8, 9],
+    '萝卜': [8],
     '西瓜': [4, 5]
   };
   const byName = {};
@@ -2394,6 +2396,32 @@ test('完善性：超管后台错误反馈走 toast，保留确认类交互', ()
   assert.ok(consoleJs.includes("showError(fsEmpty"), '文件面板加载失败应走错误态');
   assert.ok(consoleJs.includes("showError(auditEmpty"), '日志面板加载失败应走错误态');
   assert.ok(consoleJs.includes('showEmpty'), '后台面板空态应走统一组件');
+});
+
+test('V5.4 播期校核：至少 50 种作物有精确月份，且带地区依据', () => {
+  const props = JSON.parse(read(path.resolve(__dirname, '..', '..', 'data', 'crop-base', 'properties.json')));
+  const checked = props.crops.filter((c) => Array.isArray(c.sowMonths) && c.sowMonths.length);
+  assert.ok(checked.length >= 50, '校核播期的作物应不少于 50 种，实际 ' + checked.length);
+
+  const seen = new Set();
+  for (const c of checked) {
+    assert.ok(c.sowMonths.every((m) => Number.isInteger(m) && m >= 1 && m <= 12),
+      c.displayName + ' 的 sowMonths 含非法月份');
+    assert.ok(new Set(c.sowMonths).size === c.sowMonths.length, c.displayName + ' 的 sowMonths 有重复月份');
+    assert.ok(c.sowMonthsNote && c.sowMonthsNote.trim(), c.displayName + ' 缺播期说明（地区/茬口）');
+    assert.ok(c.totalDays > 0, c.displayName + ' 生育期应大于 0');
+    assert.ok(!seen.has(c.displayName), '作物重复：' + c.displayName);
+    seen.add(c.displayName);
+  }
+
+  // 关键作物的人工核对值：防止后续误改回粗粒度季节
+  const byName = Object.fromEntries(checked.map((c) => [c.displayName, c]));
+  assert.deepStrictEqual(byName['大白菜'].sowMonths, [8], '大白菜应是华北立秋前后（8 月）');
+  assert.deepStrictEqual(byName['萝卜'].sowMonths, [8], '秋萝卜应是 8 月');
+  assert.deepStrictEqual(byName['洋葱'].sowMonths, [9, 10], '洋葱应秋播 9–10 月');
+  assert.ok(byName['生姜'].totalDays >= 150, '生姜生育期不应仍是 90 天');
+  assert.ok(byName['芋头'].totalDays >= 180, '芋头生育期不应仍是 90 天');
+  assert.strictEqual(byName['西兰花'].lifespan, 'annual', '西兰花是一年生，不是多年生');
 });
 
 // ---------------- V5.3：只给作物 + 地点，播期由系统推算 ----------------

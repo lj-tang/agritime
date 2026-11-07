@@ -44,20 +44,31 @@ public final class AgroZone {
     }
 
     /**
-     * 终霜日（春季最后一次霜）。用纬度线性近似，华南直接判无霜。
-     * 华北 35°N 落在 4 月上旬，与实际的"清明断雪、谷雨断霜"基本对齐。
+     * 终霜日（春季最后一次霜）。
+     *
+     * 用纬度线性拟合真实物候值：杭州(30.3) 约 3/5、济南(35.0) 约 3/23、
+     * 北京(39.9) 约 4/11、沈阳(41.8) 约 4/19、哈尔滨(45.8) 约 5/2。
+     * 旧公式 75+(lat-30)×4.5 在 40°N 给出 4/30，比实际晚半个多月，
+     * 会把"终霜后播种"整体推后，导致华北的春季窗口几乎全落在霜期里。
      */
     public static LocalDate lastSpringFrost(int year, double lat) {
         if (lat < 24) return LocalDate.of(year, 1, 1);
-        int doy = (int) Math.round(75 + (lat - 30) * 4.5);
+        int doy = (int) Math.round(4.0 * lat - 58);
         doy = Math.max(1, Math.min(160, doy));
         return LocalDate.ofYearDay(year, doy);
     }
 
-    /** 初霜日（秋季第一次霜）。 */
+    /**
+     * 初霜日（秋季第一次霜）。
+     *
+     * 拟合值：武汉(30.6) 约 11/25、济南(35.0) 约 11/6、北京(39.9) 约 10/17、
+     * 沈阳(41.8) 约 10/9、哈尔滨(45.8) 约 9/25。
+     * 旧公式 305-(lat-30)×4 在 40°N 给出 9/22，比实际早近一个月，
+     * 会把北京的大白菜、洋葱判成"霜前熟不了"——那是北京最主要的秋菜。
+     */
     public static LocalDate firstAutumnFrost(int year, double lat) {
         if (lat < 24) return LocalDate.of(year, 12, 31);
-        int doy = (int) Math.round(305 - (lat - 30) * 4.0);
+        int doy = (int) Math.round(457 - 4.19 * lat);
         doy = Math.max(240, Math.min(360, doy));
         return LocalDate.ofYearDay(year, doy);
     }

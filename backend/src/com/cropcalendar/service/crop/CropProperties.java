@@ -28,11 +28,16 @@ public final class CropProperties {
     public record Props(String cropId, String displayName, String growthCycle, String lifespan,
                         String croppingSystem, int totalDays, String suitableSeason,
                         String suitableRegion, String tempRequirement, String source,
-                        List<Integer> sowMonths) {
+                        List<Integer> sowMonths, String sowMonthsNote) {
 
         /** 是否配置了精确播期（月份）。未配置时调用方回退到 suitableSeason 的粗粒度季节。 */
         public boolean hasSowMonths() {
             return sowMonths != null && !sowMonths.isEmpty();
+        }
+
+        /** 播期的地区/茬口说明（如"华北秋播 9 月上中旬"），用于向用户交代依据。 */
+        public String sowNote() {
+            return sowMonthsNote == null ? "" : sowMonthsNote;
         }
     }
 
@@ -83,7 +88,8 @@ public final class CropProperties {
                             strOr(c.get("suitableRegion"), ""),
                             strOr(c.get("tempRequirement"), ""),
                             strOr(c.get("source"), "category-rule"),
-                            intList(c.get("sowMonths"))));
+                            intList(c.get("sowMonths")),
+                            strOr(c.get("sowMonthsNote"), "")));
                 }
                 return map;
             } catch (Exception e) {

@@ -55,6 +55,15 @@ public final class PlantingWindow {
     private PlantingWindow() {
     }
 
+    /** 喜冷凉/耐寒作物能耐轻霜，收获窗口比初霜日宽这么多天。 */
+    private static final int FROST_GRACE_DAYS = 15;
+
+    /** 是否喜冷凉（能耐轻霜），用于给收获期留出余量。 */
+    static boolean coolLoving(String tempRequirement) {
+        if (tempRequirement == null) return false;
+        return tempRequirement.contains("冷凉") || tempRequirement.contains("耐寒");
+    }
+
     /**
      * 该作物允许播种的月份。
      * 优先用手工校核的 sowMonths；没有则按适宜季节推导（春季=3~4 月，不是笼统的 3~5 月，
@@ -162,7 +171,8 @@ public final class PlantingWindow {
 
         boolean perennial = "perennial".equals(p.lifespan());
         boolean autumnSown = isAutumnSown(p, months);
-        LocalDate gddDate = gddDate(p, lat, lon, today);
+        // 多年生定植看的是休眠期与地温，不看当季积温，免得拿到下一季的日期
+        LocalDate gddDate = perennial ? null : gddDate(p, lat, lon, today);
 
         Candidate first = null;
         Candidate chosen = null;
@@ -185,6 +195,7 @@ public final class PlantingWindow {
         String precision = p.hasSowMonths() ? "researched" : "season-rule";
         String basis = p.hasSowMonths()
                 ? "作物属性库中已校核的播期（" + monthsText(months) + "）"
+                        + (p.sowNote().isBlank() ? "" : "；" + p.sowNote())
                 : "按适宜季节「" + safe(p.suitableSeason()) + "」并按本地纬度粗调（" + monthsText(months)
                         + "），未逐品种校核，仅作参考";
 
@@ -234,13 +245,23 @@ public final class PlantingWindow {
 
         LocalDate recommended = floor;
         String note = null;
+        boolean gddUsed = false;
         if (gddDate != null) {
-            if (gddDate.isAfter(end)) {
-                recommended = end;
-                note = "积温建议日 " + gddDate + " 已超出本窗口，按窗口末 " + end + " 安排";
-            } else if (!gddDate.isBefore(floor)) {
+            long gap = gddDate.toEpochDay() - end.toEpochDay();
+            if (gap <= 0 && !gddDate.isBefore(floor)) {
                 recommended = gddDate;
+                gddUsed = true;
             }
+            // 积温日明显晚于窗口（gap>0）就忽略：秋播"赶早不赶晚"，
+            // 按积温硬拖到窗口末，往往已经来不及在霜前成熟（大白菜曾因此被判"熟不了"）。
+        }
+        // 秋播窗口（7 月及以后）没有可用积温日时，取窗口起点后 7 天：
+        // 立秋前后正是华北秋菜的下种节点，比"窗口第一天"更贴合实际。
+        if (!gddUsed && start.getMonthValue() >= 7) {
+            LocalDate d = start.plusDays(7);
+            if (d.isAfter(end)) d = end;
+            if (d.isBefore(floor)) d = floor;
+            recommended = d;
         }
 
         int total = Math.max(1, p.totalDays());
@@ -269,14 +290,17 @@ public final class PlantingWindow {
         }
 
         LocalDate frost = AgroZone.firstAutumnFrost(recommended.getYear(), lat);
-        LocalDate latestSafe = frost.minusDays(total);
+        // 喜冷凉作物能耐轻霜，收获窗口比初霜日宽 15 天；喜温作物一天都不能让
+        int grace = coolLoving(p.tempRequirement()) ? FROST_GRACE_DAYS : 0;
+        LocalDate safeFrost = frost.plusDays(grace);
+        LocalDate latestSafe = safeFrost.minusDays(total);
         if (recommended.isAfter(latestSafe)) {
             if (!latestSafe.isBefore(floor)) {
                 recommended = latestSafe;
                 note = join(note, "已按" + "霜前成熟回退到 " + latestSafe);
             }
         }
-        boolean canMature = !recommended.plusDays(total).isAfter(frost);
+        boolean canMature = !recommended.plusDays(total).isAfter(safeFrost);
 
         LocalDate latest;
         String latestBasis;
@@ -285,7 +309,8 @@ public final class PlantingWindow {
             latestBasis = "适宜播期窗口末（" + monthsText(monthsOf(start, end)) + "）";
         } else if (!latestSafe.isBefore(floor)) {
             latest = latestSafe;
-            latestBasis = "留足 " + total + " 天生育期，赶在初霜 " + frost + " 前成熟";
+            latestBasis = "留足 " + total + " 天生育期，"
+                    + (grace > 0 ? "可在初霜后 " + grace + " 天内（耐轻霜）成熟" : "赶在初霜 " + frost + " 前成熟");
         } else {
             latest = end;
             latestBasis = "适宜播期窗口末（" + monthsText(monthsOf(start, end)) + "）";
@@ -324,7 +349,8 @@ public final class PlantingWindow {
     private static boolean isAutumnSown(CropProperties.Props p, Set<Integer> months) {
         boolean allAutumn = true;
         for (int m : months) {
-            if (m >= 2 && m <= 8) {
+            // 8 月算秋播起点：油菜、洋葱等秋播越冬作物就是 8~9 月下种
+            if (m >= 3 && m <= 7) {
                 allAutumn = false;
                 break;
             }

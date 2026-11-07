@@ -1,6 +1,6 @@
 {
   "version": "2.0.0",
-  "comment": "作物属性体系（T07）。全部 400 种作物均带 growthCycle/lifespan/croppingSystem；source=manual 为人工校准（常见作物），source=category-rule 为按作物类别推定，不声称是实测农艺参数。croppingSystem=double 的作物会生成两轮农事周期，lifespan=perennial 的作物会追加翌年管理节点。",
+  "comment": "作物属性体系（T07）。全部 400 种作物均带 growthCycle/lifespan/croppingSystem；source=manual 为人工校准（常见作物），source=category-rule 为按作物类别推定，不声称是实测农艺参数。croppingSystem=double 的作物会生成两轮农事周期，lifespan=perennial 的作物会追加翌年管理节点。 ｜ V5.4：常见作物播期校核扩到 50 种（含育苗起点，华北/华中基准）。",
   "crops": [
     {
       "cropId": "C001",
@@ -94,11 +94,18 @@
       "lifespanLabel": "一年生",
       "croppingSystem": "single",
       "croppingSystemLabel": "一年一熟",
-      "totalDays": 180,
+      "totalDays": 160,
       "suitableSeason": "春播",
       "suitableRegion": "新疆、黄河流域",
       "tempRequirement": "喜温喜光，吐絮期需干燥",
-      "source": "manual"
+      "source": "manual",
+      "sowMonths": [
+        4,
+        5
+      ],
+      "sowMonthsNote": "华北春棉 4 月下旬–5 月上旬，地温稳定 12℃ 以上",
+      "sowMonthsSource": "河南党史方志网《栽培》/ 河北月历",
+      "propertiesSource": "公开栽培资料校正（V5.4）"
     },
     {
       "cropId": "C006",
@@ -109,11 +116,17 @@
       "lifespanLabel": "一年生",
       "croppingSystem": "single",
       "croppingSystemLabel": "一年一熟",
-      "totalDays": 220,
+      "totalDays": 240,
       "suitableSeason": "秋播",
       "suitableRegion": "长江流域",
       "tempRequirement": "耐寒，花期怕霜冻",
-      "source": "manual"
+      "source": "manual",
+      "sowMonths": [
+        9
+      ],
+      "sowMonthsNote": "华北 8 月下旬–9 月上旬育苗，10 月下旬移栽，翌年 5 月收",
+      "sowMonthsSource": "河南党史方志网《栽培》/ 河北月历",
+      "propertiesSource": "公开栽培资料校正（V5.4）"
     },
     {
       "cropId": "C007",
@@ -128,7 +141,13 @@
       "suitableSeason": "春播",
       "suitableRegion": "山东、河南",
       "tempRequirement": "喜砂壤，荚果期需钙",
-      "source": "manual"
+      "source": "manual",
+      "sowMonths": [
+        4,
+        5
+      ],
+      "sowMonthsNote": "华北春花生 4 月下旬–5 月上旬；夏花生 6 月中下旬",
+      "sowMonthsSource": "河南党史方志网《栽培》/ 河北农作物种植月历"
     },
     {
       "cropId": "C008",
@@ -284,7 +303,15 @@
       "suitableSeason": "春植",
       "suitableRegion": "江南、西南",
       "tempRequirement": "喜酸，pH 4.5~6.0",
-      "source": "manual"
+      "source": "manual",
+      "sowMonths": [
+        2,
+        3,
+        10,
+        11
+      ],
+      "sowMonthsNote": "茶苗定植：秋植 10–11 月、春植 2–3 月",
+      "sowMonthsSource": "茶区栽培资料综合"
     },
     {
       "cropId": "C018",
@@ -346,10 +373,9 @@
       "tempRequirement": "喜冷凉，结球期 10~20℃",
       "source": "manual",
       "sowMonths": [
-        7,
         8
       ],
-      "sowMonthsNote": "露地基准窗口（华北/华中）；南方可适当延后"
+      "sowMonthsNote": "华北立秋前后（8 月上旬）播种，霜前收获"
     },
     {
       "cropId": "C022",
@@ -360,11 +386,20 @@
       "lifespanLabel": "一年生",
       "croppingSystem": "single",
       "croppingSystemLabel": "一年一熟",
-      "totalDays": 90,
+      "totalDays": 45,
       "suitableSeason": "春播/秋播",
       "suitableRegion": "全国",
-      "tempRequirement": "蔬菜类，生育期短，需水肥充足",
-      "source": "category-rule"
+      "tempRequirement": "半耐寒，生长适温 15~25℃",
+      "source": "category-rule",
+      "sowMonths": [
+        3,
+        4,
+        8,
+        9
+      ],
+      "sowMonthsNote": "华北露地；南方 9–12 月可分批播",
+      "sowMonthsSource": "铜仁市农业农村局《15种蔬菜播种育苗要点》/ 湖北日报《12种秋菜九月种》",
+      "propertiesSource": "公开栽培资料校正（V5.4）"
     },
     {
       "cropId": "C023",
@@ -375,11 +410,20 @@
       "lifespanLabel": "一年生",
       "croppingSystem": "single",
       "croppingSystemLabel": "一年一熟",
-      "totalDays": 90,
+      "totalDays": 60,
       "suitableSeason": "春播/秋播",
       "suitableRegion": "全国",
-      "tempRequirement": "蔬菜类，生育期短，需水肥充足",
-      "source": "category-rule"
+      "tempRequirement": "耐寒，种子 4℃ 可发芽，适温 15~20℃",
+      "source": "category-rule",
+      "sowMonths": [
+        3,
+        4,
+        9,
+        10
+      ],
+      "sowMonthsNote": "华北：秋菠菜 9 月上中旬、越冬菠菜 9 月底–10 月上旬",
+      "sowMonthsSource": "今日头条《9月种菜：南北播种时间》/ 河南茬口资料",
+      "propertiesSource": "公开栽培资料校正（V5.4）"
     },
     {
       "cropId": "C024",
@@ -390,11 +434,20 @@
       "lifespanLabel": "一年生",
       "croppingSystem": "single",
       "croppingSystemLabel": "一年一熟",
-      "totalDays": 90,
+      "totalDays": 100,
       "suitableSeason": "春播/秋播",
       "suitableRegion": "全国",
-      "tempRequirement": "蔬菜类，生育期短，需水肥充足",
-      "source": "category-rule"
+      "tempRequirement": "半耐寒喜冷凉，发芽适温 15~20℃",
+      "source": "category-rule",
+      "sowMonths": [
+        3,
+        4,
+        7,
+        8
+      ],
+      "sowMonthsNote": "秋芹 6 月下旬–7 月上旬育苗、8 月定植；春芹 3–4 月",
+      "sowMonthsSource": "河南茬口资料 / 铜仁市农业农村局",
+      "propertiesSource": "公开栽培资料校正（V5.4）"
     },
     {
       "cropId": "C025",
@@ -405,11 +458,20 @@
       "lifespanLabel": "一年生",
       "croppingSystem": "single",
       "croppingSystemLabel": "一年一熟",
-      "totalDays": 90,
+      "totalDays": 60,
       "suitableSeason": "春播/秋播",
       "suitableRegion": "全国",
-      "tempRequirement": "蔬菜类，生育期短，需水肥充足",
-      "source": "category-rule"
+      "tempRequirement": "喜冷凉，生长适温 12~20℃，高于 25℃ 抽薹",
+      "source": "category-rule",
+      "sowMonths": [
+        3,
+        4,
+        8,
+        9
+      ],
+      "sowMonthsNote": "喜冷凉，高于 25℃ 发芽差；华北春秋两茬",
+      "sowMonthsSource": "日历网《三月能种什么菜》/ 铜仁市农业农村局",
+      "propertiesSource": "公开栽培资料校正（V5.4）"
     },
     {
       "cropId": "C026",
@@ -420,11 +482,19 @@
       "lifespanLabel": "一年生",
       "croppingSystem": "single",
       "croppingSystemLabel": "一年一熟",
-      "totalDays": 90,
+      "totalDays": 50,
       "suitableSeason": "春播/秋播",
       "suitableRegion": "全国",
-      "tempRequirement": "蔬菜类，生育期短，需水肥充足",
-      "source": "category-rule"
+      "tempRequirement": "喜温耐热不耐寒，15℃ 以上才活跃生长",
+      "source": "category-rule",
+      "sowMonths": [
+        4,
+        5,
+        6
+      ],
+      "sowMonthsNote": "喜温，15℃ 以上才活跃生长；北方 4 月下旬–5 月",
+      "sowMonthsSource": "河南茬口资料 / 百度爱采购《种小菜最佳时间》",
+      "propertiesSource": "公开栽培资料校正（V5.4）"
     },
     {
       "cropId": "C027",
@@ -438,8 +508,15 @@
       "totalDays": 90,
       "suitableSeason": "春播/秋播",
       "suitableRegion": "全国",
-      "tempRequirement": "蔬菜类，生育期短，需水肥充足",
-      "source": "category-rule"
+      "tempRequirement": "耐寒，育苗后翌年定植",
+      "source": "category-rule",
+      "sowMonths": [
+        3,
+        4
+      ],
+      "sowMonthsNote": "育苗为主，翌年 3–4 月定植；也可 4–5 月直播",
+      "sowMonthsSource": "imomo《常见蔬菜露天种植时间表》",
+      "propertiesSource": "公开栽培资料校正（V5.4）"
     },
     {
       "cropId": "C028",
@@ -465,26 +542,42 @@
       "lifespanLabel": "一年生",
       "croppingSystem": "single",
       "croppingSystemLabel": "一年一熟",
-      "totalDays": 120,
-      "suitableSeason": "春播",
+      "totalDays": 90,
+      "suitableSeason": "春播/秋播",
       "suitableRegion": "全国",
-      "tempRequirement": "观赏/药用，喜光",
-      "source": "category-rule"
+      "tempRequirement": "喜冷凉，结球期 15~20℃",
+      "source": "category-rule",
+      "sowMonths": [
+        1,
+        7,
+        8
+      ],
+      "sowMonthsNote": "秋花菜 7–8 月育苗；春花菜 1 月保护地育苗",
+      "sowMonthsSource": "安徽农网《秋季如何确定常见蔬菜适播期》",
+      "propertiesSource": "公开栽培资料校正（V5.4）"
     },
     {
       "cropId": "C030",
       "displayName": "西兰花",
       "growthCycle": "long",
       "growthCycleLabel": "长周期",
-      "lifespan": "perennial",
+      "lifespan": "annual",
       "lifespanLabel": "多年生",
       "croppingSystem": "single",
       "croppingSystemLabel": "一年一熟",
-      "totalDays": 1825,
-      "suitableSeason": "春植",
+      "totalDays": 100,
+      "suitableSeason": "春播/秋播",
       "suitableRegion": "适生区",
-      "tempRequirement": "多年生，需按年管理",
-      "source": "category-rule"
+      "tempRequirement": "喜冷凉，结球期 15~20℃",
+      "source": "category-rule",
+      "sowMonths": [
+        1,
+        7,
+        8
+      ],
+      "sowMonthsNote": "同花椰菜：秋茬 7–8 月、春茬 1 月育苗",
+      "sowMonthsSource": "安徽农网《秋季如何确定常见蔬菜适播期》",
+      "propertiesSource": "公开栽培资料校正（V5.4）"
     },
     {
       "cropId": "C031",
@@ -584,11 +677,18 @@
       "lifespanLabel": "一年生",
       "croppingSystem": "single",
       "croppingSystemLabel": "一年一熟",
-      "totalDays": 90,
+      "totalDays": 120,
       "suitableSeason": "春播/秋播",
       "suitableRegion": "全国",
-      "tempRequirement": "蔬菜类，生育期短，需水肥充足",
-      "source": "category-rule"
+      "tempRequirement": "喜温，生长适温 25~30℃，不耐寒",
+      "source": "category-rule",
+      "sowMonths": [
+        4,
+        5
+      ],
+      "sowMonthsNote": "华北 3 月上旬育苗、4 月下旬定植；南方 2–3 月可播",
+      "sowMonthsSource": "河南茬口资料 / 北京农业信息网",
+      "propertiesSource": "公开栽培资料校正（V5.4）"
     },
     {
       "cropId": "C036",
@@ -599,11 +699,18 @@
       "lifespanLabel": "一年生",
       "croppingSystem": "single",
       "croppingSystemLabel": "一年一熟",
-      "totalDays": 90,
+      "totalDays": 110,
       "suitableSeason": "春播/秋播",
       "suitableRegion": "全国",
-      "tempRequirement": "蔬菜类，生育期短，需水肥充足",
-      "source": "category-rule"
+      "tempRequirement": "喜温，生长适温 20~28℃",
+      "source": "category-rule",
+      "sowMonths": [
+        4,
+        5
+      ],
+      "sowMonthsNote": "华北 4 月直播，7–9 月收；南方可提前到 3 月",
+      "sowMonthsSource": "河南茬口资料",
+      "propertiesSource": "公开栽培资料校正（V5.4）"
     },
     {
       "cropId": "C037",
@@ -614,11 +721,18 @@
       "lifespanLabel": "一年生",
       "croppingSystem": "single",
       "croppingSystemLabel": "一年一熟",
-      "totalDays": 90,
+      "totalDays": 110,
       "suitableSeason": "春播/秋播",
       "suitableRegion": "全国",
-      "tempRequirement": "蔬菜类，生育期短，需水肥充足",
-      "source": "category-rule"
+      "tempRequirement": "喜温，生长适温 20~30℃",
+      "source": "category-rule",
+      "sowMonths": [
+        4,
+        5
+      ],
+      "sowMonthsNote": "华北露地 4 月直播；南方 2–3 月",
+      "sowMonthsSource": "河南茬口资料 / 北京农业信息网",
+      "propertiesSource": "公开栽培资料校正（V5.4）"
     },
     {
       "cropId": "C038",
@@ -629,11 +743,18 @@
       "lifespanLabel": "一年生",
       "croppingSystem": "single",
       "croppingSystemLabel": "一年一熟",
-      "totalDays": 90,
+      "totalDays": 110,
       "suitableSeason": "春播/秋播",
       "suitableRegion": "全国",
-      "tempRequirement": "蔬菜类，生育期短，需水肥充足",
-      "source": "category-rule"
+      "tempRequirement": "喜温，生长适温 20~30℃",
+      "source": "category-rule",
+      "sowMonths": [
+        4,
+        5
+      ],
+      "sowMonthsNote": "华北 3 月下旬–4 月上旬育苗、4 月下旬–5 月上旬定植",
+      "sowMonthsSource": "北京农业信息网《清明过后，8种瓜豆类蔬菜可以种植》",
+      "propertiesSource": "公开栽培资料校正（V5.4）"
     },
     {
       "cropId": "C039",
@@ -644,11 +765,18 @@
       "lifespanLabel": "一年生",
       "croppingSystem": "single",
       "croppingSystemLabel": "一年一熟",
-      "totalDays": 120,
+      "totalDays": 60,
       "suitableSeason": "春播",
       "suitableRegion": "全国",
-      "tempRequirement": "属性按作物类别推定",
-      "source": "category-rule"
+      "tempRequirement": "喜温，生长适温 18~25℃",
+      "source": "category-rule",
+      "sowMonths": [
+        3,
+        4
+      ],
+      "sowMonthsNote": "华北 3 月露地直播，5–7 月收；也可 2 月小拱棚育苗",
+      "sowMonthsSource": "河南茬口资料",
+      "propertiesSource": "公开栽培资料校正（V5.4）"
     },
     {
       "cropId": "C040",
@@ -679,11 +807,19 @@
       "lifespanLabel": "一年生",
       "croppingSystem": "single",
       "croppingSystemLabel": "一年一熟",
-      "totalDays": 90,
+      "totalDays": 80,
       "suitableSeason": "春播/秋播",
       "suitableRegion": "全国",
-      "tempRequirement": "蔬菜类，生育期短，需水肥充足",
-      "source": "category-rule"
+      "tempRequirement": "喜温，发芽适温 20~25℃，5℃ 以下停止生长",
+      "source": "category-rule",
+      "sowMonths": [
+        4,
+        5,
+        8
+      ],
+      "sowMonthsNote": "春 4 月下旬–5 月上旬、秋 8 月下旬–9 月上旬",
+      "sowMonthsSource": "百度爱采购《豆荚类蔬菜种植时机》/ 蓝孩子农资网",
+      "propertiesSource": "公开栽培资料校正（V5.4）"
     },
     {
       "cropId": "C042",
@@ -697,8 +833,16 @@
       "totalDays": 90,
       "suitableSeason": "春播/秋播",
       "suitableRegion": "全国",
-      "tempRequirement": "蔬菜类，生育期短，需水肥充足",
-      "source": "category-rule"
+      "tempRequirement": "喜温耐热，生长适温 20~30℃",
+      "source": "category-rule",
+      "sowMonths": [
+        4,
+        5,
+        6
+      ],
+      "sowMonthsNote": "春夏秋三季可播；华北以 4–6 月为主",
+      "sowMonthsSource": "imomo《常见蔬菜露天种植时间表》",
+      "propertiesSource": "公开栽培资料校正（V5.4）"
     },
     {
       "cropId": "C043",
@@ -709,11 +853,19 @@
       "lifespanLabel": "一年生",
       "croppingSystem": "single",
       "croppingSystemLabel": "一年一熟",
-      "totalDays": 100,
+      "totalDays": 110,
       "suitableSeason": "秋播/春播",
       "suitableRegion": "西南、华北",
-      "tempRequirement": "喜冷凉",
-      "source": "manual"
+      "tempRequirement": "喜冷凉，耐寒不耐热",
+      "source": "manual",
+      "sowMonths": [
+        3,
+        4,
+        10
+      ],
+      "sowMonthsNote": "华北春播 3 月中–4 上；越冬栽培 10 月下旬",
+      "sowMonthsSource": "蓝孩子农资网 / 台湾农试所豆科蔬菜资料",
+      "propertiesSource": "公开栽培资料校正（V5.4）"
     },
     {
       "cropId": "C044",
@@ -754,11 +906,18 @@
       "lifespanLabel": "一年生",
       "croppingSystem": "single",
       "croppingSystemLabel": "一年一熟",
-      "totalDays": 90,
+      "totalDays": 270,
       "suitableSeason": "春播/秋播",
       "suitableRegion": "全国",
-      "tempRequirement": "蔬菜类，生育期短，需水肥充足",
-      "source": "category-rule"
+      "tempRequirement": "耐寒，秋播越冬，翌年 5~6 月收获",
+      "source": "category-rule",
+      "sowMonths": [
+        9,
+        10
+      ],
+      "sowMonthsNote": "华北 9 月上旬育苗、10 月下旬–11 月上旬定植",
+      "sowMonthsSource": "今日头条《白露秋分种菜忙》",
+      "propertiesSource": "公开栽培资料校正（V5.4）"
     },
     {
       "cropId": "C047",
@@ -789,11 +948,19 @@
       "lifespanLabel": "一年生",
       "croppingSystem": "single",
       "croppingSystemLabel": "一年一熟",
-      "totalDays": 90,
+      "totalDays": 100,
       "suitableSeason": "春播/秋播",
       "suitableRegion": "全国",
-      "tempRequirement": "蔬菜类，生育期短，需水肥充足",
-      "source": "category-rule"
+      "tempRequirement": "半耐寒，结球适温 15~20℃",
+      "source": "category-rule",
+      "sowMonths": [
+        1,
+        7,
+        8
+      ],
+      "sowMonthsNote": "秋甘蓝 7–8 月育苗；春甘蓝 1 月阳畦育苗",
+      "sowMonthsSource": "安徽农网 / 铜仁市农业农村局",
+      "propertiesSource": "公开栽培资料校正（V5.4）"
     },
     {
       "cropId": "C049",
@@ -834,16 +1001,16 @@
       "lifespanLabel": "一年生",
       "croppingSystem": "double",
       "croppingSystemLabel": "一年多熟",
-      "totalDays": 80,
+      "totalDays": 85,
       "suitableSeason": "秋播",
       "suitableRegion": "全国",
       "tempRequirement": "喜冷凉，肉质根膨大期需疏松土壤",
       "source": "manual",
       "sowMonths": [
-        8,
-        9
+        8
       ],
-      "sowMonthsNote": "露地基准窗口（华北/华中）；南方可适当延后"
+      "sowMonthsNote": "华北立秋前后（8 月上旬）播种，霜前收获",
+      "sowMonthsSource": "华北农作物及收种时间 / 河北农作物种植月历"
     },
     {
       "cropId": "C052",
@@ -854,11 +1021,20 @@
       "lifespanLabel": "一年生",
       "croppingSystem": "single",
       "croppingSystemLabel": "一年一熟",
-      "totalDays": 90,
+      "totalDays": 110,
       "suitableSeason": "春播/秋播",
       "suitableRegion": "全国",
-      "tempRequirement": "蔬菜类，生育期短，需水肥充足",
-      "source": "category-rule"
+      "tempRequirement": "喜冷凉，肉质根膨大适温 13~18℃",
+      "source": "category-rule",
+      "sowMonths": [
+        3,
+        4,
+        7,
+        8
+      ],
+      "sowMonthsNote": "华北秋播 7 月中–8 月上旬；春播 3–4 月",
+      "sowMonthsSource": "安徽农网 / 蓝孩子农资网",
+      "propertiesSource": "公开栽培资料校正（V5.4）"
     },
     {
       "cropId": "C053",
@@ -899,11 +1075,18 @@
       "lifespanLabel": "一年生",
       "croppingSystem": "single",
       "croppingSystemLabel": "一年一熟",
-      "totalDays": 90,
+      "totalDays": 190,
       "suitableSeason": "春播/秋播",
       "suitableRegion": "全国",
-      "tempRequirement": "蔬菜类，生育期短，需水肥充足",
-      "source": "category-rule"
+      "tempRequirement": "喜温，地温 15℃ 以上播种",
+      "source": "category-rule",
+      "sowMonths": [
+        3,
+        4
+      ],
+      "sowMonthsNote": "地温稳定 15℃ 以上播种；华北 4 月为主",
+      "sowMonthsSource": "河池金达种业《常见蔬菜种植习性速查表》",
+      "propertiesSource": "公开栽培资料校正（V5.4）"
     },
     {
       "cropId": "C056",
@@ -929,11 +1112,18 @@
       "lifespanLabel": "一年生",
       "croppingSystem": "single",
       "croppingSystemLabel": "一年一熟",
-      "totalDays": 90,
+      "totalDays": 170,
       "suitableSeason": "春播/秋播",
       "suitableRegion": "全国",
-      "tempRequirement": "蔬菜类，生育期短，需水肥充足",
-      "source": "category-rule"
+      "tempRequirement": "喜温，地温 16℃ 以上播种",
+      "source": "category-rule",
+      "sowMonths": [
+        4,
+        5
+      ],
+      "sowMonthsNote": "华北 4 月中下旬–5 月上旬播种；南方 2–3 月",
+      "sowMonthsSource": "imomo《常见蔬菜露天种植时间表》/ 河北月历",
+      "propertiesSource": "公开栽培资料校正（V5.4）"
     },
     {
       "cropId": "C058",
@@ -947,8 +1137,16 @@
       "totalDays": 90,
       "suitableSeason": "春播/秋播",
       "suitableRegion": "全国",
-      "tempRequirement": "蔬菜类，生育期短，需水肥充足",
-      "source": "category-rule"
+      "tempRequirement": "喜冷凉，发芽适温 15~20℃",
+      "source": "category-rule",
+      "sowMonths": [
+        1,
+        8,
+        9
+      ],
+      "sowMonthsNote": "秋莴笋 8–9 月育苗；春莴笋 1 月育苗、3 月定植",
+      "sowMonthsSource": "安徽农网 / 火爆农资招商网",
+      "propertiesSource": "公开栽培资料校正（V5.4）"
     },
     {
       "cropId": "C059",
@@ -963,7 +1161,15 @@
       "suitableSeason": "春植",
       "suitableRegion": "黄土高原、渤海湾",
       "tempRequirement": "需冷量 1200 小时以上",
-      "source": "manual"
+      "source": "manual",
+      "sowMonths": [
+        3,
+        4,
+        10,
+        11
+      ],
+      "sowMonthsNote": "定植窗口：华北春栽 3 月中–4 上、秋栽 10 下–11 上（秋栽更利发根）",
+      "sowMonthsSource": "绿宝园林网《果苗什么时候种植最好》/ 果树栽培时间综述"
     },
     {
       "cropId": "C060",
@@ -978,7 +1184,15 @@
       "suitableSeason": "春植",
       "suitableRegion": "华北、长江流域",
       "tempRequirement": "适应性强，花期怕晚霜",
-      "source": "manual"
+      "source": "manual",
+      "sowMonths": [
+        3,
+        4,
+        10,
+        11
+      ],
+      "sowMonthsNote": "定植窗口：春栽 3–4 月、秋栽 10 月下旬–11 月",
+      "sowMonthsSource": "绿宝园林网《果苗什么时候种植最好》"
     },
     {
       "cropId": "C061",
@@ -993,7 +1207,15 @@
       "suitableSeason": "春植",
       "suitableRegion": "华北、长江流域",
       "tempRequirement": "喜光，忌涝",
-      "source": "manual"
+      "source": "manual",
+      "sowMonths": [
+        3,
+        4,
+        10,
+        11
+      ],
+      "sowMonthsNote": "定植窗口：北方秋栽 10 月中–11 上，春栽 3 月中–4 上",
+      "sowMonthsSource": "绿宝园林网 / 果树栽培时间综述"
     },
     {
       "cropId": "C062",
@@ -1038,7 +1260,15 @@
       "suitableSeason": "春植",
       "suitableRegion": "适生区",
       "tempRequirement": "多年生，需按年管理",
-      "source": "category-rule"
+      "source": "category-rule",
+      "sowMonths": [
+        3,
+        4,
+        10,
+        11
+      ],
+      "sowMonthsNote": "定植窗口同落叶果树：春 3–4 月、秋 10–11 月",
+      "sowMonthsSource": "绿宝园林网《果苗什么时候种植最好》"
     },
     {
       "cropId": "C065",
@@ -1053,7 +1283,13 @@
       "suitableSeason": "秋植",
       "suitableRegion": "全国设施栽培",
       "tempRequirement": "喜冷凉，花芽分化需低温",
-      "source": "manual"
+      "source": "manual",
+      "sowMonths": [
+        9,
+        10
+      ],
+      "sowMonthsNote": "北方以秋植为主（9–10 月），翌年春夏采收",
+      "sowMonthsSource": "绿宝园林网《果苗什么时候种植最好》"
     },
     {
       "cropId": "C066",
@@ -1068,7 +1304,15 @@
       "suitableSeason": "春植",
       "suitableRegion": "新疆、河北",
       "tempRequirement": "需埋土防寒（北方）",
-      "source": "manual"
+      "source": "manual",
+      "sowMonths": [
+        3,
+        4,
+        10,
+        11
+      ],
+      "sowMonthsNote": "定植窗口：北方秋栽 10 下–11 下；春栽需在伤流期前",
+      "sowMonthsSource": "绿宝园林网 / 果树栽培时间综述"
     },
     {
       "cropId": "C067",
@@ -1083,7 +1327,15 @@
       "suitableSeason": "春植",
       "suitableRegion": "长江以南",
       "tempRequirement": "喜温湿，忌积水",
-      "source": "manual"
+      "source": "manual",
+      "sowMonths": [
+        2,
+        3,
+        10,
+        11
+      ],
+      "sowMonthsNote": "常绿果树：10–11 月或 2–3 月定植，避开盛夏与严寒",
+      "sowMonthsSource": "今日头条《果树的最佳栽培时间是几月》"
     },
     {
       "cropId": "C068",
@@ -1143,7 +1395,13 @@
       "suitableSeason": "春播",
       "suitableRegion": "新疆、华北",
       "tempRequirement": "喜温差大，成熟期控水",
-      "source": "manual"
+      "source": "manual",
+      "sowMonths": [
+        4,
+        5
+      ],
+      "sowMonthsNote": "喜温 25–32℃，断霜后播种；南方 2 月下旬–3 月",
+      "sowMonthsSource": "imomo《常见蔬菜露天种植时间表》/ 蓝孩子农资网"
     },
     {
       "cropId": "C072",
@@ -1173,7 +1431,15 @@
       "suitableSeason": "春植",
       "suitableRegion": "适生区",
       "tempRequirement": "多年生，需按年管理",
-      "source": "category-rule"
+      "source": "category-rule",
+      "sowMonths": [
+        3,
+        4,
+        10,
+        11
+      ],
+      "sowMonthsNote": "定植窗口：春 3–4 月、秋 10–11 月",
+      "sowMonthsSource": "绿宝园林网《果苗什么时候种植最好》"
     },
     {
       "cropId": "C074",
@@ -1589,11 +1855,19 @@
       "lifespanLabel": "一年生",
       "croppingSystem": "single",
       "croppingSystemLabel": "一年一熟",
-      "totalDays": 90,
+      "totalDays": 150,
       "suitableSeason": "春播/秋播",
       "suitableRegion": "全国",
-      "tempRequirement": "蔬菜类，生育期短，需水肥充足",
-      "source": "category-rule"
+      "tempRequirement": "耐寒，生长适温 19~25℃",
+      "source": "category-rule",
+      "sowMonths": [
+        3,
+        4,
+        9
+      ],
+      "sowMonthsNote": "华北秋播 9 月上中旬育苗、翌年 5–6 月定植；春播 3 月下旬–4 月上旬",
+      "sowMonthsSource": "NSTL《北方种葱的最佳时间》/ 今日头条《9月种菜》",
+      "propertiesSource": "公开栽培资料校正（V5.4）"
     },
     {
       "cropId": "C102",
@@ -1859,11 +2133,18 @@
       "lifespanLabel": "一年生",
       "croppingSystem": "single",
       "croppingSystemLabel": "一年一熟",
-      "totalDays": 120,
+      "totalDays": 110,
       "suitableSeason": "春播",
       "suitableRegion": "全国",
-      "tempRequirement": "观赏/药用，喜光",
-      "source": "category-rule"
+      "tempRequirement": "喜温，生长适温 25~30℃",
+      "source": "category-rule",
+      "sowMonths": [
+        4,
+        5
+      ],
+      "sowMonthsNote": "喜温，断霜后直播；南方 3 月即可",
+      "sowMonthsSource": "河池金达种业《常见蔬菜种植习性速查表》",
+      "propertiesSource": "公开栽培资料校正（V5.4）"
     },
     {
       "cropId": "C120",

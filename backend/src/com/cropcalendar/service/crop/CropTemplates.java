@@ -161,6 +161,8 @@ public final class CropTemplates {
 
         if (containsAny(name, MUSHROOM_NAMES) || temp.contains("喜湿避光")) return Group.MUSHROOM;
         if (containsAny(name, FORAGE_NAMES)) return Group.FORAGE;
+        // 西兰花/花椰菜含"兰花"二字，会被花卉表误判成观赏花，先钉死为菜
+        if (name.contains("西兰花") || name.contains("花椰菜") || name.contains("菜花")) return Group.LEAFY;
         // 茶树菇是菌、茶花是花，都要在"茶"之前判掉
         if (containsAny(name, AQUATIC_NAMES)) return Group.AQUATIC;
         if (containsAny(name, FLOWER_NAMES)) return Group.FLOWER;
