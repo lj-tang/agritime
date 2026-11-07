@@ -64,6 +64,11 @@ public final class PlantingWindow {
         return tempRequirement.contains("冷凉") || tempRequirement.contains("耐寒");
     }
 
+    /** 该作物收获期可比初霜日宽限几天（0 = 一天都不能让）。 */
+    public static int frostGraceDays(String tempRequirement) {
+        return coolLoving(tempRequirement) ? FROST_GRACE_DAYS : 0;
+    }
+
     /**
      * 该作物允许播种的月份。
      * 优先用手工校核的 sowMonths；没有则按适宜季节推导（春季=3~4 月，不是笼统的 3~5 月，
@@ -291,7 +296,7 @@ public final class PlantingWindow {
 
         LocalDate frost = AgroZone.firstAutumnFrost(recommended.getYear(), lat);
         // 喜冷凉作物能耐轻霜，收获窗口比初霜日宽 15 天；喜温作物一天都不能让
-        int grace = coolLoving(p.tempRequirement()) ? FROST_GRACE_DAYS : 0;
+        int grace = frostGraceDays(p.tempRequirement());
         LocalDate safeFrost = frost.plusDays(grace);
         LocalDate latestSafe = safeFrost.minusDays(total);
         if (recommended.isAfter(latestSafe)) {

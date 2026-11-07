@@ -227,7 +227,11 @@ public class SowCheckHandler implements HttpHandler {
                     // 精确播期本身就包含「此时能否播种」的判断（如番茄 1~2 月是保护地育苗），
                     // 所以这里不再因为"播种当天有霜"就拦，只检查收获日会不会落进霜期。
                     LocalDate harvest = sow.plusDays(Math.max(1, total));
-                    if (AgroZone.inFrostSeason(harvest, lat)) {
+                    // 喜冷凉作物能耐轻霜：大白菜 11 月初收是正常的，
+                    // 不能因为"已过初霜日"就提示难以成熟
+                    int grace = PlantingWindow.frostGraceDays(props.tempRequirement());
+                    boolean tooLate = harvest.isAfter(AgroZone.firstAutumnFrost(harvest.getYear(), lat).plusDays(grace));
+                    if (AgroZone.inFrostSeason(harvest, lat) && tooLate) {
                         items.add(item(warm ? "block" : "warn", "overwinter-risk",
                                 "收获期落在常年霜期内",
                                 standard + " 按这个播期约 " + harvest + " 收获，而本地 "
