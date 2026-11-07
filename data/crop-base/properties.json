@@ -6214,15 +6214,18 @@
       "tempRequirement": "属性按作物类别推定",
       "source": "category-rule",
       "sowMonths": [
+        3,
+        4,
         8,
         9
       ],
       "sowMonthsSouth": [
         9,
-        10
+        10,
+        11
       ],
-      "sowMonthsNote": "秋播越冬，翌春开花",
-      "sowMonthsSource": "花卉栽培资料综合"
+      "sowMonthsNote": "北方春播 3–4 月，或秋播 8–9 月（苗需冷床越冬，翌春开花）；南方秋播 9–11 月",
+      "sowMonthsSource": "花卉栽培资料综合（三色堇北方春播、南方秋播越冬）"
     },
     {
       "cropId": "C255",
