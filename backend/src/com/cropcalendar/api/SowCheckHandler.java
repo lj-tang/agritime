@@ -4,6 +4,7 @@ import com.cropcalendar.util.AppTime;
 import com.cropcalendar.service.crop.AgroZone;
 import com.cropcalendar.service.crop.CropProperties;
 import com.cropcalendar.service.crop.CropRegistry;
+import com.cropcalendar.service.crop.PlantingWindow;
 import com.cropcalendar.service.plot.PlotHistory;
 import com.cropcalendar.util.Json;
 import com.cropcalendar.util.JsonParser;
@@ -185,11 +186,9 @@ public class SowCheckHandler implements HttpHandler {
             }
 
             // ---- 3. 播季是否对口 ----
-            // 优先用作物属性里的精确播期（月份）；没配才退回"春/夏/秋/冬"的粗粒度季节。
-            // 粗粒度季节会把大白菜的"秋播"算成 9~11 月，11 月也放行 —— 必须用精确窗口兜住。
-            Set<Integer> months = props.hasSowMonths()
-                    ? new LinkedHashSet<>(props.sowMonths())
-                    : AgroZone.sowMonths(props.suitableSeason());
+            // 与 /api/sow-window 共用 PlantingWindow.monthsFor：推荐日和校验必须是同一套规则，
+            // 否则会出现"系统推荐的日期，自己校验不通过"这种自相矛盾。
+            Set<Integer> months = PlantingWindow.monthsFor(props);
             String seasonText = props.hasSowMonths()
                     ? AgroZone.monthsText(months) + "（精确播期）"
                     : "「" + props.suitableSeason() + "」（约 " + AgroZone.monthsText(months) + "）";
@@ -256,7 +255,7 @@ public class SowCheckHandler implements HttpHandler {
             }
         } else {
             // 没给日期：只给建议窗口，不算通过也不算阻断
-            Set<Integer> months = AgroZone.sowMonths(props.suitableSeason());
+            Set<Integer> months = PlantingWindow.monthsFor(props);
             items.add(item("ok", "suggest-window", "建议播种窗口",
                     months.isEmpty() ? "该作物未限定播季" : standard + " 适播期约 " + AgroZone.monthsText(months),
                     months.isEmpty() ? "可直接生成日历" : "点「按节气推荐」可自动填入最近的可播日期"));
@@ -297,7 +296,7 @@ public class SowCheckHandler implements HttpHandler {
         // 给一个可执行的替代日期：最近一个落在适播期内的日子；
         // 若地块还被上一季占着，取两者中更晚的那个 —— 早于腾地日期等于没建议
         String seasonSuggested = null;
-        Set<Integer> months = AgroZone.sowMonths(props.suitableSeason());
+        Set<Integer> months = PlantingWindow.monthsFor(props);
         if (sow != null && !months.isEmpty() && !months.contains(sow.getMonthValue())) {
             seasonSuggested = nearestSowDate(sow, months, today).toString();
         }

@@ -4,6 +4,7 @@ import com.cropcalendar.util.AppTime;
 import com.cropcalendar.config.AppConfig;
 import com.cropcalendar.service.crop.CropProperties;
 import com.cropcalendar.service.crop.CropRegistry;
+import com.cropcalendar.service.crop.CropTemplates;
 import com.cropcalendar.util.Json;
 import com.cropcalendar.util.JsonParser;
 
@@ -179,6 +180,15 @@ public final class ComputeStub {
         if (llmCached != null) {
             return llmCached;
         }
+
+        // 类别通用规程：400 种作物里人工校核过的只有十几种，其余按类别给模板。
+        // 放在大模型之前 —— 模板是本地计算、毫秒级，而大模型要 30~40 秒，
+        // 且实测会把"苹果"排成"当年播种、当年收获"（苹果是多年生果树）。
+        List<RawNode> templated = CropTemplates.build(cropId, CropProperties.of(cropId));
+        if (!templated.isEmpty()) {
+            return templated;
+        }
+
         Long until = LLM_NEGATIVE.get(cropId);
         if (until != null && until > System.currentTimeMillis()) {
             // 刚失败过，直接返回空，不再打一次 60 秒超时的上游

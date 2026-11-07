@@ -11,6 +11,7 @@ import com.cropcalendar.orchestration.TimelineOrchestrator.TimelineResult;
 import com.cropcalendar.orchestration.TimelineOrchestrator.NodeView;
 import com.cropcalendar.service.crop.CropProperties;
 import com.cropcalendar.service.crop.CropRegistry;
+import com.cropcalendar.service.crop.PlantingWindow;
 import com.cropcalendar.util.Json;
 import com.cropcalendar.util.JsonParser;
 import com.sun.net.httpserver.HttpExchange;
@@ -108,8 +109,8 @@ public class TimelineHandler implements HttpHandler {
             return;
         }
 
-        if (cropId == null || cropId.isBlank() || sowDate == null || sowDate.isBlank()) {
-            HttpSupport.write(ex, 400, errJson("INVALID_INPUT", "缺少必填参数 crop 与 sowingDate"));
+        if (cropId == null || cropId.isBlank()) {
+            HttpSupport.write(ex, 400, errJson("INVALID_INPUT", "缺少必填参数 crop"));
             return;
         }
         // 作物名不可能是一段话。不拦住的话，乱输入会让下游去调大模型生成规程，
@@ -122,6 +123,19 @@ public class TimelineHandler implements HttpHandler {
         // 面积只接受合理范围：负数/NaN 视为未填，超大值截断，避免换算出一串荒谬的总量
         if (!(areaMu > 0)) areaMu = 0;
         if (areaMu > 100000) areaMu = 100000;
+
+        // 播期可省略：用户只给作物和地点时，按适宜播期窗口自动取推荐日。
+        // 前端新流程已经不传日期，老调用方仍可显式指定。
+        if (sowDate == null || sowDate.isBlank()) {
+            CropProperties.Props wp = CropProperties.of(CropRegistry.standardName(cropId));
+            PlantingWindow.Window w = PlantingWindow.of(wp, lat, lon, AppTime.today());
+            if (w == null) {
+                HttpSupport.write(ex, 400, errJson("INVALID_INPUT",
+                        "无法推算该作物的播期，请显式提供 sowingDate"));
+                return;
+            }
+            sowDate = w.recommendedDate();
+        }
 
         try {
             // T02：无论用户传的是「西红柿」还是「tomato」，先归一到标准名，

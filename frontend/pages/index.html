@@ -74,15 +74,27 @@
       </div>
 
       <div class="field" id="field-sowing-date">
-        <label for="mc-sown-date">播种日期</label>
-        <div class="date-picker" id="date-picker" title="可选范围：两年前至今天后 30 天" aria-label="可选范围：两年前至今天后 30 天">
-          <select id="date-year" aria-label="年"></select>
-          <select id="date-month" aria-label="月"></select>
-          <select id="date-day" aria-label="日"></select>
-          <input id="sowingDate" name="sowingDate" type="hidden" />
+        <label>播期 <span class="hint">不用填，按作物和地点自动推算</span></label>
+        <!-- 主路径：只给作物+地点，播期由服务端按适宜窗口和积温推算 -->
+        <div class="sow-auto" id="sow-auto">
+          <div class="sow-auto-body">
+            <span class="sow-auto-main" id="sow-auto-main">选好作物和地点，自动给出适宜播期、最晚播期与预计收获</span>
+            <span class="sow-auto-sub" id="sow-auto-sub"></span>
+          </div>
+          <button type="button" class="sow-auto-edit" id="sow-auto-edit">手动指定</button>
         </div>
-        <p class="date-range-hint" id="date-range-hint">请选择两年前至今天后 30 天的日期；不选则按节气推荐播种起点</p>
-        <button type="button" class="term-sow-btn" id="term-sow-btn">不知道播种时间？按节气推荐</button>
+        <!-- 备用：想自己定播期的人仍然可以展开，不剥夺控制权 -->
+        <div class="sow-manual" id="sow-manual" hidden>
+          <div class="date-picker" id="date-picker" title="可选范围：两年前至今天后 30 天" aria-label="可选范围：两年前至今天后 30 天">
+            <select id="date-year" aria-label="年"></select>
+            <select id="date-month" aria-label="月"></select>
+            <select id="date-day" aria-label="日"></select>
+          </div>
+          <p class="date-range-hint" id="date-range-hint">可选范围：两年前至今天后 30 天；不选则按适宜播期自动推荐</p>
+          <button type="button" class="term-sow-btn" id="term-sow-btn">不知道播种时间？按节气推荐</button>
+        </div>
+        <!-- 唯一的数据源：主路径写"推算出的推荐日"，手动展开时写用户选的日子 -->
+        <input id="sowingDate" name="sowingDate" type="hidden" />
         <div class="term-sow-hint" id="term-sow-hint" hidden></div>
         <div class="error" id="error-sowingDate">播种日期不能晚于今天</div>
       </div>
@@ -514,6 +526,7 @@
       var form = document.getElementById('timeline-form');
       var cropInput = document.getElementById('crop');
       var sowingInput = document.getElementById('sowingDate');
+      var manualBox = document.getElementById('sow-manual');
       var locationInput = document.getElementById('location');
       var suggestions = document.getElementById('crop-suggestions');
       var toast = document.getElementById('toast');
@@ -612,6 +625,52 @@
       function todayStr() {
         var d = new Date();
         return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+      }
+
+      /** 2027-03-20 → 3月20日（同年省年份，跨年补年份） */
+      function fmtMD(s) {
+        if (!s || s.length < 10) return s || '';
+        var y = s.slice(0, 4), m = Number(s.slice(5, 7)), d = Number(s.slice(8, 10));
+        var thisYear = String(new Date().getFullYear());
+        return (y === thisYear ? '' : y + '年') + m + '月' + d + '日';
+      }
+
+      /**
+       * 把服务端的"适宜播期窗口"渲染到表单里。
+       * 这是删掉日期输入后的主结果：窗口起止、建议日、最晚日、预计收获，一眼看完。
+       */
+      function applyWindowInfo(info) {
+        var main = document.getElementById('sow-auto-main');
+        var sub = document.getElementById('sow-auto-sub');
+        var box = document.getElementById('sow-auto');
+        if (!main) return;
+        var w = info && info.window;
+        var h = (info && info.harvest) || {};
+        if (!w) {
+          main.textContent = info && info.sowDate ? ('建议播期 ' + fmtMD(info.sowDate)) : '暂未算出适宜播期';
+          sub.textContent = (info && info.basis) || '';
+          return;
+        }
+        var act = w.action || '播种';
+        var label = act.indexOf('定植') >= 0 ? '适宜定植期' : (act === '接种' ? '适宜接种期' : '适宜播期');
+        var date = (info.sowDate || '');
+        main.textContent = label + ' ' + fmtMD(w.start) + '–' + fmtMD(w.end)
+          + (date ? ' · 建议 ' + fmtMD(date) : '');
+
+        var bits = [];
+        if (h.date) bits.push('预计 ' + fmtMD(h.date) + ' 收获');
+        if (h.perennial) bits.push('多年生，定植后按年管理');
+        if (h.canMatureBeforeFrost === false) bits.push('本季霜前难以成熟');
+        if (info.latest && info.latest.date && info.latest.date !== (w.end || '')) {
+          bits.push('最晚 ' + fmtMD(info.latest.date));
+        }
+        if (w.precision === 'season-rule') bits.push('窗口按季节推导，未逐品种校核');
+        sub.textContent = bits.join(' · ');
+        if (box) {
+          box.classList.add('is-ready');
+          box.classList.toggle('is-estimated', w.precision === 'season-rule');
+          box.title = (w.basis || '') + (w.groupLabel ? '｜' + w.groupLabel : '');
+        }
       }
 
       function renderRuler() {
@@ -796,6 +855,25 @@
         // 地点可留空：不填按默认地点（山东济宁 35.07/116.31）计算，不再阻断生成
         setInvalid('field-location', false);
         return ok;
+      }
+
+      var sowEditBtn = document.getElementById('sow-auto-edit');
+      if (sowEditBtn && manualBox) {
+        sowEditBtn.addEventListener('click', function () {
+          var open = manualBox.hidden;   // 当前隐藏 → 这次要展开
+          manualBox.hidden = !open;
+          sowEditBtn.textContent = open ? '收起手动' : '手动指定';
+          if (open) {
+            var y = document.getElementById('date-year');
+            if (y) y.focus();
+          } else {
+            // 收起手动 = 回到自动推算，清掉手填的日期，避免旧值继续生效
+            sowingInput.value = '';
+            suggestedSowDate = '';
+            var hint = document.getElementById('term-sow-hint');
+            if (hint) hint.hidden = true;
+          }
+        });
       }
 
       yearSel.addEventListener('change', function () { fillMonths(); clampDay(); fillDays(); composeDate(); setInvalid('field-sowing-date', false); });
@@ -1100,14 +1178,23 @@
           locationInput.value = '山东济宁';
           showToast('未填地点，将按默认地点山东济宁计算', 'info');
         }
-        var sowDate = sowingInput.value;
+        var manualOpen = manualBox && !manualBox.hidden;
+        var sowDate = (manualOpen && sowingInput.value) ? sowingInput.value : '';
         if (!sowDate) {
-          // 没填日期：先按节气推算，成功后再过常识校验
+          // 主路径：不填日期，只给作物与地点，由服务端推算适宜播期窗口
+          var genBtn = document.getElementById('generate-btn');
+          if (genBtn) genBtn.disabled = true;
           fetchSowWindow(cropName, function (err, info) {
-            if (err) { showToast('没能推算播种节气：' + err + '，请手动选择日期', 'error'); return; }
-            applySuggestedDate(info);
-            showTermSowHint(info);
-            checkSowThenGo(cropName, location, info.sowDate, info);
+            if (genBtn) genBtn.disabled = false;
+            if (err) {
+              showToast('没能推算适宜播期：' + err + '，可点「手动指定」自己选日期', 'error');
+              if (manualBox) manualBox.hidden = false;
+              return;
+            }
+            var rec = info.sowDate || '';
+            applyWindowInfo(info);
+            if (rec) { sowingInput.value = rec; suggestedSowDate = rec; }
+            checkSowThenGo(cropName, location, rec, info);
           });
           return;
         }

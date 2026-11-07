@@ -115,6 +115,11 @@ public final class CropProperties {
         int span = base.stream().mapToInt(RawNode::dayOffset).max().orElse(0);
 
         boolean secondCycle = "double".equals(p.croppingSystem()) || "multi".equals(p.croppingSystem());
+        // 多年生作物没有"一年两季"这回事：它的"第二季"在时间线里是翌年的管理节点，
+        // 由下面的 perennial 分支补，不能再按生育期平铺一轮。
+        if (secondCycle && "perennial".equals(p.lifespan())) {
+            secondCycle = false;
+        }
         // 水稻一年多熟只在华南/长江以南成立，北方双季稻不现实
         if (secondCycle && "水稻".equals(p.displayName()) && !(lat > 0 && lat < 32)) {
             secondCycle = false;
@@ -144,7 +149,8 @@ public final class CropProperties {
             }
         }
 
-        if ("perennial".equals(p.lifespan())) {
+        if ("perennial".equals(p.lifespan()) && span < 300) {
+            // 类别模板已经铺到自然年末（含越冬/修剪），再补这三个就重复了
             String id = base.get(0).cropId();
             out.add(new RawNode(id, "overwinter", 330, "越冬管理（清园、涂白、防冻）"));
             out.add(new RawNode(id, "fertilize", 365, "翌年萌芽肥"));

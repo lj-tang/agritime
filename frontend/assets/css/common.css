@@ -573,6 +573,42 @@ body[data-layout="app"] .content-pane > * {
 .date-range-hint { font-size: 12px; color: var(--muted); margin: 6px 0 0; line-height: 1.5; }
 .field.invalid .date-picker select { border-color: var(--red); }
 
+/* 自动推算的播期卡片：删掉"日期必填"之后，这里就是用户看到的主结果 */
+.sow-auto {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 12px;
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+}
+
+.sow-auto.is-ready { background: var(--leaf-soft); border-color: var(--leaf-2); }
+.sow-auto-body { display: flex; flex-direction: column; gap: 3px; min-width: 0; flex: 1; }
+.sow-auto-main { font-size: 13.5px; font-weight: 600; color: var(--ink); line-height: 1.45; }
+.sow-auto.is-ready .sow-auto-main { color: var(--leaf); }
+.sow-auto-sub { font-size: 12px; color: var(--muted); line-height: 1.5; }
+.sow-auto-edit {
+  flex-shrink: 0;
+  padding: 4px 10px;
+  font: inherit;
+  font-size: 12.5px;
+  color: var(--ink-soft);
+  background: transparent;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  cursor: pointer;
+  transition: color 0.15s ease, border-color 0.15s ease;
+}
+.sow-auto-edit:hover { color: var(--brand); border-color: var(--brand); }
+.sow-manual { margin-top: 8px; }
+
+@media (max-width: 480px) {
+  .sow-auto { flex-direction: column; align-items: stretch; }
+  .sow-auto-edit { align-self: flex-start; }
+}
+
 /* ============================================================
    按钮
    ============================================================ */

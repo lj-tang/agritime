@@ -4,6 +4,7 @@ import com.cropcalendar.util.AppTime;
 import com.cropcalendar.service.crop.CropProperties;
 import com.cropcalendar.service.crop.CropRegistry;
 import com.cropcalendar.service.crop.GddAdvisor;
+import com.cropcalendar.service.crop.PlantingWindow;
 import com.cropcalendar.service.crop.SowAdvisor;
 import com.cropcalendar.util.Json;
 import com.sun.net.httpserver.HttpExchange;
@@ -12,19 +13,19 @@ import com.sun.net.httpserver.HttpHandler;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.util.List;
 import java.util.Map;
 
 /**
- * GET /api/sow-window?crop=番茄&lat=35.07&lon=116.31 —— 播种起点推荐（T04 / V5 T20）。
+ * GET /api/sow-window?crop=番茄&lat=35.07&lon=116.31 —— 只看作物和地点，回答"什么时候种"。
  *
- * 以前只给一个"按节气"的日期：节气是祖辈的经验窗口，但回答不了"今年热量够不够"。
- * T20 改成双依据，两个日期各带理由，由用户选：
- *   · 按节气：取最近一个适宜播种的节气（来源见 source）；
- *   · 按积温：从今天起累计 ≥10℃ 活动积温，达到品种所需积温的最早日期；
- *   · 最晚播期：常年初霜日倒推全生育期，避免收获前撞霜。
+ * V5.3 起主答案是**适宜播期窗口**（PlantingWindow）：起止日期、推荐日、最晚日、预计收获，
+ * 且窗口与 /api/sow-check 的校验共用同一份月份规则，不会再出现"推荐日通不过自己校验"。
  *
- * 积温所需的逐日气温来自近三年同日聚合（ClimateNormals），取不到时
- * gddAvailable=false 并说明"只给节气建议"，不编一个日期。
+ * 节气与积温退居佐证：
+ *   · solar —— 祖辈的经验窗口，用于解释"为什么是这个时段"；
+ *   · gdd   —— 今年热量够不够，已并入推荐日的修正。
+ * 积温取不到时不影响窗口给答案，只是少一层修正，gddAvailable=false 如实说明。
  */
 public class SowWindowHandler implements HttpHandler {
 
@@ -61,11 +62,12 @@ public class SowWindowHandler implements HttpHandler {
         String standard = CropRegistry.standardName(crop);
         CropProperties.Props props = CropProperties.of(standard);
 
+        PlantingWindow.Window win = PlantingWindow.of(props, lat, lon, today);
         SowAdvisor.Suggestion solar = SowAdvisor.suggest(crop, today);
         GddAdvisor.Suggestion gdd = GddAdvisor.earliest(lat, lon, today, props);
-        GddAdvisor.Latest latest = GddAdvisor.latestSowDate(lat, props, today);
 
-        if (solar == null && !gdd.available()) {
+        // 窗口拿不到（作物没属性）才退回节气/积温；三者都没有才报不可用
+        if (win == null && solar == null && (gdd == null || !gdd.available())) {
             HttpSupport.write(ex, 503, Json.obj(
                     "code", Json.str("50301"),
                     "message", Json.str("播期推算暂不可用，请手动选择播种日期")));
@@ -79,7 +81,7 @@ public class SowWindowHandler implements HttpHandler {
                 "source", Json.str(solar.source()),
                 "basis", Json.str(solar.basis()));
 
-        String gddJson = gdd.available() ? Json.obj(
+        String gddJson = (gdd != null && gdd.available()) ? Json.obj(
                 "sowDate", Json.str(gdd.sowDate()),
                 "daysFromStart", String.valueOf(gdd.daysFromStart()),
                 "thresholdC", Json.num(gdd.thresholdC()),
@@ -87,32 +89,62 @@ public class SowWindowHandler implements HttpHandler {
                 "maturityDate", gdd.maturityDate() == null ? "null" : Json.str(gdd.maturityDate()),
                 "basis", Json.str(gdd.basis())) : "null";
 
-        String latestJson = latest == null ? "null" : Json.obj(
-                "date", Json.str(latest.date()),
-                "basis", Json.str(latest.basis()));
+        String windowJson = win == null ? "null" : Json.obj(
+                "start", Json.str(win.startDate()),
+                "end", Json.str(win.endDate()),
+                "months", monthsArray(win.months()),
+                "monthsText", Json.str(win.monthsText()),
+                "action", Json.str(win.action()),
+                "groupLabel", Json.str(win.groupLabel()),
+                "precision", Json.str(win.precision()),
+                "basis", Json.str(win.basis()));
 
-        // 兼容旧字段：sowDate 优先节气，没有节气就用积温，旧前端仍能直接填
-        String primaryDate = solar != null ? solar.sowDate() : gdd.sowDate();
-        String primaryBasis = solar != null ? solar.basis() : gdd.basis();
-        String primarySource = solar != null ? solar.source() : "gdd";
+        String harvestJson = win == null ? "null" : Json.obj(
+                "date", win.harvestDate() == null ? "null" : Json.str(win.harvestDate()),
+                "totalDays", String.valueOf(win.totalDays()),
+                "canMatureBeforeFrost", Json.bool(win.canMatureBeforeFrost()),
+                "perennial", Json.bool(win.perennial()));
+
+        // 主答案：窗口推荐日。没有窗口时才退回节气/积温，并如实标注来源
+        String primaryDate = win != null ? win.recommendedDate() : (solar != null ? solar.sowDate() : gdd.sowDate());
+        String primarySource = win != null ? "planting-window" : (solar != null ? solar.source() : "gdd");
+        String primaryBasis = win != null ? win.basis() : (solar != null ? solar.basis() : gdd.basis());
+        String latestDate = win != null ? win.latestDate() : (gdd != null && gdd.available() ? null : null);
+        String latestBasis = win != null ? win.latestBasis() : null;
 
         String data = Json.obj(
                 "crop", Json.str(crop),
                 "standardName", Json.str(standard),
+                // 兼容旧字段：前端历史上只认 sowDate/basis/source
                 "sowDate", Json.str(primaryDate),
-                "solarTerm", solar == null ? "null" : Json.str(solar.termName()),
-                "daysFromToday", solar == null ? "null" : String.valueOf(solar.daysFromToday()),
                 "source", Json.str(primarySource),
                 "basis", Json.str(primaryBasis),
+                "daysFromToday", win != null ? String.valueOf(win.daysFromToday())
+                        : (solar == null ? "null" : String.valueOf(solar.daysFromToday())),
+                "window", windowJson,
+                "harvest", harvestJson,
+                "latest", latestDate == null ? "null" : Json.obj(
+                        "date", Json.str(latestDate),
+                        "basis", Json.str(latestBasis)),
                 "solar", solarJson,
                 "gdd", gddJson,
-                "latest", latestJson,
-                "gddAvailable", Json.bool(gdd.available()),
-                "note", Json.str(gdd.available() ? null : gdd.note()));
+                "gddAvailable", Json.bool(gdd != null && gdd.available()),
+                "note", Json.str(win != null ? win.note()
+                        : (gdd != null && gdd.available() ? null : gdd == null ? null : gdd.note())));
 
         HttpSupport.write(ex, 200, Json.obj(
                 "code", Json.str("0"),
                 "message", Json.str("ok"),
                 "data", data));
+    }
+
+    private static String monthsArray(List<Integer> months) {
+        if (months == null || months.isEmpty()) return "[]";
+        StringBuilder sb = new StringBuilder("[");
+        for (int i = 0; i < months.size(); i++) {
+            if (i > 0) sb.append(',');
+            sb.append(months.get(i));
+        }
+        return sb.append(']').toString();
     }
 }

@@ -2395,3 +2395,58 @@ test('完善性：超管后台错误反馈走 toast，保留确认类交互', ()
   assert.ok(consoleJs.includes("showError(auditEmpty"), '日志面板加载失败应走错误态');
   assert.ok(consoleJs.includes('showEmpty'), '后台面板空态应走统一组件');
 });
+
+// ---------------- V5.3：只给作物 + 地点，播期由系统推算 ----------------
+
+test('V5.3 首页：播种日期不再是必填，改为自动推算并展示适宜播期', () => {
+  assert.ok(indexHtml.includes('不用填，按作物和地点自动推算'), '播期应明确标为不用填');
+  assert.ok(indexHtml.includes('id="sow-auto-main"'), '应有播期结果区');
+  assert.ok(indexHtml.includes('id="sow-manual" hidden'), '手动指定应默认收起，不占主流程');
+  assert.ok(indexHtml.includes('function applyWindowInfo'), '应把窗口渲染到页面');
+  assert.match(indexHtml, /fetchSowWindow\(cropName, function \(err, info\)/, '提交时应先推算窗口');
+  // 结果区要能说清"窗口 / 建议日 / 最晚 / 预计收获"四件事
+  assert.ok(indexHtml.includes("label + ' ' + fmtMD(w.start) + '–' + fmtMD(w.end)"), '应展示窗口起止');
+  assert.ok(indexHtml.includes("'预计 ' + fmtMD(h.date) + ' 收获'"), '应展示预计收获');
+  assert.ok(indexHtml.includes("'最晚 ' + fmtMD(info.latest.date)"), '应展示最晚播期');
+  // 手填日期仍然保留，不剥夺控制权
+  assert.ok(indexHtml.includes("sowEditBtn.textContent = open ? '收起手动' : '手动指定'"), '手动指定应可展开/收起');
+});
+
+test('V5.3 后端：窗口与校验共用一套月份规则，且不给过去的日期', () => {
+  const win = read(path.resolve(__dirname, '..', '..', 'backend', 'src', 'com', 'cropcalendar', 'service', 'crop', 'PlantingWindow.java'));
+  const check = read(path.resolve(__dirname, '..', '..', 'backend', 'src', 'com', 'cropcalendar', 'api', 'SowCheckHandler.java'));
+  const handler = read(path.resolve(__dirname, '..', '..', 'backend', 'src', 'com', 'cropcalendar', 'api', 'SowWindowHandler.java'));
+  const timeline = read(path.resolve(__dirname, '..', '..', 'backend', 'src', 'com', 'cropcalendar', 'api', 'TimelineHandler.java'));
+
+  assert.ok(win.includes('public static Set<Integer> monthsFor'), '月份规则应集中在一处');
+  assert.ok(check.includes('PlantingWindow.monthsFor(props)'), '播期校验必须复用窗口规则');
+  assert.ok(!check.includes('AgroZone.sowMonths(props.suitableSeason())'), '不应保留第二套粗粒度季节规则');
+  assert.ok(win.includes('if (e.isBefore(today)) continue'), '已结束的窗口不应再被选中');
+  assert.ok(win.includes('canMature'), '应判断能否在霜前成熟');
+  assert.ok(win.includes('本地无霜期约'), '霜前熟不了要说清原因');
+  assert.ok(handler.includes('PlantingWindow.of(props, lat, lon, today)'), '播期接口应以窗口为主答案');
+  assert.ok(handler.includes('"window", windowJson'), '响应应带窗口起止');
+  assert.ok(timeline.includes('PlantingWindow.of(wp, lat, lon, AppTime.today())'), '时间线缺播期时应自动补推荐日');
+});
+
+test('V5.3 数据：400 种作物都能推导窗口，类别模板覆盖全部作物', () => {
+  const props = JSON.parse(read(path.resolve(__dirname, '..', '..', 'data', 'crop-base', 'properties.json')));
+  const tpl = read(path.resolve(__dirname, '..', '..', 'backend', 'src', 'com', 'cropcalendar', 'service', 'crop', 'CropTemplates.java'));
+  const stub = read(path.resolve(__dirname, '..', '..', 'backend', 'src', 'com', 'cropcalendar', 'compute', 'ComputeStub.java'));
+
+  assert.ok(Array.isArray(props.crops) && props.crops.length >= 400, '作物库应覆盖 400 种');
+  for (const c of props.crops) {
+    assert.ok(c.displayName, '每种作物都要有名字');
+    assert.ok(c.suitableSeason && c.suitableSeason.trim(), c.displayName + ' 缺适宜季节，窗口无从推导');
+    assert.ok(c.totalDays > 0, c.displayName + ' 的 totalDays 应大于 0');
+    assert.ok(['annual', 'perennial'].includes(c.lifespan), c.displayName + ' 的 lifespan 取值异常');
+  }
+  // 多年生不能排"播种"，否则又会出现"苹果 3 月播种 9 月收获"
+  assert.ok(tpl.includes('g.perennial() ? "定植" : "播种"'), '多年生应用"定植"而不是"播种"');
+  assert.ok(tpl.includes('PERENNIAL_FRUIT'), '应有多年生果树模板');
+  assert.ok(tpl.includes('MUSHROOM'), '应有食用菌模板（接种/发菌/出菇）');
+  // 模板必须排在大模型之前，否则用户仍要等 30 秒
+  const tplAt = stub.indexOf('CropTemplates.build');
+  const llmAt = stub.indexOf('LLM_NEGATIVE.get(cropId)');
+  assert.ok(tplAt > -1 && llmAt > -1 && tplAt < llmAt, '类别模板应在调用大模型之前生效');
+});
