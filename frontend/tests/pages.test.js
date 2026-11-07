@@ -1944,6 +1944,8 @@ test('T21 深色主题：变量随系统切换，四态与输入框可读', () =
 test('T27 抽检基线：20 个地块 + 面积自动回归 + 坡度坡向待人工', () => {
   const base = JSON.parse(read(path.resolve(__dirname, '..', '..', 'data', 'geo-baseline.json')));
   const test = read(path.resolve(__dirname, '..', '..', 'backend', 'test', 'com', 'cropcalendar', 'service', 'geo', 'GeoBaselineTest.java'));
+  const terrain = read(path.resolve(__dirname, '..', '..', 'backend', 'src', 'com', 'cropcalendar', 'service', 'geo', 'TerrainService.java'));
+  const terrainTest = read(path.resolve(__dirname, '..', '..', 'backend', 'test', 'com', 'cropcalendar', 'service', 'geo', 'TerrainServiceTest.java'));
 
   assert.ok(base.plots.length >= 20, '基线应覆盖 20 个地块');
   base.plots.forEach((p) => {
@@ -1953,6 +1955,9 @@ test('T27 抽检基线：20 个地块 + 面积自动回归 + 坡度坡向待人�
   assert.ok(test.includes('polygonAreaSqm'), '面积回归应走球面面积公式');
   assert.ok(test.includes('0.005'), '面积应有容差，而不是精确相等');
   assert.ok(test.includes('referenceSlopeDeg'), '坡度/坡向应留待人工核对字段');
+  // 坡度/坡向拟合数学要抽出来离线可测，人工回填 reference 值后才有可信对照
+  assert.ok(terrain.includes('fitPlane') && terrain.includes('atan2'), '坡度坡向拟合应为纯函数');
+  assert.ok(terrainTest.includes('东向坡') && terrainTest.includes('南向坡'), '应有合成数据的坡向方向回归');
 });
 
 // ---------------- T30 存储层可切换（file / mysql） ----------------
@@ -2155,4 +2160,27 @@ test('完善性：错误态带重试、写操作防重复、触控热区、label
   assert.ok(uiState.includes('window.showToast'), '应有全局 toast');
   assert.ok(plots.includes("showToast('地块已保存'"), '保存地块应有反馈');
   assert.ok(crops.includes("showToast('作物已保存'"), '保存作物应有反馈');
+});
+
+// ---------------- 完善性：工单后台页与账号页四态补齐（loading/empty/error+重试） ----------------
+
+test('完善性：工单后台页与账号页补齐四态与重试', () => {
+  const ticketsHtml = read(path.resolve(__dirname, '..', 'pages', 'admin-tickets.html'));
+  const ticketsJs = read(path.resolve(__dirname, '..', 'assets', 'js', 'admin-tickets.js'));
+  const accountHtml = read(path.resolve(__dirname, '..', 'pages', 'account.html'));
+  const accountJs = read(path.resolve(__dirname, '..', 'assets', 'js', 'account.js'));
+
+  // 两个页面都要引入四态组件
+  assert.ok(ticketsHtml.includes('ui-state.js'), '工单后台页应引入 ui-state.js');
+  assert.ok(accountHtml.includes('ui-state.js'), '账号页应引入 ui-state.js');
+
+  // 工单后台：列表三态（loading/empty/error 均带重试）
+  assert.ok(ticketsJs.includes("UiState.loading(emptyEl"), '工单列表应有加载态');
+  assert.ok(ticketsJs.includes("UiState.empty(emptyEl"), '工单列表应有空态');
+  assert.ok(ticketsJs.includes('UiState.error') && ticketsJs.includes('onRetry'), '工单列表错误态应带重试');
+
+  // 账号页：读取失败不再卡在「正在读取…」，有错误态+重试
+  assert.ok(accountJs.includes('showLoadError'), '账号页应有读取失败处理');
+  assert.ok(accountJs.includes('UiState.error') && accountJs.includes('onRetry: load'), '账号页错误态应带重试');
+  assert.ok(!accountJs.includes('网络异常，账号信息读取失败'), '读取失败不应只弹 toast，要落到页面错误态');
 });

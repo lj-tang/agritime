@@ -53,7 +53,7 @@
       </div>
 
       <div class="admin-table-wrap">
-        <table class="admin-table ticket-table">
+        <table class="admin-table ticket-table" id="ticket-table">
           <thead>
             <tr>
               <th>主题</th>
@@ -66,7 +66,7 @@
           </thead>
           <tbody id="ticket-body"></tbody>
         </table>
-        <p class="admin-empty" id="ticket-empty" hidden>这个状态下没有工单</p>
+        <div class="admin-empty" id="ticket-empty" hidden></div>
       </div>
 
       <div class="service-pager" id="ticket-pager" hidden>
@@ -96,6 +96,7 @@
     </div>
   </aside>
 
+  <script src="../assets/js/ui-state.js"></script>
   <script src="../assets/js/admin-tickets.js"></script>
 </body>
 </html>

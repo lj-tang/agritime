@@ -23,11 +23,18 @@
     unread: 0,
     currentId: null
   };
+  var everLoaded = false;
 
   var gateEl, gateTextEl, contentEl, whoEl;
-  var statsEl, tabsEl, unreadEl, bodyEl, emptyEl;
+  var statsEl, tabsEl, unreadEl, bodyEl, emptyEl, tableEl;
   var pagerEl, pageInfoEl, prevBtn, nextBtn;
   var detailEl, maskEl, detailSubject, detailMeta, threadEl, actionsEl, replyInput, replyBtn, closeBtn;
+
+  /** 轻提示，兜底 alert —— ui-state.js 里的全局 showToast 会覆盖它 */
+  function toast(msg, kind) {
+    if (window.showToast) window.showToast(msg, kind);
+    else if (window.alert) window.alert(msg);
+  }
 
   function init() {
     gateEl = document.getElementById('ticket-gate');
@@ -39,6 +46,7 @@
     unreadEl = document.getElementById('ticket-unread');
     bodyEl = document.getElementById('ticket-body');
     emptyEl = document.getElementById('ticket-empty');
+    tableEl = document.getElementById('ticket-table');
     pagerEl = document.getElementById('ticket-pager');
     pageInfoEl = document.getElementById('ticket-page-info');
     prevBtn = document.getElementById('ticket-prev');
@@ -110,12 +118,17 @@
 
   function load(page, status) {
     if (typeof page === 'number') state.page = page;
+    var fresh = !everLoaded || (!!status && status !== state.status);
     if (status) state.status = status;
     var url = API + '/tickets?status=' + encodeURIComponent(state.status)
       + '&page=' + state.page + '&pageSize=' + state.pageSize;
 
+    // 首次进入或切换状态才显示加载态；翻页/刷新时保留旧行，避免整表闪烁
+    if (fresh) showState('loading');
+
     get(url)
       .then(function (body) {
+        everLoaded = true;
         var d = body.data || {};
         state.total = Number(d.total) || 0;
         state.totalPages = Number(d.totalPages) || 1;
@@ -127,8 +140,28 @@
         renderPager();
       })
       .catch(function (e) {
+        everLoaded = true;
         showError(e.message || '加载失败');
       });
+  }
+
+  /** 列表区三态：loading / empty / error。table 与状态块互斥显示。 */
+  function showState(kind, opts) {
+    if (!emptyEl) return;
+    if (tableEl) tableEl.hidden = kind !== null;
+    emptyEl.hidden = false;
+    if (window.UiState) {
+      if (kind === 'loading') window.UiState.loading(emptyEl, '正在读取工单…');
+      else if (kind === 'empty') window.UiState.empty(emptyEl, opts);
+      else if (kind === 'error') window.UiState.error(emptyEl, opts);
+    } else {
+      emptyEl.textContent = opts && opts.text ? opts.text : '';
+    }
+  }
+
+  function showTable() {
+    if (tableEl) tableEl.hidden = false;
+    if (emptyEl) emptyEl.hidden = true;
   }
 
   function renderStats(counts, unread) {
@@ -173,10 +206,19 @@
     if (!bodyEl) return;
     bodyEl.innerHTML = '';
     if (!items.length) {
-      if (emptyEl) emptyEl.hidden = false;
+      if (state.status === 'all') {
+        showState('empty', { icon: '🎫', text: '还没有工单。', hint: '用户提交的咨询会出现在这里。' });
+      } else {
+        showState('empty', {
+          icon: '🎫',
+          text: '这个状态下没有工单。',
+          actionText: '看全部工单',
+          onAction: function () { load(1, 'all'); }
+        });
+      }
       return;
     }
-    if (emptyEl) emptyEl.hidden = true;
+    showTable();
 
     items.forEach(function (t) {
       var tr = document.createElement('tr');
@@ -240,11 +282,12 @@
   }
 
   function showError(msg) {
-    if (emptyEl) {
-      emptyEl.textContent = '加载失败：' + msg;
-      emptyEl.hidden = false;
-    }
     if (bodyEl) bodyEl.innerHTML = '';
+    showState('error', {
+      text: '工单加载失败：' + msg,
+      hint: '已经提交的工单不会丢，网络恢复后重新加载即可。',
+      onRetry: function () { showState('loading'); load(state.page); }
+    });
   }
 
   // ---------------- 详情 ----------------
@@ -258,7 +301,7 @@
         // 详情接口清了这条的管理员未读，刷新列表让角标与未读点同步
         load(state.page, state.status);
       })
-      .catch(function (e) { alert('工单加载失败：' + e.message); });
+      .catch(function (e) { toast('工单加载失败：' + e.message, 'error'); });
   }
 
   function renderDetail(t) {
@@ -318,7 +361,7 @@
         renderDetail(body.data);
         load(state.page, state.status);
       })
-      .catch(function (e) { alert('状态更新失败：' + e.message); });
+      .catch(function (e) { toast('状态更新失败：' + e.message, 'error'); });
   }
 
   function sendReply() {
@@ -330,7 +373,7 @@
         renderDetail(body.data);
         load(state.page, state.status);
       })
-      .catch(function (e) { alert('回复失败：' + e.message); })
+      .catch(function (e) { toast('回复失败：' + e.message, 'error'); })
       .then(function () { if (replyBtn) replyBtn.disabled = false; });
   }
 

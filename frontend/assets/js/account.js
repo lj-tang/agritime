@@ -53,6 +53,9 @@
     if (!u) return;
     var name = u.nickname || u.username;
 
+    var stateEl = $('acc-state');
+    if (stateEl) stateEl.hidden = true;
+
     $('acc-avatar').textContent = (name || '·').trim().charAt(0) || '·';
     $('acc-name').textContent = name;
     $('acc-sub').textContent = '登录名 ' + u.username + ' · ' + roleLabel(u.role);
@@ -87,24 +90,56 @@
   }
 
   function load() {
+    showLoading();
     fetch(API + '/me')
       .then(function (r) {
         if (r.status === 401) {
           location.replace('./auth.html?redirect=' + encodeURIComponent('./account.html'));
           return null;
         }
-        return r.ok ? r.json() : null;
+        return r.json()
+          .then(function (d) { return { ok: r.ok, d: d }; })
+          .catch(function () { return { ok: r.ok, d: null }; });
       })
-      .then(function (d) {
-        var data = d && d.data;
-        if (!data || !data.user) return;
+      .then(function (res) {
+        if (res === null) return; // 401，已跳转
+        var data = res.d && res.d.data;
+        if (!res.ok || !data || !data.user) {
+          showLoadError();
+          return;
+        }
         state.user = data.user;
         state.mustChange = String(data.mustChangePassword) === 'true';
         render();
       })
       .catch(function () {
-        toast('网络异常，账号信息读取失败', 'error');
+        showLoadError();
       });
+  }
+
+  function showLoading() {
+    var stateEl = $('acc-state');
+    if (stateEl) stateEl.hidden = true;
+    $('acc-name').textContent = '正在读取…';
+    $('acc-sub').textContent = '—';
+    var meta = $('acc-meta');
+    if (meta) meta.innerHTML = '';
+  }
+
+  function showLoadError() {
+    $('acc-name').textContent = '读取失败';
+    $('acc-sub').textContent = '账号信息未能加载';
+    var meta = $('acc-meta');
+    if (meta) meta.innerHTML = '';
+    var stateEl = $('acc-state');
+    if (stateEl) stateEl.hidden = false;
+    if (window.UiState) {
+      window.UiState.error(stateEl || 'acc-meta', {
+        text: '网络异常或账号信息读取失败',
+        hint: '你的数据都还在，网络恢复后重新加载即可。',
+        onRetry: load
+      });
+    }
   }
 
   function submitNick(e) {

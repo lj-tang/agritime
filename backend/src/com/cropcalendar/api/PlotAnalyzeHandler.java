@@ -2,6 +2,7 @@ package com.cropcalendar.api;
 
 import com.cropcalendar.config.AppConfig;
 import com.cropcalendar.service.geo.GeoFactors;
+import com.cropcalendar.service.geo.TerrainService;
 import com.cropcalendar.util.AppTime;
 import com.cropcalendar.orchestration.CacheStore;
 import com.cropcalendar.service.crop.AgroZone;
@@ -401,29 +402,15 @@ public class PlotAnalyzeHandler implements HttpHandler {
         if (!t.available || z.length != pts.size()) return;
         double kx = 111320.0 * Math.cos(Math.toRadians(g.centroidLat));
         double ky = 110540.0;
-        double sx = 0, sy = 0, sz = 0;
         int n = pts.size();
         double[] xs = new double[n], ys = new double[n];
         for (int i = 0; i < n; i++) {
             xs[i] = (pts.get(i)[0] - g.centroidLon) * kx;
             ys[i] = (pts.get(i)[1] - g.centroidLat) * ky;
-            sx += xs[i]; sy += ys[i]; sz += z[i];
         }
-        double mx = sx / n, my = sy / n, mz = sz / n;
-        double sxx = 0, syy = 0, sxy = 0, sxz = 0, syz = 0;
-        for (int i = 0; i < n; i++) {
-            double dx = xs[i] - mx, dy = ys[i] - my, dz = z[i] - mz;
-            sxx += dx * dx; syy += dy * dy; sxy += dx * dy;
-            sxz += dx * dz; syz += dy * dz;
-        }
-        double det = sxx * syy - sxy * sxy;
-        if (Math.abs(det) < 1e-9) { t.slopeDeg = 0; return; }
-        double a = (sxz * syy - syz * sxy) / det;   // dz/dx（东向）
-        double b = (syz * sxx - sxz * sxy) / det;   // dz/dy（北向）
-        t.slopeDeg = Math.toDegrees(Math.atan(Math.hypot(a, b)));
-        // 坡向 = 坡面朝向（下坡方向）：0=北 90=东 180=南 270=西
-        double bear = Math.toDegrees(Math.atan2(-a, -b));
-        t.aspectDeg = (bear + 360) % 360;
+        TerrainService.Slope s = TerrainService.fitPlane(xs, ys, z);
+        t.slopeDeg = s.slopeDeg();
+        t.aspectDeg = s.aspectDeg();
     }
 
     private String terrainJson(Terrain t) {

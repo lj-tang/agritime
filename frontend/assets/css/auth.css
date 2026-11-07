@@ -521,6 +521,14 @@
 .account-foot a { color: var(--muted); text-decoration: none; }
 .account-foot a:hover { color: var(--leaf); }
 
+/* 账号信息读取失败的错误态：压缩版，别用列表页那种 260px 的空态高度 */
+.account-state { margin-top: 8px; }
+.account-state .ui-state {
+  min-height: 0;
+  padding: 18px 16px;
+  gap: 6px;
+}
+
 .account-toast {
   position: fixed;
   left: 50%;
