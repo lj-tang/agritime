@@ -618,7 +618,8 @@
       "sowMonthsSouthwest": [
         8,
         9
-      ]
+      ],
+      "sowMonthsSource": "科普中国《青蒜、马铃薯、青玉米、大白菜套种》与晋中太谷大白菜轻简化栽培（立秋前后 8 月上旬播种，霜前收获）"
     },
     {
       "cropId": "C022",
@@ -3527,10 +3528,15 @@
         12,
         2
       ],
-      "sowMonthsNote": "苹果品种，定植窗口同苹果",
-      "sowMonthsSource": "按苹果推定",
-      "sowMonthsPrecision": "derived",
-      "propertiesSource": "公开栽培资料校正（V5.6）"
+      "sowMonthsNote": "苹果品种：定植期同苹果 —— 定植窗口：华北春栽 3 月中–4 上、秋栽 10 下–11 上（秋栽更利发根）",
+      "sowMonthsSource": "按母本「苹果」的已校核定植窗口继承（同种不同品种的定植期差异通常 < 1 周）",
+      "sowMonthsPrecision": "inherited",
+      "propertiesSource": "公开栽培资料校正（V5.6）",
+      "sowMonthsSouthwest": [
+        2,
+        3,
+        11
+      ]
     },
     {
       "cropId": "C142",
@@ -3557,10 +3563,15 @@
         12,
         2
       ],
-      "sowMonthsNote": "苹果品种，定植窗口同苹果",
-      "sowMonthsSource": "按苹果推定",
-      "sowMonthsPrecision": "derived",
-      "propertiesSource": "公开栽培资料校正（V5.6）"
+      "sowMonthsNote": "苹果品种：定植期同苹果 —— 定植窗口：华北春栽 3 月中–4 上、秋栽 10 下–11 上（秋栽更利发根）",
+      "sowMonthsSource": "按母本「苹果」的已校核定植窗口继承（同种不同品种的定植期差异通常 < 1 周）",
+      "sowMonthsPrecision": "inherited",
+      "propertiesSource": "公开栽培资料校正（V5.6）",
+      "sowMonthsSouthwest": [
+        2,
+        3,
+        11
+      ]
     },
     {
       "cropId": "C143",
@@ -3587,9 +3598,14 @@
         12,
         2
       ],
-      "sowMonthsNote": "苹果品种，定植窗口同苹果",
-      "sowMonthsSource": "按苹果推定",
-      "sowMonthsPrecision": "derived"
+      "sowMonthsNote": "苹果品种：定植期同苹果 —— 定植窗口：华北春栽 3 月中–4 上、秋栽 10 下–11 上（秋栽更利发根）",
+      "sowMonthsSource": "按母本「苹果」的已校核定植窗口继承（同种不同品种的定植期差异通常 < 1 周）",
+      "sowMonthsPrecision": "inherited",
+      "sowMonthsSouthwest": [
+        2,
+        3,
+        11
+      ]
     },
     {
       "cropId": "C144",
@@ -3617,9 +3633,14 @@
         2,
         3
       ],
-      "sowMonthsNote": "梨品种，定植窗口同梨",
-      "sowMonthsSource": "按梨推定",
-      "sowMonthsPrecision": "derived"
+      "sowMonthsNote": "梨品种：定植期同梨 —— 定植窗口：春栽 3–4 月、秋栽 10 月下旬–11 月",
+      "sowMonthsSource": "按母本「梨」的已校核定植窗口继承（同种不同品种的定植期差异通常 < 1 周）",
+      "sowMonthsPrecision": "inherited",
+      "sowMonthsSouthwest": [
+        2,
+        3,
+        11
+      ]
     },
     {
       "cropId": "C145",
@@ -3647,9 +3668,14 @@
         2,
         3
       ],
-      "sowMonthsNote": "梨品种，定植窗口同梨",
-      "sowMonthsSource": "按梨推定",
-      "sowMonthsPrecision": "derived"
+      "sowMonthsNote": "梨品种：定植期同梨 —— 定植窗口：春栽 3–4 月、秋栽 10 月下旬–11 月",
+      "sowMonthsSource": "按母本「梨」的已校核定植窗口继承（同种不同品种的定植期差异通常 < 1 周）",
+      "sowMonthsPrecision": "inherited",
+      "sowMonthsSouthwest": [
+        2,
+        3,
+        11
+      ]
     },
     {
       "cropId": "C146",
@@ -3677,9 +3703,14 @@
         2,
         3
       ],
-      "sowMonthsNote": "梨品种，定植窗口同梨",
-      "sowMonthsSource": "按梨推定",
-      "sowMonthsPrecision": "derived"
+      "sowMonthsNote": "梨品种：定植期同梨 —— 定植窗口：春栽 3–4 月、秋栽 10 月下旬–11 月",
+      "sowMonthsSource": "按母本「梨」的已校核定植窗口继承（同种不同品种的定植期差异通常 < 1 周）",
+      "sowMonthsPrecision": "inherited",
+      "sowMonthsSouthwest": [
+        2,
+        3,
+        11
+      ]
     },
     {
       "cropId": "C147",
@@ -3707,9 +3738,14 @@
         2,
         3
       ],
-      "sowMonthsNote": "梨品种，定植窗口同梨",
-      "sowMonthsSource": "按梨推定",
-      "sowMonthsPrecision": "derived"
+      "sowMonthsNote": "梨品种：定植期同梨 —— 定植窗口：春栽 3–4 月、秋栽 10 月下旬–11 月",
+      "sowMonthsSource": "按母本「梨」的已校核定植窗口继承（同种不同品种的定植期差异通常 < 1 周）",
+      "sowMonthsPrecision": "inherited",
+      "sowMonthsSouthwest": [
+        2,
+        3,
+        11
+      ]
     },
     {
       "cropId": "C148",
@@ -3737,9 +3773,14 @@
         11,
         12
       ],
-      "sowMonthsNote": "桃品种，定植窗口同桃",
-      "sowMonthsSource": "按桃推定",
-      "sowMonthsPrecision": "derived"
+      "sowMonthsNote": "桃品种：定植期同桃 —— 定植窗口：北方秋栽 10 月中–11 上，春栽 3 月中–4 上",
+      "sowMonthsSource": "按母本「桃」的已校核定植窗口继承（同种不同品种的定植期差异通常 < 1 周）",
+      "sowMonthsPrecision": "inherited",
+      "sowMonthsSouthwest": [
+        2,
+        3,
+        11
+      ]
     },
     {
       "cropId": "C149",
@@ -3767,9 +3808,14 @@
         11,
         12
       ],
-      "sowMonthsNote": "桃品种，定植窗口同桃",
-      "sowMonthsSource": "按桃推定",
-      "sowMonthsPrecision": "derived"
+      "sowMonthsNote": "桃品种：定植期同桃 —— 定植窗口：北方秋栽 10 月中–11 上，春栽 3 月中–4 上",
+      "sowMonthsSource": "按母本「桃」的已校核定植窗口继承（同种不同品种的定植期差异通常 < 1 周）",
+      "sowMonthsPrecision": "inherited",
+      "sowMonthsSouthwest": [
+        2,
+        3,
+        11
+      ]
     },
     {
       "cropId": "C150",
@@ -3797,9 +3843,14 @@
         11,
         12
       ],
-      "sowMonthsNote": "桃品种，定植窗口同桃",
-      "sowMonthsSource": "按桃推定",
-      "sowMonthsPrecision": "derived"
+      "sowMonthsNote": "桃品种：定植期同桃 —— 定植窗口：北方秋栽 10 月中–11 上，春栽 3 月中–4 上",
+      "sowMonthsSource": "按母本「桃」的已校核定植窗口继承（同种不同品种的定植期差异通常 < 1 周）",
+      "sowMonthsPrecision": "inherited",
+      "sowMonthsSouthwest": [
+        2,
+        3,
+        11
+      ]
     },
     {
       "cropId": "C151",
@@ -3827,9 +3878,14 @@
         11,
         12
       ],
-      "sowMonthsNote": "桃品种，定植窗口同桃",
-      "sowMonthsSource": "按桃推定",
-      "sowMonthsPrecision": "derived"
+      "sowMonthsNote": "桃品种：定植期同桃 —— 定植窗口：北方秋栽 10 月中–11 上，春栽 3 月中–4 上",
+      "sowMonthsSource": "按母本「桃」的已校核定植窗口继承（同种不同品种的定植期差异通常 < 1 周）",
+      "sowMonthsPrecision": "inherited",
+      "sowMonthsSouthwest": [
+        2,
+        3,
+        11
+      ]
     },
     {
       "cropId": "C152",
@@ -3856,9 +3912,9 @@
         12,
         2
       ],
-      "sowMonthsNote": "枣品种，定植窗口同枣",
-      "sowMonthsSource": "按枣推定",
-      "sowMonthsPrecision": "derived"
+      "sowMonthsNote": "枣品种：定植期同枣 —— 枣树秋栽 10–11 月或春栽 3–4 月",
+      "sowMonthsSource": "按母本「枣」的已校核定植窗口继承（同种不同品种的定植期差异通常 < 1 周）",
+      "sowMonthsPrecision": "inherited"
     },
     {
       "cropId": "C153",
@@ -3885,9 +3941,9 @@
         12,
         2
       ],
-      "sowMonthsNote": "枣品种，定植窗口同枣",
-      "sowMonthsSource": "按枣推定",
-      "sowMonthsPrecision": "derived"
+      "sowMonthsNote": "枣品种：定植期同枣 —— 枣树秋栽 10–11 月或春栽 3–4 月",
+      "sowMonthsSource": "按母本「枣」的已校核定植窗口继承（同种不同品种的定植期差异通常 < 1 周）",
+      "sowMonthsPrecision": "inherited"
     },
     {
       "cropId": "C154",
@@ -3914,9 +3970,9 @@
         12,
         2
       ],
-      "sowMonthsNote": "枣品种，定植窗口同枣",
-      "sowMonthsSource": "按枣推定",
-      "sowMonthsPrecision": "derived"
+      "sowMonthsNote": "枣品种：定植期同枣 —— 枣树秋栽 10–11 月或春栽 3–4 月",
+      "sowMonthsSource": "按母本「枣」的已校核定植窗口继承（同种不同品种的定植期差异通常 < 1 周）",
+      "sowMonthsPrecision": "inherited"
     },
     {
       "cropId": "C155",
@@ -4735,7 +4791,9 @@
       "source": "category-rule",
       "sowMonths": [
         3,
-        4
+        4,
+        9,
+        10
       ],
       "sowMonthsSouth": [
         2,
@@ -4743,9 +4801,8 @@
         9,
         10
       ],
-      "sowMonthsNote": "木本/根茎类药材以春季 3–4 月栽植为主",
-      "sowMonthsSource": "中药材种植时间资料",
-      "sowMonthsPrecision": "derived"
+      "sowMonthsNote": "川、浙产区 9–10 月分株秋栽；南方 2–3 月、北方 4 月亦可栽",
+      "sowMonthsSource": "秋冬季适种药材表（麦冬 9–10 月分株秋栽）/ 中药材春播资料"
     },
     {
       "cropId": "C203",
@@ -4816,16 +4873,17 @@
       "tempRequirement": "药用作物，按品种差异大",
       "source": "category-rule",
       "sowMonths": [
+        8,
         9,
-        10
+        10,
+        11
       ],
       "sowMonthsSouth": [
         9,
         10
       ],
-      "sowMonthsNote": "芍药科，秋季栽植",
-      "sowMonthsSource": "中药材种植时间资料",
-      "sowMonthsPrecision": "derived"
+      "sowMonthsNote": "芽头秋栽 8 月下旬–11 月（早栽为宜），生长期 3–4 年",
+      "sowMonthsSource": "浙江省中药材产业协会《秋季中药材栽培》/ 利辛县药材栽种时间表"
     },
     {
       "cropId": "C206",
@@ -4867,8 +4925,8 @@
       "tempRequirement": "药用作物，按品种差异大",
       "source": "category-rule",
       "sowMonths": [
-        3,
-        4
+        10,
+        11
       ],
       "sowMonthsSouth": [
         2,
@@ -4876,9 +4934,8 @@
         9,
         10
       ],
-      "sowMonthsNote": "木本/根茎类药材以春季 3–4 月栽植为主",
-      "sowMonthsSource": "中药材种植时间资料",
-      "sowMonthsPrecision": "derived"
+      "sowMonthsNote": "秋播 10–11 月，耐旱，生长期 2–3 年",
+      "sowMonthsSource": "秋冬季适种药材表（苦参 10–11 月秋播）"
     },
     {
       "cropId": "C208",
@@ -4895,8 +4952,8 @@
       "tempRequirement": "药用作物，按品种差异大",
       "source": "category-rule",
       "sowMonths": [
-        3,
-        4
+        9,
+        10
       ],
       "sowMonthsSouth": [
         2,
@@ -4904,9 +4961,8 @@
         9,
         10
       ],
-      "sowMonthsNote": "木本/根茎类药材以春季 3–4 月栽植为主",
-      "sowMonthsSource": "中药材种植时间资料",
-      "sowMonthsPrecision": "derived"
+      "sowMonthsNote": "9–10 月苗秋移栽，高海拔产区需遮阴",
+      "sowMonthsSource": "秋冬季适种药材表（黄连 9–10 月苗秋移栽）"
     },
     {
       "cropId": "C209",
@@ -4923,6 +4979,7 @@
       "tempRequirement": "药用作物，按品种差异大",
       "source": "category-rule",
       "sowMonths": [
+        2,
         3,
         4
       ],
@@ -4932,9 +4989,8 @@
         9,
         10
       ],
-      "sowMonthsNote": "木本/根茎类药材以春季 3–4 月栽植为主",
-      "sowMonthsSource": "中药材种植时间资料",
-      "sowMonthsPrecision": "derived"
+      "sowMonthsNote": "苗木春植 2–4 月，也可秋季落叶后栽",
+      "sowMonthsSource": "中药材苗木类移栽时间（二月苗木修枝移栽）"
     },
     {
       "cropId": "C210",
@@ -4951,8 +5007,10 @@
       "tempRequirement": "多年生，需按年管理",
       "source": "category-rule",
       "sowMonths": [
+        2,
         3,
-        4
+        10,
+        11
       ],
       "sowMonthsSouth": [
         2,
@@ -4960,9 +5018,8 @@
         9,
         10
       ],
-      "sowMonthsNote": "木本/根茎类药材以春季 3–4 月栽植为主",
-      "sowMonthsSource": "中药材种植时间资料",
-      "sowMonthsPrecision": "derived"
+      "sowMonthsNote": "苗木秋、春两季栽植，春季 2–3 月、秋季 10–11 月",
+      "sowMonthsSource": "利辛县药材栽种时间表（杜仲：秋、春）"
     },
     {
       "cropId": "C211",
@@ -4979,8 +5036,10 @@
       "tempRequirement": "多年生，需按年管理",
       "source": "category-rule",
       "sowMonths": [
+        2,
         3,
-        4
+        10,
+        11
       ],
       "sowMonthsSouth": [
         2,
@@ -4988,9 +5047,8 @@
         9,
         10
       ],
-      "sowMonthsNote": "木本/根茎类药材以春季 3–4 月栽植为主",
-      "sowMonthsSource": "中药材种植时间资料",
-      "sowMonthsPrecision": "derived"
+      "sowMonthsNote": "落叶木本，休眠期栽植（2–3 月或 10–11 月）",
+      "sowMonthsSource": "中药材木本类栽植资料综合"
     },
     {
       "cropId": "C212",
@@ -5008,7 +5066,9 @@
       "source": "category-rule",
       "sowMonths": [
         3,
-        4
+        4,
+        5,
+        6
       ],
       "sowMonthsSouth": [
         2,
@@ -5016,9 +5076,8 @@
         9,
         10
       ],
-      "sowMonthsNote": "木本/根茎类药材以春季 3–4 月栽植为主",
-      "sowMonthsSource": "中药材种植时间资料",
-      "sowMonthsPrecision": "derived"
+      "sowMonthsNote": "华南春植 3–4 月、雨季 5–6 月定植",
+      "sowMonthsSource": "热带香料作物栽培资料（肉桂春植/雨季定植）"
     },
     {
       "cropId": "C213",
@@ -5037,16 +5096,16 @@
       "sowMonths": [
         3,
         4,
-        10
+        10,
+        11
       ],
       "sowMonthsSouth": [
         2,
         3,
         10
       ],
-      "sowMonthsNote": "藤本，春秋栽植",
-      "sowMonthsSource": "中药材种植时间资料",
-      "sowMonthsPrecision": "derived"
+      "sowMonthsNote": "春植 3–4 月或秋植 10–11 月（休眠期）",
+      "sowMonthsSource": "中药材木本类栽植资料综合"
     },
     {
       "cropId": "C214",
@@ -5114,15 +5173,16 @@
       "source": "category-rule",
       "sowMonths": [
         3,
-        4
+        4,
+        9,
+        10
       ],
       "sowMonthsSouth": [
         3,
         4
       ],
-      "sowMonthsNote": "种子繁殖，春季播种",
-      "sowMonthsSource": "中药材种植时间资料",
-      "sowMonthsPrecision": "derived"
+      "sowMonthsNote": "春播 3–4 月或秋播 9–10 月",
+      "sowMonthsSource": "中药材种植时间表（车前子春秋两季）"
     },
     {
       "cropId": "C217",
@@ -5139,16 +5199,15 @@
       "tempRequirement": "药用作物，按品种差异大",
       "source": "category-rule",
       "sowMonths": [
-        3,
-        4
+        4,
+        5
       ],
       "sowMonthsSouth": [
         3,
         4
       ],
-      "sowMonthsNote": "种子繁殖，春季播种",
-      "sowMonthsSource": "中药材种植时间资料",
-      "sowMonthsPrecision": "derived"
+      "sowMonthsNote": "春末夏初 4–5 月播种，寄生于豆科作物",
+      "sowMonthsSource": "中药材种植时间表（菟丝子种子繁殖春夏播）"
     },
     {
       "cropId": "C218",
@@ -5166,15 +5225,16 @@
       "source": "category-rule",
       "sowMonths": [
         3,
-        4
+        4,
+        9,
+        10
       ],
       "sowMonthsSouth": [
         3,
         4
       ],
-      "sowMonthsNote": "种子繁殖，春季播种",
-      "sowMonthsSource": "中药材种植时间资料",
-      "sowMonthsPrecision": "derived"
+      "sowMonthsNote": "春秋两季播种（3–4 月、9–10 月）",
+      "sowMonthsSource": "中药材种植时间表"
     },
     {
       "cropId": "C219",
@@ -5191,8 +5251,10 @@
       "tempRequirement": "多年生，需按年管理",
       "source": "category-rule",
       "sowMonths": [
+        2,
         3,
-        4
+        10,
+        11
       ],
       "sowMonthsSouth": [
         2,
@@ -5200,9 +5262,8 @@
         9,
         10
       ],
-      "sowMonthsNote": "木本/根茎类药材以春季 3–4 月栽植为主",
-      "sowMonthsSource": "中药材种植时间资料",
-      "sowMonthsPrecision": "derived"
+      "sowMonthsNote": "苗木春季 2–3 月或秋季 10–11 月栽植",
+      "sowMonthsSource": "中药材苗木类移栽时间（二月安排山茱萸移栽）"
     },
     {
       "cropId": "C220",
@@ -5220,7 +5281,9 @@
       "source": "category-rule",
       "sowMonths": [
         3,
-        4
+        4,
+        10,
+        11
       ],
       "sowMonthsSouth": [
         2,
@@ -5228,9 +5291,8 @@
         9,
         10
       ],
-      "sowMonthsNote": "木本/根茎类药材以春季 3–4 月栽植为主",
-      "sowMonthsSource": "中药材种植时间资料",
-      "sowMonthsPrecision": "derived"
+      "sowMonthsNote": "春植 3–4 月或秋植 10–11 月",
+      "sowMonthsSource": "中药材木本类栽植资料综合"
     },
     {
       "cropId": "C221",
@@ -5275,7 +5337,9 @@
       "source": "category-rule",
       "sowMonths": [
         3,
-        4
+        4,
+        12,
+        1
       ],
       "sowMonthsSouth": [
         2,
@@ -5283,9 +5347,8 @@
         9,
         10
       ],
-      "sowMonthsNote": "木本/根茎类药材以春季 3–4 月栽植为主",
-      "sowMonthsSource": "中药材种植时间资料",
-      "sowMonthsPrecision": "derived"
+      "sowMonthsNote": "浙江子芽冬种 12 月中–1 月上旬；北方 3–4 月春栽",
+      "sowMonthsSource": "秋冬季适种药材表（玄参 12 月–1 月子芽冬种）/ 中药材种植时间表"
     },
     {
       "cropId": "C223",
@@ -5311,9 +5374,8 @@
         9,
         10
       ],
-      "sowMonthsNote": "木本/根茎类药材以春季 3–4 月栽植为主",
-      "sowMonthsSource": "中药材种植时间资料",
-      "sowMonthsPrecision": "derived"
+      "sowMonthsNote": "3–4 月栽种种栽（地黄），地温回升后下种",
+      "sowMonthsSource": "中药材种植时间表（三月生地种苗最佳播期）"
     },
     {
       "cropId": "C224",
@@ -5355,16 +5417,15 @@
       "tempRequirement": "药用作物，按品种差异大",
       "source": "category-rule",
       "sowMonths": [
-        8,
-        9
+        3,
+        4
       ],
       "sowMonthsSouth": [
         9,
         10
       ],
-      "sowMonthsNote": "秋播越冬",
-      "sowMonthsSource": "中药材种植时间资料",
-      "sowMonthsPrecision": "derived"
+      "sowMonthsNote": "3–4 月春播，种子细小需浅播",
+      "sowMonthsSource": "中药材种植时间表"
     },
     {
       "cropId": "C226",
@@ -5409,7 +5470,10 @@
       "source": "category-rule",
       "sowMonths": [
         3,
-        4
+        4,
+        9,
+        10,
+        11
       ],
       "sowMonthsSouth": [
         2,
@@ -5417,9 +5481,8 @@
         9,
         10
       ],
-      "sowMonthsNote": "木本/根茎类药材以春季 3–4 月栽植为主",
-      "sowMonthsSource": "中药材种植时间资料",
-      "sowMonthsPrecision": "derived"
+      "sowMonthsNote": "秋播 9–11 月（出苗早、根形好）；春播 3 月下旬–4 月上旬",
+      "sowMonthsSource": "秋冬季适种药材表（防风 9–11 月秋播）/ 利辛县药材表（春栽 3 下–4 上）"
     },
     {
       "cropId": "C228",
@@ -5436,8 +5499,10 @@
       "tempRequirement": "药用作物，按品种差异大",
       "source": "category-rule",
       "sowMonths": [
-        3,
-        4
+        4,
+        5,
+        9,
+        10
       ],
       "sowMonthsSouth": [
         2,
@@ -5445,9 +5510,8 @@
         9,
         10
       ],
-      "sowMonthsNote": "木本/根茎类药材以春季 3–4 月栽植为主",
-      "sowMonthsSource": "中药材种植时间资料",
-      "sowMonthsPrecision": "derived"
+      "sowMonthsNote": "高海拔产区，春播 4–5 月或秋播 9–10 月",
+      "sowMonthsSource": "中药材种植时间表"
     },
     {
       "cropId": "C229",
@@ -5465,7 +5529,9 @@
       "source": "category-rule",
       "sowMonths": [
         3,
-        4
+        4,
+        9,
+        10
       ],
       "sowMonthsSouth": [
         2,
@@ -5473,9 +5539,8 @@
         9,
         10
       ],
-      "sowMonthsNote": "木本/根茎类药材以春季 3–4 月栽植为主",
-      "sowMonthsSource": "中药材种植时间资料",
-      "sowMonthsPrecision": "derived"
+      "sowMonthsNote": "春播 3–4 月或秋播 9–10 月",
+      "sowMonthsSource": "中药材种植时间表"
     },
     {
       "cropId": "C230",
@@ -5493,7 +5558,9 @@
       "source": "category-rule",
       "sowMonths": [
         3,
-        4
+        4,
+        9,
+        10
       ],
       "sowMonthsSouth": [
         2,
@@ -5501,9 +5568,8 @@
         9,
         10
       ],
-      "sowMonthsNote": "木本/根茎类药材以春季 3–4 月栽植为主",
-      "sowMonthsSource": "中药材种植时间资料",
-      "sowMonthsPrecision": "derived"
+      "sowMonthsNote": "秋播 9–10 月；春播 3–4 月",
+      "sowMonthsSource": "秋冬季适种药材表（前胡 9–10 月秋播）/ 中药材春播资料"
     },
     {
       "cropId": "C231",
@@ -5793,7 +5859,8 @@
       "source": "category-rule",
       "sowMonths": [
         3,
-        4
+        4,
+        5
       ],
       "sowMonthsSouth": [
         2,
@@ -5801,9 +5868,8 @@
         10,
         11
       ],
-      "sowMonthsNote": "常绿花木以春季 3–4 月栽植为主",
-      "sowMonthsSource": "花卉栽培资料综合",
-      "sowMonthsPrecision": "derived"
+      "sowMonthsNote": "常绿花木，春季 3–5 月栽植；南方 3 月即可",
+      "sowMonthsSource": "长景园林《现在时间适合种什么花草》/ 江苏花卉种植时间表"
     },
     {
       "cropId": "C242",
@@ -5821,7 +5887,9 @@
       "source": "category-rule",
       "sowMonths": [
         3,
-        4
+        4,
+        9,
+        10
       ],
       "sowMonthsSouth": [
         2,
@@ -5829,9 +5897,8 @@
         10,
         11
       ],
-      "sowMonthsNote": "常绿花木以春季 3–4 月栽植为主",
-      "sowMonthsSource": "花卉栽培资料综合",
-      "sowMonthsPrecision": "derived"
+      "sowMonthsNote": "春季 3–4 月或秋季 9–10 月栽植/翻盆",
+      "sowMonthsSource": "江苏花卉种植时间表 / 京合花卉月历"
     },
     {
       "cropId": "C243",
@@ -5848,8 +5915,10 @@
       "tempRequirement": "多年生，需按年管理",
       "source": "category-rule",
       "sowMonths": [
+        1,
+        2,
         3,
-        4
+        12
       ],
       "sowMonthsSouth": [
         2,
@@ -5857,9 +5926,8 @@
         10,
         11
       ],
-      "sowMonthsNote": "常绿花木以春季 3–4 月栽植为主",
-      "sowMonthsSource": "花卉栽培资料综合",
-      "sowMonthsPrecision": "derived"
+      "sowMonthsNote": "苗木 12–1 月或春季 2–3 月栽植，避开严寒",
+      "sowMonthsSource": "江苏花卉种植时间表（茶花 12–1 月种植苗木）"
     },
     {
       "cropId": "C244",
@@ -5876,8 +5944,10 @@
       "tempRequirement": "多年生，需按年管理",
       "source": "category-rule",
       "sowMonths": [
-        3,
-        4
+        12,
+        1,
+        2,
+        3
       ],
       "sowMonthsSouth": [
         2,
@@ -5885,9 +5955,8 @@
         10,
         11
       ],
-      "sowMonthsNote": "常绿花木以春季 3–4 月栽植为主",
-      "sowMonthsSource": "花卉栽培资料综合",
-      "sowMonthsPrecision": "derived"
+      "sowMonthsNote": "落叶木本，休眠期 12–2 月栽植，最迟发芽前（2–3 月）",
+      "sowMonthsSource": "江苏花卉种植时间表（梅花 12–1 月种苗木）"
     },
     {
       "cropId": "C245",
@@ -5905,7 +5974,9 @@
       "source": "category-rule",
       "sowMonths": [
         3,
-        4
+        4,
+        9,
+        10
       ],
       "sowMonthsSouth": [
         2,
@@ -5913,9 +5984,8 @@
         10,
         11
       ],
-      "sowMonthsNote": "常绿花木以春季 3–4 月栽植为主",
-      "sowMonthsSource": "花卉栽培资料综合",
-      "sowMonthsPrecision": "derived"
+      "sowMonthsNote": "春季 3–4 月或秋季 9–10 月分株换盆",
+      "sowMonthsSource": "花卉栽培资料综合（兰花春秋分株）"
     },
     {
       "cropId": "C246",
@@ -5932,16 +6002,15 @@
       "tempRequirement": "观赏/药用，喜光",
       "source": "category-rule",
       "sowMonths": [
-        9,
-        10
+        10,
+        11
       ],
       "sowMonthsSouth": [
         9,
         10
       ],
-      "sowMonthsNote": "秋植球根",
-      "sowMonthsSource": "花卉栽培资料综合",
-      "sowMonthsPrecision": "derived"
+      "sowMonthsNote": "秋植球根 10–11 月，冬春开花",
+      "sowMonthsSource": "江苏花卉种植时间表（水仙 10–11 月播种/分球）"
     },
     {
       "cropId": "C247",
@@ -5983,16 +6052,17 @@
       "tempRequirement": "观赏/药用，喜光",
       "source": "category-rule",
       "sowMonths": [
-        3,
-        4
+        4,
+        5,
+        6,
+        7
       ],
       "sowMonthsSouth": [
         3,
         4
       ],
-      "sowMonthsNote": "水生花卉，地温回升后栽植",
-      "sowMonthsSource": "花卉栽培资料综合",
-      "sowMonthsPrecision": "derived"
+      "sowMonthsNote": "水生，4–7 月水温回升后分株或播种",
+      "sowMonthsSource": "江苏花卉种植时间表（睡莲 5–7 月分株）"
     },
     {
       "cropId": "C249",
@@ -6011,16 +6081,17 @@
       "sowMonths": [
         3,
         4,
-        9
+        5,
+        9,
+        10
       ],
       "sowMonthsSouth": [
         3,
         4,
         9
       ],
-      "sowMonthsNote": "春秋分株",
-      "sowMonthsSource": "花卉栽培资料综合",
-      "sowMonthsPrecision": "derived"
+      "sowMonthsNote": "宿根花卉，春季 3–5 月或秋季 9–10 月分株栽植",
+      "sowMonthsSource": "长景园林《养花种草什么时候播种》/ 京合花卉月历"
     },
     {
       "cropId": "C250",
@@ -6037,16 +6108,15 @@
       "tempRequirement": "观赏/药用，喜光",
       "source": "category-rule",
       "sowMonths": [
-        3,
-        4
+        4,
+        5
       ],
       "sowMonthsSouth": [
         3,
         4
       ],
-      "sowMonthsNote": "块根春植",
-      "sowMonthsSource": "花卉栽培资料综合",
-      "sowMonthsPrecision": "derived"
+      "sowMonthsNote": "块根 4–5 月土温 15℃ 以上栽植，也可夏季补栽",
+      "sowMonthsSource": "京合花卉月历（大丽花土温 15℃ 以上栽植）"
     },
     {
       "cropId": "C251",
@@ -6063,18 +6133,17 @@
       "tempRequirement": "属性按作物类别推定",
       "source": "category-rule",
       "sowMonths": [
-        3,
         4,
-        6
+        5,
+        9
       ],
       "sowMonthsSouth": [
         3,
         4,
         6
       ],
-      "sowMonthsNote": "一年生草本，春播为主",
-      "sowMonthsSource": "花卉栽培资料综合",
-      "sowMonthsPrecision": "derived"
+      "sowMonthsNote": "地温 10–18℃ 的 4 月露地播种；也可 9 月秋播",
+      "sowMonthsSource": "京合花卉月历（一串红 4 月露地播种）/ 江苏花卉时间表"
     },
     {
       "cropId": "C252",
@@ -6091,8 +6160,8 @@
       "tempRequirement": "观赏/药用，喜光",
       "source": "category-rule",
       "sowMonths": [
-        3,
         4,
+        5,
         6
       ],
       "sowMonthsSouth": [
@@ -6100,9 +6169,8 @@
         4,
         6
       ],
-      "sowMonthsNote": "一年生草本，春播为主",
-      "sowMonthsSource": "花卉栽培资料综合",
-      "sowMonthsPrecision": "derived"
+      "sowMonthsNote": "春末夏初 4–6 月播种，耐热，夏季亦可直播",
+      "sowMonthsSource": "长景园林《养花种草什么时候播种》（万寿菊夏季播种）"
     },
     {
       "cropId": "C253",
@@ -6121,16 +6189,15 @@
       "sowMonths": [
         3,
         4,
-        6
+        5
       ],
       "sowMonthsSouth": [
         3,
         4,
         6
       ],
-      "sowMonthsNote": "一年生草本，春播为主",
-      "sowMonthsSource": "花卉栽培资料综合",
-      "sowMonthsPrecision": "derived"
+      "sowMonthsNote": "春季 3–5 月播种，夏秋开花",
+      "sowMonthsSource": "长景园林《现在时间适合种什么花草》"
     },
     {
       "cropId": "C254",
@@ -6174,16 +6241,17 @@
       "sowMonths": [
         3,
         4,
-        8
+        5,
+        9,
+        10
       ],
       "sowMonthsSouth": [
         3,
         4,
         8
       ],
-      "sowMonthsNote": "春秋两季播种",
-      "sowMonthsSource": "花卉栽培资料综合",
-      "sowMonthsPrecision": "derived"
+      "sowMonthsNote": "春季 3–5 月或秋季 9–10 月播种",
+      "sowMonthsSource": "长景园林《养花种草什么时候播种》/ 京合花卉月历"
     },
     {
       "cropId": "C256",
@@ -6200,16 +6268,17 @@
       "tempRequirement": "药用作物，按品种差异大",
       "source": "category-rule",
       "sowMonths": [
-        8,
-        9
+        3,
+        4,
+        9,
+        10
       ],
       "sowMonthsSouth": [
         9,
         10
       ],
-      "sowMonthsNote": "秋播越冬，翌春开花",
-      "sowMonthsSource": "花卉栽培资料综合",
-      "sowMonthsPrecision": "derived"
+      "sowMonthsNote": "秋播 9–10 月（清明后移栽），或春季 3–4 月播种",
+      "sowMonthsSource": "京合花卉月历（金鱼草秋播清明后移栽）"
     },
     {
       "cropId": "C257",
@@ -7594,8 +7663,8 @@
       "sowMonths": [
         2,
         3,
-        9,
-        10
+        10,
+        11
       ],
       "sowMonthsSouth": [
         2,
@@ -7603,9 +7672,15 @@
         9,
         10
       ],
-      "sowMonthsNote": "柑橘品种，定植窗口同柑橘",
-      "sowMonthsSource": "按柑橘推定",
-      "sowMonthsPrecision": "derived"
+      "sowMonthsNote": "柑橘品种：定植期同柑橘 —— 常绿果树：10–11 月或 2–3 月定植，避开盛夏与严寒",
+      "sowMonthsSource": "按母本「柑橘」的已校核定植窗口继承（同种不同品种的定植期差异通常 < 1 周）",
+      "sowMonthsPrecision": "inherited",
+      "sowMonthsSouthwest": [
+        2,
+        3,
+        9,
+        10
+      ]
     },
     {
       "cropId": "C346",
@@ -7624,8 +7699,8 @@
       "sowMonths": [
         2,
         3,
-        9,
-        10
+        10,
+        11
       ],
       "sowMonthsSouth": [
         2,
@@ -7633,9 +7708,15 @@
         9,
         10
       ],
-      "sowMonthsNote": "柑橘品种，定植窗口同柑橘",
-      "sowMonthsSource": "按柑橘推定",
-      "sowMonthsPrecision": "derived"
+      "sowMonthsNote": "柑橘品种：定植期同柑橘 —— 常绿果树：10–11 月或 2–3 月定植，避开盛夏与严寒",
+      "sowMonthsSource": "按母本「柑橘」的已校核定植窗口继承（同种不同品种的定植期差异通常 < 1 周）",
+      "sowMonthsPrecision": "inherited",
+      "sowMonthsSouthwest": [
+        2,
+        3,
+        9,
+        10
+      ]
     },
     {
       "cropId": "C347",
@@ -7654,8 +7735,8 @@
       "sowMonths": [
         2,
         3,
-        9,
-        10
+        10,
+        11
       ],
       "sowMonthsSouth": [
         2,
@@ -7663,9 +7744,15 @@
         9,
         10
       ],
-      "sowMonthsNote": "柑橘品种，定植窗口同柑橘",
-      "sowMonthsSource": "按柑橘推定",
-      "sowMonthsPrecision": "derived"
+      "sowMonthsNote": "柑橘品种：定植期同柑橘 —— 常绿果树：10–11 月或 2–3 月定植，避开盛夏与严寒",
+      "sowMonthsSource": "按母本「柑橘」的已校核定植窗口继承（同种不同品种的定植期差异通常 < 1 周）",
+      "sowMonthsPrecision": "inherited",
+      "sowMonthsSouthwest": [
+        2,
+        3,
+        9,
+        10
+      ]
     },
     {
       "cropId": "C348",
@@ -7684,8 +7771,8 @@
       "sowMonths": [
         2,
         3,
-        9,
-        10
+        10,
+        11
       ],
       "sowMonthsSouth": [
         2,
@@ -7693,9 +7780,15 @@
         9,
         10
       ],
-      "sowMonthsNote": "柑橘品种，定植窗口同柑橘",
-      "sowMonthsSource": "按柑橘推定",
-      "sowMonthsPrecision": "derived"
+      "sowMonthsNote": "柑橘品种：定植期同柑橘 —— 常绿果树：10–11 月或 2–3 月定植，避开盛夏与严寒",
+      "sowMonthsSource": "按母本「柑橘」的已校核定植窗口继承（同种不同品种的定植期差异通常 < 1 周）",
+      "sowMonthsPrecision": "inherited",
+      "sowMonthsSouthwest": [
+        2,
+        3,
+        9,
+        10
+      ]
     },
     {
       "cropId": "C349",
@@ -7714,8 +7807,8 @@
       "sowMonths": [
         2,
         3,
-        9,
-        10
+        10,
+        11
       ],
       "sowMonthsSouth": [
         2,
@@ -7723,9 +7816,15 @@
         9,
         10
       ],
-      "sowMonthsNote": "柑橘品种，定植窗口同柑橘",
-      "sowMonthsSource": "按柑橘推定",
-      "sowMonthsPrecision": "derived"
+      "sowMonthsNote": "柑橘品种：定植期同柑橘 —— 常绿果树：10–11 月或 2–3 月定植，避开盛夏与严寒",
+      "sowMonthsSource": "按母本「柑橘」的已校核定植窗口继承（同种不同品种的定植期差异通常 < 1 周）",
+      "sowMonthsPrecision": "inherited",
+      "sowMonthsSouthwest": [
+        2,
+        3,
+        9,
+        10
+      ]
     },
     {
       "cropId": "C350",
@@ -7744,8 +7843,8 @@
       "sowMonths": [
         2,
         3,
-        9,
-        10
+        10,
+        11
       ],
       "sowMonthsSouth": [
         2,
@@ -7753,9 +7852,15 @@
         9,
         10
       ],
-      "sowMonthsNote": "柑橘品种，定植窗口同柑橘",
-      "sowMonthsSource": "按柑橘推定",
-      "sowMonthsPrecision": "derived"
+      "sowMonthsNote": "柑橘品种：定植期同柑橘 —— 常绿果树：10–11 月或 2–3 月定植，避开盛夏与严寒",
+      "sowMonthsSource": "按母本「柑橘」的已校核定植窗口继承（同种不同品种的定植期差异通常 < 1 周）",
+      "sowMonthsPrecision": "inherited",
+      "sowMonthsSouthwest": [
+        2,
+        3,
+        9,
+        10
+      ]
     },
     {
       "cropId": "C351",
@@ -7774,8 +7879,8 @@
       "sowMonths": [
         2,
         3,
-        9,
-        10
+        10,
+        11
       ],
       "sowMonthsSouth": [
         2,
@@ -7783,9 +7888,15 @@
         9,
         10
       ],
-      "sowMonthsNote": "柑橘品种，定植窗口同柑橘",
-      "sowMonthsSource": "按柑橘推定",
-      "sowMonthsPrecision": "derived"
+      "sowMonthsNote": "柑橘品种：定植期同柑橘 —— 常绿果树：10–11 月或 2–3 月定植，避开盛夏与严寒",
+      "sowMonthsSource": "按母本「柑橘」的已校核定植窗口继承（同种不同品种的定植期差异通常 < 1 周）",
+      "sowMonthsPrecision": "inherited",
+      "sowMonthsSouthwest": [
+        2,
+        3,
+        9,
+        10
+      ]
     },
     {
       "cropId": "C352",
@@ -7804,8 +7915,8 @@
       "sowMonths": [
         2,
         3,
-        9,
-        10
+        10,
+        11
       ],
       "sowMonthsSouth": [
         2,
@@ -7813,10 +7924,16 @@
         9,
         10
       ],
-      "sowMonthsNote": "柑橘品种，定植窗口同柑橘",
-      "sowMonthsSource": "按柑橘推定",
-      "sowMonthsPrecision": "derived",
-      "propertiesSource": "公开栽培资料校正（V5.6）"
+      "sowMonthsNote": "柑橘品种：定植期同柑橘 —— 常绿果树：10–11 月或 2–3 月定植，避开盛夏与严寒",
+      "sowMonthsSource": "按母本「柑橘」的已校核定植窗口继承（同种不同品种的定植期差异通常 < 1 周）",
+      "sowMonthsPrecision": "inherited",
+      "propertiesSource": "公开栽培资料校正（V5.6）",
+      "sowMonthsSouthwest": [
+        2,
+        3,
+        9,
+        10
+      ]
     },
     {
       "cropId": "C353",
@@ -8281,8 +8398,10 @@
       "tempRequirement": "多年生，需按年管理",
       "source": "category-rule",
       "sowMonths": [
+        2,
         3,
-        4
+        9,
+        10
       ],
       "sowMonthsSouth": [
         2,
@@ -8290,9 +8409,13 @@
         9,
         10
       ],
-      "sowMonthsNote": "木本香料，春季 3–4 月定植为主",
-      "sowMonthsSource": "香料作物栽培资料综合",
-      "sowMonthsPrecision": "derived"
+      "sowMonthsNote": "华南春植 2–3 月、秋植 9–10 月；西南雨季 4–6 月定植",
+      "sowMonthsSource": "一亩田《八角种植密度与季节化方案》",
+      "sowMonthsSouthwest": [
+        4,
+        5,
+        6
+      ]
     },
     {
       "cropId": "C383",
@@ -8310,7 +8433,9 @@
       "source": "category-rule",
       "sowMonths": [
         3,
-        4
+        4,
+        5,
+        6
       ],
       "sowMonthsSouth": [
         2,
@@ -8318,9 +8443,8 @@
         9,
         10
       ],
-      "sowMonthsNote": "木本香料，春季 3–4 月定植为主",
-      "sowMonthsSource": "香料作物栽培资料综合",
-      "sowMonthsPrecision": "derived"
+      "sowMonthsNote": "肉桂（桂皮原植物）春植 3–4 月，雨季 5–6 月定植",
+      "sowMonthsSource": "热带香料作物栽培资料（肉桂春植/雨季定植）"
     },
     {
       "cropId": "C384",
@@ -8338,7 +8462,9 @@
       "source": "category-rule",
       "sowMonths": [
         3,
-        4
+        4,
+        5,
+        6
       ],
       "sowMonthsSouth": [
         2,
@@ -8346,9 +8472,8 @@
         9,
         10
       ],
-      "sowMonthsNote": "木本香料，春季 3–4 月定植为主",
-      "sowMonthsSource": "香料作物栽培资料综合",
-      "sowMonthsPrecision": "derived"
+      "sowMonthsNote": "热带，海南/云南春植 3–4 月或雨季 5–6 月定植",
+      "sowMonthsSource": "热带香料作物栽培资料"
     },
     {
       "cropId": "C385",
@@ -8366,7 +8491,9 @@
       "source": "category-rule",
       "sowMonths": [
         3,
-        4
+        4,
+        9,
+        10
       ],
       "sowMonthsSouth": [
         2,
@@ -8374,9 +8501,13 @@
         9,
         10
       ],
-      "sowMonthsNote": "木本香料，春季 3–4 月定植为主",
-      "sowMonthsSource": "香料作物栽培资料综合",
-      "sowMonthsPrecision": "derived"
+      "sowMonthsNote": "海南春植 3–4 月、秋植 9–10 月；云南 4–6 月雨季定植；华南 2 下–3 中",
+      "sowMonthsSource": "海南省《胡椒间作槟榔栽培技术规程》/ 中国热带农科院香料饮料研究所",
+      "sowMonthsSouthwest": [
+        4,
+        5,
+        6
+      ]
     },
     {
       "cropId": "C386",
@@ -8394,7 +8525,9 @@
       "source": "category-rule",
       "sowMonths": [
         3,
-        4
+        4,
+        9,
+        10
       ],
       "sowMonthsSouth": [
         2,
@@ -8402,9 +8535,13 @@
         9,
         10
       ],
-      "sowMonthsNote": "木本香料，春季 3–4 月定植为主",
-      "sowMonthsSource": "香料作物栽培资料综合",
-      "sowMonthsPrecision": "derived"
+      "sowMonthsNote": "胡椒果实去皮加工品，栽培期同胡椒",
+      "sowMonthsSource": "海南省《胡椒间作槟榔栽培技术规程》（白胡椒为胡椒加工品）",
+      "sowMonthsSouthwest": [
+        4,
+        5,
+        6
+      ]
     },
     {
       "cropId": "C387",
@@ -8422,7 +8559,9 @@
       "source": "category-rule",
       "sowMonths": [
         3,
-        4
+        4,
+        9,
+        10
       ],
       "sowMonthsSouth": [
         2,
@@ -8430,9 +8569,8 @@
         9,
         10
       ],
-      "sowMonthsNote": "木本香料，春季 3–4 月定植为主",
-      "sowMonthsSource": "香料作物栽培资料综合",
-      "sowMonthsPrecision": "derived"
+      "sowMonthsNote": "热带，海南春植 3–4 月或秋植 9–10 月",
+      "sowMonthsSource": "热带香料作物栽培资料"
     },
     {
       "cropId": "C388",
@@ -8449,8 +8587,11 @@
       "tempRequirement": "多年生，需按年管理",
       "source": "category-rule",
       "sowMonths": [
-        3,
-        4
+        4,
+        5,
+        6,
+        9,
+        10
       ],
       "sowMonthsSouth": [
         2,
@@ -8458,9 +8599,13 @@
         9,
         10
       ],
-      "sowMonthsNote": "木本香料，春季 3–4 月定植为主",
-      "sowMonthsSource": "香料作物栽培资料综合",
-      "sowMonthsPrecision": "derived"
+      "sowMonthsNote": "云南林下，雨季 4–6 月或秋季 9–10 月定植",
+      "sowMonthsSource": "热带香料作物栽培资料（草果林下栽培）",
+      "sowMonthsSouthwest": [
+        4,
+        5,
+        6
+      ]
     },
     {
       "cropId": "C389",
@@ -8478,17 +8623,25 @@
       "source": "category-rule",
       "sowMonths": [
         3,
-        4
-      ],
-      "sowMonthsSouth": [
-        2,
-        3,
+        4,
+        5,
         9,
         10
       ],
-      "sowMonthsNote": "木本香料，春季 3–4 月定植为主",
-      "sowMonthsSource": "香料作物栽培资料综合",
-      "sowMonthsPrecision": "derived"
+      "sowMonthsSouth": [
+        3,
+        4,
+        5,
+        9,
+        10
+      ],
+      "sowMonthsNote": "广东/云南春植 3–4 月、雨季 5 月、秋植 9–10 月",
+      "sowMonthsSource": "热带香料作物栽培资料（砂仁春植/雨季定植）",
+      "sowMonthsSouthwest": [
+        4,
+        5,
+        6
+      ]
     },
     {
       "cropId": "C390",
@@ -8506,7 +8659,8 @@
       "source": "category-rule",
       "sowMonths": [
         3,
-        4
+        4,
+        5
       ],
       "sowMonthsSouth": [
         2,
@@ -8514,9 +8668,13 @@
         9,
         10
       ],
-      "sowMonthsNote": "木本香料，春季 3–4 月定植为主",
-      "sowMonthsSource": "香料作物栽培资料综合",
-      "sowMonthsPrecision": "derived"
+      "sowMonthsNote": "海南/云南春植 3–4 月，雨季 5 月定植",
+      "sowMonthsSource": "热带香料作物栽培资料",
+      "sowMonthsSouthwest": [
+        4,
+        5,
+        6
+      ]
     },
     {
       "cropId": "C391",
@@ -8588,8 +8746,10 @@
       "tempRequirement": "多年生，需按年管理",
       "source": "category-rule",
       "sowMonths": [
+        2,
         3,
-        4
+        9,
+        10
       ],
       "sowMonthsSouth": [
         2,
@@ -8597,9 +8757,13 @@
         9,
         10
       ],
-      "sowMonthsNote": "木本香料，春季 3–4 月定植为主",
-      "sowMonthsSource": "香料作物栽培资料综合",
-      "sowMonthsPrecision": "derived"
+      "sowMonthsNote": "八角别名，定植期同八角：华南春 2–3 月/秋 9–10 月，西南雨季 4–6 月",
+      "sowMonthsSource": "一亩田《八角种植密度与季节化方案》（大茴香即八角）",
+      "sowMonthsSouthwest": [
+        4,
+        5,
+        6
+      ]
     },
     {
       "cropId": "C394",
@@ -8644,7 +8808,8 @@
       "source": "category-rule",
       "sowMonths": [
         3,
-        4
+        4,
+        5
       ],
       "sowMonthsSouth": [
         2,
@@ -8652,9 +8817,8 @@
         9,
         10
       ],
-      "sowMonthsNote": "木本香料，春季 3–4 月定植为主",
-      "sowMonthsSource": "香料作物栽培资料综合",
-      "sowMonthsPrecision": "derived"
+      "sowMonthsNote": "热带小乔木，春植 3–4 月或雨季 5 月定植",
+      "sowMonthsSource": "热带香料作物栽培资料"
     },
     {
       "cropId": "C396",
@@ -8727,16 +8891,16 @@
       "sowMonths": [
         3,
         4,
-        9
+        9,
+        10
       ],
       "sowMonthsSouth": [
         3,
         4,
         9
       ],
-      "sowMonthsNote": "多年生香草，春秋栽植",
-      "sowMonthsSource": "香料作物栽培资料综合",
-      "sowMonthsPrecision": "derived"
+      "sowMonthsNote": "多年生香草，春季 3–4 月或秋季 9–10 月播种/分株",
+      "sowMonthsSource": "香料作物栽培资料综合"
     },
     {
       "cropId": "C399",
@@ -8755,16 +8919,16 @@
       "sowMonths": [
         3,
         4,
-        9
+        9,
+        10
       ],
       "sowMonthsSouth": [
         3,
         4,
         9
       ],
-      "sowMonthsNote": "多年生香草，春秋栽植",
-      "sowMonthsSource": "香料作物栽培资料综合",
-      "sowMonthsPrecision": "derived"
+      "sowMonthsNote": "多年生香草，春秋两季播种或分株",
+      "sowMonthsSource": "长景园林《养花种草什么时候播种》/ 香料作物资料"
     },
     {
       "cropId": "C400",

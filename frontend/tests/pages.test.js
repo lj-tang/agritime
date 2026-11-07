@@ -2407,21 +2407,31 @@ test('V5.4/V5.5 播期校核：100 种作物有精确月份，且区分南北窗
   const south = checked.filter((c) => Array.isArray(c.sowMonthsSouth) && c.sowMonthsSouth.length);
   assert.ok(south.length >= 100, '应有不少于 100 种带南方窗口，实际 ' + south.length);
 
-  // 精度分层：derived 必须显式标注，不能混进 researched
+  // 精度分层：derived（近缘推定）应已清零；品种走 inherited，其余是逐条查证
   const derived = checked.filter((c) => c.sowMonthsPrecision === 'derived');
-  assert.ok(derived.length >= 70, '应至少有 70 种标注为推定，实际 ' + derived.length);
-  const researched = checked.filter((c) => c.sowMonthsPrecision !== 'derived');
-  assert.ok(researched.length >= 130, '逐条查证应不少于 130 种，实际 ' + researched.length);
-  for (const c of derived) {
-    assert.ok(c.sowMonthsSource && c.sowMonthsSource.trim(),
-      c.displayName + ' 标为推定却没写来源');
-    assert.ok(c.sowMonthsNote && c.sowMonthsNote.trim(),
-      c.displayName + ' 标为推定却没写地区/茬口说明');
+  assert.strictEqual(derived.length, 0,
+    '不应再有"近缘推定"的作物，剩余：' + derived.map((c) => c.displayName).join('、'));
+  const inherited = checked.filter((c) => c.sowMonthsPrecision === 'inherited');
+  assert.ok(inherited.length >= 20, '应有不少于 20 个品种继承母本窗口，实际 ' + inherited.length);
+  const researched = checked.filter((c) => !c.sowMonthsPrecision || c.sowMonthsPrecision === 'researched');
+  assert.ok(researched.length >= 170, '逐条查证应不少于 170 种，实际 ' + researched.length);
+
+  // 继承必须写明母本，不能只说"按近缘作物推定"
+  for (const c of inherited) {
+    assert.ok(c.sowMonthsSource && c.sowMonthsSource.includes('母本'),
+      c.displayName + ' 继承母本却没写明母本');
+    assert.ok(c.sowMonthsSource.includes('继承'), c.displayName + ' 继承来源应说明是继承');
   }
-  // 品种类必须写明"按某作物推定"，不能只写一个含糊来源
-  const cultivar = derived.find((c) => c.displayName === '红富士');
-  assert.ok(cultivar && cultivar.sowMonthsSource.includes('按苹果推定'),
-    '苹果品种应写明按苹果推定');
+  const fuji = inherited.find((c) => c.displayName === '红富士');
+  assert.ok(fuji && fuji.sowMonthsSource.includes('苹果'), '红富士应继承苹果的窗口');
+  const kuerle = inherited.find((c) => c.displayName === '库尔勒梨');
+  assert.ok(kuerle && kuerle.sowMonthsSource.includes('梨'), '库尔勒梨应继承梨的窗口');
+
+  // 逐条查证的作物必须有具体来源（不能是"资料综合"这种笼统说法之外的空值）
+  for (const c of researched) {
+    assert.ok(c.sowMonthsSource && c.sowMonthsSource.trim(),
+      c.displayName + ' 已校核却没写来源');
+  }
 
   // 西南窗口：至少 40 种
   const sw = checked.filter((c) => Array.isArray(c.sowMonthsSouthwest) && c.sowMonthsSouthwest.length);
@@ -2471,6 +2481,34 @@ test('V5.5 南北窗口按纬度切换：26.5°N 以南用南方窗口', () => {
   assert.ok(win.includes('region.json()'), '窗口应标注地域');
   const handler = read(path.resolve(__dirname, '..', '..', 'backend', 'src', 'com', 'cropcalendar', 'api', 'SowWindowHandler.java'));
   assert.ok(handler.includes('"region"'), '接口应返回窗口地域');
+});
+
+test('V5.8 本地露地种不熟：不给推荐日，只给结论与参考日', () => {
+  const base = path.resolve(__dirname, '..');
+  const win = read(path.resolve(base, '..', 'backend', 'src', 'com', 'cropcalendar', 'service', 'crop', 'PlantingWindow.java'));
+  // 给日期就等于承诺：种不熟时必须把推荐日/最晚日/收获日全部置空
+  assert.ok(win.includes('boolean suitable'), '窗口应带"能不能种成"的结论位');
+  assert.ok(win.includes('String fallbackDate'), '应给参考日，供"看参考日历"使用');
+  assert.ok(win.includes('suitable ? chosen.recommended().toString() : null'),
+    '不可种时推荐日必须置空');
+  assert.ok(win.includes('露地种不熟'), '应明确给出"露地种不熟"的结论');
+  assert.ok(win.includes('建议改保护地栽培'), '应给出替代方案而不是一句"不行"');
+
+  const handler = read(path.resolve(base, '..', 'backend', 'src', 'com', 'cropcalendar', 'api', 'SowWindowHandler.java'));
+  assert.ok(handler.includes('"suitable"'), '接口应返回 suitable');
+  assert.ok(handler.includes('"fallbackDate"'), '接口应返回参考日');
+
+  const timeline = read(path.resolve(base, '..', 'backend', 'src', 'com', 'cropcalendar', 'api', 'TimelineHandler.java'));
+  assert.ok(timeline.includes('w.fallbackDate()'), '无推荐日时时间线应退回参考日');
+
+  const indexHtml = read(path.join(base, 'pages', 'index.html'));
+  assert.ok(indexHtml.includes('本地不宜露地种植'), '前端应直说"本地不宜露地种植"');
+  assert.ok(indexHtml.includes('sow-auto-force'), '应提供"看参考日历"入口');
+  assert.ok(indexHtml.includes('info.suitable === false'), '不可种时不应自动生成日历');
+
+  const css = read(path.join(base, 'assets', 'css', 'common.css'));
+  assert.ok(css.includes('.sow-auto.is-unsuitable'), '不可种应有独立配色，不能复用"已就绪"的绿色');
+  assert.ok(css.includes('--warn-soft'), '应有警示底色变量（深浅色都要给值）');
 });
 
 // ---------------- V5.3：只给作物 + 地点，播期由系统推算 ----------------

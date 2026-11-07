@@ -134,7 +134,8 @@ public class TimelineHandler implements HttpHandler {
                         "无法推算该作物的播期，请显式提供 sowingDate"));
                 return;
             }
-            sowDate = w.recommendedDate();
+            // 本地露地难成熟的作物没有推荐日：退到参考日，仍能出日历（前端已先提示过）
+            sowDate = w.recommendedDate() != null ? w.recommendedDate() : w.fallbackDate();
         }
 
         try {

@@ -44,6 +44,10 @@ public final class PlantingWindow {
             boolean canMatureBeforeFrost,
             boolean perennial,
             int totalDays,
+            /** 本地露地是否能种成：false 时 recommendedDate/harvestDate/latestDate 全部为 null。 */
+            boolean suitable,
+            /** 不宜种植时给出的参考日（窗口内最早可行日），仅供"仍要看参考日历"使用。 */
+            String fallbackDate,
             String note
     ) {
     }
@@ -253,10 +257,14 @@ public final class PlantingWindow {
         }
         if (chosen == null) chosen = first;
 
+        // 全部窗口都赶不上霜前成熟：不要再给"建议日"。给了就等于承诺，用户照着种却收不了。
+        // 这里只保留一个参考日（窗口内最早可行日）+ 结论，前端据此显示"本地不宜露地种植"。
+        boolean suitable = chosen.canMature();
         String note = chosen.note();
-        if (!chosen.canMature()) {
-            note = join(note, "本地无霜期约 " + AgroZone.frostFreeDays(lat) + " 天，短于该作物 "
-                    + totalDays + " 天的生育期，露地难以正常成熟，建议改早熟品种或保护地栽培");
+        if (!suitable) {
+            String reason = "本地无霜期约 " + AgroZone.frostFreeDays(lat) + " 天，短于该作物 "
+                    + totalDays + " 天的生育期，露地种不熟";
+            note = join(note, reason + "；建议改保护地栽培、换早熟品种，或改种其他作物");
         }
 
         String precision = p.hasSowMonths() ? p.precision() : "season-rule";
@@ -265,8 +273,11 @@ public final class PlantingWindow {
             String head = switch (region) {
                 case SOUTHWEST -> "西南（川渝黔滇）播期（";
                 case SOUTH -> "南方（华南）播期（";
-                case NORTH -> (p.precision().equals("derived")
-                        ? "按近缘作物推定的播期（" : "作物属性库中已校核的播期（");
+                case NORTH -> switch (p.precision()) {
+                    case "derived" -> "按近缘作物推定的播期（";
+                    case "inherited" -> "按母本品种继承的已校核播期（";
+                    default -> "作物属性库中已校核的播期（";
+                };
             };
             basis = head + monthsText(months) + "）"
                     + (p.sowNote().isBlank() ? "" : "；" + p.sowNote());
@@ -290,14 +301,16 @@ public final class PlantingWindow {
                 precision,
                 region.json(),
                 basis,
-                chosen.recommended().toString(),
-                (int) (chosen.recommended().toEpochDay() - today.toEpochDay()),
-                chosen.latest().toString(),
-                chosen.latestBasis(),
-                chosen.harvest() == null ? null : chosen.harvest().toString(),
+                suitable ? chosen.recommended().toString() : null,
+                suitable ? (int) (chosen.recommended().toEpochDay() - today.toEpochDay()) : -1,
+                suitable ? chosen.latest().toString() : null,
+                suitable ? chosen.latestBasis() : null,
+                suitable ? (chosen.harvest() == null ? null : chosen.harvest().toString()) : null,
                 chosen.canMature(),
                 perennial,
                 totalDays,
+                suitable,
+                chosen.recommended().toString(),
                 note);
     }
 

@@ -98,6 +98,10 @@ public class SowWindowHandler implements HttpHandler {
                 "groupLabel", Json.str(win.groupLabel()),
                 "precision", Json.str(win.precision()),
                 "region", Json.str(win.region()),
+                // 本地露地能不能种成。false 时 sowDate/latest/harvest 均为 null，
+                // 只给 fallbackDate 供"仍要看参考日历"使用。
+                "suitable", Json.bool(win.suitable()),
+                "fallbackDate", Json.str(win.fallbackDate()),
                 "basis", Json.str(win.basis()));
 
         String harvestJson = win == null ? "null" : Json.obj(
@@ -122,6 +126,8 @@ public class SowWindowHandler implements HttpHandler {
                 "basis", Json.str(primaryBasis),
                 "daysFromToday", win != null ? String.valueOf(win.daysFromToday())
                         : (solar == null ? "null" : String.valueOf(solar.daysFromToday())),
+                "suitable", Json.bool(win == null || win.suitable()),
+                "fallbackDate", win == null ? "null" : Json.str(win.fallbackDate()),
                 "window", windowJson,
                 "harvest", harvestJson,
                 "latest", latestDate == null ? "null" : Json.obj(
