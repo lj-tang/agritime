@@ -34,6 +34,7 @@ public final class PlantingWindow {
             String action,
             String groupLabel,
             String precision,
+            String region,
             String basis,
             String recommendedDate,
             int daysFromToday,
@@ -57,6 +58,18 @@ public final class PlantingWindow {
 
     /** 喜冷凉/耐寒作物能耐轻霜，收获窗口比初霜日宽这么多天。 */
     private static final int FROST_GRACE_DAYS = 15;
+
+    /**
+     * 南方窗口的分界纬度。低于它就用 sowsMonthsSouth（华南/长江以南）。
+     * 26.5°N 大致是福州—桂林—昆明一线：广州 23.1、南宁 22.8、昆明 25.0 走南方窗口，
+     * 长沙 28.2、武汉 30.6 仍用华中窗口。
+     */
+    private static final double SOUTH_LAT = 26.5;
+
+    /** 该地块该用南方窗口还是北方窗口。 */
+    public static boolean useSouth(CropProperties.Props p, double lat) {
+        return p != null && p.hasSouthMonths() && lat < SOUTH_LAT;
+    }
 
     /** 是否喜冷凉（能耐轻霜），用于给收获期留出余量。 */
     static boolean coolLoving(String tempRequirement) {
@@ -90,7 +103,9 @@ public final class PlantingWindow {
         Set<Integer> out = new LinkedHashSet<>();
         if (p == null) return out;
         if (p.hasSowMonths()) {
-            out.addAll(new TreeSet<>(p.sowMonths()));
+            // 南方（华南/长江以南）有单独窗口就用单独窗口，没有才退回通用窗口
+            boolean south = useSouth(p, lat);
+            out.addAll(new TreeSet<>(south ? p.sowMonthsSouth() : p.sowMonths()));
             return out;
         }
         String s = p.suitableSeason() == null ? "" : p.suitableSeason();
@@ -170,19 +185,22 @@ public final class PlantingWindow {
         if (p == null || today == null) return null;
         Set<Integer> months = monthsFor(p, lat);
         if (months.isEmpty()) return null;
+        boolean south = useSouth(p, lat);
+        // 南方一季生育期更短（华南冬麦约 130 天，华北冬麦 245 天），不能共用
+        int totalDays = Math.max(1, p.daysFor(south));
 
         List<LocalDate[]> wins = windows(months, today);
         if (wins.isEmpty()) return null;
 
         boolean perennial = "perennial".equals(p.lifespan());
-        boolean autumnSown = isAutumnSown(p, months);
+        boolean autumnSown = isAutumnSown(p, months, south);
         // 多年生定植看的是休眠期与地温，不看当季积温，免得拿到下一季的日期
         LocalDate gddDate = perennial ? null : gddDate(p, lat, lon, today);
 
         Candidate first = null;
         Candidate chosen = null;
         for (LocalDate[] w : wins) {
-            Candidate c = evaluate(p, w[0], w[1], lat, today, perennial, autumnSown, gddDate);
+            Candidate c = evaluate(p, w[0], w[1], lat, today, perennial, autumnSown, gddDate, totalDays);
             if (first == null) first = c;
             if (c.canMature()) {
                 chosen = c;
@@ -194,13 +212,16 @@ public final class PlantingWindow {
         String note = chosen.note();
         if (!chosen.canMature()) {
             note = join(note, "本地无霜期约 " + AgroZone.frostFreeDays(lat) + " 天，短于该作物 "
-                    + Math.max(1, p.totalDays()) + " 天的生育期，露地难以正常成熟，建议改早熟品种或保护地栽培");
+                    + totalDays + " 天的生育期，露地难以正常成熟，建议改早熟品种或保护地栽培");
         }
 
         String precision = p.hasSowMonths() ? "researched" : "season-rule";
         String basis = p.hasSowMonths()
-                ? "作物属性库中已校核的播期（" + monthsText(months) + "）"
-                        + (p.sowNote().isBlank() ? "" : "；" + p.sowNote())
+                ? (south ? "作物属性库中已校核的南方播期（" : "作物属性库中已校核的播期（")
+                        + monthsText(months) + "）"
+                        + (south
+                        ? (p.southNote().isBlank() ? "" : "；" + p.southNote())
+                        : (p.sowNote().isBlank() ? "" : "；" + p.sowNote()))
                 : "按适宜季节「" + safe(p.suitableSeason()) + "」并按本地纬度粗调（" + monthsText(months)
                         + "），未逐品种校核，仅作参考";
 
@@ -213,6 +234,7 @@ public final class PlantingWindow {
                 group.action(),
                 group.label(),
                 precision,
+                south ? "south" : "north",
                 basis,
                 chosen.recommended().toString(),
                 (int) (chosen.recommended().toEpochDay() - today.toEpochDay()),
@@ -221,7 +243,7 @@ public final class PlantingWindow {
                 chosen.harvest() == null ? null : chosen.harvest().toString(),
                 chosen.canMature(),
                 perennial,
-                Math.max(1, p.totalDays()),
+                totalDays,
                 note);
     }
 
@@ -244,7 +266,7 @@ public final class PlantingWindow {
 
     private static Candidate evaluate(CropProperties.Props p, LocalDate start, LocalDate end,
                                       double lat, LocalDate today, boolean perennial,
-                                      boolean autumnSown, LocalDate gddDate) {
+                                      boolean autumnSown, LocalDate gddDate, int total) {
         LocalDate floor = today.isAfter(start) ? today : start;
         if (floor.isAfter(end)) floor = end;
 
@@ -269,7 +291,6 @@ public final class PlantingWindow {
             recommended = d;
         }
 
-        int total = Math.max(1, p.totalDays());
         // 终霜修正：不耐寒的作物，推荐日不能落在终霜前（华北 3 月上旬还是冻土期）。
         // 只在终霜日本身仍在窗口内时才前移 —— 像番茄 1~3 月是保护地育苗，
         // 终霜（4 月中）已在窗口之外，此时保留原推荐日，由播期校验按"育苗"口径放行。
@@ -351,7 +372,7 @@ public final class PlantingWindow {
      * 是否越冬作物：窗口全在秋冬、且属性里强调耐寒/越冬、或生育期长到必须跨年。
      * 只看"有没有秋"不够 —— 番茄春秋两茬，秋天播也是当年收，不是越冬。
      */
-    private static boolean isAutumnSown(CropProperties.Props p, Set<Integer> months) {
+    private static boolean isAutumnSown(CropProperties.Props p, Set<Integer> months, boolean south) {
         boolean allAutumn = true;
         for (int m : months) {
             // 8 月算秋播起点：油菜、洋葱等秋播越冬作物就是 8~9 月下种
@@ -362,7 +383,7 @@ public final class PlantingWindow {
         }
         if (!allAutumn) return false;
         String t = p.tempRequirement() == null ? "" : p.tempRequirement();
-        return AgroZone.isColdHardy(t) || p.totalDays() >= 200;
+        return AgroZone.isColdHardy(t) || p.daysFor(south) >= 200;
     }
 
     public static String monthsText(Set<Integer> months) {

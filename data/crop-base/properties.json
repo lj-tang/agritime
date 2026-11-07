@@ -1,6 +1,6 @@
 {
   "version": "2.0.0",
-  "comment": "作物属性体系（T07）。全部 400 种作物均带 growthCycle/lifespan/croppingSystem；source=manual 为人工校准（常见作物），source=category-rule 为按作物类别推定，不声称是实测农艺参数。croppingSystem=double 的作物会生成两轮农事周期，lifespan=perennial 的作物会追加翌年管理节点。 ｜ V5.4：常见作物播期校核扩到 50 种（含育苗起点，华北/华中基准）。",
+  "comment": "作物属性体系（T07）。全部 400 种作物均带 growthCycle/lifespan/croppingSystem；source=manual 为人工校准（常见作物），source=category-rule 为按作物类别推定，不声称是实测农艺参数。croppingSystem=double 的作物会生成两轮农事周期，lifespan=perennial 的作物会追加翌年管理节点。 ｜ V5.4：常见作物播期校核扩到 50 种（含育苗起点，华北/华中基准）。 ｜ V5.5：校核播期扩到 100 种，并为常见作物补南方窗口。",
   "crops": [
     {
       "cropId": "C001",
@@ -22,7 +22,15 @@
         6
       ],
       "sowMonthsNote": "华北/东北 4 月中–5 月播种育秧；南方 3–6 月，华南可双季",
-      "sowMonthsSource": "华北/东北稻区栽培资料"
+      "sowMonthsSource": "华北/东北稻区栽培资料",
+      "sowMonthsSouth": [
+        3,
+        4,
+        6,
+        7
+      ],
+      "sowMonthsSouthNote": "华南/长江以南基准，据公开栽培资料",
+      "totalDaysSouth": 110
     },
     {
       "cropId": "C002",
@@ -43,7 +51,13 @@
         10
       ],
       "sowMonthsNote": "华北冬麦 9 月下旬–10 月上旬；东北春麦 3–4 月",
-      "sowMonthsSource": "华北冬麦区栽培资料"
+      "sowMonthsSource": "华北冬麦区栽培资料",
+      "sowMonthsSouth": [
+        10,
+        11
+      ],
+      "sowMonthsSouthNote": "华南/长江以南基准，据公开栽培资料",
+      "totalDaysSouth": 130
     },
     {
       "cropId": "C003",
@@ -66,7 +80,15 @@
         7
       ],
       "sowMonthsNote": "春玉米 4 月中–5 上；夏玉米 6 月中–7 上（麦茬）",
-      "sowMonthsSource": "河北农作物种植月历"
+      "sowMonthsSource": "河北农作物种植月历",
+      "sowMonthsSouth": [
+        3,
+        4,
+        7,
+        8
+      ],
+      "sowMonthsSouthNote": "华南/长江以南基准，据公开栽培资料",
+      "totalDaysSouth": 100
     },
     {
       "cropId": "C004",
@@ -87,7 +109,14 @@
         7
       ],
       "sowMonthsNote": "夏大豆 6 月中–7 上；春大豆 4 下–5 中",
-      "sowMonthsSource": "华北农作物及收种时间"
+      "sowMonthsSource": "华北农作物及收种时间",
+      "sowMonthsSouth": [
+        3,
+        4,
+        7
+      ],
+      "sowMonthsSouthNote": "华南/长江以南基准，据公开栽培资料",
+      "totalDaysSouth": 95
     },
     {
       "cropId": "C005",
@@ -109,7 +138,12 @@
       ],
       "sowMonthsNote": "华北春棉 4 月下旬–5 月上旬，地温稳定 12℃ 以上",
       "sowMonthsSource": "河南党史方志网《栽培》/ 河北月历",
-      "propertiesSource": "公开栽培资料校正（V5.4）"
+      "propertiesSource": "公开栽培资料校正（V5.4）",
+      "sowMonthsSouth": [
+        4
+      ],
+      "sowMonthsSouthNote": "华南/长江以南基准，据公开栽培资料",
+      "totalDaysSouth": 130
     },
     {
       "cropId": "C006",
@@ -130,7 +164,13 @@
       ],
       "sowMonthsNote": "华北 8 月下旬–9 月上旬育苗，10 月下旬移栽，翌年 5 月收",
       "sowMonthsSource": "河南党史方志网《栽培》/ 河北月历",
-      "propertiesSource": "公开栽培资料校正（V5.4）"
+      "propertiesSource": "公开栽培资料校正（V5.4）",
+      "sowMonthsSouth": [
+        10,
+        11
+      ],
+      "sowMonthsSouthNote": "华南/长江以南基准，据公开栽培资料",
+      "totalDaysSouth": 180
     },
     {
       "cropId": "C007",
@@ -151,7 +191,14 @@
         5
       ],
       "sowMonthsNote": "华北春花生 4 月下旬–5 月上旬；夏花生 6 月中下旬",
-      "sowMonthsSource": "河南党史方志网《栽培》/ 河北农作物种植月历"
+      "sowMonthsSource": "河南党史方志网《栽培》/ 河北农作物种植月历",
+      "sowMonthsSouth": [
+        3,
+        4,
+        7
+      ],
+      "sowMonthsSouthNote": "华南/长江以南基准，据公开栽培资料",
+      "totalDaysSouth": 110
     },
     {
       "cropId": "C008",
@@ -162,11 +209,22 @@
       "lifespanLabel": "一年生",
       "croppingSystem": "single",
       "croppingSystemLabel": "一年一熟",
-      "totalDays": 150,
+      "totalDays": 90,
       "suitableSeason": "春播",
       "suitableRegion": "适生区",
       "tempRequirement": "经济作物",
-      "source": "category-rule"
+      "source": "category-rule",
+      "sowMonths": [
+        5,
+        6
+      ],
+      "sowMonthsSouth": [
+        6,
+        7
+      ],
+      "sowMonthsNote": "夏芝麻 5 下–6 上、秋芝麻 7 月 10 日前",
+      "sowMonthsSource": "安徽农网《芝麻管理要点》",
+      "propertiesSource": "公开栽培资料校正（V5.5）"
     },
     {
       "cropId": "C009",
@@ -177,11 +235,24 @@
       "lifespanLabel": "一年生",
       "croppingSystem": "single",
       "croppingSystemLabel": "一年一熟",
-      "totalDays": 110,
+      "totalDays": 105,
       "suitableSeason": "春播",
       "suitableRegion": "内蒙古、新疆",
       "tempRequirement": "耐盐碱，花期需授粉",
-      "source": "manual"
+      "source": "manual",
+      "sowMonths": [
+        4,
+        5,
+        6
+      ],
+      "sowMonthsSouth": [
+        3,
+        4,
+        7
+      ],
+      "sowMonthsNote": "华北 5 月中旬，南方可 3 月或 7 月",
+      "sowMonthsSource": "安徽农网 / 通辽意见",
+      "propertiesSource": "公开栽培资料校正（V5.5）"
     },
     {
       "cropId": "C010",
@@ -192,11 +263,23 @@
       "lifespanLabel": "一年生",
       "croppingSystem": "single",
       "croppingSystemLabel": "一年一熟",
-      "totalDays": 120,
+      "totalDays": 110,
       "suitableSeason": "春播",
       "suitableRegion": "东北、华北",
       "tempRequirement": "耐旱耐涝",
-      "source": "manual"
+      "source": "manual",
+      "sowMonths": [
+        4,
+        5,
+        6
+      ],
+      "sowMonthsSouth": [
+        3,
+        4
+      ],
+      "sowMonthsNote": "华北春播 4 下–5 上、夏播 6 月；南方 3 月育苗",
+      "sowMonthsSource": "小杂粮网 / 枣强县旱作方案",
+      "propertiesSource": "公开栽培资料校正（V5.5）"
     },
     {
       "cropId": "C011",
@@ -211,7 +294,19 @@
       "suitableSeason": "春播",
       "suitableRegion": "华北、西北",
       "tempRequirement": "耐旱耐瘠",
-      "source": "manual"
+      "source": "manual",
+      "sowMonths": [
+        5,
+        6
+      ],
+      "sowMonthsSouth": [
+        3,
+        4,
+        7
+      ],
+      "sowMonthsNote": "华北春播 5 上中、夏播 6 月底前；南方 3 月",
+      "sowMonthsSource": "小杂粮网 / 莱西市杂粮意见",
+      "propertiesSource": "公开栽培资料校正（V5.5）"
     },
     {
       "cropId": "C012",
@@ -226,7 +321,18 @@
       "suitableSeason": "春播/夏播",
       "suitableRegion": "黄淮海、华南",
       "tempRequirement": "耐旱，块根膨大期需温差",
-      "source": "manual"
+      "source": "manual",
+      "sowMonths": [
+        4,
+        5
+      ],
+      "sowMonthsSouth": [
+        3,
+        4
+      ],
+      "sowMonthsNote": "华北 3 月育苗、4 月下旬–5 月上旬栽插；夏薯 6 月上中旬",
+      "sowMonthsSource": "安徽农网《新增作物种植要点》/ 莱西市甘薯技术意见",
+      "propertiesSource": "公开栽培资料校正（V5.5）"
     },
     {
       "cropId": "C013",
@@ -248,7 +354,13 @@
         8
       ],
       "sowMonthsNote": "华北春薯 3 月、秋薯 8 月；南方冬薯 10–11 月",
-      "sowMonthsSource": "华北农作物及收种时间"
+      "sowMonthsSource": "华北农作物及收种时间",
+      "sowMonthsSouth": [
+        10,
+        11
+      ],
+      "sowMonthsSouthNote": "华南/长江以南基准，据公开栽培资料",
+      "totalDaysSouth": 90
     },
     {
       "cropId": "C014",
@@ -263,7 +375,18 @@
       "suitableSeason": "春植",
       "suitableRegion": "广西、云南",
       "tempRequirement": "喜温喜光，需水量大",
-      "source": "manual"
+      "source": "manual",
+      "sowMonths": [
+        3,
+        4
+      ],
+      "sowMonthsSouth": [
+        2,
+        3
+      ],
+      "sowMonthsNote": "华北 3–4 月、华南 2–3 月下种",
+      "sowMonthsSource": "公开甘蔗栽培资料",
+      "propertiesSource": "公开栽培资料校正（V5.5）"
     },
     {
       "cropId": "C015",
@@ -274,11 +397,22 @@
       "lifespanLabel": "一年生",
       "croppingSystem": "single",
       "croppingSystemLabel": "一年一熟",
-      "totalDays": 90,
+      "totalDays": 150,
       "suitableSeason": "春播/秋播",
       "suitableRegion": "全国",
       "tempRequirement": "蔬菜类，生育期短，需水肥充足",
-      "source": "category-rule"
+      "source": "category-rule",
+      "sowMonths": [
+        4,
+        5
+      ],
+      "sowMonthsSouth": [
+        9,
+        10
+      ],
+      "sowMonthsNote": "华北春播 4–5 月；南方秋播",
+      "sowMonthsSource": "公开甜菜栽培资料",
+      "propertiesSource": "公开栽培资料校正（V5.5）"
     },
     {
       "cropId": "C016",
@@ -293,7 +427,18 @@
       "suitableSeason": "春播",
       "suitableRegion": "云南、贵州",
       "tempRequirement": "喜温，成熟期需晒",
-      "source": "manual"
+      "source": "manual",
+      "sowMonths": [
+        3,
+        4
+      ],
+      "sowMonthsSouth": [
+        2,
+        3
+      ],
+      "sowMonthsNote": "育苗 3–4 月（华北），南方 2–3 月",
+      "sowMonthsSource": "公开烤烟栽培资料",
+      "propertiesSource": "公开栽培资料校正（V5.5）"
     },
     {
       "cropId": "C017",
@@ -316,7 +461,14 @@
         11
       ],
       "sowMonthsNote": "茶苗定植：秋植 10–11 月、春植 2–3 月",
-      "sowMonthsSource": "茶区栽培资料综合"
+      "sowMonthsSource": "茶区栽培资料综合",
+      "sowMonthsSouth": [
+        10,
+        11,
+        2,
+        3
+      ],
+      "sowMonthsSouthNote": "华南/长江以南基准，据公开栽培资料"
     },
     {
       "cropId": "C018",
@@ -331,7 +483,17 @@
       "suitableSeason": "春植",
       "suitableRegion": "长江流域",
       "tempRequirement": "耐剪伐，养蚕用",
-      "source": "manual"
+      "source": "manual",
+      "sowMonths": [
+        3,
+        4
+      ],
+      "sowMonthsSouth": [
+        2,
+        3
+      ],
+      "sowMonthsNote": "桑苗春植 3–4 月，南方 2–3 月",
+      "sowMonthsSource": "公开桑树栽培资料"
     },
     {
       "cropId": "C019",
@@ -380,7 +542,12 @@
       "sowMonths": [
         8
       ],
-      "sowMonthsNote": "华北立秋前后（8 月上旬）播种，霜前收获"
+      "sowMonthsNote": "华北立秋前后（8 月上旬）播种，霜前收获",
+      "sowMonthsSouth": [
+        9,
+        10
+      ],
+      "sowMonthsSouthNote": "华南/长江以南基准，据公开栽培资料"
     },
     {
       "cropId": "C022",
@@ -404,7 +571,14 @@
       ],
       "sowMonthsNote": "华北露地；南方 9–12 月可分批播",
       "sowMonthsSource": "铜仁市农业农村局《15种蔬菜播种育苗要点》/ 湖北日报《12种秋菜九月种》",
-      "propertiesSource": "公开栽培资料校正（V5.4）"
+      "propertiesSource": "公开栽培资料校正（V5.4）",
+      "sowMonthsSouth": [
+        9,
+        10,
+        11,
+        12
+      ],
+      "sowMonthsSouthNote": "华南/长江以南基准，据公开栽培资料"
     },
     {
       "cropId": "C023",
@@ -428,7 +602,12 @@
       ],
       "sowMonthsNote": "华北：秋菠菜 9 月上中旬、越冬菠菜 9 月底–10 月上旬",
       "sowMonthsSource": "今日头条《9月种菜：南北播种时间》/ 河南茬口资料",
-      "propertiesSource": "公开栽培资料校正（V5.4）"
+      "propertiesSource": "公开栽培资料校正（V5.4）",
+      "sowMonthsSouth": [
+        10,
+        11
+      ],
+      "sowMonthsSouthNote": "华南/长江以南基准，据公开栽培资料"
     },
     {
       "cropId": "C024",
@@ -452,7 +631,13 @@
       ],
       "sowMonthsNote": "秋芹 6 月下旬–7 月上旬育苗、8 月定植；春芹 3–4 月",
       "sowMonthsSource": "河南茬口资料 / 铜仁市农业农村局",
-      "propertiesSource": "公开栽培资料校正（V5.4）"
+      "propertiesSource": "公开栽培资料校正（V5.4）",
+      "sowMonthsSouth": [
+        9,
+        10,
+        11
+      ],
+      "sowMonthsSouthNote": "华南/长江以南基准，据公开栽培资料"
     },
     {
       "cropId": "C025",
@@ -476,7 +661,13 @@
       ],
       "sowMonthsNote": "喜冷凉，高于 25℃ 发芽差；华北春秋两茬",
       "sowMonthsSource": "日历网《三月能种什么菜》/ 铜仁市农业农村局",
-      "propertiesSource": "公开栽培资料校正（V5.4）"
+      "propertiesSource": "公开栽培资料校正（V5.4）",
+      "sowMonthsSouth": [
+        10,
+        11,
+        12
+      ],
+      "sowMonthsSouthNote": "华南/长江以南基准，据公开栽培资料"
     },
     {
       "cropId": "C026",
@@ -499,7 +690,13 @@
       ],
       "sowMonthsNote": "喜温，15℃ 以上才活跃生长；北方 4 月下旬–5 月",
       "sowMonthsSource": "河南茬口资料 / 百度爱采购《种小菜最佳时间》",
-      "propertiesSource": "公开栽培资料校正（V5.4）"
+      "propertiesSource": "公开栽培资料校正（V5.4）",
+      "sowMonthsSouth": [
+        3,
+        4,
+        5
+      ],
+      "sowMonthsSouthNote": "华南/长江以南基准，据公开栽培资料"
     },
     {
       "cropId": "C027",
@@ -521,7 +718,12 @@
       ],
       "sowMonthsNote": "育苗为主，翌年 3–4 月定植；也可 4–5 月直播",
       "sowMonthsSource": "imomo《常见蔬菜露天种植时间表》",
-      "propertiesSource": "公开栽培资料校正（V5.4）"
+      "propertiesSource": "公开栽培资料校正（V5.4）",
+      "sowMonthsSouth": [
+        3,
+        4
+      ],
+      "sowMonthsSouthNote": "华南/长江以南基准，据公开栽培资料"
     },
     {
       "cropId": "C028",
@@ -559,7 +761,13 @@
       ],
       "sowMonthsNote": "秋花菜 7–8 月育苗；春花菜 1 月保护地育苗",
       "sowMonthsSource": "安徽农网《秋季如何确定常见蔬菜适播期》",
-      "propertiesSource": "公开栽培资料校正（V5.4）"
+      "propertiesSource": "公开栽培资料校正（V5.4）",
+      "sowMonthsSouth": [
+        9,
+        10,
+        11
+      ],
+      "sowMonthsSouthNote": "华南/长江以南基准，据公开栽培资料"
     },
     {
       "cropId": "C030",
@@ -582,7 +790,13 @@
       ],
       "sowMonthsNote": "同花椰菜：秋茬 7–8 月、春茬 1 月育苗",
       "sowMonthsSource": "安徽农网《秋季如何确定常见蔬菜适播期》",
-      "propertiesSource": "公开栽培资料校正（V5.4）"
+      "propertiesSource": "公开栽培资料校正（V5.4）",
+      "sowMonthsSouth": [
+        9,
+        10,
+        11
+      ],
+      "sowMonthsSouthNote": "华南/长江以南基准，据公开栽培资料"
     },
     {
       "cropId": "C031",
@@ -606,7 +820,13 @@
         8
       ],
       "sowMonthsNote": "春茬 1–3 月保护地育苗、5 月定植；秋茬 7–8 月育苗",
-      "sowMonthsSource": "北方设施/露地番茄茬口资料"
+      "sowMonthsSource": "北方设施/露地番茄茬口资料",
+      "sowMonthsSouth": [
+        8,
+        9,
+        10
+      ],
+      "sowMonthsSouthNote": "华南/长江以南基准，据公开栽培资料"
     },
     {
       "cropId": "C032",
@@ -628,7 +848,13 @@
         5
       ],
       "sowMonthsNote": "春茬 3 月育苗、5 月定植；南方 2–3 月可播",
-      "sowMonthsSource": "华北蔬菜茬口资料"
+      "sowMonthsSource": "华北蔬菜茬口资料",
+      "sowMonthsSouth": [
+        2,
+        3,
+        8
+      ],
+      "sowMonthsSouthNote": "华南/长江以南基准，据公开栽培资料"
     },
     {
       "cropId": "C033",
@@ -650,7 +876,13 @@
         5
       ],
       "sowMonthsNote": "春茬 3 月育苗、5 月定植；南方 2–3 月可播",
-      "sowMonthsSource": "华北蔬菜茬口资料"
+      "sowMonthsSource": "华北蔬菜茬口资料",
+      "sowMonthsSouth": [
+        2,
+        3,
+        8
+      ],
+      "sowMonthsSouthNote": "华南/长江以南基准，据公开栽培资料"
     },
     {
       "cropId": "C034",
@@ -675,7 +907,14 @@
         8
       ],
       "sowMonthsNote": "春茬 3–5 月、秋茬 7–8 月；华北露地 4 月中–5 上",
-      "sowMonthsSource": "北京农业信息网瓜类播期"
+      "sowMonthsSource": "北京农业信息网瓜类播期",
+      "sowMonthsSouth": [
+        2,
+        3,
+        8,
+        9
+      ],
+      "sowMonthsSouthNote": "华南/长江以南基准，据公开栽培资料"
     },
     {
       "cropId": "C035",
@@ -697,7 +936,12 @@
       ],
       "sowMonthsNote": "华北 3 月上旬育苗、4 月下旬定植；南方 2–3 月可播",
       "sowMonthsSource": "河南茬口资料 / 北京农业信息网",
-      "propertiesSource": "公开栽培资料校正（V5.4）"
+      "propertiesSource": "公开栽培资料校正（V5.4）",
+      "sowMonthsSouth": [
+        2,
+        3
+      ],
+      "sowMonthsSouthNote": "华南/长江以南基准，据公开栽培资料"
     },
     {
       "cropId": "C036",
@@ -719,7 +963,12 @@
       ],
       "sowMonthsNote": "华北 4 月直播，7–9 月收；南方可提前到 3 月",
       "sowMonthsSource": "河南茬口资料",
-      "propertiesSource": "公开栽培资料校正（V5.4）"
+      "propertiesSource": "公开栽培资料校正（V5.4）",
+      "sowMonthsSouth": [
+        2,
+        3
+      ],
+      "sowMonthsSouthNote": "华南/长江以南基准，据公开栽培资料"
     },
     {
       "cropId": "C037",
@@ -741,7 +990,14 @@
       ],
       "sowMonthsNote": "华北露地 4 月直播；南方 2–3 月",
       "sowMonthsSource": "河南茬口资料 / 北京农业信息网",
-      "propertiesSource": "公开栽培资料校正（V5.4）"
+      "propertiesSource": "公开栽培资料校正（V5.4）",
+      "sowMonthsSouth": [
+        2,
+        3,
+        7,
+        8
+      ],
+      "sowMonthsSouthNote": "华南/长江以南基准，据公开栽培资料"
     },
     {
       "cropId": "C038",
@@ -763,7 +1019,14 @@
       ],
       "sowMonthsNote": "华北 3 月下旬–4 月上旬育苗、4 月下旬–5 月上旬定植",
       "sowMonthsSource": "北京农业信息网《清明过后，8种瓜豆类蔬菜可以种植》",
-      "propertiesSource": "公开栽培资料校正（V5.4）"
+      "propertiesSource": "公开栽培资料校正（V5.4）",
+      "sowMonthsSouth": [
+        2,
+        3,
+        7,
+        8
+      ],
+      "sowMonthsSouthNote": "华南/长江以南基准，据公开栽培资料"
     },
     {
       "cropId": "C039",
@@ -785,7 +1048,13 @@
       ],
       "sowMonthsNote": "华北 3 月露地直播，5–7 月收；也可 2 月小拱棚育苗",
       "sowMonthsSource": "河南茬口资料",
-      "propertiesSource": "公开栽培资料校正（V5.4）"
+      "propertiesSource": "公开栽培资料校正（V5.4）",
+      "sowMonthsSouth": [
+        2,
+        3,
+        9
+      ],
+      "sowMonthsSouthNote": "华南/长江以南基准，据公开栽培资料"
     },
     {
       "cropId": "C040",
@@ -806,7 +1075,12 @@
         5
       ],
       "sowMonthsNote": "断霜后直播，华北 4 下–5 上；南方 3 月",
-      "sowMonthsSource": "蓝孩子农资网《各类种子最佳播种时间》"
+      "sowMonthsSource": "蓝孩子农资网《各类种子最佳播种时间》",
+      "sowMonthsSouth": [
+        3,
+        4
+      ],
+      "sowMonthsSouthNote": "华南/长江以南基准，据公开栽培资料"
     },
     {
       "cropId": "C041",
@@ -829,7 +1103,14 @@
       ],
       "sowMonthsNote": "春 4 月下旬–5 月上旬、秋 8 月下旬–9 月上旬",
       "sowMonthsSource": "百度爱采购《豆荚类蔬菜种植时机》/ 蓝孩子农资网",
-      "propertiesSource": "公开栽培资料校正（V5.4）"
+      "propertiesSource": "公开栽培资料校正（V5.4）",
+      "sowMonthsSouth": [
+        2,
+        3,
+        8,
+        9
+      ],
+      "sowMonthsSouthNote": "华南/长江以南基准，据公开栽培资料"
     },
     {
       "cropId": "C042",
@@ -852,7 +1133,14 @@
       ],
       "sowMonthsNote": "春夏秋三季可播；华北以 4–6 月为主",
       "sowMonthsSource": "imomo《常见蔬菜露天种植时间表》",
-      "propertiesSource": "公开栽培资料校正（V5.4）"
+      "propertiesSource": "公开栽培资料校正（V5.4）",
+      "sowMonthsSouth": [
+        3,
+        4,
+        7,
+        8
+      ],
+      "sowMonthsSouthNote": "华南/长江以南基准，据公开栽培资料"
     },
     {
       "cropId": "C043",
@@ -875,7 +1163,12 @@
       ],
       "sowMonthsNote": "华北春播 3 月中–4 上；越冬栽培 10 月下旬",
       "sowMonthsSource": "蓝孩子农资网 / 台湾农试所豆科蔬菜资料",
-      "propertiesSource": "公开栽培资料校正（V5.4）"
+      "propertiesSource": "公开栽培资料校正（V5.4）",
+      "sowMonthsSouth": [
+        10,
+        11
+      ],
+      "sowMonthsSouthNote": "华南/长江以南基准，据公开栽培资料"
     },
     {
       "cropId": "C044",
@@ -886,11 +1179,22 @@
       "lifespanLabel": "一年生",
       "croppingSystem": "single",
       "croppingSystemLabel": "一年一熟",
-      "totalDays": 180,
+      "totalDays": 210,
       "suitableSeason": "秋播",
       "suitableRegion": "西南、长江流域",
       "tempRequirement": "耐寒，忌高温",
-      "source": "manual"
+      "source": "manual",
+      "sowMonths": [
+        3,
+        4
+      ],
+      "sowMonthsSouth": [
+        10,
+        11
+      ],
+      "sowMonthsNote": "华北春播 3 月中–4 月上旬；西南/长江流域秋播 10–11 月",
+      "sowMonthsSource": "台湾农试所豆科蔬菜资料 / 自然农耕种植规范",
+      "propertiesSource": "公开栽培资料校正（V5.5）"
     },
     {
       "cropId": "C045",
@@ -927,7 +1231,13 @@
       ],
       "sowMonthsNote": "华北 9 月上旬育苗、10 月下旬–11 月上旬定植",
       "sowMonthsSource": "今日头条《白露秋分种菜忙》",
-      "propertiesSource": "公开栽培资料校正（V5.4）"
+      "propertiesSource": "公开栽培资料校正（V5.4）",
+      "sowMonthsSouth": [
+        9,
+        10,
+        11
+      ],
+      "sowMonthsSouthNote": "华南/长江以南基准，据公开栽培资料"
     },
     {
       "cropId": "C047",
@@ -948,7 +1258,12 @@
         10
       ],
       "sowMonthsNote": "华北 9 月底–10 月上中旬；南方 9 月，东北以春播为主",
-      "sowMonthsSource": "今日头条《9月种菜》/ 河北月历"
+      "sowMonthsSource": "今日头条《9月种菜》/ 河北月历",
+      "sowMonthsSouth": [
+        9
+      ],
+      "sowMonthsSouthNote": "华南/长江以南基准，据公开栽培资料",
+      "totalDaysSouth": 210
     },
     {
       "cropId": "C048",
@@ -971,7 +1286,13 @@
       ],
       "sowMonthsNote": "秋甘蓝 7–8 月育苗；春甘蓝 1 月阳畦育苗",
       "sowMonthsSource": "安徽农网 / 铜仁市农业农村局",
-      "propertiesSource": "公开栽培资料校正（V5.4）"
+      "propertiesSource": "公开栽培资料校正（V5.4）",
+      "sowMonthsSouth": [
+        9,
+        10,
+        11
+      ],
+      "sowMonthsSouthNote": "华南/长江以南基准，据公开栽培资料"
     },
     {
       "cropId": "C049",
@@ -982,11 +1303,25 @@
       "lifespanLabel": "一年生",
       "croppingSystem": "single",
       "croppingSystemLabel": "一年一熟",
-      "totalDays": 90,
+      "totalDays": 40,
       "suitableSeason": "春播/秋播",
       "suitableRegion": "全国",
       "tempRequirement": "蔬菜类，生育期短，需水肥充足",
-      "source": "category-rule"
+      "source": "category-rule",
+      "sowMonths": [
+        4,
+        5,
+        6
+      ],
+      "sowMonthsSouth": [
+        2,
+        3,
+        4,
+        9
+      ],
+      "sowMonthsNote": "喜温 23–27℃，2–10 月可分批播（南方）",
+      "sowMonthsSource": "人民日报《全年种植时间表》/ 南方蔬菜表",
+      "propertiesSource": "公开栽培资料校正（V5.5）"
     },
     {
       "cropId": "C050",
@@ -997,11 +1332,25 @@
       "lifespanLabel": "一年生",
       "croppingSystem": "single",
       "croppingSystemLabel": "一年一熟",
-      "totalDays": 90,
+      "totalDays": 50,
       "suitableSeason": "春播/秋播",
       "suitableRegion": "全国",
       "tempRequirement": "蔬菜类，生育期短，需水肥充足",
-      "source": "category-rule"
+      "source": "category-rule",
+      "sowMonths": [
+        3,
+        4,
+        8,
+        9
+      ],
+      "sowMonthsSouth": [
+        9,
+        10,
+        11
+      ],
+      "sowMonthsNote": "华北春秋两茬；南方以秋冬为主",
+      "sowMonthsSource": "人民日报《1-12月种菜》/ 南方蔬菜表",
+      "propertiesSource": "公开栽培资料校正（V5.5）"
     },
     {
       "cropId": "C051",
@@ -1021,7 +1370,12 @@
         8
       ],
       "sowMonthsNote": "华北立秋前后（8 月上旬）播种，霜前收获",
-      "sowMonthsSource": "华北农作物及收种时间 / 河北农作物种植月历"
+      "sowMonthsSource": "华北农作物及收种时间 / 河北农作物种植月历",
+      "sowMonthsSouth": [
+        9,
+        10
+      ],
+      "sowMonthsSouthNote": "华南/长江以南基准，据公开栽培资料"
     },
     {
       "cropId": "C052",
@@ -1045,7 +1399,13 @@
       ],
       "sowMonthsNote": "华北秋播 7 月中–8 月上旬；春播 3–4 月",
       "sowMonthsSource": "安徽农网 / 蓝孩子农资网",
-      "propertiesSource": "公开栽培资料校正（V5.4）"
+      "propertiesSource": "公开栽培资料校正（V5.4）",
+      "sowMonthsSouth": [
+        8,
+        9,
+        10
+      ],
+      "sowMonthsSouthNote": "华南/长江以南基准，据公开栽培资料"
     },
     {
       "cropId": "C053",
@@ -1056,11 +1416,22 @@
       "lifespanLabel": "一年生",
       "croppingSystem": "single",
       "croppingSystemLabel": "一年一熟",
-      "totalDays": 120,
+      "totalDays": 150,
       "suitableSeason": "春播",
       "suitableRegion": "全国",
       "tempRequirement": "观赏/药用，喜光",
-      "source": "category-rule"
+      "source": "category-rule",
+      "sowMonths": [
+        3,
+        4
+      ],
+      "sowMonthsSouth": [
+        3,
+        4
+      ],
+      "sowMonthsNote": "地温 15℃ 以上排种；华北 4 月",
+      "sowMonthsSource": "公开水生蔬菜栽培资料",
+      "propertiesSource": "公开栽培资料校正（V5.5）"
     },
     {
       "cropId": "C054",
@@ -1071,11 +1442,24 @@
       "lifespanLabel": "一年生",
       "croppingSystem": "single",
       "croppingSystemLabel": "一年一熟",
-      "totalDays": 90,
+      "totalDays": 120,
       "suitableSeason": "春播/秋播",
       "suitableRegion": "全国",
       "tempRequirement": "蔬菜类，生育期短，需水肥充足",
-      "source": "category-rule"
+      "source": "category-rule",
+      "sowMonths": [
+        3,
+        4,
+        9
+      ],
+      "sowMonthsSouth": [
+        3,
+        4,
+        9
+      ],
+      "sowMonthsNote": "单季茭 4 月、双季茭 3–4 月与 9 月",
+      "sowMonthsSource": "公开水生蔬菜栽培资料",
+      "propertiesSource": "公开栽培资料校正（V5.5）"
     },
     {
       "cropId": "C055",
@@ -1097,7 +1481,12 @@
       ],
       "sowMonthsNote": "地温稳定 15℃ 以上播种；华北 4 月为主",
       "sowMonthsSource": "河池金达种业《常见蔬菜种植习性速查表》",
-      "propertiesSource": "公开栽培资料校正（V5.4）"
+      "propertiesSource": "公开栽培资料校正（V5.4）",
+      "sowMonthsSouth": [
+        3,
+        4
+      ],
+      "sowMonthsSouthNote": "华南/长江以南基准，据公开栽培资料"
     },
     {
       "cropId": "C056",
@@ -1112,7 +1501,17 @@
       "suitableSeason": "春播",
       "suitableRegion": "适生区",
       "tempRequirement": "药用作物，按品种差异大",
-      "source": "category-rule"
+      "source": "category-rule",
+      "sowMonths": [
+        3,
+        4
+      ],
+      "sowMonthsSouth": [
+        3
+      ],
+      "sowMonthsNote": "地温稳定 10℃ 以上播种；华北 4 月为主",
+      "sowMonthsSource": "河池金达种业《常见蔬菜种植习性速查表》",
+      "propertiesSource": "公开栽培资料校正（V5.5）"
     },
     {
       "cropId": "C057",
@@ -1134,7 +1533,12 @@
       ],
       "sowMonthsNote": "华北 4 月中下旬–5 月上旬播种；南方 2–3 月",
       "sowMonthsSource": "imomo《常见蔬菜露天种植时间表》/ 河北月历",
-      "propertiesSource": "公开栽培资料校正（V5.4）"
+      "propertiesSource": "公开栽培资料校正（V5.4）",
+      "sowMonthsSouth": [
+        3,
+        4
+      ],
+      "sowMonthsSouthNote": "华南/长江以南基准，据公开栽培资料"
     },
     {
       "cropId": "C058",
@@ -1157,7 +1561,13 @@
       ],
       "sowMonthsNote": "秋莴笋 8–9 月育苗；春莴笋 1 月育苗、3 月定植",
       "sowMonthsSource": "安徽农网 / 火爆农资招商网",
-      "propertiesSource": "公开栽培资料校正（V5.4）"
+      "propertiesSource": "公开栽培资料校正（V5.4）",
+      "sowMonthsSouth": [
+        9,
+        10,
+        11
+      ],
+      "sowMonthsSouthNote": "华南/长江以南基准，据公开栽培资料"
     },
     {
       "cropId": "C059",
@@ -1180,7 +1590,13 @@
         11
       ],
       "sowMonthsNote": "定植窗口：华北春栽 3 月中–4 上、秋栽 10 下–11 上（秋栽更利发根）",
-      "sowMonthsSource": "绿宝园林网《果苗什么时候种植最好》/ 果树栽培时间综述"
+      "sowMonthsSource": "绿宝园林网《果苗什么时候种植最好》/ 果树栽培时间综述",
+      "sowMonthsSouth": [
+        11,
+        12,
+        2
+      ],
+      "sowMonthsSouthNote": "华南/长江以南基准，据公开栽培资料"
     },
     {
       "cropId": "C060",
@@ -1203,7 +1619,14 @@
         11
       ],
       "sowMonthsNote": "定植窗口：春栽 3–4 月、秋栽 10 月下旬–11 月",
-      "sowMonthsSource": "绿宝园林网《果苗什么时候种植最好》"
+      "sowMonthsSource": "绿宝园林网《果苗什么时候种植最好》",
+      "sowMonthsSouth": [
+        11,
+        12,
+        2,
+        3
+      ],
+      "sowMonthsSouthNote": "华南/长江以南基准，据公开栽培资料"
     },
     {
       "cropId": "C061",
@@ -1226,7 +1649,14 @@
         11
       ],
       "sowMonthsNote": "定植窗口：北方秋栽 10 月中–11 上，春栽 3 月中–4 上",
-      "sowMonthsSource": "绿宝园林网 / 果树栽培时间综述"
+      "sowMonthsSource": "绿宝园林网 / 果树栽培时间综述",
+      "sowMonthsSouth": [
+        2,
+        3,
+        11,
+        12
+      ],
+      "sowMonthsSouthNote": "华南/长江以南基准，据公开栽培资料"
     },
     {
       "cropId": "C062",
@@ -1241,7 +1671,20 @@
       "suitableSeason": "春植",
       "suitableRegion": "适生区",
       "tempRequirement": "多年生，需按年管理",
-      "source": "category-rule"
+      "source": "category-rule",
+      "sowMonths": [
+        3,
+        4,
+        10,
+        11
+      ],
+      "sowMonthsSouth": [
+        11,
+        12,
+        2
+      ],
+      "sowMonthsNote": "落叶果树：华北春 3–4 月、秋 10–11 月；南方 11–12 月",
+      "sowMonthsSource": "绿宝园林网《果苗什么时候种植最好》"
     },
     {
       "cropId": "C063",
@@ -1256,7 +1699,20 @@
       "suitableSeason": "春植",
       "suitableRegion": "适生区",
       "tempRequirement": "多年生，需按年管理",
-      "source": "category-rule"
+      "source": "category-rule",
+      "sowMonths": [
+        3,
+        4,
+        10,
+        11
+      ],
+      "sowMonthsSouth": [
+        11,
+        12,
+        2
+      ],
+      "sowMonthsNote": "定植窗口同落叶果树",
+      "sowMonthsSource": "绿宝园林网《果苗什么时候种植最好》"
     },
     {
       "cropId": "C064",
@@ -1279,7 +1735,14 @@
         11
       ],
       "sowMonthsNote": "定植窗口同落叶果树：春 3–4 月、秋 10–11 月",
-      "sowMonthsSource": "绿宝园林网《果苗什么时候种植最好》"
+      "sowMonthsSource": "绿宝园林网《果苗什么时候种植最好》",
+      "sowMonthsSouth": [
+        2,
+        3,
+        11,
+        12
+      ],
+      "sowMonthsSouthNote": "华南/长江以南基准，据公开栽培资料"
     },
     {
       "cropId": "C065",
@@ -1300,7 +1763,12 @@
         10
       ],
       "sowMonthsNote": "北方以秋植为主（9–10 月），翌年春夏采收",
-      "sowMonthsSource": "绿宝园林网《果苗什么时候种植最好》"
+      "sowMonthsSource": "绿宝园林网《果苗什么时候种植最好》",
+      "sowMonthsSouth": [
+        10,
+        11
+      ],
+      "sowMonthsSouthNote": "华南/长江以南基准，据公开栽培资料"
     },
     {
       "cropId": "C066",
@@ -1323,7 +1791,14 @@
         11
       ],
       "sowMonthsNote": "定植窗口：北方秋栽 10 下–11 下；春栽需在伤流期前",
-      "sowMonthsSource": "绿宝园林网 / 果树栽培时间综述"
+      "sowMonthsSource": "绿宝园林网 / 果树栽培时间综述",
+      "sowMonthsSouth": [
+        1,
+        2,
+        11,
+        12
+      ],
+      "sowMonthsSouthNote": "华南/长江以南基准，据公开栽培资料"
     },
     {
       "cropId": "C067",
@@ -1346,7 +1821,14 @@
         11
       ],
       "sowMonthsNote": "常绿果树：10–11 月或 2–3 月定植，避开盛夏与严寒",
-      "sowMonthsSource": "今日头条《果树的最佳栽培时间是几月》"
+      "sowMonthsSource": "今日头条《果树的最佳栽培时间是几月》",
+      "sowMonthsSouth": [
+        2,
+        3,
+        9,
+        10
+      ],
+      "sowMonthsSouthNote": "华南/长江以南基准，据公开栽培资料"
     },
     {
       "cropId": "C068",
@@ -1412,7 +1894,12 @@
         5
       ],
       "sowMonthsNote": "喜温 25–32℃，断霜后播种；南方 2 月下旬–3 月",
-      "sowMonthsSource": "imomo《常见蔬菜露天种植时间表》/ 蓝孩子农资网"
+      "sowMonthsSource": "imomo《常见蔬菜露天种植时间表》/ 蓝孩子农资网",
+      "sowMonthsSouth": [
+        3,
+        4
+      ],
+      "sowMonthsSouthNote": "华南/长江以南基准，据公开栽培资料"
     },
     {
       "cropId": "C072",
@@ -1450,7 +1937,14 @@
         11
       ],
       "sowMonthsNote": "定植窗口：春 3–4 月、秋 10–11 月",
-      "sowMonthsSource": "绿宝园林网《果苗什么时候种植最好》"
+      "sowMonthsSource": "绿宝园林网《果苗什么时候种植最好》",
+      "sowMonthsSouth": [
+        2,
+        3,
+        11,
+        12
+      ],
+      "sowMonthsSouthNote": "华南/长江以南基准，据公开栽培资料"
     },
     {
       "cropId": "C074",
@@ -1465,7 +1959,20 @@
       "suitableSeason": "春植",
       "suitableRegion": "适生区",
       "tempRequirement": "多年生，需按年管理",
-      "source": "category-rule"
+      "source": "category-rule",
+      "sowMonths": [
+        3,
+        4,
+        10,
+        11
+      ],
+      "sowMonthsSouth": [
+        2,
+        3,
+        11
+      ],
+      "sowMonthsNote": "落叶果树，华北春栽为主",
+      "sowMonthsSource": "绿宝园林网《果苗什么时候种植最好》"
     },
     {
       "cropId": "C075",
@@ -1480,7 +1987,20 @@
       "suitableSeason": "春植",
       "suitableRegion": "适生区",
       "tempRequirement": "多年生，需按年管理",
-      "source": "category-rule"
+      "source": "category-rule",
+      "sowMonths": [
+        3,
+        4,
+        10,
+        11
+      ],
+      "sowMonthsSouth": [
+        11,
+        12,
+        2
+      ],
+      "sowMonthsNote": "落叶果树，秋栽需防冻",
+      "sowMonthsSource": "绿宝园林网《果苗什么时候种植最好》"
     },
     {
       "cropId": "C076",
@@ -1495,7 +2015,20 @@
       "suitableSeason": "春植",
       "suitableRegion": "适生区",
       "tempRequirement": "多年生，需按年管理",
-      "source": "category-rule"
+      "source": "category-rule",
+      "sowMonths": [
+        3,
+        4,
+        10,
+        11
+      ],
+      "sowMonthsSouth": [
+        11,
+        12,
+        2
+      ],
+      "sowMonthsNote": "枣树秋栽 10–11 月或春栽 3–4 月",
+      "sowMonthsSource": "绿宝园林网《果苗什么时候种植最好》"
     },
     {
       "cropId": "C077",
@@ -1510,7 +2043,18 @@
       "suitableSeason": "春植",
       "suitableRegion": "适生区",
       "tempRequirement": "多年生，需按年管理",
-      "source": "category-rule"
+      "source": "category-rule",
+      "sowMonths": [
+        3,
+        4
+      ],
+      "sowMonthsSouth": [
+        3,
+        4,
+        9
+      ],
+      "sowMonthsNote": "热带果树，气温稳定 15℃ 以上定植",
+      "sowMonthsSource": "公开热带果树栽培资料"
     },
     {
       "cropId": "C078",
@@ -1585,7 +2129,21 @@
       "suitableSeason": "春植",
       "suitableRegion": "宁夏、甘肃",
       "tempRequirement": "耐旱耐盐碱",
-      "source": "manual"
+      "source": "manual",
+      "sowMonths": [
+        3,
+        4,
+        9,
+        10
+      ],
+      "sowMonthsSouth": [
+        3,
+        4,
+        9,
+        10
+      ],
+      "sowMonthsNote": "春播 3 月下旬–4 月上旬、秋播 9–10 月",
+      "sowMonthsSource": "中药材种植时间资料"
     },
     {
       "cropId": "C083",
@@ -1600,7 +2158,21 @@
       "suitableSeason": "春植",
       "suitableRegion": "适生区",
       "tempRequirement": "多年生，需按年管理",
-      "source": "category-rule"
+      "source": "category-rule",
+      "sowMonths": [
+        3,
+        4,
+        9,
+        10
+      ],
+      "sowMonthsSouth": [
+        2,
+        3,
+        10,
+        11
+      ],
+      "sowMonthsNote": "春植 2–4 月、秋植 9–11 月",
+      "sowMonthsSource": "中药材种植时间资料"
     },
     {
       "cropId": "C084",
@@ -1615,7 +2187,21 @@
       "suitableSeason": "春播",
       "suitableRegion": "内蒙古、山西",
       "tempRequirement": "耐旱，深根",
-      "source": "manual"
+      "source": "manual",
+      "sowMonths": [
+        3,
+        4,
+        9,
+        10
+      ],
+      "sowMonthsSouth": [
+        3,
+        4,
+        9,
+        10
+      ],
+      "sowMonthsNote": "春播 3 下–4 上、秋播 9 下–10 上",
+      "sowMonthsSource": "中药材种植时间资料"
     },
     {
       "cropId": "C085",
@@ -1630,7 +2216,21 @@
       "suitableSeason": "春植",
       "suitableRegion": "东北",
       "tempRequirement": "喜阴，需遮阴棚",
-      "source": "manual"
+      "source": "manual",
+      "sowMonths": [
+        4,
+        5,
+        10,
+        11
+      ],
+      "sowMonthsSouth": [
+        4,
+        5,
+        10,
+        11
+      ],
+      "sowMonthsNote": "春播 4 月中–5 上、秋播 10 月中–封冻前",
+      "sowMonthsSource": "中药材种植时间资料"
     },
     {
       "cropId": "C086",
@@ -1641,11 +2241,23 @@
       "lifespanLabel": "一年生",
       "croppingSystem": "single",
       "croppingSystemLabel": "一年一熟",
-      "totalDays": 220,
+      "totalDays": 200,
       "suitableSeason": "春播",
       "suitableRegion": "甘肃岷县",
       "tempRequirement": "喜冷凉湿润",
-      "source": "manual"
+      "source": "manual",
+      "sowMonths": [
+        4,
+        5
+      ],
+      "sowMonthsSouth": [
+        4,
+        5,
+        9
+      ],
+      "sowMonthsNote": "春播 4 月、秋播 8 月底–9 月初",
+      "sowMonthsSource": "中药材种植时间资料",
+      "propertiesSource": "公开栽培资料校正（V5.5）"
     },
     {
       "cropId": "C087",
@@ -1690,7 +2302,21 @@
       "suitableSeason": "春植",
       "suitableRegion": "适生区",
       "tempRequirement": "多年生，需按年管理",
-      "source": "category-rule"
+      "source": "category-rule",
+      "sowMonths": [
+        3,
+        4,
+        9,
+        10
+      ],
+      "sowMonthsSouth": [
+        3,
+        4,
+        9,
+        10
+      ],
+      "sowMonthsNote": "根茎繁殖为主，春秋两季",
+      "sowMonthsSource": "中药材种植时间资料"
     },
     {
       "cropId": "C090",
@@ -1716,11 +2342,22 @@
       "lifespanLabel": "一年生",
       "croppingSystem": "single",
       "croppingSystemLabel": "一年一熟",
-      "totalDays": 130,
+      "totalDays": 75,
       "suitableSeason": "春播/夏播",
       "suitableRegion": "全国",
       "tempRequirement": "禾谷类，需氮肥充足",
-      "source": "category-rule"
+      "source": "category-rule",
+      "sowMonths": [
+        6,
+        7
+      ],
+      "sowMonthsSouth": [
+        8,
+        9
+      ],
+      "sowMonthsNote": "秋荞 6–7 月（华北）、南方 8–9 月",
+      "sowMonthsSource": "小杂粮网 / 通辽市技术意见",
+      "propertiesSource": "公开栽培资料校正（V5.5）"
     },
     {
       "cropId": "C092",
@@ -1731,11 +2368,22 @@
       "lifespanLabel": "一年生",
       "croppingSystem": "single",
       "croppingSystemLabel": "一年一熟",
-      "totalDays": 130,
+      "totalDays": 100,
       "suitableSeason": "春播/夏播",
       "suitableRegion": "全国",
       "tempRequirement": "禾谷类，需氮肥充足",
-      "source": "category-rule"
+      "source": "category-rule",
+      "sowMonths": [
+        3,
+        4
+      ],
+      "sowMonthsSouth": [
+        10,
+        11
+      ],
+      "sowMonthsNote": "春播 3–4 月；南方可秋播",
+      "sowMonthsSource": "小杂粮网",
+      "propertiesSource": "公开栽培资料校正（V5.5）"
     },
     {
       "cropId": "C093",
@@ -1746,11 +2394,24 @@
       "lifespanLabel": "一年生",
       "croppingSystem": "single",
       "croppingSystemLabel": "一年一熟",
-      "totalDays": 130,
+      "totalDays": 150,
       "suitableSeason": "春播/夏播",
       "suitableRegion": "全国",
       "tempRequirement": "禾谷类，需氮肥充足",
-      "source": "category-rule"
+      "source": "category-rule",
+      "sowMonths": [
+        3,
+        4,
+        9,
+        10
+      ],
+      "sowMonthsSouth": [
+        10,
+        11
+      ],
+      "sowMonthsNote": "春大麦 3–4 月、冬大麦 9–10 月",
+      "sowMonthsSource": "小杂粮网 / 太原晚报",
+      "propertiesSource": "公开栽培资料校正（V5.5）"
     },
     {
       "cropId": "C094",
@@ -1776,11 +2437,23 @@
       "lifespanLabel": "一年生",
       "croppingSystem": "single",
       "croppingSystemLabel": "一年一熟",
-      "totalDays": 85,
+      "totalDays": 70,
       "suitableSeason": "夏播",
       "suitableRegion": "华北、东北",
       "tempRequirement": "短生育期，可套种",
-      "source": "manual"
+      "source": "manual",
+      "sowMonths": [
+        5,
+        6
+      ],
+      "sowMonthsSouth": [
+        4,
+        5,
+        7
+      ],
+      "sowMonthsNote": "春绿豆 5 上、夏绿豆 6 下",
+      "sowMonthsSource": "安徽农网 / 莱西市杂粮意见",
+      "propertiesSource": "公开栽培资料校正（V5.5）"
     },
     {
       "cropId": "C096",
@@ -1795,7 +2468,18 @@
       "suitableSeason": "春播/秋播",
       "suitableRegion": "全国",
       "tempRequirement": "蔬菜类，生育期短，需水肥充足",
-      "source": "category-rule"
+      "source": "category-rule",
+      "sowMonths": [
+        5,
+        6
+      ],
+      "sowMonthsSouth": [
+        5,
+        6
+      ],
+      "sowMonthsNote": "5 月中下旬播种，8–10 月收",
+      "sowMonthsSource": "自然农耕规范 / 通辽意见",
+      "propertiesSource": "公开栽培资料校正（V5.5）"
     },
     {
       "cropId": "C097",
@@ -1878,7 +2562,12 @@
       ],
       "sowMonthsNote": "华北秋播 9 月上中旬育苗、翌年 5–6 月定植；春播 3 月下旬–4 月上旬",
       "sowMonthsSource": "NSTL《北方种葱的最佳时间》/ 今日头条《9月种菜》",
-      "propertiesSource": "公开栽培资料校正（V5.4）"
+      "propertiesSource": "公开栽培资料校正（V5.4）",
+      "sowMonthsSouth": [
+        10,
+        11
+      ],
+      "sowMonthsSouthNote": "华南/长江以南基准，据公开栽培资料"
     },
     {
       "cropId": "C102",
@@ -1953,7 +2642,20 @@
       "suitableSeason": "春播/秋播",
       "suitableRegion": "全国",
       "tempRequirement": "蔬菜类，生育期短，需水肥充足",
-      "source": "category-rule"
+      "source": "category-rule",
+      "sowMonths": [
+        8,
+        9
+      ],
+      "sowMonthsSouth": [
+        8,
+        9,
+        10,
+        11
+      ],
+      "sowMonthsNote": "秋播越冬；华北 8–9 月、南方 8–11 月",
+      "sowMonthsSource": "南方蔬菜种植时间表",
+      "propertiesSource": "公开栽培资料校正（V5.5）"
     },
     {
       "cropId": "C107",
@@ -1964,11 +2666,22 @@
       "lifespanLabel": "一年生",
       "croppingSystem": "single",
       "croppingSystemLabel": "一年一熟",
-      "totalDays": 120,
+      "totalDays": 80,
       "suitableSeason": "春播",
       "suitableRegion": "全国",
       "tempRequirement": "属性按作物类别推定",
-      "source": "category-rule"
+      "source": "category-rule",
+      "sowMonths": [
+        8,
+        9
+      ],
+      "sowMonthsSouth": [
+        9,
+        10
+      ],
+      "sowMonthsNote": "秋播越冬菜，华北 8–9 月",
+      "sowMonthsSource": "人民日报《全年种植时间表》",
+      "propertiesSource": "公开栽培资料校正（V5.5）"
     },
     {
       "cropId": "C108",
@@ -1979,11 +2692,22 @@
       "lifespanLabel": "一年生",
       "croppingSystem": "single",
       "croppingSystemLabel": "一年一熟",
-      "totalDays": 90,
+      "totalDays": 120,
       "suitableSeason": "春播/秋播",
       "suitableRegion": "全国",
       "tempRequirement": "蔬菜类，生育期短，需水肥充足",
-      "source": "category-rule"
+      "source": "category-rule",
+      "sowMonths": [
+        9,
+        10
+      ],
+      "sowMonthsSouth": [
+        9,
+        10
+      ],
+      "sowMonthsNote": "茎用芥菜，秋季播种越冬",
+      "sowMonthsSource": "安徽农网《秋季适播期》",
+      "propertiesSource": "公开栽培资料校正（V5.5）"
     },
     {
       "cropId": "C109",
@@ -2069,11 +2793,27 @@
       "lifespanLabel": "一年生",
       "croppingSystem": "single",
       "croppingSystemLabel": "一年一熟",
-      "totalDays": 90,
+      "totalDays": 70,
       "suitableSeason": "春播/秋播",
       "suitableRegion": "全国",
       "tempRequirement": "蔬菜类，生育期短，需水肥充足",
-      "source": "category-rule"
+      "source": "category-rule",
+      "sowMonths": [
+        3,
+        4,
+        8,
+        9
+      ],
+      "sowMonthsSouth": [
+        3,
+        4,
+        5,
+        9,
+        10
+      ],
+      "sowMonthsNote": "华北春秋；南方 3–5 月、9–10 月",
+      "sowMonthsSource": "南方蔬菜种植时间表",
+      "propertiesSource": "公开栽培资料校正（V5.5）"
     },
     {
       "cropId": "C115",
@@ -2084,11 +2824,25 @@
       "lifespanLabel": "一年生",
       "croppingSystem": "single",
       "croppingSystemLabel": "一年一熟",
-      "totalDays": 90,
+      "totalDays": 45,
       "suitableSeason": "春播/秋播",
       "suitableRegion": "全国",
       "tempRequirement": "蔬菜类，生育期短，需水肥充足",
-      "source": "category-rule"
+      "source": "category-rule",
+      "sowMonths": [
+        3,
+        4,
+        8,
+        9
+      ],
+      "sowMonthsSouth": [
+        8,
+        9,
+        10
+      ],
+      "sowMonthsNote": "华北春秋；南方 6–8 月也可播",
+      "sowMonthsSource": "南方蔬菜种植时间表",
+      "propertiesSource": "公开栽培资料校正（V5.5）"
     },
     {
       "cropId": "C116",
@@ -2129,11 +2883,23 @@
       "lifespanLabel": "一年生",
       "croppingSystem": "single",
       "croppingSystemLabel": "一年一熟",
-      "totalDays": 70,
+      "totalDays": 60,
       "suitableSeason": "春播/夏播",
       "suitableRegion": "华南、长江流域",
       "tempRequirement": "喜温湿，嫩梢采收",
-      "source": "manual"
+      "source": "manual",
+      "sowMonths": [
+        4,
+        5
+      ],
+      "sowMonthsSouth": [
+        3,
+        4,
+        5
+      ],
+      "sowMonthsNote": "喜温，断霜后直播；南方 3 月起",
+      "sowMonthsSource": "人民日报《全年种植时间表》",
+      "propertiesSource": "公开栽培资料校正（V5.5）"
     },
     {
       "cropId": "C119",
@@ -2155,7 +2921,12 @@
       ],
       "sowMonthsNote": "喜温，断霜后直播；南方 3 月即可",
       "sowMonthsSource": "河池金达种业《常见蔬菜种植习性速查表》",
-      "propertiesSource": "公开栽培资料校正（V5.4）"
+      "propertiesSource": "公开栽培资料校正（V5.4）",
+      "sowMonthsSouth": [
+        3,
+        4
+      ],
+      "sowMonthsSouthNote": "华南/长江以南基准，据公开栽培资料"
     },
     {
       "cropId": "C120",
@@ -2196,11 +2967,22 @@
       "lifespanLabel": "一年生",
       "croppingSystem": "single",
       "croppingSystemLabel": "一年一熟",
-      "totalDays": 90,
+      "totalDays": 55,
       "suitableSeason": "春播/秋播",
       "suitableRegion": "全国",
       "tempRequirement": "蔬菜类，生育期短，需水肥充足",
-      "source": "category-rule"
+      "source": "category-rule",
+      "sowMonths": [
+        8,
+        9
+      ],
+      "sowMonthsSouth": [
+        9,
+        10
+      ],
+      "sowMonthsNote": "华北立秋后播种，霜前收获",
+      "sowMonthsSource": "公开娃娃菜栽培资料",
+      "propertiesSource": "公开栽培资料校正（V5.5）"
     },
     {
       "cropId": "C123",
@@ -2241,11 +3023,25 @@
       "lifespanLabel": "一年生",
       "croppingSystem": "single",
       "croppingSystemLabel": "一年一熟",
-      "totalDays": 90,
+      "totalDays": 50,
       "suitableSeason": "春播/秋播",
       "suitableRegion": "全国",
       "tempRequirement": "蔬菜类，生育期短，需水肥充足",
-      "source": "category-rule"
+      "source": "category-rule",
+      "sowMonths": [
+        3,
+        4,
+        8,
+        9
+      ],
+      "sowMonthsSouth": [
+        9,
+        10,
+        11
+      ],
+      "sowMonthsNote": "喜冷凉，华北春秋、南方秋冬",
+      "sowMonthsSource": "人民日报《1-12月种菜》",
+      "propertiesSource": "公开栽培资料校正（V5.5）"
     },
     {
       "cropId": "C126",
@@ -2466,11 +3262,22 @@
       "lifespanLabel": "一年生",
       "croppingSystem": "single",
       "croppingSystemLabel": "一年一熟",
-      "totalDays": 90,
+      "totalDays": 120,
       "suitableSeason": "春播/秋播",
       "suitableRegion": "全国",
       "tempRequirement": "蔬菜类，生育期短，需水肥充足",
-      "source": "category-rule"
+      "source": "category-rule",
+      "sowMonths": [
+        4,
+        5
+      ],
+      "sowMonthsSouth": [
+        3,
+        4
+      ],
+      "sowMonthsNote": "整瓜播种，断霜后定植",
+      "sowMonthsSource": "公开佛手瓜栽培资料",
+      "propertiesSource": "公开栽培资料校正（V5.5）"
     },
     {
       "cropId": "C141",
@@ -2695,7 +3502,18 @@
       "suitableSeason": "春植",
       "suitableRegion": "适生区",
       "tempRequirement": "多年生，需按年管理",
-      "source": "category-rule"
+      "source": "category-rule",
+      "sowMonths": [
+        3,
+        4
+      ],
+      "sowMonthsSouth": [
+        11,
+        12,
+        2
+      ],
+      "sowMonthsNote": "落叶果树，华北春栽为主",
+      "sowMonthsSource": "公开板栗栽培资料"
     },
     {
       "cropId": "C156",
@@ -2710,7 +3528,20 @@
       "suitableSeason": "春植",
       "suitableRegion": "适生区",
       "tempRequirement": "多年生，需按年管理",
-      "source": "category-rule"
+      "source": "category-rule",
+      "sowMonths": [
+        3,
+        4,
+        10,
+        11
+      ],
+      "sowMonthsSouth": [
+        11,
+        12,
+        2
+      ],
+      "sowMonthsNote": "落叶果树，秋栽或春栽",
+      "sowMonthsSource": "绿宝园林网《果苗什么时候种植最好》"
     },
     {
       "cropId": "C157",
@@ -2860,7 +3691,19 @@
       "suitableSeason": "春植",
       "suitableRegion": "适生区",
       "tempRequirement": "多年生，需按年管理",
-      "source": "category-rule"
+      "source": "category-rule",
+      "sowMonths": [
+        3,
+        4
+      ],
+      "sowMonthsSouth": [
+        3,
+        4,
+        9,
+        10
+      ],
+      "sowMonthsNote": "常绿果树，春梢老熟后定植",
+      "sowMonthsSource": "公开热带果树栽培资料"
     },
     {
       "cropId": "C167",
@@ -2875,7 +3718,19 @@
       "suitableSeason": "春植",
       "suitableRegion": "适生区",
       "tempRequirement": "多年生，需按年管理",
-      "source": "category-rule"
+      "source": "category-rule",
+      "sowMonths": [
+        3,
+        4
+      ],
+      "sowMonthsSouth": [
+        3,
+        4,
+        9,
+        10
+      ],
+      "sowMonthsNote": "常绿果树，避开盛夏与严寒",
+      "sowMonthsSource": "公开热带果树栽培资料"
     },
     {
       "cropId": "C168",
@@ -2920,7 +3775,19 @@
       "suitableSeason": "春植",
       "suitableRegion": "适生区",
       "tempRequirement": "多年生，需按年管理",
-      "source": "category-rule"
+      "source": "category-rule",
+      "sowMonths": [
+        3,
+        4
+      ],
+      "sowMonthsSouth": [
+        3,
+        4,
+        8,
+        9
+      ],
+      "sowMonthsNote": "华南 3–4 月或 8–9 月定植",
+      "sowMonthsSource": "公开热带果树栽培资料"
     },
     {
       "cropId": "C171",
@@ -3040,7 +3907,18 @@
       "suitableSeason": "春植",
       "suitableRegion": "适生区",
       "tempRequirement": "多年生，需按年管理",
-      "source": "category-rule"
+      "source": "category-rule",
+      "sowMonths": [
+        3,
+        4
+      ],
+      "sowMonthsSouth": [
+        11,
+        12,
+        2
+      ],
+      "sowMonthsNote": "落叶果树，华北春栽",
+      "sowMonthsSource": "公开无花果栽培资料"
     },
     {
       "cropId": "C179",
@@ -3070,7 +3948,20 @@
       "suitableSeason": "春植",
       "suitableRegion": "适生区",
       "tempRequirement": "多年生，需按年管理",
-      "source": "category-rule"
+      "source": "category-rule",
+      "sowMonths": [
+        3,
+        4,
+        10,
+        11
+      ],
+      "sowMonthsSouth": [
+        11,
+        12,
+        2
+      ],
+      "sowMonthsNote": "落叶/常绿灌木，秋植或春植",
+      "sowMonthsSource": "绿宝园林网《果苗什么时候种植最好》"
     },
     {
       "cropId": "C181",
@@ -4401,11 +5292,22 @@
       "lifespanLabel": "一年生",
       "croppingSystem": "single",
       "croppingSystemLabel": "一年一熟",
-      "totalDays": 90,
+      "totalDays": 180,
       "suitableSeason": "春播/秋播",
       "suitableRegion": "全国",
       "tempRequirement": "蔬菜类，生育期短，需水肥充足",
-      "source": "category-rule"
+      "source": "category-rule",
+      "sowMonths": [
+        4,
+        5
+      ],
+      "sowMonthsSouth": [
+        3,
+        4
+      ],
+      "sowMonthsNote": "4–5 月育苗、7–8 月定植；翌年春季采收",
+      "sowMonthsSource": "公开芦笋栽培资料",
+      "propertiesSource": "公开栽培资料校正（V5.5）"
     },
     {
       "cropId": "C270",
@@ -4416,11 +5318,22 @@
       "lifespanLabel": "多年生",
       "croppingSystem": "single",
       "croppingSystemLabel": "一年一熟",
-      "totalDays": 1825,
+      "totalDays": 365,
       "suitableSeason": "春植",
       "suitableRegion": "适生区",
       "tempRequirement": "多年生，需按年管理",
-      "source": "category-rule"
+      "source": "category-rule",
+      "sowMonths": [
+        2,
+        3
+      ],
+      "sowMonthsSouth": [
+        2,
+        3
+      ],
+      "sowMonthsNote": "竹苗栽植以 2–3 月为宜",
+      "sowMonthsSource": "公开竹类栽培资料",
+      "propertiesSource": "公开栽培资料校正（V5.5）"
     },
     {
       "cropId": "C271",

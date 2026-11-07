@@ -97,6 +97,7 @@ public class SowWindowHandler implements HttpHandler {
                 "action", Json.str(win.action()),
                 "groupLabel", Json.str(win.groupLabel()),
                 "precision", Json.str(win.precision()),
+                "region", Json.str(win.region()),
                 "basis", Json.str(win.basis()));
 
         String harvestJson = win == null ? "null" : Json.obj(

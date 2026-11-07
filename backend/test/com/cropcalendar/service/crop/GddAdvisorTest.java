@@ -68,7 +68,7 @@ public class GddAdvisorTest {
         // ---- 最晚播期：今年初霜已过时看明年 ----
         CropProperties.Props props = new CropProperties.Props(
                 "rice", "水稻", "long", "annual", "single", 120,
-                "春播", "华南、长江流域", "喜温，≥10℃积温需 2500℃以上", "manual", List.of(), "");
+                "春播", "华南、长江流域", "喜温，≥10℃积温需 2500℃以上", "manual", List.of(), "", List.of(), "", 0);
         GddAdvisor.Latest latest = GddAdvisor.latestSowDate(35.0, props, LocalDate.of(2026, 11, 3));
         check(latest != null, "最晚播期应有值");
         check(latest.basis().contains("120 天"), "依据应含生育期");
@@ -77,7 +77,7 @@ public class GddAdvisorTest {
 
         CropProperties.Props wheat = new CropProperties.Props(
                 "wheat", "小麦", "long", "annual", "single", 230,
-                "秋播", "黄淮海平原", "耐寒，越冬期可耐 -10℃", "manual", List.of(), "");
+                "秋播", "黄淮海平原", "耐寒，越冬期可耐 -10℃", "manual", List.of(), "", List.of(), "", 0);
         check(GddAdvisor.latestSowDate(34.8, wheat, LocalDate.of(2026, 11, 3)) == null,
                 "秋播作物不给初霜倒推的最晚播期");
 

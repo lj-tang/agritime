@@ -28,11 +28,26 @@ public final class CropProperties {
     public record Props(String cropId, String displayName, String growthCycle, String lifespan,
                         String croppingSystem, int totalDays, String suitableSeason,
                         String suitableRegion, String tempRequirement, String source,
-                        List<Integer> sowMonths, String sowMonthsNote) {
+                        List<Integer> sowMonths, String sowMonthsNote,
+                        List<Integer> sowMonthsSouth, String sowMonthsSouthNote, int totalDaysSouth) {
 
         /** 是否配置了精确播期（月份）。未配置时调用方回退到 suitableSeason 的粗粒度季节。 */
         public boolean hasSowMonths() {
             return sowMonths != null && !sowMonths.isEmpty();
+        }
+
+        /** 是否有单独的南方窗口（华南/长江以南）。 */
+        public boolean hasSouthMonths() {
+            return sowMonthsSouth != null && !sowMonthsSouth.isEmpty();
+        }
+
+        public String southNote() {
+            return sowMonthsSouthNote == null ? "" : sowMonthsSouthNote;
+        }
+
+        /** 南方（华南/长江以南）的一季生育期；0 表示沿用通用值。 */
+        public int daysFor(boolean south) {
+            return south && totalDaysSouth > 0 ? totalDaysSouth : totalDays;
         }
 
         /** 播期的地区/茬口说明（如"华北秋播 9 月上中旬"），用于向用户交代依据。 */
@@ -89,7 +104,10 @@ public final class CropProperties {
                             strOr(c.get("tempRequirement"), ""),
                             strOr(c.get("source"), "category-rule"),
                             intList(c.get("sowMonths")),
-                            strOr(c.get("sowMonthsNote"), "")));
+                            strOr(c.get("sowMonthsNote"), ""),
+                            intList(c.get("sowMonthsSouth")),
+                            strOr(c.get("sowMonthsSouthNote"), ""),
+                            intOr(c.get("totalDaysSouth"), 0)));
                 }
                 return map;
             } catch (Exception e) {
