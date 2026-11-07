@@ -891,7 +891,12 @@
       cropInput.addEventListener('input', function () {
         setInvalid('field-crop', false);
         if (suggestTimer) clearTimeout(suggestTimer);
-        suggestTimer = setTimeout(function () { renderSuggestions(cropInput.value); }, SUGGEST_DEBOUNCE_MS);
+        suggestTimer = setTimeout(function () {
+          // 防抖比"点生成"晚时，下拉会在提交后才弹出来盖住播期结果卡片；
+          // 焦点已经离开输入框就不再弹。
+          if (document.activeElement !== cropInput) return;
+          renderSuggestions(cropInput.value);
+        }, SUGGEST_DEBOUNCE_MS);
       });
       cropInput.addEventListener('keydown', function (e) {
         if (!suggestions.classList.contains('show') || suggestHits.length === 0) return;
