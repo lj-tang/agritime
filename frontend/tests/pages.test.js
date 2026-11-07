@@ -1946,9 +1946,17 @@ test('T27 抽检基线：20 个地块 + 面积自动回归 + 坡度坡向待人�
     assert.ok(p.expectedAreaMu > 0, p.name + ' 应有期望面积');
     assert.ok(p.ring.length >= 3, p.name + ' 多边形应至少 3 个点');
   });
+  // 基线要含坡地样本，坡度/坡向回归才有意义（否则全是平地，坡向空转）
+  const slopes = base.plots.filter((p) => p.terrain === 'slope');
+  assert.ok(slopes.length >= 10, '基线应含足够坡地样本（≥10）');
+  slopes.forEach((p) => {
+    assert.ok(p.referenceSlopeDeg >= 1, p.name + ' 坡地应有坡度≥1°');
+    assert.ok(p.referenceAspectDeg >= 0 && p.referenceAspectDeg < 360, p.name + ' 坡地应有坡向');
+  });
   assert.ok(test.includes('polygonAreaSqm'), '面积回归应走球面面积公式');
   assert.ok(test.includes('0.005'), '面积应有容差，而不是精确相等');
-  assert.ok(test.includes('referenceSlopeDeg'), '坡度/坡向应留待人工核对字段');
+  assert.ok(test.includes('referenceSlopeDeg'), '坡度/坡向应有签字字段');
+  assert.ok(test.includes('坡地') && test.includes('slope'), '测试应校验坡地样本坡度/坡向');
   // 坡度/坡向拟合数学要抽出来离线可测，人工回填 reference 值后才有可信对照
   assert.ok(terrain.includes('fitPlane') && terrain.includes('atan2'), '坡度坡向拟合应为纯函数');
   assert.ok(terrainTest.includes('东向坡') && terrainTest.includes('南向坡'), '应有合成数据的坡向方向回归');

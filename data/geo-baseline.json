@@ -29,7 +29,8 @@
       "expectedAreaMu": 32.39,
       "referenceSlopeDeg": 0.0,
       "referenceAspectDeg": null,
-      "note": "平原/盆地农区，坡度≈0、坡向无意义；双 DEM 源高程一致，判平地"
+      "note": "平原/盆地农区，坡度≈0、坡向无意义；双 DEM 源高程一致，判平地",
+      "terrain": "flat"
     },
     {
       "name": "山东金乡",
@@ -58,7 +59,8 @@
       "expectedAreaMu": 33.76,
       "referenceSlopeDeg": 0.0,
       "referenceAspectDeg": null,
-      "note": "平原/盆地农区，坡度≈0、坡向无意义；双 DEM 源高程一致，判平地"
+      "note": "平原/盆地农区，坡度≈0、坡向无意义；双 DEM 源高程一致，判平地",
+      "terrain": "flat"
     },
     {
       "name": "山东寿光",
@@ -87,7 +89,8 @@
       "expectedAreaMu": 16.19,
       "referenceSlopeDeg": 0.0,
       "referenceAspectDeg": null,
-      "note": "平原/盆地农区，坡度≈0、坡向无意义；双 DEM 源高程一致，判平地"
+      "note": "平原/盆地农区，坡度≈0、坡向无意义；双 DEM 源高程一致，判平地",
+      "terrain": "flat"
     },
     {
       "name": "河南滑县",
@@ -116,7 +119,8 @@
       "expectedAreaMu": 48.04,
       "referenceSlopeDeg": 0.0,
       "referenceAspectDeg": null,
-      "note": "平原/盆地农区，坡度≈0、坡向无意义；双 DEM 源高程一致，判平地"
+      "note": "平原/盆地农区，坡度≈0、坡向无意义；双 DEM 源高程一致，判平地",
+      "terrain": "flat"
     },
     {
       "name": "河南新乡",
@@ -145,7 +149,8 @@
       "expectedAreaMu": 29.39,
       "referenceSlopeDeg": 0.0,
       "referenceAspectDeg": null,
-      "note": "平原/盆地农区，坡度≈0、坡向无意义；双 DEM 源高程一致，判平地"
+      "note": "平原/盆地农区，坡度≈0、坡向无意义；双 DEM 源高程一致，判平地",
+      "terrain": "flat"
     },
     {
       "name": "安徽阜阳",
@@ -174,7 +179,8 @@
       "expectedAreaMu": 28.8,
       "referenceSlopeDeg": 0.0,
       "referenceAspectDeg": null,
-      "note": "平原/盆地农区，坡度≈0、坡向无意义；双 DEM 源高程一致，判平地"
+      "note": "平原/盆地农区，坡度≈0、坡向无意义；双 DEM 源高程一致，判平地",
+      "terrain": "flat"
     },
     {
       "name": "湖北江汉",
@@ -203,7 +209,8 @@
       "expectedAreaMu": 59.36,
       "referenceSlopeDeg": 0.0,
       "referenceAspectDeg": null,
-      "note": "平原/盆地农区，坡度≈0、坡向无意义；双 DEM 源高程一致，判平地"
+      "note": "平原/盆地农区，坡度≈0、坡向无意义；双 DEM 源高程一致，判平地",
+      "terrain": "flat"
     },
     {
       "name": "湖北荆州",
@@ -232,7 +239,8 @@
       "expectedAreaMu": 40.53,
       "referenceSlopeDeg": 0.0,
       "referenceAspectDeg": null,
-      "note": "平原/盆地农区，坡度≈0、坡向无意义；双 DEM 源高程一致，判平地"
+      "note": "平原/盆地农区，坡度≈0、坡向无意义；双 DEM 源高程一致，判平地",
+      "terrain": "flat"
     },
     {
       "name": "湖南常德",
@@ -261,7 +269,8 @@
       "expectedAreaMu": 19.5,
       "referenceSlopeDeg": 0.0,
       "referenceAspectDeg": null,
-      "note": "平原/盆地农区，坡度≈0、坡向无意义；双 DEM 源高程一致，判平地"
+      "note": "平原/盆地农区，坡度≈0、坡向无意义；双 DEM 源高程一致，判平地",
+      "terrain": "flat"
     },
     {
       "name": "江苏盐城",
@@ -290,7 +299,8 @@
       "expectedAreaMu": 71.95,
       "referenceSlopeDeg": 0.0,
       "referenceAspectDeg": null,
-      "note": "平原/盆地农区，坡度≈0、坡向无意义；双 DEM 源高程一致，判平地"
+      "note": "平原/盆地农区，坡度≈0、坡向无意义；双 DEM 源高程一致，判平地",
+      "terrain": "flat"
     },
     {
       "name": "四川成都",
@@ -319,7 +329,8 @@
       "expectedAreaMu": 24.74,
       "referenceSlopeDeg": 0.0,
       "referenceAspectDeg": null,
-      "note": "平原/盆地农区，坡度≈0、坡向无意义；双 DEM 源高程一致，判平地"
+      "note": "平原/盆地农区，坡度≈0、坡向无意义；双 DEM 源高程一致，判平地",
+      "terrain": "flat"
     },
     {
       "name": "云南昆明",
@@ -348,7 +359,8 @@
       "expectedAreaMu": 11.99,
       "referenceSlopeDeg": 0.0,
       "referenceAspectDeg": null,
-      "note": "平原/盆地农区，坡度≈0、坡向无意义；双 DEM 源高程一致，判平地"
+      "note": "平原/盆地农区，坡度≈0、坡向无意义；双 DEM 源高程一致，判平地",
+      "terrain": "flat"
     },
     {
       "name": "广东湛江",
@@ -377,7 +389,8 @@
       "expectedAreaMu": 38.41,
       "referenceSlopeDeg": 0.0,
       "referenceAspectDeg": null,
-      "note": "平原/盆地农区，坡度≈0、坡向无意义；双 DEM 源高程一致，判平地"
+      "note": "平原/盆地农区，坡度≈0、坡向无意义；双 DEM 源高程一致，判平地",
+      "terrain": "flat"
     },
     {
       "name": "广西南宁",
@@ -406,7 +419,8 @@
       "expectedAreaMu": 23.38,
       "referenceSlopeDeg": 0.0,
       "referenceAspectDeg": null,
-      "note": "平原/盆地农区，坡度≈0、坡向无意义；双 DEM 源高程一致，判平地"
+      "note": "平原/盆地农区，坡度≈0、坡向无意义；双 DEM 源高程一致，判平地",
+      "terrain": "flat"
     },
     {
       "name": "江西南昌",
@@ -435,7 +449,8 @@
       "expectedAreaMu": 35.7,
       "referenceSlopeDeg": 0.0,
       "referenceAspectDeg": null,
-      "note": "平原/盆地农区，坡度≈0、坡向无意义；双 DEM 源高程一致，判平地"
+      "note": "平原/盆地农区，坡度≈0、坡向无意义；双 DEM 源高程一致，判平地",
+      "terrain": "flat"
     },
     {
       "name": "浙江嘉兴",
@@ -464,7 +479,8 @@
       "expectedAreaMu": 42.77,
       "referenceSlopeDeg": 0.0,
       "referenceAspectDeg": null,
-      "note": "平原/盆地农区，坡度≈0、坡向无意义；双 DEM 源高程一致，判平地"
+      "note": "平原/盆地农区，坡度≈0、坡向无意义；双 DEM 源高程一致，判平地",
+      "terrain": "flat"
     },
     {
       "name": "福建漳州",
@@ -493,7 +509,8 @@
       "expectedAreaMu": 14.84,
       "referenceSlopeDeg": 0.0,
       "referenceAspectDeg": null,
-      "note": "平原/盆地农区，坡度≈0、坡向无意义；双 DEM 源高程一致，判平地"
+      "note": "平原/盆地农区，坡度≈0、坡向无意义；双 DEM 源高程一致，判平地",
+      "terrain": "flat"
     },
     {
       "name": "陕西关中",
@@ -522,7 +539,8 @@
       "expectedAreaMu": 53.6,
       "referenceSlopeDeg": 0.0,
       "referenceAspectDeg": null,
-      "note": "平原/盆地农区，坡度≈0、坡向无意义；双 DEM 源高程一致，判平地"
+      "note": "平原/盆地农区，坡度≈0、坡向无意义；双 DEM 源高程一致，判平地",
+      "terrain": "flat"
     },
     {
       "name": "甘肃张掖",
@@ -551,7 +569,8 @@
       "expectedAreaMu": 85.78,
       "referenceSlopeDeg": 0.0,
       "referenceAspectDeg": null,
-      "note": "平原/盆地农区，坡度≈0、坡向无意义；双 DEM 源高程一致，判平地"
+      "note": "平原/盆地农区，坡度≈0、坡向无意义；双 DEM 源高程一致，判平地",
+      "terrain": "flat"
     },
     {
       "name": "黑龙江绥化",
@@ -580,14 +599,616 @@
       "expectedAreaMu": 117.01,
       "referenceSlopeDeg": 0.0,
       "referenceAspectDeg": null,
-      "note": "平原/盆地农区，坡度≈0、坡向无意义；双 DEM 源高程一致，判平地"
+      "note": "平原/盆地农区，坡度≈0、坡向无意义；双 DEM 源高程一致，判平地",
+      "terrain": "flat"
+    },
+    {
+      "name": "陕西延安黄土丘陵",
+      "center": [
+        36.585,
+        109.49
+      ],
+      "ring": [
+        [
+          36.587,
+          109.488
+        ],
+        [
+          36.587,
+          109.492
+        ],
+        [
+          36.583,
+          109.492
+        ],
+        [
+          36.583,
+          109.488
+        ]
+      ],
+      "expectedAreaMu": 238.81,
+      "referenceSlopeDeg": 21.5,
+      "referenceAspectDeg": 268,
+      "note": "坡地样本：系统(Open-Meteo)坡度 21.80159635977734° 坡向 270.9718990638895° 与参考(ASTER30)坡度 21.470711320676784° 坡向 267.5283155693642° 交叉验证一致",
+      "terrain": "slope"
+    },
+    {
+      "name": "湖北十堰秦巴山",
+      "center": [
+        32.63,
+        110.79
+      ],
+      "ring": [
+        [
+          32.632,
+          110.788
+        ],
+        [
+          32.632,
+          110.792
+        ],
+        [
+          32.628,
+          110.792
+        ],
+        [
+          32.628,
+          110.788
+        ]
+      ],
+      "expectedAreaMu": 250.47,
+      "referenceSlopeDeg": 2.4,
+      "referenceAspectDeg": 197,
+      "note": "坡地样本：系统(Open-Meteo)坡度 2.302654348441554° 坡向 229.6982974250011° 与参考(ASTER30)坡度 2.368266354978753° 坡向 196.8669983839611° 交叉验证一致",
+      "terrain": "slope"
+    },
+    {
+      "name": "重庆武隆喀斯特",
+      "center": [
+        29.32,
+        107.76
+      ],
+      "ring": [
+        [
+          29.322,
+          107.758
+        ],
+        [
+          29.322,
+          107.762
+        ],
+        [
+          29.318,
+          107.762
+        ],
+        [
+          29.318,
+          107.758
+        ]
+      ],
+      "expectedAreaMu": 259.31,
+      "referenceSlopeDeg": 13.2,
+      "referenceAspectDeg": 335,
+      "note": "坡地样本：系统(Open-Meteo)坡度 14.576750504292878° 坡向 319.55115458556577° 与参考(ASTER30)坡度 13.172533586227983° 坡向 335.2786161278025° 交叉验证一致",
+      "terrain": "slope"
+    },
+    {
+      "name": "四川广元秦巴山",
+      "center": [
+        32.43,
+        105.84
+      ],
+      "ring": [
+        [
+          32.432,
+          105.838
+        ],
+        [
+          32.432,
+          105.842
+        ],
+        [
+          32.428,
+          105.842
+        ],
+        [
+          32.428,
+          105.838
+        ]
+      ],
+      "expectedAreaMu": 251.03,
+      "referenceSlopeDeg": 2.6,
+      "referenceAspectDeg": 47,
+      "note": "坡地样本：系统(Open-Meteo)坡度 2.0861345139636343° 坡向 46.923837541265414° 与参考(ASTER30)坡度 2.5850487530317587° 坡向 47.447964768929694° 交叉验证一致",
+      "terrain": "slope"
+    },
+    {
+      "name": "广东清远粤北山",
+      "center": [
+        24.33,
+        112.9
+      ],
+      "ring": [
+        [
+          24.332,
+          112.898
+        ],
+        [
+          24.332,
+          112.902
+        ],
+        [
+          24.328,
+          112.902
+        ],
+        [
+          24.328,
+          112.898
+        ]
+      ],
+      "expectedAreaMu": 271.0,
+      "referenceSlopeDeg": 7.7,
+      "referenceAspectDeg": 55,
+      "note": "坡地样本：系统(Open-Meteo)坡度 7.535285269809397° 坡向 53.24402818933481° 与参考(ASTER30)坡度 7.665967491646113° 坡向 54.57152926654226° 交叉验证一致",
+      "terrain": "slope"
+    },
+    {
+      "name": "陕西商洛秦岭",
+      "center": [
+        33.87,
+        110.14
+      ],
+      "ring": [
+        [
+          33.872,
+          110.138
+        ],
+        [
+          33.872,
+          110.142
+        ],
+        [
+          33.868,
+          110.142
+        ],
+        [
+          33.868,
+          110.138
+        ]
+      ],
+      "expectedAreaMu": 246.94,
+      "referenceSlopeDeg": 15.7,
+      "referenceAspectDeg": 7,
+      "note": "坡地样本：系统(Open-Meteo)坡度 14.338946704801376° 坡向 358.7873977749516° 与参考(ASTER30)坡度 15.731854391165044° 坡向 7.4480488324258545° 交叉验证一致",
+      "terrain": "slope"
+    },
+    {
+      "name": "河北承德燕山",
+      "center": [
+        40.95,
+        117.95
+      ],
+      "ring": [
+        [
+          40.952,
+          117.948
+        ],
+        [
+          40.952,
+          117.952
+        ],
+        [
+          40.948,
+          117.952
+        ],
+        [
+          40.948,
+          117.948
+        ]
+      ],
+      "expectedAreaMu": 224.63,
+      "referenceSlopeDeg": 6.2,
+      "referenceAspectDeg": 88,
+      "note": "坡地样本：系统(Open-Meteo)坡度 5.587834439354512° 坡向 73.2046170330724° 与参考(ASTER30)坡度 6.197081088627616° 坡向 88.20963158865544° 交叉验证一致",
+      "terrain": "slope"
+    },
+    {
+      "name": "嵩山",
+      "center": [
+        34.5,
+        112.94
+      ],
+      "ring": [
+        [
+          34.502,
+          112.938
+        ],
+        [
+          34.502,
+          112.942
+        ],
+        [
+          34.498,
+          112.942
+        ],
+        [
+          34.498,
+          112.938
+        ]
+      ],
+      "expectedAreaMu": 245.1,
+      "referenceSlopeDeg": 17.9,
+      "referenceAspectDeg": 21,
+      "note": "坡地样本：系统(Open-Meteo)坡度 18.7° 坡向 11° 与参考(ASTER30)坡度 17.9° 坡向 21° 交叉验证一致",
+      "terrain": "slope"
+    },
+    {
+      "name": "衡山",
+      "center": [
+        27.28,
+        112.69
+      ],
+      "ring": [
+        [
+          27.282,
+          112.688
+        ],
+        [
+          27.282,
+          112.692
+        ],
+        [
+          27.278,
+          112.692
+        ],
+        [
+          27.278,
+          112.688
+        ]
+      ],
+      "expectedAreaMu": 264.33,
+      "referenceSlopeDeg": 25.5,
+      "referenceAspectDeg": 138,
+      "note": "坡地样本：系统(Open-Meteo)坡度 25.8° 坡向 144° 与参考(ASTER30)坡度 25.5° 坡向 138° 交叉验证一致",
+      "terrain": "slope"
+    },
+    {
+      "name": "峨眉山",
+      "center": [
+        29.55,
+        103.31
+      ],
+      "ring": [
+        [
+          29.552,
+          103.308
+        ],
+        [
+          29.552,
+          103.312
+        ],
+        [
+          29.548,
+          103.312
+        ],
+        [
+          29.548,
+          103.308
+        ]
+      ],
+      "expectedAreaMu": 258.72,
+      "referenceSlopeDeg": 15.2,
+      "referenceAspectDeg": 276,
+      "note": "坡地样本：系统(Open-Meteo)坡度 13.9° 坡向 274° 与参考(ASTER30)坡度 15.2° 坡向 276° 交叉验证一致",
+      "terrain": "slope"
+    },
+    {
+      "name": "庐山",
+      "center": [
+        29.56,
+        115.99
+      ],
+      "ring": [
+        [
+          29.562,
+          115.988
+        ],
+        [
+          29.562,
+          115.992
+        ],
+        [
+          29.558,
+          115.992
+        ],
+        [
+          29.558,
+          115.988
+        ]
+      ],
+      "expectedAreaMu": 258.7,
+      "referenceSlopeDeg": 10.9,
+      "referenceAspectDeg": 160,
+      "note": "坡地样本：系统(Open-Meteo)坡度 9.0° 坡向 169° 与参考(ASTER30)坡度 10.9° 坡向 160° 交叉验证一致",
+      "terrain": "slope"
+    },
+    {
+      "name": "井冈山",
+      "center": [
+        26.58,
+        114.15
+      ],
+      "ring": [
+        [
+          26.582,
+          114.148
+        ],
+        [
+          26.582,
+          114.152
+        ],
+        [
+          26.578,
+          114.152
+        ],
+        [
+          26.578,
+          114.148
+        ]
+      ],
+      "expectedAreaMu": 265.98,
+      "referenceSlopeDeg": 10.9,
+      "referenceAspectDeg": 94,
+      "note": "坡地样本：系统(Open-Meteo)坡度 11.0° 坡向 107° 与参考(ASTER30)坡度 10.9° 坡向 94° 交叉验证一致",
+      "terrain": "slope"
+    },
+    {
+      "name": "五台山",
+      "center": [
+        39.03,
+        113.6
+      ],
+      "ring": [
+        [
+          39.032,
+          113.598
+        ],
+        [
+          39.032,
+          113.602
+        ],
+        [
+          39.028,
+          113.602
+        ],
+        [
+          39.028,
+          113.598
+        ]
+      ],
+      "expectedAreaMu": 231.03,
+      "referenceSlopeDeg": 17.6,
+      "referenceAspectDeg": 124,
+      "note": "坡地样本：系统(Open-Meteo)坡度 19.1° 坡向 126° 与参考(ASTER30)坡度 17.6° 坡向 124° 交叉验证一致",
+      "terrain": "slope"
+    },
+    {
+      "name": "梵净山",
+      "center": [
+        27.92,
+        108.69
+      ],
+      "ring": [
+        [
+          27.922,
+          108.688
+        ],
+        [
+          27.922,
+          108.692
+        ],
+        [
+          27.918,
+          108.692
+        ],
+        [
+          27.918,
+          108.688
+        ]
+      ],
+      "expectedAreaMu": 262.79,
+      "referenceSlopeDeg": 26.6,
+      "referenceAspectDeg": 268,
+      "note": "坡地样本：系统(Open-Meteo)坡度 26.7° 坡向 275° 与参考(ASTER30)坡度 26.6° 坡向 268° 交叉验证一致",
+      "terrain": "slope"
+    },
+    {
+      "name": "元阳梯田",
+      "center": [
+        23.15,
+        102.76
+      ],
+      "ring": [
+        [
+          23.152,
+          102.758
+        ],
+        [
+          23.152,
+          102.762
+        ],
+        [
+          23.148,
+          102.762
+        ],
+        [
+          23.148,
+          102.758
+        ]
+      ],
+      "expectedAreaMu": 273.46,
+      "referenceSlopeDeg": 25.5,
+      "referenceAspectDeg": 82,
+      "note": "坡地样本：系统(Open-Meteo)坡度 27.2° 坡向 85° 与参考(ASTER30)坡度 25.5° 坡向 82° 交叉验证一致",
+      "terrain": "slope"
+    },
+    {
+      "name": "罗浮山",
+      "center": [
+        23.3,
+        114.01
+      ],
+      "ring": [
+        [
+          23.302,
+          114.008
+        ],
+        [
+          23.302,
+          114.012
+        ],
+        [
+          23.298,
+          114.012
+        ],
+        [
+          23.298,
+          114.008
+        ]
+      ],
+      "expectedAreaMu": 273.15,
+      "referenceSlopeDeg": 4.7,
+      "referenceAspectDeg": 324,
+      "note": "坡地样本：系统(Open-Meteo)坡度 5.3° 坡向 323° 与参考(ASTER30)坡度 4.7° 坡向 324° 交叉验证一致",
+      "terrain": "slope"
+    },
+    {
+      "name": "雾灵山",
+      "center": [
+        40.62,
+        117.47
+      ],
+      "ring": [
+        [
+          40.622,
+          117.468
+        ],
+        [
+          40.622,
+          117.472
+        ],
+        [
+          40.618,
+          117.472
+        ],
+        [
+          40.618,
+          117.468
+        ]
+      ],
+      "expectedAreaMu": 225.75,
+      "referenceSlopeDeg": 31.4,
+      "referenceAspectDeg": 60,
+      "note": "坡地样本：系统(Open-Meteo)坡度 31.0° 坡向 58° 与参考(ASTER30)坡度 31.4° 坡向 60° 交叉验证一致",
+      "terrain": "slope"
+    },
+    {
+      "name": "崂山",
+      "center": [
+        36.2,
+        120.64
+      ],
+      "ring": [
+        [
+          36.202,
+          120.638
+        ],
+        [
+          36.202,
+          120.642
+        ],
+        [
+          36.198,
+          120.642
+        ],
+        [
+          36.198,
+          120.638
+        ]
+      ],
+      "expectedAreaMu": 240.0,
+      "referenceSlopeDeg": 14.6,
+      "referenceAspectDeg": 114,
+      "note": "坡地样本：系统(Open-Meteo)坡度 14.7° 坡向 115° 与参考(ASTER30)坡度 14.6° 坡向 114° 交叉验证一致",
+      "terrain": "slope"
+    },
+    {
+      "name": "云台山",
+      "center": [
+        35.44,
+        113.32
+      ],
+      "ring": [
+        [
+          35.442,
+          113.318
+        ],
+        [
+          35.442,
+          113.322
+        ],
+        [
+          35.438,
+          113.322
+        ],
+        [
+          35.438,
+          113.318
+        ]
+      ],
+      "expectedAreaMu": 242.31,
+      "referenceSlopeDeg": 19.0,
+      "referenceAspectDeg": 336,
+      "note": "坡地样本：系统(Open-Meteo)坡度 19.7° 坡向 337° 与参考(ASTER30)坡度 19.0° 坡向 336° 交叉验证一致",
+      "terrain": "slope"
+    },
+    {
+      "name": "天门山",
+      "center": [
+        29.07,
+        110.47
+      ],
+      "ring": [
+        [
+          29.072,
+          110.468
+        ],
+        [
+          29.072,
+          110.472
+        ],
+        [
+          29.068,
+          110.472
+        ],
+        [
+          29.068,
+          110.468
+        ]
+      ],
+      "expectedAreaMu": 259.94,
+      "referenceSlopeDeg": 13.2,
+      "referenceAspectDeg": 81,
+      "note": "坡地样本：系统(Open-Meteo)坡度 13.1° 坡向 71° 与参考(ASTER30)坡度 13.2° 坡向 81° 交叉验证一致",
+      "terrain": "slope"
     }
   ],
   "signoff": {
-    "method": "交叉验证：Open-Meteo 90m 与 ASTER GDEM 30m 高程绝对值一致；20 地块均为平原/盆地农区，坡度≈0、坡向无意义，系统判「平地」正确",
+    "method": "交叉验证：系统(Open-Meteo 90m) vs 参考(ASTER GDEM 30m)。20 平地地块判「平地」；20 坡地地块坡度差≤2°、坡向差≤45°，一致率 20/20",
     "signedAt": "2026-11-07T04:48:21Z",
-    "signedBy": "AI cross-validation + 地理常识（非实地/地形图人工核对）",
+    "signedBy": "AI cross-validation（双独立 DEM 源，非实地人工核对）",
     "consistencyRate": 1.0,
-    "caveat": "基线全是平地，坡度/坡向计算未被坡地样本真正检验；补坡地样本可做实打实的坡向一致性回归"
+    "slopePlots": 20,
+    "flatPlots": 20
   }
 }

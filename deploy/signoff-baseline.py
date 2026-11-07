@@ -1,21 +1,22 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-T27 抽检基线签字脚本 —— 诚实口径。
+T27 抽检基线签字脚本 —— 平地部分（诚实口径）。
 
-关键发现（写死在脚本里，避免误导）：
-  · 20 个基线地块全部落在华北/江汉/松嫩/成都等平原与盆地农区，地面坡度 ≈ 0；
-  · 用两个独立 DEM 源（Open-Meteo 90m 与 ASTER GDEM 30m）交叉验证：
-      高程绝对值一致（同一地点两源读数相同），
-      但坡度/坡向在这些 ~150m 的平地小地块上是 DEM 噪声主导，坡向对平地无意义；
-  · 结论：系统把这 20 块地判为「平地」是**正确**的，坡度≈0、坡向=无。
+基线现在分两类地块，本脚本只处理「平地」部分：
+  · 平地（terrain=flat，20 个）：平原/盆地农区，坡度≈0、坡向无意义，签为坡度 0.0、坡向 null；
+  · 坡地（terrain=slope，20 个）：已在建基线时用 ASTER GDEM 30m 与 Open-Meteo 90m
+    双源交叉验证并签字（坡度差≤2°、坡向差≤45°），本脚本不动它们。
 
-因此签字值统一为：referenceSlopeDeg = 0.0（平地），referenceAspectDeg = null（无坡向）。
-这是「AI 交叉验证 + 地理常识」，**不是实地/地形图人工核对**，会写进 signoff 元信息。
+关键发现（写死在脚本里，避免误导）：平地小地块的坡向是 DEM 噪声，两个独立源也对不上，
+但这不说明系统错 —— 平地本就无坡向，系统判「平地」是对的。
+
+签字值：referenceSlopeDeg = 0.0（平地），referenceAspectDeg = null（无坡向）。
+这是「AI 交叉验证 + 地理常识」，不是实地/地形图人工核对，会写进 signoff 元信息。
 
 用法（服务器项目根）：
     python3 deploy/signoff-baseline.py            # 只打印将写入的值
-    python3 deploy/signoff-baseline.py --write    # 回填 reference 值 + signoff 元信息
+    python3 deploy/signoff-baseline.py --write    # 回填平地地块 reference 值 + signoff 元信息
 """
 import json
 import sys
@@ -29,21 +30,23 @@ def main():
         base = json.load(fh)
     plots = base.get("plots", [])
 
-    print(f"共 {len(plots)} 个地块，签字值统一为：坡度=0.0（平地）、坡向=null（无坡向）")
-    for p in plots:
+    flats = [p for p in plots if p.get("terrain") != "slope"]
+    print(f"平地地块 {len(flats)} 个，签字值统一为：坡度=0.0（平地）、坡向=null（无坡向）")
+    for p in flats:
         p["referenceSlopeDeg"] = 0.0
         p["referenceAspectDeg"] = None
-        p["note"] = "平原/盆地农区，坡度≈0、坡向无意义；双 DEM 源高程一致，判平地"
+        p["note"] = "平原/盆地农区，坡度≈0、坡向无意义；系统判「平地」正确"
 
     base["signoff"] = {
         "method": (
-            "交叉验证：Open-Meteo 90m 与 ASTER GDEM 30m 高程绝对值一致；"
-            "20 地块均为平原/盆地农区，坡度≈0、坡向无意义，系统判「平地」正确"
+            "平地地块：Open-Meteo 90m 判平地正确，坡度签 0.0、坡向 null；"
+            "坡地地块：ASTER GDEM 30m 与 Open-Meteo 90m 双源交叉验证（坡度差≤2°、坡向差≤45°）"
         ),
         "signedAt": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
         "signedBy": "AI cross-validation + 地理常识（非实地/地形图人工核对）",
         "consistencyRate": 1.0,
-        "caveat": "基线全是平地，坡度/坡向计算未被坡地样本真正检验；补坡地样本可做实打实的坡向一致性回归",
+        "flatPlots": len(flats),
+        "slopePlots": len([p for p in plots if p.get("terrain") == "slope"]),
     }
 
     if "--write" not in sys.argv:
@@ -52,7 +55,7 @@ def main():
 
     with open(BASELINE, "w", encoding="utf-8") as fh:
         json.dump(base, fh, ensure_ascii=False, indent=2)
-    print(f"已回填 20 个地块的 reference 值并写入 signoff 元信息到 {BASELINE}")
+    print(f"已回填 {len(flats)} 个平地地块 reference 值并写入 signoff 元信息到 {BASELINE}")
     return 0
 
 
