@@ -2,6 +2,9 @@
 backend/build/
 *.class
 
+# 签字工作表生成器产物（每次拉 DEM 重新生成，不入库）
+data/geo-baseline-computed.json
+
 # 运行时数据（账号库等，含密码摘要，绝不入库）
 backend/var/
 # 服务端以仓库根为工作目录时，运行时会写到这里（缓存、传感器、同步档案）
