@@ -2412,6 +2412,17 @@ test('V5.3 首页：播种日期不再是必填，改为自动推算并展示适
   assert.ok(indexHtml.includes("sowEditBtn.textContent = open ? '收起手动' : '手动指定'"), '手动指定应可展开/收起');
 });
 
+test('V5.3 首页：地点必须先解析成坐标，再算播期', () => {
+  assert.ok(indexHtml.includes('function resolveLocationLL'), '应有地点解析');
+  assert.ok(indexHtml.includes("'/api/geo/search?q='"), '应调用地理搜索接口');
+  assert.ok(indexHtml.includes('function currentLL'), '应有统一的坐标选择');
+  assert.ok(indexHtml.includes("window.__resolvedLL.text === location"), '同一地点不应重复解析');
+  // 播期推算、播期校验、跳转时间线必须用同一份坐标，否则"北京"会按默认济宁算霜期
+  assert.ok(indexHtml.includes('var ll = currentLL(cropName);'), '播期推算应用解析后的坐标');
+  assert.ok(indexHtml.includes('var lat = ll.lat;'), '校验应复用同一坐标');
+  assert.ok(indexHtml.includes('lat: ll.lat,'), '跳转时间线应复用同一坐标');
+});
+
 test('V5.3 后端：窗口与校验共用一套月份规则，且不给过去的日期', () => {
   const win = read(path.resolve(__dirname, '..', '..', 'backend', 'src', 'com', 'cropcalendar', 'service', 'crop', 'PlantingWindow.java'));
   const check = read(path.resolve(__dirname, '..', '..', 'backend', 'src', 'com', 'cropcalendar', 'api', 'SowCheckHandler.java'));
@@ -2419,7 +2430,8 @@ test('V5.3 后端：窗口与校验共用一套月份规则，且不给过去的
   const timeline = read(path.resolve(__dirname, '..', '..', 'backend', 'src', 'com', 'cropcalendar', 'api', 'TimelineHandler.java'));
 
   assert.ok(win.includes('public static Set<Integer> monthsFor'), '月份规则应集中在一处');
-  assert.ok(check.includes('PlantingWindow.monthsFor(props)'), '播期校验必须复用窗口规则');
+  assert.ok(check.includes('PlantingWindow.monthsFor(props, lat)'), '播期校验必须复用窗口规则（含纬度）');
+  assert.ok(win.includes('public static Set<Integer> monthsFor(CropProperties.Props p, double lat)'), '窗口应做纬度粗调');
   assert.ok(!check.includes('AgroZone.sowMonths(props.suitableSeason())'), '不应保留第二套粗粒度季节规则');
   assert.ok(win.includes('if (e.isBefore(today)) continue'), '已结束的窗口不应再被选中');
   assert.ok(win.includes('canMature'), '应判断能否在霜前成熟');

@@ -1052,11 +1052,45 @@
       }
 
       // T04 双模式播种：不填日期时按节气推荐起点（方式A），填了就用用户给的（方式B）
-      function fetchSowWindow(cropName, cb) {
+      /**
+       * 这次到底按哪个坐标算：优先用户解析出的地点，其次地图标点/作物自带产地，最后默认地点。
+       * 只填了"北京"却拿默认济宁的坐标去算，播期和霜期全是错的 —— 这是"只填地点"流程的前提。
+       */
+      function currentLL(cropName) {
+        if (window.__resolvedLL && window.__resolvedLL.lat != null) {
+          return { lat: window.__resolvedLL.lat, lon: window.__resolvedLL.lon };
+        }
         var ll = window.__markerLatLon || {};
+        if (ll.lat != null) return { lat: ll.lat, lon: ll.lon };
         var hit = findCrop(cropName);
-        var lat = ll.lat != null ? ll.lat : (hit ? hit.lat : 35.07);
-        var lon = ll.lon != null ? ll.lon : (hit ? hit.lng : 116.31);
+        if (hit && hit.lat != null) return { lat: hit.lat, lon: hit.lng };
+        return { lat: 35.07, lon: 116.31 };
+      }
+
+      /** 把地点文字解析成坐标；解析不出来就回调 null，由调用方退回默认地点。 */
+      function resolveLocationLL(text, cb) {
+        if (!text) { cb(null); return; }
+        var xhr = new XMLHttpRequest();
+        xhr.open('GET', '/api/geo/search?q=' + encodeURIComponent(text), true);
+        xhr.timeout = 6000;
+        xhr.onload = function () {
+          try {
+            var body = JSON.parse(xhr.responseText);
+            var items = (body && body.data && body.data.items) || [];
+            if (!items.length) { cb(null); return; }
+            var it = items[0];
+            var lat = parseFloat(it.lat), lon = parseFloat(it.lon);
+            if (!(lat >= -90 && lat <= 90) || !(lon >= -180 && lon <= 180)) { cb(null); return; }
+            cb({ lat: lat, lon: lon, title: it.title || text, text: text });
+          } catch (e) { cb(null); }
+        };
+        xhr.onerror = xhr.ontimeout = function () { cb(null); };
+        xhr.send();
+      }
+
+      function fetchSowWindow(cropName, cb) {
+        var ll = currentLL(cropName);
+        var lat = ll.lat, lon = ll.lon;
         var xhr = new XMLHttpRequest();
         // 积温要拉近三年归档气温，首次可能几秒，超时给宽一点；取不到会明确降级
         xhr.open('GET', '/api/sow-window?crop=' + encodeURIComponent(cropName)
@@ -1190,25 +1224,43 @@
         }
         var manualOpen = manualBox && !manualBox.hidden;
         var sowDate = (manualOpen && sowingInput.value) ? sowingInput.value : '';
-        if (!sowDate) {
-          // 主路径：不填日期，只给作物与地点，由服务端推算适宜播期窗口
-          var genBtn = document.getElementById('generate-btn');
-          if (genBtn) genBtn.disabled = true;
-          fetchSowWindow(cropName, function (err, info) {
-            if (genBtn) genBtn.disabled = false;
-            if (err) {
-              showToast('没能推算适宜播期：' + err + '，可点「手动指定」自己选日期', 'error');
-              if (manualBox) manualBox.hidden = false;
-              return;
-            }
-            var rec = info.sowDate || '';
-            applyWindowInfo(info);
-            if (rec) { sowingInput.value = rec; suggestedSowDate = rec; }
-            checkSowThenGo(cropName, location, rec, info);
-          });
+
+        var proceed = function () {
+          if (!sowDate) {
+            // 主路径：不填日期，只给作物与地点，由服务端推算适宜播期窗口
+            var genBtn = document.getElementById('generate-btn');
+            if (genBtn) genBtn.disabled = true;
+            fetchSowWindow(cropName, function (err, info) {
+              if (genBtn) genBtn.disabled = false;
+              if (err) {
+                showToast('没能推算适宜播期：' + err + '，可点「手动指定」自己选日期', 'error');
+                if (manualBox) manualBox.hidden = false;
+                return;
+              }
+              var rec = info.sowDate || '';
+              applyWindowInfo(info);
+              if (rec) { sowingInput.value = rec; suggestedSowDate = rec; }
+              checkSowThenGo(cropName, location, rec, info);
+            });
+            return;
+          }
+          checkSowThenGo(cropName, location, sowDate, null);
+        };
+
+        // 先把地点解析成坐标再算播期：否则填"北京"会拿默认的济宁坐标算霜期，
+        // 推荐日和"终霜后播种"的判断全是错的。解析失败就退回默认地点，但要提示。
+        if (window.__resolvedLL && window.__resolvedLL.text === location) {
+          proceed();
           return;
         }
-        checkSowThenGo(cropName, location, sowDate, null);
+        window.__resolvedLL = null;
+        resolveLocationLL(location, function (ll) {
+          window.__resolvedLL = ll;
+          if (!ll && location !== '山东济宁') {
+            showToast('没能解析「' + location + '」，将按默认地点山东济宁计算', 'info');
+          }
+          proceed();
+        });
       });
 
       /**
@@ -1219,10 +1271,9 @@
       function checkSowThenGo(cropName, location, sowDate, termInfo) {
         var box = document.getElementById('sow-check');
         var btn = document.getElementById('generate-btn');
-        var ll = window.__markerLatLon || {};
-        var hit = findCrop(cropName);
-        var lat = ll.lat != null ? ll.lat : (hit ? hit.lat : 35.07);
-        var lon = ll.lon != null ? ll.lon : (hit ? hit.lng : 116.31);
+        var ll = currentLL(cropName);
+        var lat = ll.lat;
+        var lon = ll.lon;
         if (btn) { btn.disabled = true; btn.dataset.busy = '1'; }
         // T19：把地块与该用户已有的作物记录一起带上，服务端才能判断茬口冲突。
         // GET 也能用，但只做常识判定，拿不到"这块地还种着玉米"这类信息。
@@ -1373,11 +1424,12 @@
           window.HistoryStore.add({ cropName: cropName, sowDate: sowDate, location: location });
         }
         var plotId = window.__timelinePlotId || '';
+        var ll = currentLL(cropName);
         var query = buildTimelineQuery({
           cropName: cropName,
           sowDate: sowDate,
-          lat: window.__markerLatLon ? window.__markerLatLon.lat : (hit ? hit.lat : 35.07),
-          lon: window.__markerLatLon ? window.__markerLatLon.lon : (hit ? hit.lng : 116.31),
+          lat: ll.lat,
+          lon: ll.lon,
           location: location,
           plotId: plotId,
           areaMu: window.__timelineAreaMu || 0
