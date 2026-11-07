@@ -2510,6 +2510,9 @@ test('V5.8 本地露地种不熟：不给推荐日，只给结论与参考日', 
   assert.ok(indexHtml.includes('本地不宜露地种植'), '前端应直说"本地不宜露地种植"');
   assert.ok(indexHtml.includes('sow-auto-force'), '应提供"看参考日历"入口');
   assert.ok(indexHtml.includes('info.suitable === false'), '不可种时不应自动生成日历');
+  // 没有推荐日不等于请求失败，前端不能把它当成错误（否则只会弹"播期推算失败"）
+  assert.ok(!/body\.data && body\.data\.sowDate/.test(indexHtml),
+    '不应把"缺 sowDate"当成请求失败');
 
   const css = read(path.join(base, 'assets', 'css', 'common.css'));
   assert.ok(css.includes('.sow-auto.is-unsuitable'), '不可种应有独立配色，不能复用"已就绪"的绿色');

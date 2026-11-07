@@ -1156,7 +1156,9 @@
         xhr.onload = function () {
           try {
             var body = JSON.parse(xhr.responseText);
-            if (xhr.status === 200 && body.data && body.data.sowDate) { cb(null, body.data); return; }
+            // 只要拿到 data 就算成功：本地露地种不熟时 sowDate 本来就该是 null，
+            // 交给调用方按 suitable 判断，不能把"没有推荐日"当成请求失败。
+            if (xhr.status === 200 && body.data) { cb(null, body.data); return; }
             cb(body.message || '播期推算失败');
           } catch (err) { cb('返回格式异常'); }
         };
