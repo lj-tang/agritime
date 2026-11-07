@@ -1952,6 +1952,10 @@ test('T27 抽检基线：20 个地块 + 面积自动回归 + 坡度坡向待人�
   // 坡度/坡向拟合数学要抽出来离线可测，人工回填 reference 值后才有可信对照
   assert.ok(terrain.includes('fitPlane') && terrain.includes('atan2'), '坡度坡向拟合应为纯函数');
   assert.ok(terrainTest.includes('东向坡') && terrainTest.includes('南向坡'), '应有合成数据的坡向方向回归');
+  // 签字工作表工具：拉 DEM 算坡度/坡向，产出可人工核对的表格 + computed JSON
+  const worksheet = read(path.resolve(__dirname, '..', '..', 'backend', 'src', 'com', 'cropcalendar', 'tool', 'SignoffWorksheet.java'));
+  assert.ok(worksheet.includes('TerrainService.fitPlane'), '签字工作表应复用 TerrainService 拟合');
+  assert.ok(worksheet.includes('referenceSlopeDeg') && worksheet.includes('geo-baseline-computed.json'), '工作表应产出可回填的 computed 结果');
 });
 
 // ---------------- T30 存储层可切换（file / mysql） ----------------
