@@ -2376,8 +2376,8 @@
       "sowMonths": [
         3,
         4,
-        9,
-        10
+        10,
+        11
       ],
       "sowMonthsSouth": [
         2,
@@ -2385,7 +2385,7 @@
         10,
         11
       ],
-      "sowMonthsNote": "春植 2–4 月、秋植 9–11 月",
+      "sowMonthsNote": "春植 3–4 月、秋植 10–11 月",
       "sowMonthsSource": "中药材种植时间资料"
     },
     {
@@ -2462,7 +2462,8 @@
       "source": "manual",
       "sowMonths": [
         4,
-        5
+        5,
+        9
       ],
       "sowMonthsSouth": [
         4,
@@ -2529,7 +2530,7 @@
         9,
         10
       ],
-      "sowMonthsNote": "根茎繁殖为主，春秋两季",
+      "sowMonthsNote": "根茎繁殖为主，春秋两季栽植",
       "sowMonthsSource": "中药材种植时间资料"
     },
     {
@@ -4715,9 +4716,8 @@
         4,
         9
       ],
-      "sowMonthsNote": "根茎类药材春秋两季播种",
-      "sowMonthsSource": "中药材种植时间资料",
-      "sowMonthsPrecision": "derived"
+      "sowMonthsNote": "春秋两季播种，秋播越冬",
+      "sowMonthsSource": "中药材种植时间资料"
     },
     {
       "cropId": "C202",
@@ -4771,9 +4771,8 @@
         4,
         9
       ],
-      "sowMonthsNote": "根茎类药材春秋两季播种",
-      "sowMonthsSource": "中药材种植时间资料",
-      "sowMonthsPrecision": "derived"
+      "sowMonthsNote": "春播或秋播 9–10 月（需低温春化）",
+      "sowMonthsSource": "中药材种植时间资料"
     },
     {
       "cropId": "C204",
@@ -4799,9 +4798,8 @@
         4,
         9
       ],
-      "sowMonthsNote": "根茎类药材春秋两季播种",
-      "sowMonthsSource": "中药材种植时间资料",
-      "sowMonthsPrecision": "derived"
+      "sowMonthsNote": "春播 3 下–4 上，也可 9 月秋播",
+      "sowMonthsSource": "中药材种植时间资料"
     },
     {
       "cropId": "C205",
@@ -4852,8 +4850,7 @@
         4
       ],
       "sowMonthsNote": "春播 4–5 月",
-      "sowMonthsSource": "中药材种植时间资料",
-      "sowMonthsPrecision": "derived"
+      "sowMonthsSource": "中药材种植时间资料"
     },
     {
       "cropId": "C207",
@@ -5074,8 +5071,7 @@
         5
       ],
       "sowMonthsNote": "喜温，春末夏初播种",
-      "sowMonthsSource": "中药材种植时间资料",
-      "sowMonthsPrecision": "derived"
+      "sowMonthsSource": "中药材种植时间资料"
     },
     {
       "cropId": "C215",
@@ -5100,8 +5096,7 @@
         5
       ],
       "sowMonthsNote": "喜温，地温 18℃ 以上播种",
-      "sowMonthsSource": "中药材种植时间资料",
-      "sowMonthsPrecision": "derived"
+      "sowMonthsSource": "中药材种植时间资料"
     },
     {
       "cropId": "C216",
@@ -5261,9 +5256,8 @@
         4,
         9
       ],
-      "sowMonthsNote": "根茎类药材春秋两季播种",
-      "sowMonthsSource": "中药材种植时间资料",
-      "sowMonthsPrecision": "derived"
+      "sowMonthsNote": "春播 3 月底–4 月初、秋播 9 月底–10 月初",
+      "sowMonthsSource": "中药材种植时间资料"
     },
     {
       "cropId": "C222",
@@ -5343,9 +5337,8 @@
         9,
         10
       ],
-      "sowMonthsNote": "秋播越冬",
-      "sowMonthsSource": "中药材种植时间资料",
-      "sowMonthsPrecision": "derived"
+      "sowMonthsNote": "秋播 8–9 月，翌年收",
+      "sowMonthsSource": "中药材种植时间资料"
     },
     {
       "cropId": "C225",
@@ -5390,16 +5383,15 @@
       "sowMonths": [
         3,
         4,
-        9
+        8
       ],
       "sowMonthsSouth": [
         3,
         4,
         9
       ],
-      "sowMonthsNote": "根茎类药材春秋两季播种",
-      "sowMonthsSource": "中药材种植时间资料",
-      "sowMonthsPrecision": "derived"
+      "sowMonthsNote": "春秋两季播种，也可 8 月秋播",
+      "sowMonthsSource": "中药材种植时间资料"
     },
     {
       "cropId": "C227",
@@ -5530,8 +5522,8 @@
       "sowMonths": [
         3,
         4,
-        10,
-        11
+        9,
+        10
       ],
       "sowMonthsSouth": [
         2,
@@ -5539,9 +5531,8 @@
         10,
         11
       ],
-      "sowMonthsNote": "落叶/常绿花木：春植 3–4 月、秋植 10–11 月",
-      "sowMonthsSource": "花卉栽培资料综合",
-      "sowMonthsPrecision": "derived"
+      "sowMonthsNote": "春植 3–4 月或秋植 9–10 月（分株/扦插）",
+      "sowMonthsSource": "绿宝园林网《苗木栽植季节》/ 安徽花卉种植时间"
     },
     {
       "cropId": "C232",
@@ -5560,8 +5551,8 @@
       "sowMonths": [
         3,
         4,
-        10,
-        11
+        9,
+        10
       ],
       "sowMonthsSouth": [
         2,
@@ -5569,9 +5560,8 @@
         10,
         11
       ],
-      "sowMonthsNote": "落叶/常绿花木：春植 3–4 月、秋植 10–11 月",
-      "sowMonthsSource": "花卉栽培资料综合",
-      "sowMonthsPrecision": "derived"
+      "sowMonthsNote": "春植 3–4 月或秋植 9–10 月，避开盛夏",
+      "sowMonthsSource": "绿宝园林网《苗木栽植季节》"
     },
     {
       "cropId": "C233",
@@ -5595,9 +5585,8 @@
         9,
         10
       ],
-      "sowMonthsNote": "分株/栽植以秋季 9–10 月为主",
-      "sowMonthsSource": "花卉栽培资料综合",
-      "sowMonthsPrecision": "derived"
+      "sowMonthsNote": "秋季 9–10 月分株栽植，春季移栽不易成活",
+      "sowMonthsSource": "绿宝园林网 / 山东花卉种植"
     },
     {
       "cropId": "C234",
@@ -5621,9 +5610,8 @@
         9,
         10
       ],
-      "sowMonthsNote": "分株/栽植以秋季 9–10 月为主",
-      "sowMonthsSource": "花卉栽培资料综合",
-      "sowMonthsPrecision": "derived",
+      "sowMonthsNote": "秋季 9–10 月分株，与牡丹同",
+      "sowMonthsSource": "绿宝园林网 / 山东花卉种植",
       "propertiesSource": "公开栽培资料校正（V5.6）"
     },
     {
@@ -5641,16 +5629,16 @@
       "tempRequirement": "观赏/药用，喜光",
       "source": "category-rule",
       "sowMonths": [
+        3,
         4,
-        5
+        9
       ],
       "sowMonthsSouth": [
         4,
         5
       ],
-      "sowMonthsNote": "扦插育苗 4–5 月，秋季开花",
-      "sowMonthsSource": "花卉栽培资料综合",
-      "sowMonthsPrecision": "derived"
+      "sowMonthsNote": "扦插育苗 4–5 月；也可 3–4 月或 9 月定植",
+      "sowMonthsSource": "绿宝园林网《苗木栽植季节》/ 安徽花卉"
     },
     {
       "cropId": "C236",
@@ -5676,9 +5664,8 @@
         4,
         9
       ],
-      "sowMonthsNote": "春秋两季定植",
-      "sowMonthsSource": "花卉栽培资料综合",
-      "sowMonthsPrecision": "derived"
+      "sowMonthsNote": "春季 3–4 月或秋季 9 月定植",
+      "sowMonthsSource": "花卉栽培资料综合"
     },
     {
       "cropId": "C237",
@@ -5706,9 +5693,8 @@
         9,
         10
       ],
-      "sowMonthsNote": "种球春秋两季栽植",
-      "sowMonthsSource": "花卉栽培资料综合",
-      "sowMonthsPrecision": "derived"
+      "sowMonthsNote": "种球春秋两季栽植（3–4 月、9–10 月）",
+      "sowMonthsSource": "绿宝园林网 / 安徽花卉"
     },
     {
       "cropId": "C238",
@@ -5725,16 +5711,15 @@
       "tempRequirement": "属性按作物类别推定",
       "source": "category-rule",
       "sowMonths": [
-        10,
-        11
+        9,
+        10
       ],
       "sowMonthsSouth": [
         10,
         11
       ],
-      "sowMonthsNote": "秋植球根，需低温春化",
-      "sowMonthsSource": "花卉栽培资料综合",
-      "sowMonthsPrecision": "derived"
+      "sowMonthsNote": "秋植球根 9–10 月，需低温春化",
+      "sowMonthsSource": "绿宝园林网 / 安徽花卉"
     },
     {
       "cropId": "C239",
@@ -5760,9 +5745,8 @@
         10,
         11
       ],
-      "sowMonthsNote": "常绿花木以春季 3–4 月栽植为主",
-      "sowMonthsSource": "花卉栽培资料综合",
-      "sowMonthsPrecision": "derived"
+      "sowMonthsNote": "常绿花木，春季 3–4 月定植；南方 2–3 月",
+      "sowMonthsSource": "花卉栽培资料综合"
     },
     {
       "cropId": "C240",
@@ -5780,7 +5764,9 @@
       "source": "category-rule",
       "sowMonths": [
         3,
-        4
+        4,
+        9,
+        10
       ],
       "sowMonthsSouth": [
         2,
@@ -5788,9 +5774,8 @@
         10,
         11
       ],
-      "sowMonthsNote": "常绿花木以春季 3–4 月栽植为主",
-      "sowMonthsSource": "花卉栽培资料综合",
-      "sowMonthsPrecision": "derived"
+      "sowMonthsNote": "春植 3–5 月或秋植 9–11 月",
+      "sowMonthsSource": "绿宝园林网《苗木栽植季节》"
     },
     {
       "cropId": "C241",
@@ -5973,16 +5958,15 @@
       "tempRequirement": "观赏/药用，喜光",
       "source": "category-rule",
       "sowMonths": [
-        3,
-        4
+        4,
+        5
       ],
       "sowMonthsSouth": [
         3,
         4
       ],
-      "sowMonthsNote": "水生花卉，地温回升后栽植",
-      "sowMonthsSource": "花卉栽培资料综合",
-      "sowMonthsPrecision": "derived"
+      "sowMonthsNote": "水生，4–5 月气温回升后栽种藕",
+      "sowMonthsSource": "安徽花卉种植时间"
     },
     {
       "cropId": "C248",
@@ -6171,8 +6155,7 @@
         10
       ],
       "sowMonthsNote": "秋播越冬，翌春开花",
-      "sowMonthsSource": "花卉栽培资料综合",
-      "sowMonthsPrecision": "derived"
+      "sowMonthsSource": "花卉栽培资料综合"
     },
     {
       "cropId": "C255",
@@ -6252,9 +6235,8 @@
         4,
         9
       ],
-      "sowMonthsNote": "春秋两季播种",
-      "sowMonthsSource": "花卉栽培资料综合",
-      "sowMonthsPrecision": "derived"
+      "sowMonthsNote": "春秋两季播种/定植",
+      "sowMonthsSource": "花卉栽培资料综合"
     },
     {
       "cropId": "C258",
@@ -6281,8 +6263,7 @@
         9
       ],
       "sowMonthsNote": "春秋两季播种",
-      "sowMonthsSource": "花卉栽培资料综合",
-      "sowMonthsPrecision": "derived"
+      "sowMonthsSource": "花卉栽培资料综合"
     },
     {
       "cropId": "C259",
@@ -8273,7 +8254,8 @@
       "source": "category-rule",
       "sowMonths": [
         3,
-        4
+        4,
+        10
       ],
       "sowMonthsSouth": [
         2,
@@ -8281,9 +8263,8 @@
         9,
         10
       ],
-      "sowMonthsNote": "木本香料，春季 3–4 月定植为主",
-      "sowMonthsSource": "香料作物栽培资料综合",
-      "sowMonthsPrecision": "derived"
+      "sowMonthsNote": "春植 3–4 月、秋植 10 月；4–5 月开花",
+      "sowMonthsSource": "香料作物资料 / 花椒物候"
     },
     {
       "cropId": "C382",
@@ -8553,15 +8534,15 @@
       "source": "category-rule",
       "sowMonths": [
         3,
-        4
+        4,
+        9
       ],
       "sowMonthsSouth": [
         3,
         4
       ],
-      "sowMonthsNote": "春播",
-      "sowMonthsSource": "香料作物栽培资料综合",
-      "sowMonthsPrecision": "derived"
+      "sowMonthsNote": "春播 3–4 月；温暖地区可 9–10 月秋播",
+      "sowMonthsSource": "绿宝园林网《孜然种植时间》"
     },
     {
       "cropId": "C392",
@@ -8580,8 +8561,8 @@
       "sowMonths": [
         3,
         4,
-        8,
-        9
+        7,
+        8
       ],
       "sowMonthsSouth": [
         3,
@@ -8589,9 +8570,8 @@
         8,
         9
       ],
-      "sowMonthsNote": "春秋两季播种",
-      "sowMonthsSource": "香料作物栽培资料综合",
-      "sowMonthsPrecision": "derived"
+      "sowMonthsNote": "春播 3 下–4 上、秋播 7–8 月",
+      "sowMonthsSource": "穆记十九香 / 宁夏三农信息平台"
     },
     {
       "cropId": "C393",
@@ -8645,9 +8625,8 @@
         9,
         10
       ],
-      "sowMonthsNote": "木本香料，春季 3–4 月定植为主",
-      "sowMonthsSource": "香料作物栽培资料综合",
-      "sowMonthsPrecision": "derived"
+      "sowMonthsNote": "月桂，春季 3–4 月定植",
+      "sowMonthsSource": "香料作物资料综合"
     },
     {
       "cropId": "C395",
@@ -8702,8 +8681,7 @@
         9
       ],
       "sowMonthsNote": "多年生香草，春秋栽植",
-      "sowMonthsSource": "香料作物栽培资料综合",
-      "sowMonthsPrecision": "derived"
+      "sowMonthsSource": "香料作物资料综合"
     },
     {
       "cropId": "C397",
@@ -8730,8 +8708,7 @@
         9
       ],
       "sowMonthsNote": "多年生香草，春秋栽植",
-      "sowMonthsSource": "香料作物栽培资料综合",
-      "sowMonthsPrecision": "derived"
+      "sowMonthsSource": "香料作物资料综合"
     },
     {
       "cropId": "C398",
@@ -8811,9 +8788,8 @@
         10,
         11
       ],
-      "sowMonthsNote": "秋植球茎",
-      "sowMonthsSource": "香料作物栽培资料综合",
-      "sowMonthsPrecision": "derived"
+      "sowMonthsNote": "秋植球茎 9–10 月",
+      "sowMonthsSource": "香料作物资料综合"
     }
   ]
 }

@@ -2409,7 +2409,9 @@ test('V5.4/V5.5 播期校核：100 种作物有精确月份，且区分南北窗
 
   // 精度分层：derived 必须显式标注，不能混进 researched
   const derived = checked.filter((c) => c.sowMonthsPrecision === 'derived');
-  assert.ok(derived.length >= 100, '应至少有 100 种标注为推定，实际 ' + derived.length);
+  assert.ok(derived.length >= 70, '应至少有 70 种标注为推定，实际 ' + derived.length);
+  const researched = checked.filter((c) => c.sowMonthsPrecision !== 'derived');
+  assert.ok(researched.length >= 130, '逐条查证应不少于 130 种，实际 ' + researched.length);
   for (const c of derived) {
     assert.ok(c.sowMonthsSource && c.sowMonthsSource.trim(),
       c.displayName + ' 标为推定却没写来源');
