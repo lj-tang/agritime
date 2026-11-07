@@ -200,17 +200,19 @@ public final class CropTemplates {
     public static List<RawNode> build(String cropId, CropProperties.Props p) {
         if (cropId == null || cropId.isBlank()) return List.of();
         Group g = groupOf(p);
-        // 多年生按自然年铺，一年生的按生育期铺
-        int span = g.perennial() ? 365 : Math.max(45, p == null ? 120 : p.totalDays());
+        // 多年生按自然年铺，一年生的按生育期铺。
+        // 注意用 lifespan 而不是 group.perennial()：月季/菊花同样多年生，但归类是花卉。
+        boolean per = p != null && "perennial".equals(p.lifespan());
+        int span = per ? 365 : Math.max(45, p == null ? 120 : p.totalDays());
 
-        List<double[]> plan = planFor(g);
+        List<double[]> plan = planFor(g, per);
         List<RawNode> out = new ArrayList<>();
         int last = -1;
         for (double[] step : plan) {
             int day = (int) Math.round(span * step[0]);
             if (day <= last) day = last + 1;   // 严格递增，比例算不准时也不倒序
             last = day;
-            out.add(new RawNode(cropId, opType(step[1]), day, title(step[1], g)));
+            out.add(new RawNode(cropId, opType(step[1]), day, title(step[1], g, per)));
         }
         return out;
     }
@@ -219,8 +221,14 @@ public final class CropTemplates {
      * 每个类别的时间轴：{ 位置比例, 动作码 }。
      * 位置比例是"占全生育期（或自然年）的比例"，不是具体天数。
      */
-    private static List<double[]> planFor(Group g) {
+    private static List<double[]> planFor(Group g, boolean perennial) {
         List<double[]> p = new ArrayList<>();
+        // 多年生花卉：定植 → 萌芽 → 花期 → 修剪 → 越冬
+        if (perennial && g == Group.FLOWER) {
+            add(p, 0.00, 1); add(p, 0.15, 12); add(p, 0.35, 13); add(p, 0.55, 15);
+            add(p, 0.72, 4); add(p, 0.90, 14);
+            return p;
+        }
         switch (g) {
             case CEREAL -> {
                 add(p, 0.00, 1); add(p, 0.08, 2); add(p, 0.22, 4); add(p, 0.38, 3);
@@ -255,12 +263,14 @@ public final class CropTemplates {
                 add(p, 0.70, 3); add(p, 0.94, 9);
             }
             case PERENNIAL_FRUIT -> {
-                add(p, 0.08, 11); add(p, 0.20, 12); add(p, 0.30, 13); add(p, 0.42, 4);
-                add(p, 0.55, 3); add(p, 0.72, 9); add(p, 0.85, 4); add(p, 0.95, 14);
+                // 首年从"定植"起算，后面才是成龄树的年周期管理
+                add(p, 0.00, 1); add(p, 0.06, 3); add(p, 0.20, 12); add(p, 0.30, 13);
+                add(p, 0.42, 4); add(p, 0.55, 3); add(p, 0.72, 9); add(p, 0.85, 4);
+                add(p, 0.95, 14);
             }
             case TEA -> {
-                add(p, 0.10, 4); add(p, 0.22, 8); add(p, 0.38, 8); add(p, 0.55, 8);
-                add(p, 0.68, 15); add(p, 0.82, 4); add(p, 0.94, 14);
+                add(p, 0.00, 1); add(p, 0.10, 4); add(p, 0.22, 8); add(p, 0.38, 8);
+                add(p, 0.55, 8); add(p, 0.68, 15); add(p, 0.82, 4); add(p, 0.94, 14);
             }
             case MUSHROOM -> {
                 add(p, 0.00, 16); add(p, 0.18, 17); add(p, 0.45, 18); add(p, 0.62, 8);
@@ -283,7 +293,8 @@ public final class CropTemplates {
                 add(p, 0.90, 9);
             }
             case SPICE -> {
-                add(p, 0.15, 12); add(p, 0.35, 13); add(p, 0.70, 9); add(p, 0.90, 15);
+                add(p, 0.00, 1); add(p, 0.15, 12); add(p, 0.35, 13); add(p, 0.70, 9);
+                add(p, 0.90, 15);
             }
             default -> {
                 add(p, 0.00, 1); add(p, 0.15, 2); add(p, 0.35, 4); add(p, 0.60, 5);
@@ -319,15 +330,15 @@ public final class CropTemplates {
     }
 
     /** 动作码 → 节点标题。带类别语境的文案，避免"苹果：播种"这类荒谬表达。 */
-    private static String title(double code, Group g) {
+    private static String title(double code, Group g, boolean perennial) {
         return switch ((int) code) {
-            case 1 -> g.perennial() ? "定植" : "播种";
+            case 1 -> perennial ? "定植" : "播种";
             case 2 -> "出苗 / 齐苗";
             case 3 -> "灌溉 / 排涝";
             case 4 -> "追肥";
             case 5 -> "病虫害防治";
             case 6 -> "间苗 / 定苗";
-            case 7 -> g.perennial() ? "移栽定植" : "移栽定植";
+            case 7 -> "移栽定植";
             case 8 -> g == Group.TEA ? "采摘" : "采收";
             case 9 -> g == Group.TEA ? "采摘收尾" : "采收（末茬）";
             case 10 -> "中耕培土";

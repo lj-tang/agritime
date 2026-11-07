@@ -2442,7 +2442,8 @@ test('V5.3 数据：400 种作物都能推导窗口，类别模板覆盖全部�
     assert.ok(['annual', 'perennial'].includes(c.lifespan), c.displayName + ' 的 lifespan 取值异常');
   }
   // 多年生不能排"播种"，否则又会出现"苹果 3 月播种 9 月收获"
-  assert.ok(tpl.includes('g.perennial() ? "定植" : "播种"'), '多年生应用"定植"而不是"播种"');
+  assert.ok(tpl.includes('perennial ? "定植" : "播种"'), '多年生应用"定植"而不是"播种"');
+  assert.ok(tpl.includes('0.00, 1); add(p, 0.06, 3)'), '多年生果树首节点应是定植，不是修剪');
   assert.ok(tpl.includes('PERENNIAL_FRUIT'), '应有多年生果树模板');
   assert.ok(tpl.includes('MUSHROOM'), '应有食用菌模板（接种/发菌/出菇）');
   // 模板必须排在大模型之前，否则用户仍要等 30 秒
