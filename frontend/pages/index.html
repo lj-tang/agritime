@@ -2,8 +2,9 @@
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8" />
+  <script>(function(){try{var t=localStorage.getItem('agritime.theme')||'system';var d=(t==='system'?(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'):t);document.documentElement.setAttribute('data-theme',d);document.documentElement.style.colorScheme=d;}catch(e){document.documentElement.setAttribute('data-theme','light');}})();</script>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover" />
-  <meta name="theme-color" content="#f4efe3" />
+  <meta name="theme-color" content="#f5f7f5" />
   <title>知农时</title>
   <link rel="icon" type="image/svg+xml" href="../assets/img/common-logo.svg" />
   <link rel="stylesheet" href="../assets/css/common.css" />
@@ -30,7 +31,7 @@
     <span class="loading-gate-text">加载中…</span>
   </div>
 
-  <button class="sidebar-burger" id="sidebar-burger" aria-label="菜单">☰</button>
+  <button class="sidebar-burger" id="sidebar-burger" aria-label="菜单"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
   <aside class="sidebar" id="sidebar">
     <div class="sidebar-header">
       <img class="sidebar-logo" src="../assets/img/common-logo.svg" width="20" height="20" alt="" aria-hidden="true" />
@@ -151,8 +152,8 @@
           <label for="recommend-location">地点 <span class="hint">填了就会参与计算</span></label>
           <input type="text" id="recommend-location" placeholder="如：山东济宁" autocomplete="off" />
           <div class="recommend-loc-row">
-            <button type="button" class="btn btn-ghost" id="recommend-loc-btn">📍 用当前位置</button>
-            <button type="button" class="btn btn-ghost" id="recommend-resolve-btn">🔍 解析地点</button>
+            <button type="button" class="btn btn-ghost" id="recommend-loc-btn"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.5"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg> 用当前位置</button>
+            <button type="button" class="btn btn-ghost" id="recommend-resolve-btn"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1"/></svg> 解析地点</button>
           </div>
           <p class="recommend-loc-status" id="recommend-loc-status">未填地点时按默认地点（北京）计算</p>
         </div>
@@ -264,9 +265,9 @@
             <input type="text" name="plot-location" id="plot-location" placeholder="点击右侧按钮定位或框地" />
           </div>
           <div class="my-plots-loc-btns" style="margin-top:8px;">
-            <button type="button" id="plot-loc-auto">自动定位</button>
-            <button type="button" id="plot-loc-map">✏️ 地图框地</button>
-            <button type="button" id="plot-loc-3d" class="is-primary">🛰 3D 框选地形</button>
+            <button type="button" id="plot-loc-auto"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.5"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg> 自动定位</button>
+            <button type="button" id="plot-loc-map"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5z"/></svg> 地图框地</button>
+            <button type="button" id="plot-loc-3d" class="is-primary"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m12 2 9 5-9 5-9-5 9-5z"/><path d="m3 12 9 5 9-5"/><path d="m3 17 9 5 9-5"/></svg> 3D 框选地形</button>
           </div>
           <input type="hidden" name="plot-lat" id="plot-lat" />
           <input type="hidden" name="plot-lon" id="plot-lon" />
@@ -349,7 +350,7 @@
         </div>
         <div class="disease-photo-row">
           <input type="file" id="disease-photo" accept="image/*" class="hidden" />
-          <button type="button" class="btn btn-ghost" id="disease-photo-btn">📷 拍照 / 选图</button>
+          <button type="button" class="btn btn-ghost" id="disease-photo-btn"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 4h-5L8 6H5a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-3l-1.5-2z"/><circle cx="12" cy="13" r="3.5"/></svg> 拍照 / 选图</button>
           <span class="disease-photo-name" id="disease-photo-name"></span>
         </div>
         <p class="disease-tip">图片只做颜色特征辅助（褐斑／黄化／白粉占比），不是识别模型，不承诺识别率；结论以文字描述与田间观察为准。</p>
@@ -474,6 +475,9 @@
   <script src="../assets/js/time-period.js"></script>
   <script src="../assets/js/my-crops-store.js"></script>
   <script src="../assets/js/ui-state.js"></script>
+  <script src="../assets/js/theme.js"></script>
+  <script src="../assets/js/icons.js"></script>
+  <script src="../assets/js/prefs.js"></script>
   <script src="../assets/js/my-plots-store.js"></script>
   <script src="../assets/js/sensors-store.js"></script>
   <script src="../components/crop-photo/crop-photo.js"></script>

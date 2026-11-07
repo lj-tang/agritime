@@ -21,6 +21,12 @@
 
   var leafletReady = null;
   var mapInstance = null;
+
+  /** 图标走 SVG 库（icons.js 先加载），失败时回退到 emoji */
+  function ic(name) {
+    return (window.Icons && window.Icons.svg) ? window.Icons.svg(name) : '';
+  }
+
   var currentMarker = null;
   var pendingCallback = null;
   var displayMap = null;
@@ -142,7 +148,7 @@
         resolve({ lat: window.__lastLocation.lat, lon: window.__lastLocation.lon });
         return;
       }
-      if (navigator.geolocation) {
+      if (navigator.geolocation && !(window.Prefs && window.Prefs.get('location') === false)) {
         navigator.geolocation.getCurrentPosition(
           function (pos) { resolve({ lat: pos.coords.latitude, lon: pos.coords.longitude }); },
           function () { getLocationByIP().then(resolve); },
@@ -180,10 +186,10 @@
       '<div class="map-panel">' +
       '<div class="map-header"><span id="map-title">地图标点</span><button type="button" class="map-close" id="map-close">×</button></div>' +
       '<div class="map-mode-switch" id="map-mode-switch" hidden>' +
-      '<button type="button" class="map-mode-btn active" id="map-mode-point">📍 标点</button>' +
-      '<button type="button" class="map-mode-btn" id="map-mode-draw">✏️ 画地块</button>' +
+      '<button type="button" class="map-mode-btn active" id="map-mode-point">' + ic('pin') + ' 标点</button>' +
+      '<button type="button" class="map-mode-btn" id="map-mode-draw">' + ic('pencil') + ' 画地块</button>' +
       '</div>' +
-      '<div class="map-search-area"><input type="text" id="map-search-input" placeholder="搜索地点…" /><button type="button" id="map-search-btn">搜索</button><button type="button" id="map-locate-btn" title="定位到当前位置">📍</button></div>' +
+      '<div class="map-search-area"><input type="text" id="map-search-input" placeholder="搜索地点…" /><button type="button" id="map-search-btn">搜索</button><button type="button" id="map-locate-btn" title="定位到当前位置">' + ic('locate') + '</button></div>' +
       '<div class="map-search-results" id="map-search-results"></div>' +
       '<div class="map-draw-tools" id="map-draw-tools" hidden>' +
       '<div class="map-draw-hint" id="map-draw-hint">点击地图添加顶点，至少 3 个点；双击或点「完成绘制」闭合</div>' +

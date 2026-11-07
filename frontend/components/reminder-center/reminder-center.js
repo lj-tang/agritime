@@ -19,10 +19,10 @@
   var API = '/api/reminders';
 
   var TYPES = {
-    weather: { label: '灾害天气', icon: '⛈', hint: '高温、暴雨、大风等天气预警' },
-    disease: { label: '病害风险', icon: '🦠', hint: '高湿或高温时易发的病害' },
-    window: { label: '农事适宜窗口', icon: '🌤', hint: '适宜作业的节点与手动设的提醒' },
-    sensor: { label: '设备告警', icon: '🌡', hint: '溶氧、水温、氨氮等传感器超阈值' }
+    weather: { label: '灾害天气', icon: 'storm', hint: '高温、暴雨、大风等天气预警' },
+    disease: { label: '病害风险', icon: 'germ', hint: '高湿或高温时易发的病害' },
+    window: { label: '农事适宜窗口', icon: 'partly', hint: '适宜作业的节点与手动设的提醒' },
+    sensor: { label: '设备告警', icon: 'thermo', hint: '溶氧、水温、氨氮等传感器超阈值' }
   };
   var LEVELS = {
     high: { label: '高风险', cls: 'rc-high' },
@@ -360,6 +360,17 @@
     return node;
   }
 
+  /** 图标统一走 SVG 库，失败回退空串（由 aria-label 兜底语义） */
+  function ic(name) {
+    return (window.Icons && window.Icons.svg) ? window.Icons.svg(name) : '';
+  }
+  function elIcon(cls, name) {
+    var s = document.createElement('span');
+    if (cls) s.className = cls;
+    s.innerHTML = ic(name);
+    return s;
+  }
+
   function renderEntry() {
     if (!state.entry) return;
     var n = unreadCount();
@@ -384,7 +395,7 @@
       cb.checked = state.settings[type] !== false;
       cb.addEventListener('change', function () { setSetting(type, cb.checked); });
       label.appendChild(cb);
-      label.appendChild(el('span', 'rc-switch-icon', TYPES[type].icon));
+      label.appendChild(elIcon('rc-switch-icon', TYPES[type].icon));
       label.appendChild(el('span', 'rc-switch-label', TYPES[type].label));
       label.title = TYPES[type].hint;
       box.appendChild(label);
@@ -403,7 +414,7 @@
     var list = visible();
     if (!list.length) {
       var empty = el('div', 'rc-empty');
-      empty.appendChild(el('div', 'rc-empty-icon', '🔔'));
+      empty.appendChild(elIcon('rc-empty-icon', 'bell'));
       empty.appendChild(el('p', 'rc-empty-title', '暂时没有提醒'));
       empty.appendChild(el('p', 'rc-empty-hint', '从农事日历生成风险提醒，或在节点上点「设提醒」'));
       host.appendChild(empty);
@@ -416,7 +427,9 @@
         + (r.level === 'high' ? ' rc-item--high' : ''));
       row.appendChild(el('span', 'rc-level ' + lv.cls, lv.label));
       var head = el('div', 'rc-item-head');
-      head.appendChild(el('span', 'rc-type', tp.icon + ' ' + tp.label));
+      var typeSpan = el('span', 'rc-type');
+      typeSpan.innerHTML = ic(tp.icon) + ' ' + tp.label;
+      head.appendChild(typeSpan);
       head.appendChild(el('span', 'rc-date', r.date || '无日期'));
       // 保留 T04 的倒计时语义：临近的提醒要能一眼看出还有几天
       if (window.TimelineLogic && window.TimelineLogic.calcCountdown) {
@@ -494,7 +507,7 @@
     var btn = el('button', 'rc-entry');
     btn.type = 'button';
     btn.id = 'reminder-center-entry';
-    btn.innerHTML = '<span class="rc-bell" aria-hidden="true">🔔</span>'
+    btn.innerHTML = '<span class="rc-bell" aria-hidden="true">' + ic('bell') + '</span>'
       + '<span class="rc-badge" hidden>0</span>'
       + '<span class="rc-entry-label">提醒</span>';
     btn.addEventListener('click', function () {

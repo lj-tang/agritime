@@ -6,19 +6,25 @@
 (function () {
   var MODULE_ENTRIES = [
     // 农事日历是主功能，放最上面；其余按「先看天气再选种」的使用顺序排
-    { id: 'calendar', label: '农事日历', icon: '📅', implemented: true },
-    { id: 'recommend', label: '种植推荐', icon: '🌱', implemented: true },
-    { id: 'disease', label: '病害检查', icon: '🔍', implemented: true },
-    { id: 'my', label: '我的', icon: '👤', implemented: true, children: [
-      { id: 'plots', label: '我的地块', icon: '📍', implemented: true },
-      { id: 'my-crops', label: '我的作物', icon: '🌾', implemented: true }
+    { id: 'calendar', label: '农事日历', icon: 'calendar', implemented: true },
+    { id: 'recommend', label: '种植推荐', icon: 'sprout', implemented: true },
+    { id: 'disease', label: '病害检查', icon: 'search', implemented: true },
+    { id: 'my', label: '我的', icon: 'user', implemented: true, children: [
+      { id: 'plots', label: '我的地块', icon: 'pin', implemented: true },
+      { id: 'my-crops', label: '我的作物', icon: 'leaf', implemented: true }
     ]},
-    { id: 'service', label: '客服', icon: '💬', implemented: true },
+    { id: 'service', label: '客服', icon: 'chat', implemented: true },
     // 管理后台只给超管看：非管理员连入口都不出现，权限判断仍在服务端
-    { id: 'admin', label: '管理后台', icon: '⚙️', implemented: true, adminOnly: true }
+    { id: 'admin', label: '管理后台', icon: 'gear', implemented: true, adminOnly: true }
   ];
 
   var PLACEHOLDER_TEXT = '该板块正在开发中，敬请期待';
+
+  /** 图标统一走 SVG 库，避免 emoji 在深色/不同平台下观感不一 */
+  function iconSvg(name) {
+    if (window.Icons && window.Icons.svg) return window.Icons.svg(name);
+    return '';
+  }
 
   var currentModule = 'calendar';
   var isAdmin = false;
@@ -47,7 +53,7 @@
       btn.className = 'sidebar-item' + (entry.id === currentModule ? ' sidebar-item--active' : '');
       btn.setAttribute('data-module', entry.id);
       btn.setAttribute('aria-label', entry.label);
-      btn.innerHTML = '<span class="sidebar-icon">' + entry.icon + '</span><span class="sidebar-label">' + entry.label + '</span>';
+      btn.innerHTML = '<span class="sidebar-icon">' + iconSvg(entry.icon) + '</span><span class="sidebar-label">' + entry.label + '</span>';
       if (entry.children) {
         btn.addEventListener('click', function () { toggleSubmenu(entry.id); });
         nav.appendChild(btn);
@@ -59,7 +65,7 @@
           childBtn.type = 'button';
           childBtn.className = 'sidebar-item sidebar-item--sub' + (child.id === currentModule ? ' sidebar-item--active' : '');
           childBtn.setAttribute('data-module', child.id);
-          childBtn.innerHTML = '<span class="sidebar-icon">' + child.icon + '</span><span class="sidebar-label">' + child.label + '</span>';
+          childBtn.innerHTML = '<span class="sidebar-icon">' + iconSvg(child.icon) + '</span><span class="sidebar-label">' + child.label + '</span>';
           childBtn.addEventListener('click', function () { switchModule(child.id); });
           sub.appendChild(childBtn);
         });

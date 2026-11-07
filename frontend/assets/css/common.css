@@ -8,6 +8,8 @@
  */
 
 :root {
+  color-scheme: light;
+
   /* ---- 干净浅色底 + 纯白卡片 + 鲜明叶片绿 ---- */
   --bg: #f5f7f5;
   --surface: #ffffff;
@@ -56,13 +58,13 @@
   --focus-ring: 0 0 0 3px rgba(22, 163, 74, 0.18);
 }
 
-/* ---- 深色主题（T21）：跟随系统，同一套变量换取值，模块 CSS 基本不用改 ----
- * 干净中性深灰底 + 鲜明亮绿，文字用浅灰保证对比度。 */
-@media (prefers-color-scheme: dark) {
-  :root {
-    color-scheme: dark;
+/* ---- 深色主题：由 <html data-theme="dark"> 触发（theme.js 写入实际值）----
+ * 干净中性深灰底 + 鲜明亮绿，文字用浅灰保证对比度。
+ * 「跟随系统」由 theme.js 解析成具体 light/dark，这里只需一个 dark 分支。 */
+:root[data-theme="dark"] {
+  color-scheme: dark;
 
-    --bg: #0f1310;
+  --bg: #0f1310;
     --surface: #161a17;
     --surface-2: #1e241f;
     --surface-3: #272d28;
@@ -101,7 +103,6 @@
     --shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 12px 32px -16px rgba(0, 0, 0, 0.6);
     --shadow-soft: 0 1px 2px rgba(0, 0, 0, 0.35), 0 4px 16px -8px rgba(0, 0, 0, 0.5);
     --focus-ring: 0 0 0 3px rgba(74, 222, 128, 0.22);
-  }
 }
 
 * { box-sizing: border-box; }

@@ -1417,10 +1417,11 @@ test('账号入口固定在侧栏左下角', () => {
     '应先找侧栏底部，页头只作兜底');
   assert.ok(userChipJs.includes('user-chip--sidebar'), '侧栏变体应有独立类名');
 
-  // 样式：整行入口与导航项同构，登录后是头像+昵称+操作
+  // 样式：整行入口与导航项同构，登录后是头像+昵称+箭头整体一个可点按钮
   assert.ok(authCss.includes('.user-chip-entry'), '未登录应是整行可点入口');
-  assert.ok(authCss.includes('.user-chip-avatar'), '登录后应显示头像字母');
-  assert.ok(authCss.includes('.user-chip--sidebar .user-chip-name'), '昵称应可省略不撑破侧栏');
+  assert.ok(authCss.includes('.user-chip-avatar'), '登录后应显示头像');
+  assert.ok(authCss.includes('.user-chip-trigger'), '头像+昵称+箭头应整体是一个可点按钮（头像纳入热区）');
+  assert.match(authCss, /\.user-chip-name\s*\{[^}]*text-overflow:\s*ellipsis/, '昵称超长应省略不撑破侧栏');
 });
 
 test('移动端抽屉：汉堡让位且点外部可关闭', () => {
@@ -1921,17 +1922,59 @@ test('T28 传感器：后台定时拉取 + 间隔配置 + N 周期离线判定',
 
 // ---------------- T21 四态双主题与深色主题（补齐） ----------------
 
-test('T21 深色主题：变量随系统切换，四态与输入框可读', () => {
+test('T21 深色主题：data-theme 三态切换，四态与输入框可读', () => {
   const common = read(path.join(CSS, 'common.css'));
   const dark = read(path.join(CSS, 'theme-dark.css'));
   const indexHtml = read(path.resolve(__dirname, '..', 'pages', 'index.html'));
+  const themeJs = read(path.resolve(__dirname, '..', 'assets', 'js', 'theme.js'));
 
-  assert.ok(common.includes('prefers-color-scheme: dark'), '应提供深色主题变量');
+  assert.ok(common.includes(':root[data-theme="dark"]'), '深色主题应由 data-theme 触发，而非仅跟随系统');
   assert.ok(common.includes('color-scheme: dark'), '应声明 color-scheme 让原生控件跟主题走');
   assert.ok(common.includes('--danger-text') && common.includes('--warn-text'), '四态语义色应变量化');
   assert.ok(dark.includes('input:not([type])'), '深色下应覆盖输入框白底');
   assert.ok(dark.includes('background: var(--surface-2)'), '深色输入框应用深色底');
   assert.ok(indexHtml.includes('theme-dark.css'), '页面应最后加载深色主题兜底');
+  // 三态偏好 + 无闪烁 + 跟随系统实时换肤
+  assert.ok(themeJs.includes("'system'"), '主题应有 浅色/深色/跟随系统 三态');
+  assert.ok(themeJs.includes('matchMedia') && themeJs.includes("addEventListener('change'"), '跟随系统应监听系统变化实时换肤');
+  assert.ok(themeJs.includes('localStorage'), '主题偏好应持久化');
+  assert.ok(indexHtml.includes("agritime.theme"), '首帧前应有内联脚本写好 data-theme 避免闪烁');
+  assert.ok(indexHtml.includes('theme.js'), '页面应加载主题脚本');
+});
+
+test('左下角设置：分组弹层 + 主题切换 + 定位开关 + 头像', () => {
+  const userChipJs = read(path.resolve(__dirname, '..', 'assets', 'js', 'user-chip.js'));
+  const prefsJs = read(path.resolve(__dirname, '..', 'assets', 'js', 'prefs.js'));
+  const iconsJs = read(path.resolve(__dirname, '..', 'assets', 'js', 'icons.js'));
+  const sidebarJs = read(path.resolve(__dirname, '..', 'components', 'sidebar', 'sidebar.js'));
+
+  // 分组：我的账号 / 个人 / 设置
+  assert.ok(userChipJs.includes('我的账号'), '设置弹层应有「我的账号」分组');
+  assert.ok(userChipJs.includes('个人'), '设置弹层应有「个人」分组');
+  assert.ok(userChipJs.includes('设置'), '设置弹层应有「设置」分组');
+  assert.ok(userChipJs.includes('修改密码') && userChipJs.includes('退出登录'), '我的账号应含改密码与退出登录');
+  assert.ok(userChipJs.includes('修改昵称') && userChipJs.includes('头像'), '个人应含改昵称与改头像');
+  assert.ok(userChipJs.includes('外观主题') && userChipJs.includes('定位权限'), '设置应含主题与定位权限');
+
+  // 主题三态 + 定位开关 + 头像偏好
+  assert.ok(userChipJs.includes("data-theme-opt") && userChipJs.includes('跟随系统'), '主题应是三态分段控件');
+  assert.ok(userChipJs.includes("role', 'switch") && userChipJs.includes('aria-checked'), '定位权限应用开关（带 role/aria）');
+  assert.ok(prefsJs.includes('avatar') && prefsJs.includes('location'), '头像与定位偏好应本地持久化');
+  assert.ok(iconsJs.includes("name") && iconsJs.includes('mic'), '应有统一 SVG 图标库（含话筒）');
+  assert.ok(!sidebarJs.includes('📅') && !sidebarJs.includes('⚙️'), '侧栏导航不应再用 emoji 图标');
+});
+
+test('图标统一：话筒/定位/铃铛等 emoji 全部换 SVG', () => {
+  const voiceJs = read(path.resolve(__dirname, '..', 'components', 'voice-input', 'voice-input.js'));
+  const locationJs = read(path.resolve(__dirname, '..', 'components', 'location-picker', 'location-picker.js'));
+  const reminderJs = read(path.resolve(__dirname, '..', 'components', 'reminder-center', 'reminder-center.js'));
+  const indexHtml = read(path.resolve(__dirname, '..', 'pages', 'index.html'));
+
+  assert.ok(!voiceJs.includes('🎤') && !voiceJs.includes('⏹'), '话筒/停止应换成 SVG');
+  assert.ok(voiceJs.includes('Icons.svg'), '语音按钮应走图标库');
+  assert.ok(!locationJs.includes('📍') && !locationJs.includes('✏️'), '地图标点/框地应换成 SVG');
+  assert.ok(!reminderJs.includes('🔔') && !reminderJs.includes('⛈') && !reminderJs.includes('🌡'), '铃铛/天气类型应换成 SVG');
+  assert.ok(!indexHtml.includes('✏️ 地图框地') && !indexHtml.includes('🛰') && !indexHtml.includes('📷'), '首页按钮不应再用 emoji');
 });
 
 // ---------------- T27 地理抽检回归基线（补齐机制） ----------------

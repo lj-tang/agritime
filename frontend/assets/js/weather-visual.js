@@ -67,6 +67,8 @@
 
   function getLocation() {
     return new Promise(function (resolve) {
+      // 用户在设置里关了定位权限时，不碰 GPS，直接走 IP 粗定位
+      if (window.Prefs && window.Prefs.get('location') === false) { getLocationByIP().then(resolve); return; }
       if (!navigator.geolocation) { getLocationByIP().then(resolve); return; }
       navigator.geolocation.getCurrentPosition(
         function (pos) { resolve({ lat: pos.coords.latitude, lon: pos.coords.longitude }); },

@@ -30,13 +30,20 @@
     return 'zh-CN';
   }
 
+  function micIcon() {
+    return (window.Icons && window.Icons.svg) ? window.Icons.svg('mic') : '';
+  }
+  function stopIcon() {
+    return (window.Icons && window.Icons.svg) ? window.Icons.svg('stop') : '';
+  }
+
   function createVoiceButton(targetInput, opts) {
     var SR = getRecognition();
     var btn = document.createElement('button');
     btn.type = 'button';
     btn.className = 'voice-btn';
     btn.setAttribute('aria-label', '语音输入');
-    btn.textContent = '🎤';
+    btn.innerHTML = micIcon();
 
     if (!SR) {
       btn.style.display = 'none';
@@ -61,7 +68,7 @@
       recognition.onstart = function () {
         isRecording = true;
         btn.classList.add('voice-btn--active');
-        btn.textContent = '⏹';
+        btn.innerHTML = stopIcon();
       };
 
       recognition.onresult = function (event) {
@@ -100,13 +107,13 @@
 
       recognition.onerror = function () {
         btn.classList.remove('voice-btn--active');
-        btn.textContent = '🎤';
+        btn.innerHTML = micIcon();
         isRecording = false;
       };
 
       recognition.onend = function () {
         btn.classList.remove('voice-btn--active');
-        btn.textContent = '🎤';
+        btn.innerHTML = micIcon();
         isRecording = false;
       };
 
@@ -114,7 +121,7 @@
         recognition.start();
       } catch (e) {
         isRecording = false;
-        btn.textContent = '🎤';
+        btn.innerHTML = micIcon();
       }
     });
 

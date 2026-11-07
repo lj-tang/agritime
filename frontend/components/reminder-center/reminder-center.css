@@ -22,7 +22,8 @@
   text-align: left;
 }
 .rc-entry:hover { background: var(--surface-2, #f7f2e6); border-color: var(--brand-line, var(--brand-line)); }
-.rc-bell { font-size: 16px; line-height: 1; }
+.rc-bell { font-size: 16px; line-height: 1; display: inline-flex; }
+.rc-bell svg { width: 18px; height: 18px; display: block; }
 .rc-entry-label { color: var(--ink-soft, #55634e); }
 .rc-badge {
   position: absolute;
@@ -127,7 +128,8 @@ body > .rc-entry {
   cursor: pointer;
 }
 .rc-switch input { accent-color: var(--brand, var(--brand)); }
-.rc-switch-icon { font-size: 13px; }
+.rc-switch-icon { font-size: 13px; display: inline-flex; align-items: center; }
+.rc-switch-icon svg { width: 13px; height: 13px; display: block; }
 .rc-storage { margin: 0 0 12px; font-size: 12px; color: var(--muted, #8b9382); }
 .rc-storage--local { color: var(--sun, #d99b2b); }
 
@@ -185,7 +187,9 @@ body > .rc-entry {
 .rc-op--del:hover { color: var(--red, #c65547); }
 
 .rc-empty { text-align: center; padding: 26px 10px; color: var(--muted, #8b9382); }
-.rc-empty-icon { font-size: 28px; }
+.rc-empty-icon { font-size: 28px; display: inline-flex; }
+.rc-empty-icon svg { width: 28px; height: 28px; display: block; }
+.rc-type svg { width: 13px; height: 13px; display: inline-block; vertical-align: -2px; }
 .rc-empty-title { font-size: 14px; font-weight: 700; color: var(--ink-soft, #55634e); margin: 8px 0 4px; }
 .rc-empty-hint { font-size: 12px; margin: 0; }
 

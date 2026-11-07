@@ -56,7 +56,8 @@
     var stateEl = $('acc-state');
     if (stateEl) stateEl.hidden = true;
 
-    $('acc-avatar').textContent = (name || '·').trim().charAt(0) || '·';
+    var avatar = (window.Prefs && window.Prefs.get('avatar')) || '';
+    $('acc-avatar').textContent = avatar || (name || '·').trim().charAt(0) || '·';
     $('acc-name').textContent = name;
     $('acc-sub').textContent = '登录名 ' + u.username + ' · ' + roleLabel(u.role);
 
