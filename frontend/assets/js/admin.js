@@ -9,6 +9,11 @@
 
   var loginBox, panel, listBox, detailBox, filterSel, countEl, refreshBtn;
 
+  function toast(msg, kind) {
+    if (window.showToast) window.showToast(msg, kind);
+    else if (window.alert) window.alert(msg);
+  }
+
   function init() {
     loginBox = document.getElementById('admin-login');
     panel = document.getElementById('admin-panel');
@@ -155,7 +160,7 @@
         sendBtn.textContent = '回复中…';
         send(API + '/reply', { ticketId: t.id, content: content })
           .then(function (d) { renderDetail(d.data); })
-          .catch(function (e) { sendBtn.disabled = false; sendBtn.textContent = '回复'; alert(e.message); });
+          .catch(function (e) { sendBtn.disabled = false; sendBtn.textContent = '回复'; toast(e.message, 'error'); });
       });
       var closeBtn = document.createElement('button');
       closeBtn.type = 'button';
@@ -166,7 +171,7 @@
         closeBtn.textContent = '关闭中…';
         send(API + '/close', { ticketId: t.id })
           .then(function (d) { renderDetail(d.data); load(); })
-          .catch(function (e) { closeBtn.disabled = false; closeBtn.textContent = '关闭工单'; alert(e.message); });
+          .catch(function (e) { closeBtn.disabled = false; closeBtn.textContent = '关闭工单'; toast(e.message, 'error'); });
       });
       replyBox.appendChild(ta);
       replyBox.appendChild(sendBtn);

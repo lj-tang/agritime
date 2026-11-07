@@ -54,6 +54,12 @@
     return n;
   }
 
+  /** 轻提示，兜底 alert —— ui-state.js 里的全局 showToast 会覆盖它 */
+  function toast(msg, kind) {
+    if (window.showToast) window.showToast(msg, kind);
+    else if (window.alert) window.alert(msg);
+  }
+
   // ---------------- 初始化 ----------------
 
   function init() {
@@ -228,7 +234,7 @@
     busy = true;
     send(API + '/users/ban', 'POST', { id: u.id, banned: next })
       .then(function () { loadUsers(); loadStats(); })
-      .catch(function (e) { alert('操作失败：' + e.message); })
+      .catch(function (e) { toast('操作失败：' + e.message, 'error'); })
       .then(function () { busy = false; });
   }
 
@@ -249,7 +255,7 @@
     busy = true;
     send(API + '/users/role', 'POST', { id: u.id, role: next })
       .then(function () { loadUsers(); loadStats(); })
-      .catch(function (e) { alert('操作失败：' + e.message); })
+      .catch(function (e) { toast('操作失败：' + e.message, 'error'); })
       .then(function () { busy = false; });
   }
 
@@ -257,10 +263,10 @@
   function resetPwd(u) {
     var pwd = prompt('给「' + u.username + '」设置新密码（至少 6 位）：');
     if (!pwd) return;
-    if (pwd.length < 6) { alert('密码至少 6 位'); return; }
+    if (pwd.length < 6) { toast('密码至少 6 位', 'error'); return; }
     send(API + '/users/password', 'POST', { id: u.id, password: pwd })
-      .then(function () { alert('已重置，「' + u.username + '」下次登录请用新密码'); })
-      .catch(function (e) { alert('重置失败：' + e.message); });
+      .then(function () { toast('已重置，「' + u.username + '」下次登录请用新密码', 'info'); })
+      .catch(function (e) { toast('重置失败：' + e.message, 'error'); });
   }
 
   /** 删号（连同他的地块/作物数据） */
@@ -268,7 +274,7 @@
     if (!confirm('删除「' + u.username + '」？账号和他的地块、作物记录都会被清空，不可恢复。')) return;
     send(API + '/users?id=' + encodeURIComponent(u.id), 'DELETE')
       .then(function () { loadUsers(); loadStats(); })
-      .catch(function (e) { alert('删除失败：' + e.message); });
+      .catch(function (e) { toast('删除失败：' + e.message, 'error'); });
   }
 
   function loadAudit() {
@@ -305,7 +311,7 @@
         fsEmpty.hidden = items.length > 0;
         items.forEach(function (it) { fsBody.appendChild(fileRow(it)); });
       })
-      .catch(function (e) { alert('读取目录失败：' + e.message); });
+      .catch(function (e) { toast('读取目录失败：' + e.message, 'error'); });
   }
 
   function renderCrumbs(path) {
@@ -347,7 +353,7 @@
       if (!confirm('确定删除「' + it.name + '」？此操作不可撤销。')) return;
       send(API + '/file?path=' + encodeURIComponent(it.path), 'DELETE')
         .then(loadFiles)
-        .catch(function (e) { alert('删除失败：' + e.message); });
+        .catch(function (e) { toast('删除失败：' + e.message, 'error'); });
     });
     opTd.appendChild(del);
     tr.appendChild(opTd);
@@ -365,10 +371,10 @@
     var base = currentPath === '/' ? '' : currentPath;
     var name = prompt(isDir ? '新建目录名：' : '新建文件名：');
     if (!name) return;
-    if (name.indexOf('/') >= 0) { alert('名字里不能带 /'); return; }
+    if (name.indexOf('/') >= 0) { toast('名字里不能带 /', 'error'); return; }
     send(API + '/files', 'POST', { path: base + '/' + name, dir: isDir })
       .then(loadFiles)
-      .catch(function (e) { alert('创建失败：' + e.message); });
+      .catch(function (e) { toast('创建失败：' + e.message, 'error'); });
   }
 
   function openEditor(path) {
@@ -381,7 +387,7 @@
         editorEl.hidden = false;
         editorText.focus();
       })
-      .catch(function (e) { alert('打开失败：' + e.message); });
+      .catch(function (e) { toast('打开失败：' + e.message, 'error'); });
   }
 
   function closeEditor() {

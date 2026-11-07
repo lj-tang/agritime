@@ -203,6 +203,9 @@
 
 .empty-state .btn-primary { margin-top: 20px; }
 
+/* 后端不可达时的错误态：复用 .ui-state 的样式，只补上下间距 */
+.timeline-error { margin-top: 12px; }
+
 /* 加载骨架 */
 .loading {
   text-align: center;

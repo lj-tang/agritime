@@ -85,12 +85,14 @@
       <button type="button" class="btn btn-primary" onclick="window.location.href='index.html'">返回修改</button>
     </section>
 
+    <section class="timeline-error" id="timeline-error" hidden></section>
+
     <div class="timeline-footer" id="footer" hidden>
       <button type="button" class="btn btn-ghost" onclick="window.location.href='index.html'">返回修改作物或日期</button>
     </div>
   </main>
 
-  <script src="../assets/mock/mock-data.js"></script>
+  <script src="../assets/js/ui-state.js"></script>
   <script src="../assets/js/crop-map.js"></script>
   <script src="../assets/js/my-crops-store.js"></script>
   <script src="../shared/utils/timeline-logic.js"></script>
@@ -167,6 +169,8 @@
 
       function getData() {
         var tries = 0;
+        // 每次拉取都从「无降级」开始：否则上一次失败标记会污染下一次成功结果
+        degradedSource = '';
         // 规程由大模型生成时，后端会先回 202（约 30 秒才生成完）。
         // 这里自动等几秒重试，比直接把用户甩到错误页体验好；最多重试 3 次。
         function attempt() {
@@ -192,7 +196,7 @@
             clearTimeout(timer);
             if (!data || typeof data !== 'object' || !Array.isArray(data.nodes)) {
               degradedSource = 'invalid';
-              return window.MOCK_TIMELINE;
+              return null;
             }
             return data;
           })
@@ -201,7 +205,7 @@
             if (!degradedSource) {
               degradedSource = (err && err.name === 'AbortError') ? 'timeout' : 'offline';
             }
-            return window.MOCK_TIMELINE;
+            return null;
           });
         }
         return attempt();
@@ -1049,6 +1053,7 @@
 
       function render(data) {
         document.getElementById('loading').hidden = true;
+        if (data === null) { showTimelineError(); return; }
         if (!data || typeof data !== 'object') data = { todayConclusion: {}, nodes: [] };
         if (!Array.isArray(data.nodes)) data = { todayConclusion: data.todayConclusion || {}, nodes: [] };
         // 提醒键要用标准作物名：否则同一作物用俗称（西红柿）和标准名（番茄）
@@ -1130,9 +1135,33 @@
       })();
 
       function paint(data) {
+        if (data === null) { render(null); return; }
         render(data);
         if (window.ReminderCenter) window.ReminderCenter.generateFromTimeline(data);
         renderMyReminders();
+      }
+
+      /** 后端彻底不可达时的错误态：带重试，绝不拿本地假数据冒充日历（诚实红线） */
+      function showTimelineError() {
+        document.getElementById('brand-sub').textContent = '读取失败';
+        var errEl = document.getElementById('timeline-error');
+        if (errEl) errEl.hidden = false;
+        if (window.UiState) {
+          window.UiState.error(errEl || 'timeline', {
+            text: '农事日历读取失败',
+            hint: degradedSource === 'generating'
+              ? '农事规程还在生成，稍后点下面重试。'
+              : '网络异常或服务暂时不可用，你的数据不会丢。',
+            onRetry: function () {
+              if (errEl) errEl.hidden = true;
+              document.getElementById('brand-sub').textContent = '正在读取农时…';
+              document.getElementById('loading').hidden = false;
+              var lt = document.getElementById('loading-text');
+              if (lt) lt.textContent = '正在读取农时…';
+              getData().then(paint);
+            }
+          });
+        }
       }
 
       // 先等提醒档案加载完，再画节点：否则「已设提醒」会先按空数据画一遍，

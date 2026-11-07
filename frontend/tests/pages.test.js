@@ -13,7 +13,6 @@ const photoJs = read(path.join(PAGES, 'photo-capture.js'));
 const commonCss = read(path.join(CSS, 'common.css'));
 const timelineCss = read(path.join(CSS, 'timeline.css'));
 const cropMapJs = read(path.resolve(__dirname, '..', 'assets', 'js', 'crop-map.js'));
-const mockJs = read(path.resolve(__dirname, '..', 'assets', 'mock', 'mock-data.js'));
 const timelineLogicJs = read(path.resolve(__dirname, '..', '..', 'shared', 'utils', 'timeline-logic.js'));
 const historyStoreJs = read(path.resolve(__dirname, '..', '..', 'shared', 'utils', 'storage.js'));
 const chartClientJs = read(path.resolve(__dirname, '..', 'assets', 'js', 'chart-client.js'));
@@ -182,10 +181,6 @@ test('流程对齐：reminders 缺失容错', () => {
   assert.match(timelineHtml, /Array\.isArray\((data|cachedData)\.reminders\)/);
 });
 
-test('流程对齐：mock 数据 null 占位不造假', () => {
-  assert.match(mockJs, /date:\s*null/);
-  assert.match(mockJs, /name:\s*null/);
-});
 test('加载反馈：进度提示与骨架屏', () => {
   assert.match(timelineHtml, /id="loading"/);
   assert.ok(timelineHtml.includes('正在读取农时'));
@@ -261,12 +256,6 @@ test('响应式：768 / 1024 断点且保留防溢出', () => {
   assert.match(commonCss, /@media\s*\(min-width:\s*1024px\)/);
   assert.match(commonCss, /overflow-x:\s*hidden/);
   assert.match(commonCss, /max-width:\s*100%/);
-});
-
-test('mock 新字段：null 占位不造假', () => {
-  ['weatherFactors', 'suitability', 'severeWeatherAlert', 'dateAnchor', 'applicableCrops', 'salesCopy'].forEach((f) => {
-    assert.match(mockJs, new RegExp(f + ':\\s*null'), 'mock 缺少 ' + f + ' null 占位');
-  });
 });
 
 test('纯函数与存储：倒计时四态 + 天气映射 + 因子归一化', () => {
@@ -2183,4 +2172,32 @@ test('完善性：工单后台页与账号页补齐四态与重试', () => {
   assert.ok(accountJs.includes('showLoadError'), '账号页应有读取失败处理');
   assert.ok(accountJs.includes('UiState.error') && accountJs.includes('onRetry: load'), '账号页错误态应带重试');
   assert.ok(!accountJs.includes('网络异常，账号信息读取失败'), '读取失败不应只弹 toast，要落到页面错误态');
+});
+
+// ---------------- 完善性：时间线页去掉本地假数据兜底，改错误态+重试（诚实红线） ----------------
+
+test('完善性：时间线后端不可达走错误态，不拿本地假数据冒充日历', () => {
+  const tl = read(path.resolve(__dirname, '..', 'pages', 'timeline.html'));
+
+  // 不再引入 mock 假数据，也不再回退到 MOCK_TIMELINE
+  assert.ok(!tl.includes('mock-data.js'), '时间线页不应再引入 mock 假数据');
+  assert.ok(!tl.includes('MOCK_TIMELINE'), '时间线页不应再回退到本地假数据');
+  assert.ok(tl.includes('ui-state.js'), '时间线页应引入四态组件');
+  assert.ok(tl.includes('showTimelineError'), '应有时间线读取失败处理');
+  assert.ok(tl.includes('UiState.error') && tl.includes('onRetry'), '时间线错误态应带重试');
+  assert.ok(!tl.includes("return window.MOCK_TIMELINE"), '失败时不应返回假数据');
+});
+
+// ---------------- 完善性：超管后台错误反馈从 alert 改 toast，不打断操作 ----------------
+
+test('完善性：超管后台错误反馈走 toast，保留确认类交互', () => {
+  const adminHtml = read(path.resolve(__dirname, '..', 'pages', 'admin.html'));
+  const consoleJs = read(path.resolve(__dirname, '..', 'assets', 'js', 'admin-console.js'));
+
+  assert.ok(adminHtml.includes('ui-state.js'), '超管后台应引入四态组件（含全局 toast）');
+  assert.ok(consoleJs.includes('function toast'), '后台应有 toast 兜底');
+  // 错误/提示不再用 alert 打断操作；确认类 confirm 仍保留
+  assert.ok(consoleJs.includes("toast('操作失败：' + e.message, 'error')"), '封号/改角色失败应走 toast');
+  assert.ok(!/\.catch\(function \(e\) \{ alert\(/.test(consoleJs), '错误回调不应再弹 alert');
+  assert.ok(consoleJs.includes("confirm('确定封禁"), '封号等破坏性操作仍应二次确认');
 });
