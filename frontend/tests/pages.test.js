@@ -158,6 +158,9 @@ test('性能：规程生成等待窗口覆盖大模型耗时，不再 15 秒误�
   assert.ok(handler.includes('isGenerating(buildCropId)'), '后端应能识别「正在生成」');
   assert.ok(handler.includes('writeGenerating'), '202 响应应抽成统一方法');
   assert.match(compute, /LLM_WAIT_MS\s*=\s*1000/, '单次等待应降到 1s，避免首个 202 白拖 2.5s');
+  // 预热的缓存键必须与真实请求一致，且先读磁盘缓存，避免重启把预置作物重新生成一遍
+  assert.ok(compute.includes('CropRegistry.timelineCropId'), '预热缓存键应与真实请求归一逻辑一致');
+  assert.ok(/ensureLlmCacheLoaded\(\);\s*\n\s*int ok/.test(compute), '预热前应先加载磁盘缓存，避免重启重复生成');
 
   // 首屏：leaflet 改为按需加载（location-picker 注入），不再首屏加载约 160KB
   assert.ok(!indexHtml.includes('assets/leaflet/leaflet.js'), '首页不应再同步加载 leaflet.js');

@@ -3,6 +3,7 @@ package com.cropcalendar.compute;
 import com.cropcalendar.util.AppTime;
 import com.cropcalendar.config.AppConfig;
 import com.cropcalendar.service.crop.CropProperties;
+import com.cropcalendar.service.crop.CropRegistry;
 import com.cropcalendar.util.Json;
 import com.cropcalendar.util.JsonParser;
 
@@ -226,13 +227,21 @@ public final class ComputeStub {
     private static final Map<String, Long> LLM_NEGATIVE = new java.util.concurrent.ConcurrentHashMap<>();
     private static final long NEGATIVE_TTL_MS = 10 * 60 * 1000L;
 
-    private static final List<String> PRELOAD_CROPS = List.of("tomato", "cotton", "chili_pepper");
+    // 预生成常见蔬菜：这些作物没有内置规程，用户第一次选到就要等大模型 30~40 秒。
+    // 用中文标准名（与真实请求的 buildCropId 一致），避免「tomato」和「番茄」两套键对不上。
+    private static final List<String> PRELOAD_CROPS = List.of(
+            "番茄", "黄瓜", "辣椒", "茄子", "白菜", "土豆", "萝卜", "西瓜");
 
     public static void preloadCommonCrops() {
         Thread t = new Thread(() -> {
+            // 先把磁盘上已生成的缓存读进来：否则每次重启都会把预置作物重新生成一遍，白烧额度
+            ensureLlmCacheLoaded();
             int ok = 0, skip = 0, fail = 0;
-            for (String crop : PRELOAD_CROPS) {
+            for (String name : PRELOAD_CROPS) {
                 try {
+                    // 用与真实请求完全一致的归一逻辑算缓存键，保证预热命中的就是用户会请求的那个 id
+                    String crop = CropRegistry.timelineCropId(name);
+                    if (crop == null || crop.isBlank()) crop = name;
                     if (loadProtocols().containsKey(crop) || LLM_PROC_CACHE.containsKey(crop)) {
                         skip++;
                         continue;
@@ -249,7 +258,7 @@ public final class ComputeStub {
                     }
                 } catch (Exception e) {
                     fail++;
-                    System.out.println("[preload] " + crop + " 失败: " + e.getClass().getSimpleName());
+                    System.out.println("[preload] " + name + " 失败: " + e.getClass().getSimpleName());
                 }
             }
             System.out.println("[preload] 规程预热完成: " + ok + " 成功, " + skip + " 跳过, " + fail + " 失败");
