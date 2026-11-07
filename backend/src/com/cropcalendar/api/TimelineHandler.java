@@ -144,6 +144,13 @@ public class TimelineHandler implements HttpHandler {
                 }
             }
 
+            // 已经有一个后台生成任务在跑：立刻回 202，别在这里白等 LLM_WAIT_MS。
+            // 否则前端每次轮询都要被阻塞约 1 秒，既拖慢进度提示也白占请求线程。
+            if (ComputeStub.isGenerating(buildCropId)) {
+                writeGenerating(ex);
+                return;
+            }
+
             CropProperties.Props props = CropProperties.of(buildCropId);
             TimelineResult r = orchestrator.build(buildCropId, sowDate, lat, lon, areaMu);
 
@@ -151,11 +158,7 @@ public class TimelineHandler implements HttpHandler {
                 // 大模型生成要 30 秒上下，不能同步等：先告诉前端"在生成，稍后再来"，
                 // 生成的 Future 留在后台，下次请求直接命中缓存。
                 if (ComputeStub.isGenerating(buildCropId)) {
-                    HttpSupport.write(ex, 202, Json.obj(
-                            "code", Json.str("20201"),
-                            "message", Json.str("该作物的农事规程正在生成，请稍后重试"),
-                            "data", "null",
-                            "retryAfter", String.valueOf(4)));
+                    writeGenerating(ex);
                     return;
                 }
                 HttpSupport.write(ex, 422, errJson("UNSUPPORTED_CROP",
@@ -322,6 +325,15 @@ public class TimelineHandler implements HttpHandler {
 
     private static String errJson(String code, String msg) {
         return Json.obj("error", Json.str(code), "message", Json.str(msg));
+    }
+
+    /** 规程还在后台生成：统一的 202 响应，前端据此轮询（retryAfter 秒）。 */
+    private static void writeGenerating(HttpExchange ex) throws IOException {
+        HttpSupport.write(ex, 202, Json.obj(
+                "code", Json.str("20201"),
+                "message", Json.str("该作物的农事规程正在生成，请稍后重试"),
+                "data", "null",
+                "retryAfter", String.valueOf(4)));
     }
 
     private static String str(Object o) {

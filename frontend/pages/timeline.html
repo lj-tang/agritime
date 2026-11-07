@@ -172,10 +172,13 @@
 
       function getData() {
         var tries = 0;
+        var startedAt = Date.now();
+        // 一份新作物规程由大模型生成通常 30~40 秒。后端每次最多等约 1 秒就回 202，
+        // 前端必须把「总等待窗口」放到覆盖整个生成过程 —— 原来只等 3×5 秒，
+        // 必然在 15 秒时误报超时，用户看到的就是「卡住然后失败」。
+        var MAX_WAIT_MS = 75000;
         // 每次拉取都从「无降级」开始：否则上一次失败标记会污染下一次成功结果
         degradedSource = '';
-        // 规程由大模型生成时，后端会先回 202（约 30 秒才生成完）。
-        // 这里自动等几秒重试，比直接把用户甩到错误页体验好；最多重试 3 次。
         function attempt() {
           var controller = new AbortController();
           var timer = setTimeout(function () { controller.abort(); }, CONFIG.TIMELINE_TIMEOUT_MS);
@@ -183,11 +186,17 @@
           .then(function (res) {
             if (res.status === 202) {
               clearTimeout(timer);
-              if (tries < 3) {
+              var elapsed = Date.now() - startedAt;
+              if (elapsed < MAX_WAIT_MS) {
                 tries++;
                 var lt = document.getElementById('loading-text');
-                if (lt) lt.textContent = '该作物的农事规程正在生成，请稍候（第 ' + tries + ' 次重试）…';
-                return new Promise(function (r) { setTimeout(r, 5000); }).then(attempt);
+                if (lt) {
+                  var secs = Math.max(1, Math.round(elapsed / 1000));
+                  lt.textContent = '正在为该作物生成农事规程，已等待 ' + secs + ' 秒（通常 30~40 秒，请勿关闭页面）…';
+                }
+                // 前两次探得勤一点（可能刚好生成完），之后稳定 4 秒一探，避免刷请求
+                var delay = tries <= 2 ? 2500 : 4000;
+                return new Promise(function (r) { setTimeout(r, delay); }).then(attempt);
               }
               degradedSource = 'generating';
               throw new Error('规程生成超时');

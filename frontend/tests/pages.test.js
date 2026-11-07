@@ -145,6 +145,26 @@ test('流程对齐：20s 超时常量与降级标识', () => {
   assert.ok(timelineHtml.includes('本地兜底数据'));
 });
 
+test('性能：规程生成等待窗口覆盖大模型耗时，不再 15 秒误报超时', () => {
+  const handler = read(path.resolve(__dirname, '..', '..', 'backend', 'src', 'com', 'cropcalendar', 'api', 'TimelineHandler.java'));
+  const compute = read(path.resolve(__dirname, '..', '..', 'backend', 'src', 'com', 'cropcalendar', 'compute', 'ComputeStub.java'));
+
+  // 前端：总等待窗口 ≥ 60s（大模型生成约 30~40s），且有「已等待 N 秒」进度提示
+  assert.match(timelineHtml, /MAX_WAIT_MS\s*=\s*(6[0-9]|[7-9][0-9])000/, '总等待窗口应覆盖 30~40s 的生成耗时');
+  assert.ok(!/tries\s*<\s*3/.test(timelineHtml), '不应再只重试 3 次就放弃（15s 必超时）');
+  assert.ok(timelineHtml.includes('已等待'), '生成期间应有已等待秒数的进度提示');
+
+  // 后端：已有生成任务时立即 202，不再每次轮询都阻塞
+  assert.ok(handler.includes('isGenerating(buildCropId)'), '后端应能识别「正在生成」');
+  assert.ok(handler.includes('writeGenerating'), '202 响应应抽成统一方法');
+  assert.match(compute, /LLM_WAIT_MS\s*=\s*1000/, '单次等待应降到 1s，避免首个 202 白拖 2.5s');
+
+  // 首屏：leaflet 改为按需加载（location-picker 注入），不再首屏加载约 160KB
+  assert.ok(!indexHtml.includes('assets/leaflet/leaflet.js'), '首页不应再同步加载 leaflet.js');
+  assert.ok(!indexHtml.includes('assets/leaflet/leaflet.css'), '首页不应再同步加载 leaflet.css');
+  assert.ok(indexHtml.includes('warmCropProtocol'), '选中作物后应后台预热规程，减少点生成后的干等');
+});
+
 test('流程对齐：作物映射共享模块完整且两页面共用', () => {
   ['dry_garlic', 'wheat_winter', 'corn_summer', 'rice', 'soybean'].forEach((id) => {
     assert.ok(cropMapJs.includes(id), 'crop-map.js 缺少 ' + id);

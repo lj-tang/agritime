@@ -668,8 +668,12 @@ public final class ComputeStub {
         t.setDaemon(true);
         return t;
     });
-    /** 单次请求最多等这么久，超时就先返回"生成中" */
-    private static final long LLM_WAIT_MS = 2500;
+    /**
+     * 单次请求最多等这么久，超时就先返回"生成中"。
+     * 大模型生成要 30~40 秒，等 2.5 秒注定超时，只会让首个 202 白拖 2.5 秒；
+     * 降到 1 秒：真·秒回的场景（本地缓存/快速失败）仍能直接返回，长生成则尽快交棒轮询。
+     */
+    private static final long LLM_WAIT_MS = 1000;
     private static volatile boolean llmCacheLoaded = false;
 
     /** 懒加载磁盘上的大模型规程缓存（只读一次） */

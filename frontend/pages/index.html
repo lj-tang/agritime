@@ -21,7 +21,7 @@
   <link rel="stylesheet" href="../components/location-picker/location-picker.css" />
   <link rel="stylesheet" href="../components/plot-3d/plot-3d.css" />
   <link rel="stylesheet" href="../components/reminder-center/reminder-center.css" />
-  <link rel="stylesheet" href="../assets/leaflet/leaflet.css" />
+  <!-- leaflet 的 css/js 由 location-picker 在首次打开地图时按需注入，首屏不加载（省约 160KB） -->
   <link rel="stylesheet" href="../assets/css/theme-dark.css" />
 </head>
 <body data-layout="app">
@@ -488,7 +488,6 @@
   <script src="../assets/js/service.js"></script>
   <script src="../assets/js/admin.js"></script>
   <script src="../components/floating-ball/floating-ball.js"></script>
-  <script src="../assets/leaflet/leaflet.js"></script>
   <script src="../components/location-picker/location-picker.js"></script>
   <script src="../components/plot-3d/plot-3d.js"></script>
   <script src="../components/voice-input/voice-input.js"></script>
@@ -648,6 +647,30 @@
         return frag;
       }
 
+      // 选中作物后就在后台把规程「热」起来：大模型生成一份新规程约 30~40 秒，
+      // 用户接着填地点/日期的这段时间正好覆盖它，点「生成」时多半已命中缓存。
+      // 只对「明确选中的作物」预热一次，避免打字过程中反复触发生成。
+      var warmedCrops = {};
+      function warmCropProtocol(name) {
+        var n = (name || '').trim();
+        if (!n || warmedCrops[n]) return;
+        warmedCrops[n] = true;
+        var d = sowingInput && sowingInput.value;
+        if (!d) {
+          var t = new Date();
+          d = t.getFullYear() + '-' + String(t.getMonth() + 1).padStart(2, '0')
+            + '-' + String(t.getDate()).padStart(2, '0');
+        }
+        var ll = window.__markerLatLon || {};
+        var lat = ll.lat != null ? ll.lat : 35.07;
+        var lon = ll.lon != null ? ll.lon : 116.31;
+        // 规程按作物 id 缓存，具体日期/坐标只影响这份时间线，不影响预热效果
+        fetch('/api/timeline?crop=' + encodeURIComponent(n)
+          + '&sowDate=' + encodeURIComponent(d)
+          + '&lat=' + lat + '&lon=' + lon, { method: 'GET' })
+          .catch(function () { /* 预热失败没关系，正式请求会再触发 */ });
+      }
+
       function pickSuggestion(c) {
         cropInput.value = c.name;
         // 通用作物名（"水稻""小麦"）在作物库里有、但没有产地，city 为空；
@@ -656,6 +679,16 @@
         suggestions.classList.remove('show');
         suggestHits = [];
         suggestActive = -1;
+        warmCropProtocol(c.name);
+      }
+
+      // 手动输入完整作物名后（失焦触发 change）也预热一次
+      if (cropInput) {
+        cropInput.addEventListener('change', function () { warmCropProtocol(cropInput.value); });
+      }
+      // 从历史记录/语音等途径回填作物时不触发 change，这里兜一次
+      if (cropInput) {
+        cropInput.addEventListener('blur', function () { warmCropProtocol(cropInput.value); });
       }
 
       function renderSuggestions(keyword) {
