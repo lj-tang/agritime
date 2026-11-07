@@ -175,18 +175,22 @@ public final class ComputeStub {
         if (cached != null) {
             return cached;
         }
+        // 类别通用规程：400 种作物里人工校核过的只有十几种，其余按类别给模板。
+        // 必须排在**大模型缓存和调用之前** —— 缓存里可能存着早期大模型生成的错误规程
+        // （实测"苹果"被排成"3 月播种、9 月收获"，而苹果是多年生果树），
+        // 那些数据不清掉就会一直命中，模板永远没机会生效。
+        CropProperties.Props tp = CropProperties.of(cropId);
+        if (tp != null) {
+            List<RawNode> templated = CropTemplates.build(cropId, tp);
+            if (!templated.isEmpty()) {
+                return templated;
+            }
+        }
+
         ensureLlmCacheLoaded();
         List<RawNode> llmCached = LLM_PROC_CACHE.get(cropId);
         if (llmCached != null) {
             return llmCached;
-        }
-
-        // 类别通用规程：400 种作物里人工校核过的只有十几种，其余按类别给模板。
-        // 放在大模型之前 —— 模板是本地计算、毫秒级，而大模型要 30~40 秒，
-        // 且实测会把"苹果"排成"当年播种、当年收获"（苹果是多年生果树）。
-        List<RawNode> templated = CropTemplates.build(cropId, CropProperties.of(cropId));
-        if (!templated.isEmpty()) {
-            return templated;
         }
 
         Long until = LLM_NEGATIVE.get(cropId);
