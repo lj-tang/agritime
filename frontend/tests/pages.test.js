@@ -1344,7 +1344,7 @@ test('V5 任务书：15 项 T16–T30 全量留档并标注状态', () => {
     assert.ok(tb.includes('**' + k + '**') || tb.includes('- **' + k + '**'), '每个任务应含「' + k + '」');
   });
   assert.ok(tb.includes('执行状态总览'), '应有执行状态总览章节');
-  assert.ok(tb.includes('13 项已完成'), '总览应写明 13 项已完成');
+  assert.ok(tb.includes('14 项已完成'), '总览应写明 14 项已完成（T21 四态统一已收口）');
   assert.ok(tb.includes('**状态**'), '每项都应标注状态（已完成/部分完成）');
   assert.ok(tb.includes('## 四、三人分工建议'), '应保留分工章节');
   assert.ok(tb.includes('## 五、开发与认领规则'), '应保留认领规则');
@@ -2211,4 +2211,10 @@ test('完善性：超管后台错误反馈走 toast，保留确认类交互', ()
   assert.ok(consoleJs.includes("toast('操作失败：' + e.message, 'error')"), '封号/改角色失败应走 toast');
   assert.ok(!/\.catch\(function \(e\) \{ alert\(/.test(consoleJs), '错误回调不应再弹 alert');
   assert.ok(consoleJs.includes("confirm('确定封禁"), '封号等破坏性操作仍应二次确认');
+  // 账号/文件/日志三个面板也要有四态 + 重试，不留「加载失败」一行灰字
+  assert.ok(consoleJs.includes('showError') && consoleJs.includes('onRetry'), '后台面板错误态应带重试');
+  assert.ok(consoleJs.includes("showError(usersEmpty"), '账号面板加载失败应走错误态');
+  assert.ok(consoleJs.includes("showError(fsEmpty"), '文件面板加载失败应走错误态');
+  assert.ok(consoleJs.includes("showError(auditEmpty"), '日志面板加载失败应走错误态');
+  assert.ok(consoleJs.includes('showEmpty'), '后台面板空态应走统一组件');
 });

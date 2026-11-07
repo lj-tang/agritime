@@ -60,6 +60,24 @@
     else if (window.alert) window.alert(msg);
   }
 
+  /** 面板空态 / 错误态：统一走 UiState，带重试，不让后台面板在断网时只剩一行灰字 */
+  function showEmpty(box, text) {
+    if (!box) return;
+    box.hidden = false;
+    if (window.UiState) window.UiState.empty(box, { icon: '🗂️', text: text });
+    else box.textContent = text;
+  }
+
+  function showError(box, text, retry) {
+    if (!box) return;
+    box.hidden = false;
+    if (window.UiState) {
+      window.UiState.error(box, { text: text, hint: '网络恢复后点下面重新加载。', onRetry: retry });
+    } else {
+      box.textContent = text;
+    }
+  }
+
   // ---------------- 初始化 ----------------
 
   function init() {
@@ -182,10 +200,18 @@
         var items = (d.data && d.data.items) || [];
         usersCount.textContent = '共 ' + items.length + ' 个';
         usersBody.innerHTML = '';
-        usersEmpty.hidden = items.length > 0;
+        if (!items.length) {
+          showEmpty(usersEmpty, '还没有账号');
+          return;
+        }
+        usersEmpty.hidden = true;
         items.forEach(function (u) { usersBody.appendChild(userRow(u)); });
       })
-      .catch(function () { usersCount.textContent = '加载失败'; });
+      .catch(function () {
+        usersCount.textContent = '';
+        usersBody.innerHTML = '';
+        showError(usersEmpty, '账号列表加载失败', loadUsers);
+      });
   }
 
   function userRow(u) {
@@ -282,12 +308,16 @@
       .then(function (d) {
         var items = (d.data && d.data.items) || [];
         auditEl.innerHTML = '';
-        auditEmpty.hidden = items.length > 0;
+        if (!items.length) {
+          showEmpty(auditEmpty, '还没有操作记录');
+          return;
+        }
+        auditEmpty.hidden = true;
         items.forEach(function (line) {
           auditEl.appendChild(el('div', 'admin-audit-row', line));
         });
       })
-      .catch(function (e) { auditEl.textContent = '加载失败：' + e.message; });
+      .catch(function () { showError(auditEmpty, '操作日志加载失败', loadAudit); });
   }
 
   function loadStats() {
@@ -308,10 +338,17 @@
 
         var items = data.items || [];
         fsBody.innerHTML = '';
-        fsEmpty.hidden = items.length > 0;
+        if (!items.length) {
+          showEmpty(fsEmpty, '这个目录是空的');
+          return;
+        }
+        fsEmpty.hidden = true;
         items.forEach(function (it) { fsBody.appendChild(fileRow(it)); });
       })
-      .catch(function (e) { toast('读取目录失败：' + e.message, 'error'); });
+      .catch(function () {
+        fsBody.innerHTML = '';
+        showError(fsEmpty, '目录读取失败', loadFiles);
+      });
   }
 
   function renderCrumbs(path) {
