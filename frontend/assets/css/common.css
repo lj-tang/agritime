@@ -801,7 +801,9 @@ body.split-active .page--home { display: none; }
 body.split-active .app-main { display: none; }
 
 .timeline-pane { display: none; flex: 1; min-width: 0; padding: 0; }
-body.split-active .timeline-pane { display: block; }
+/* 浮动的「返回编辑」压在时间线顶部，会挡住作物名和播期，这里给它让出高度 */
+body.split-active .timeline-pane { display: block; padding-top: 46px; }
+body.split-active .timeline-iframe { height: calc(100vh - 46px); }
 
 .timeline-iframe {
   width: 100%;
