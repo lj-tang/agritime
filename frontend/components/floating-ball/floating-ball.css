@@ -5,7 +5,7 @@
   width: 44px;
   height: 44px;
   border-radius: 50%;
-  background: var(--leaf, #2f6b40);
+  background: var(--leaf, var(--brand));
   color: var(--paper, #f4efe3);
   display: flex;
   align-items: center;

@@ -1375,26 +1375,27 @@ test('V5 T16 推荐：地点真参与计算，地块真参与打分', () => {
   assert.ok(indexHtml.includes("params.set('plotId'"), '日历跳转应带上 plotId');
 });
 
-test('UI 重写：骨架改版但配色保持 V4 暖色', () => {
-  // 配色不许动：底色/卡片/主色/文字/分隔线全部沿用 V4 取值
-  assert.ok(commonCss.includes('--bg: #f4efe3'), '底色应保持暖米黄 #f4efe3');
-  assert.ok(commonCss.includes('--surface: #fffdf7'), '卡片应保持暖白 #fffdf7');
-  assert.ok(commonCss.includes('--ink: #23301f'), '主文字应保持墨绿 #23301f');
-  assert.ok(commonCss.includes('--muted: #8b9382'), '次要文字应保持 #8b9382');
-  assert.ok(commonCss.includes('--line: #e4ddcb'), '分隔线应保持 #e4ddcb');
-  assert.ok(commonCss.includes('--brand: #2f6b40'), '主色应保持叶片绿 #2f6b40');
-  assert.ok(!commonCss.includes('--bg: #f2f2f2'), '不应残留中性灰底');
-  assert.ok(!commonCss.includes('#009273'), '不应残留 WorkBuddy 青绿');
+test('UI 重写：改为现代干净浅色底 + 鲜明叶片绿（主流 SaaS 风格）', () => {
+  // 配色升级：干净浅灰绿底 + 纯白卡片 + 鲜明叶片绿
+  assert.ok(commonCss.includes('--bg: #f5f7f5'), '底色应为干净浅灰绿 #f5f7f5');
+  assert.ok(commonCss.includes('--surface: #ffffff'), '卡片应为纯白 #ffffff');
+  assert.ok(commonCss.includes('--ink: #17211a'), '主文字应为近黑 #17211a');
+  assert.ok(commonCss.includes('--brand: #16a34a'), '主色应为鲜明叶片绿 #16a34a');
+  assert.ok(commonCss.includes('--line: #e3e8e3'), '分隔线应为浅灰 #e3e8e3');
   // 旧变量名必须保留，否则各模块 CSS 会集体失效
   ['--paper:', '--card:', '--leaf:', '--sun:', '--rain:', '--red:'].forEach(v => {
     assert.ok(commonCss.includes(v), '应保留旧变量 ' + v);
   });
-  // 主按钮回到绿色渐变
-  assert.match(commonCss, /\.btn-primary\s*\{[^}]*linear-gradient/);
-  // 改的是骨架与密度：侧栏 216px、卡片 12px 圆角、控件 38px 高
+  // 主按钮改为纯色（去掉过时大渐变），hover 加深
+  assert.ok(!/\n\.btn-primary\s*\{[^}]*linear-gradient/.test(commonCss), '主按钮不应再是渐变');
+  assert.ok(commonCss.includes('--brand-hover'), '主按钮应有 hover 加深色');
+  // 现代聚焦环 + 定制下拉箭头
+  assert.ok(commonCss.includes('--focus-ring'), '应有统一聚焦环变量');
+  assert.ok(commonCss.includes('appearance: none'), '原生下拉应定制外观');
+  // 布局与尺度保持：侧栏 216px
   assert.match(commonCss, /body\[data-layout="app"\]\s*\{[^}]*padding-left: 216px/);
-  assert.ok(commonCss.includes('--radius: 12px'), '卡片圆角 12px');
-  assert.match(commonCss, /\.field input\s*\{[^}]*height: 38px/);
+  assert.ok(commonCss.includes('--radius: 16px'), '卡片圆角升级为 16px');
+  assert.match(commonCss, /\.field input\s*\{[^}]*height: 40px/);
   // 侧栏配色也保持：叶绿 hover/选中，图标不灰化
   assert.ok(sidebarCss.includes('var(--leaf-soft'), '侧栏选中态应用叶绿浅底');
   assert.ok(!sidebarCss.includes('grayscale(1)'), '图标不应灰化');

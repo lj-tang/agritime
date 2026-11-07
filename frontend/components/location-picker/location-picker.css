@@ -83,12 +83,12 @@
 
 /* 多边形顶点 */
 .agritime-vertex { background: none; border: 0; }
-.agritime-vertex-dot { display: block; width: 14px; height: 14px; border-radius: 50%; background: #fff; border: 3px solid #3f8f56; box-shadow: 0 1px 3px rgba(43, 58, 38,.35); box-sizing: border-box; }
-.agritime-vertex-dot.is-first { background: #3f8f56; border-color: #fff; box-shadow: 0 0 0 2px #3f8f56, 0 1px 3px rgba(43, 58, 38,.35); }
+.agritime-vertex-dot { display: block; width: 14px; height: 14px; border-radius: 50%; background: #fff; border: 3px solid var(--brand-hover); box-shadow: 0 1px 3px rgba(43, 58, 38,.35); box-sizing: border-box; }
+.agritime-vertex-dot.is-first { background: var(--brand-hover); border-color: #fff; box-shadow: 0 0 0 2px var(--brand-hover), 0 1px 3px rgba(43, 58, 38,.35); }
 
 /* 可种植性判定 */
 .map-verdict { padding: 10px 16px; font-size: 13px; line-height: 1.6; border-top: 1px solid var(--line); }
-.map-verdict-suitable { background: rgba(63,143,86,.12); color: #2f6b40; }
+.map-verdict-suitable { background: rgba(63,143,86,.12); color: var(--brand); }
 .map-verdict-caution { background: rgba(214,158,46,.16); color: #8a6415; }
 .map-verdict-unsuitable { background: rgba(190,60,50,.14); color: #a33227; font-weight: 600; }
 .map-verdict-unknown { background: var(--paper-2); color: var(--ink-soft); }
