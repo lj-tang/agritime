@@ -1506,11 +1506,14 @@ test('T18 提醒中心：三类分级、开关、未读数与降级持久', () =
 test('T18 提醒记录：按账号落盘、去重、已读与过期清理', () => {
   const handler = read(path.resolve(__dirname, '..', '..', 'backend', 'src', 'com', 'cropcalendar', 'api', 'ReminderHandler.java'));
   const store = read(path.resolve(__dirname, '..', '..', 'backend', 'src', 'com', 'cropcalendar', 'service', 'reminder', 'ReminderStore.java'));
+  const fileStore = read(path.resolve(__dirname, '..', '..', 'backend', 'src', 'com', 'cropcalendar', 'store', 'FileBlobStore.java'));
   const server = read(path.resolve(__dirname, '..', '..', 'backend', 'src', 'com', 'cropcalendar', 'Server.java'));
   const taskbook = read(path.resolve(__dirname, '..', '..', 'docs', 'taskbook-v5.md'));
   assert.ok(server.includes('/api/reminders'), '服务端应注册提醒接口');
   assert.ok(handler.includes('Auth.current'), '提醒接口应按账号隔离');
-  assert.ok(store.includes('Atomic') || store.includes('ATOMIC_MOVE'), '档案写入应原子替换');
+  // 原子写下沉到存储层（FileBlobStore），ReminderStore 经 StoreFactory 复用同一实现
+  assert.ok(fileStore.includes('ATOMIC_MOVE'), '档案写入应原子替换（存储层）');
+  assert.ok(store.includes('StoreFactory.forCollection("reminders")'), '提醒档案应经存储抽象落盘');
   assert.ok(store.includes('PRUNE_AFTER_DAYS'), '过期提醒应清理');
   assert.ok(store.includes('Asia/Shanghai'), '过期判定应显式用北京时间');
   assert.ok(store.includes('old.get("read")'), '重复推送不应把已读顶回未读');
@@ -1959,6 +1962,8 @@ test('T30 存储层：BlobStore 抽象 + file/mysql 双后端 + 迁移回滚', (
   const uds = read(path.resolve(__dirname, '..', '..', 'backend', 'src', 'com', 'cropcalendar', 'service', 'user', 'UserDataStore.java'));
   const cfg = read(path.resolve(__dirname, '..', '..', 'backend', 'src', 'com', 'cropcalendar', 'config', 'AppConfig.java'));
   const sql = read(path.resolve(__dirname, '..', '..', 'data', 'store-mysql.sql'));
+  const reminderStore = read(path.resolve(__dirname, '..', '..', 'backend', 'src', 'com', 'cropcalendar', 'service', 'reminder', 'ReminderStore.java'));
+  const plotHistory = read(path.resolve(__dirname, '..', '..', 'backend', 'src', 'com', 'cropcalendar', 'service', 'plot', 'PlotHistory.java'));
 
   assert.ok(iface.includes('interface BlobStore'), '应有存储抽象接口');
   assert.ok(factory.includes('mysqlOrFile') && factory.includes('FileBlobStore'), '工厂应按配置选择后端');
@@ -1968,6 +1973,12 @@ test('T30 存储层：BlobStore 抽象 + file/mysql 双后端 + 迁移回滚', (
   assert.ok(uds.includes('StoreFactory.userData()'), 'UserDataStore 应走存储抽象');
   assert.ok(cfg.includes('storeBackend'), '应有 store.backend 配置开关');
   assert.ok(sql.includes('CREATE TABLE') && sql.includes('utf8mb4'), '应有 MySQL 建表脚本');
+  // 提醒与地块历史也接入存储抽象，file/mysql 可切换
+  assert.ok(sql.includes('CREATE TABLE IF NOT EXISTS reminders'), '应有 reminders 表');
+  assert.ok(sql.includes('CREATE TABLE IF NOT EXISTS plot_history'), '应有 plot_history 表');
+  assert.ok(reminderStore.includes('StoreFactory.forCollection("reminders")'), '提醒档案应走存储抽象');
+  assert.ok(plotHistory.includes('StoreFactory.forCollection("plot_history")'), '地块历史应走存储抽象');
+  assert.ok(plotHistory.includes('public static void delete'), '地块历史应支持按用户删除（注销清理）');
 });
 
 // ---------------- 时间线远期节点常年气候兜底（合并队友改动） ----------------

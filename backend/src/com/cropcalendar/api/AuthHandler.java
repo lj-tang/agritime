@@ -274,6 +274,7 @@ public class AuthHandler implements HttpHandler {
         }
         boolean removed = UserStore.delete(u.id());
         ReminderStore.delete(u.id());
+        com.cropcalendar.service.plot.PlotHistory.delete(u.id());
         com.cropcalendar.service.sensor.SensorStore.purge(u.id());
         if (!removed) {
             HttpSupport.write(ex, 404, HttpSupport.error(404, "账号不存在或已注销"));

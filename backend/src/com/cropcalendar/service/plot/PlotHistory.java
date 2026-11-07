@@ -1,15 +1,13 @@
 package com.cropcalendar.service.plot;
 
 import com.cropcalendar.util.AppTime;
+import com.cropcalendar.store.BlobStore;
+import com.cropcalendar.store.StoreFactory;
 import com.cropcalendar.util.Json;
 import java.time.ZoneId;
 import com.cropcalendar.util.JsonParser;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
@@ -24,7 +22,9 @@ import java.util.Map;
  * 按地块聚合历年种植记录：种过什么、播期、收获期、产量。
  * 用地块历史支撑两个因子：连作检测与产量趋势（地力）。
  *
- * 存储路径：var/plot-history/&lt;userId&gt;.json，写入用临时文件 + 原子替换。
+ * 存储走 {@link com.cropcalendar.store.StoreFactory}（T30）：file 后端是
+ * var/plot-history/&lt;userId&gt;.json，mysql 后端是同构的 plot_history 表，可切换；
+ * 写入用临时文件 + 原子替换。
  */
 public final class PlotHistory {
     private static final java.time.ZoneId SH = java.time.ZoneId.of("Asia/Shanghai");
@@ -35,16 +35,24 @@ public final class PlotHistory {
     private PlotHistory() {
     }
 
-    private static Path pathOf(String userId) {
-        return Path.of("var/plot-history", userId + ".json");
+    private static volatile BlobStore store;
+
+    private static BlobStore store() {
+        BlobStore s = store;
+        if (s == null) {
+            s = StoreFactory.forCollection("plot_history");
+            store = s;
+        }
+        return s;
     }
 
     private static List<Map<String, Object>> readAll(String userId) {
-        Path p = pathOf(userId);
+        String json = store().read(userId);
+        if (json == null || json.isBlank() || "{}".equals(json.trim())) {
+            return new ArrayList<>();
+        }
         try {
-            if (!Files.exists(p)) return new ArrayList<>();
-            String text = Files.readString(p, StandardCharsets.UTF_8);
-            Object root = JsonParser.parse(text);
+            Object root = JsonParser.parse(json);
             if (root instanceof Map<?, ?> m && m.get("records") instanceof List<?> list) {
                 List<Map<String, Object>> out = new ArrayList<>();
                 for (Object o : list) {
@@ -59,8 +67,6 @@ public final class PlotHistory {
     }
 
     private static void writeAll(String userId, List<Map<String, Object>> records) throws IOException {
-        Path p = pathOf(userId);
-        Files.createDirectories(p.getParent());
         List<String> arr = new ArrayList<>();
         for (Map<String, Object> r : records) {
             arr.add(Json.obj(
@@ -78,12 +84,13 @@ public final class PlotHistory {
                     "createdAt", Json.str(str(r.get("createdAt")))));
         }
         String json = Json.obj("records", Json.arr(arr));
-        Path tmp = p.resolveSibling(p.getFileName() + ".tmp");
-        Files.writeString(tmp, json, StandardCharsets.UTF_8);
-        try {
-            Files.move(tmp, p, StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE);
-        } catch (IOException atomicUnsupported) {
-            Files.move(tmp, p, StandardCopyOption.REPLACE_EXISTING);
+        store().write(userId, json);
+    }
+
+    /** 账号注销时清掉这份档案，与提醒/作物/传感器档案一起删。 */
+    public static void delete(String userId) {
+        synchronized (LOCK) {
+            try { store().delete(userId); } catch (IOException ignored) { }
         }
     }
 

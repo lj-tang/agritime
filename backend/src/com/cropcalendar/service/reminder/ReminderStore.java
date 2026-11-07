@@ -1,15 +1,12 @@
 package com.cropcalendar.service.reminder;
 
 import com.cropcalendar.util.AppTime;
-import com.cropcalendar.config.AppConfig;
+import com.cropcalendar.store.BlobStore;
+import com.cropcalendar.store.StoreFactory;
 import com.cropcalendar.util.Json;
 import com.cropcalendar.util.JsonParser;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
@@ -28,8 +25,9 @@ import java.util.Set;
  * 服务端档案：按 id 去重、保留已读状态、清掉过期项、按三级风险排序，
  * 并算出未读数。前端仍保留 localStorage 镜像，服务不可用时降级读本地。
  *
- * 存储路径与 UserDataStore 并列：var/userdata/&lt;id&gt;.json 的兄弟目录
- * var/reminders/&lt;id&gt;.json。写入用临时文件 + 原子替换，避免半截 JSON。
+ * 存储走 {@link com.cropcalendar.store.StoreFactory}（T30）：file 后端是
+ * var/reminders/&lt;id&gt;.json，mysql 后端是同构的 reminders 表，两种后端可切换；
+ * 写入用临时文件 + 原子替换，避免半截 JSON。
  */
 public final class ReminderStore {
 
@@ -54,7 +52,7 @@ public final class ReminderStore {
     /** 账号注销时删掉这份档案（V5 T28 的数据删除要求，提醒先落地）。 */
     public static void delete(String userId) {
         synchronized (LOCK) {
-            try { Files.deleteIfExists(pathOf(userId)); } catch (IOException ignored) { }
+            try { store().delete(userId); } catch (IOException ignored) { }
         }
     }
 
@@ -231,16 +229,29 @@ public final class ReminderStore {
         return s.isEmpty() || "null".equals(s) ? null : s;
     }
 
-    // ---------------- 文件读写 ----------------
+    // ---------------- 存储（file / mysql 可切换，T30） ----------------
+
+    private static volatile BlobStore store;
+
+    private static BlobStore store() {
+        BlobStore s = store;
+        if (s == null) {
+            s = StoreFactory.forCollection("reminders");
+            store = s;
+        }
+        return s;
+    }
 
     private static State readState(String userId) {
         Map<String, Object> settings = new LinkedHashMap<>();
         for (String t : TYPES) settings.put(t, Boolean.TRUE);
         List<Map<String, Object>> items = new ArrayList<>();
-        Path p = pathOf(userId);
-        if (!Files.exists(p)) return new State(items, settings);
+        String json = store().read(userId);
+        if (json == null || json.isBlank() || "{}".equals(json.trim())) {
+            return new State(items, settings);
+        }
         try {
-            Object root = JsonParser.parse(Files.readString(p, StandardCharsets.UTF_8));
+            Object root = JsonParser.parse(json);
             if (root instanceof Map<?, ?> m) {
                 if (m.get("settings") instanceof Map<?, ?> sm) {
                     for (String t : TYPES) {
@@ -262,29 +273,14 @@ public final class ReminderStore {
     }
 
     private static void writeState(String userId, State s) {
-        Path p = pathOf(userId);
         Map<String, Object> root = new LinkedHashMap<>();
         root.put("items", s.items());
         root.put("settings", s.settings());
         root.put("updatedAt", AppTime.now().toString());
         try {
-            Files.createDirectories(p.getParent());
-            Path tmp = p.resolveSibling(p.getFileName() + ".tmp");
-            Files.writeString(tmp, Json.stringify(root), StandardCharsets.UTF_8);
-            try {
-                Files.move(tmp, p, StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE);
-            } catch (IOException atomicUnsupported) {
-                Files.move(tmp, p, StandardCopyOption.REPLACE_EXISTING);
-            }
+            store().write(userId, Json.stringify(root));
         } catch (IOException e) {
             throw new IllegalStateException("提醒档案写入失败：" + e.getMessage(), e);
         }
-    }
-
-    private static Path pathOf(String userId) {
-        String safe = (userId == null ? "anonymous" : userId).replaceAll("[^A-Za-z0-9_\\-]", "_");
-        Path dataDir = Path.of(AppConfig.authDataDir());
-        Path parent = dataDir.getParent() == null ? Path.of(".") : dataDir.getParent();
-        return parent.resolve("reminders").resolve(safe + ".json");
     }
 }
