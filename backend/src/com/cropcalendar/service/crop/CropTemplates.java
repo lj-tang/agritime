@@ -229,6 +229,12 @@ public final class CropTemplates {
             add(p, 0.72, 4); add(p, 0.90, 14);
             return p;
         }
+        // 多年生药材（枸杞/黄芪/白芍等）：定植后不再"间苗"，改为苗期追肥与修剪
+        if (perennial && g == Group.MEDICINAL) {
+            add(p, 0.00, 1); add(p, 0.20, 4); add(p, 0.45, 15); add(p, 0.70, 11);
+            add(p, 0.90, 9);
+            return p;
+        }
         switch (g) {
             case CEREAL -> {
                 add(p, 0.00, 1); add(p, 0.08, 2); add(p, 0.22, 4); add(p, 0.38, 3);
