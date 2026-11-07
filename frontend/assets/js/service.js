@@ -1,12 +1,12 @@
 /**
- * 客服（V4 T14 / V5 T18）—— 用户端
+ * 反馈（V4 T14 / V5 T18）—— 用户端
  * 提交工单 → 分页列表（状态筛选）→ 详情对话 → 追问回复。
  *
- * T18 之前列表一次返回全部工单，也没有未读：客服回了话用户不知道。
+ * T18 之前列表一次返回全部工单，也没有未读：反馈回了话用户不知道。
  * 现在接口带 page/pageSize/total/statusCounts/unreadCount，前端补三样：
  *   · 状态页签（待处理/处理中/已解决）与每类数量；
  *   · 分页条，超过一页才出现；
- *   · 未读圆点 + 侧栏「客服」角标，进详情即清当前未读。
+ *   · 未读圆点 + 侧栏「反馈」角标，进详情即清当前未读。
  *
  * 鉴权复用账号系统 Cookie；未登录仍可按本浏览器记录查看自己提交过的工单。
  */
@@ -401,7 +401,7 @@
     var ok = document.createElement('div');
     ok.className = 'service-submitted';
     ok.innerHTML = '<div class="service-submitted-title">工单已提交 ✓</div>' +
-      '<div class="service-submitted-sub">客服会尽快回复，你可以在「我的咨询」里查看进展（登录后可在任意设备同步）</div>';
+      '<div class="service-submitted-sub">我们会尽快回复，你可以在「我的咨询」里查看进展（登录后可在任意设备同步）</div>';
     detailBox.appendChild(ok);
     detailBox.appendChild(bubble(t.userName || '访客', t.content, t.createdAt, 'user'));
   }

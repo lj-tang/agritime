@@ -1,6 +1,6 @@
 /**
  * 左侧栏导航组件（V4 T01）
- * 6 个板块入口：种植推荐/我的地块/农事日历/病害检查/我的作物/客服
+ * 6 个板块入口：种植推荐/我的地块/农事日历/病害检查/我的作物/反馈
  * 点击切换对应 content pane，移动端抽屉式折叠。
  */
 (function () {
@@ -13,7 +13,7 @@
       { id: 'plots', label: '我的地块', icon: 'pin', implemented: true },
       { id: 'my-crops', label: '我的作物', icon: 'leaf', implemented: true }
     ]},
-    { id: 'service', label: '客服', icon: 'chat', implemented: true },
+    { id: 'service', label: '反馈', icon: 'chat', implemented: true },
     // 管理后台只给超管看：非管理员连入口都不出现，权限判断仍在服务端
     { id: 'admin', label: '管理后台', icon: 'gear', implemented: true, adminOnly: true }
   ];

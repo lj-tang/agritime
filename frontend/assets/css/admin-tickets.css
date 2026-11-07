@@ -1,4 +1,4 @@
-/* 超管 · 客服工单独立页（V5 T18）：复用 admin-console 的骨架与 service 的气泡 */
+/* 超管 · 反馈工单独立页（V5 T18）：复用 admin-console 的骨架与 service 的气泡 */
 
 /* 头部两个返回入口：只有第一个吃掉剩余空间，第二个紧跟 */
 .admin-back + .admin-back { margin-left: 0; }

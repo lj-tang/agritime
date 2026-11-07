@@ -24,9 +24,9 @@ import java.util.Map;
 public final class LlmService {
 
     private static final String PROMPT_TEMPLATE = """
-            你是农事专家。为"%s"生成农事规程，只返回纯JSON数组，不要其他文字：
-            [{"opType":"sowing","dayOffset":0,"title":"播种","desc":"描述"}]
-            opType只能用sowing/irrigation/fertilize/pesticide/harvest，dayOffset相对播种日天数且单调递增，生成6-10个节点。""";
+            你是农事专家。为"%s"生成农事规程，只返回纯JSON数组，不要任何解释、markdown 或代码块：
+            [{"opType":"sowing","dayOffset":0,"title":"播种"}]
+            opType 只能是 sowing/irrigation/fertilize/pesticide/harvest；dayOffset 是相对播种日的天数，从 0 开始严格递增；共 6~8 个节点；title 用 6~10 个汉字；不要输出 desc 或其他字段。""";
 
     private static final String CHART_PROMPT_TEMPLATE = """
             为"%s"生成农事图表JSON，只返回JSON对象：
@@ -187,6 +187,9 @@ public final class LlmService {
 
     /**
      * 构造 OpenAI 兼容的请求体。
+     *
+     * temperature 从 0.7 降到 0.3：规程是结构化事实，不需要发散；
+     * 低温度也让同一作物的输出更稳定，减少因格式跑偏而重试。
      */
     private static String buildRequestBody(String prompt) {
         StringBuilder sb = new StringBuilder();
@@ -194,7 +197,7 @@ public final class LlmService {
         sb.append(escapeJson(AppConfig.llmModel()));
         sb.append("\",\"messages\":[{\"role\":\"user\",\"content\":\"");
         sb.append(escapeJson(prompt));
-        sb.append("\"}],\"temperature\":0.7}");
+        sb.append("\"}],\"temperature\":0.3}");
         return sb.toString();
     }
 

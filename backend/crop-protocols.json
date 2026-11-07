@@ -1,6 +1,6 @@
 {
-  "version": "0.2.0",
-  "comment": "作物栽培规程表（契约①的数据载体）。新增一种作物：往 crops 数组里加一个对象即可，不需要改任何 Java 代码。opType 只能是 sowing/irrigation/fertilize/pesticide/harvest 五值之一；dayOffset 是相对播种日的天数（0 = 播种当天），必须单调递增；reviewStatus 为 pending_review 的内容属占位/推测，须经农技人员复核后才能当作事实（铁律 8：农艺数据必须可溯源）。 ｜ V5：每项新增 standardName（标准作物名），供 CropRegistry 把俗称归一到规程。",
+  "version": "0.3.0",
+  "comment": "作物栽培规程表（契约①的数据载体）。新增一种作物：往 crops 数组里加一个对象即可，不需要改任何 Java 代码。opType 只能是 sowing/irrigation/fertilize/pesticide/harvest 五值之一；dayOffset 是相对播种日的天数（0 = 播种当天），必须单调递增；reviewStatus 为 pending_review 的内容属占位/推测，须经农技人员复核后才能当作事实（铁律 8：农艺数据必须可溯源）。 ｜ V5：每项新增 standardName（标准作物名），供 CropRegistry 把俗称归一到规程。 ｜ V5.1：新增番茄/黄瓜/辣椒/茄子/大白菜/马铃薯/萝卜/西瓜 8 种常见作物（公开农技资料整理，reviewStatus=pending_review），让这些作物无需调用大模型即可秒出日历。",
   "crops": [
     {
       "cropId": "dry_garlic",
@@ -286,6 +286,468 @@
         }
       ],
       "standardName": "大豆"
+    },
+    {
+      "cropId": "tomato",
+      "name": "番茄（露地）",
+      "standardName": "番茄",
+      "source": "厦门市地方标准《番茄露地栽培技术规范》DB3502/T 004（1月中下旬播种、2月中下旬定植；定植后浇定根水与缓苗水；第一穗果膨大追高氮高钾复合肥15kg/亩；第二穗果采收追高钾复合肥20kg/亩；果实转色分批采收）",
+      "reviewStatus": "pending_review",
+      "nodes": [
+        {
+          "opType": "sowing",
+          "dayOffset": 0,
+          "title": "播种育苗",
+          "desc": "小拱棚育苗，苗龄约30天，4叶1心定植"
+        },
+        {
+          "opType": "irrigation",
+          "dayOffset": 30,
+          "title": "定植缓苗水",
+          "desc": "定植后浇足定根水，3~5天后再浇一次缓苗水"
+        },
+        {
+          "opType": "fertilize",
+          "dayOffset": 50,
+          "title": "第一穗果膨大追肥",
+          "desc": "高氮高钾复合肥15kg/亩，随水冲施"
+        },
+        {
+          "opType": "pesticide",
+          "dayOffset": 65,
+          "title": "开花坐果期防病",
+          "desc": "重点防灰霉病、叶霉病、早疫病，兼治蚜虫"
+        },
+        {
+          "opType": "fertilize",
+          "dayOffset": 80,
+          "title": "第二穗果追肥",
+          "desc": "高钾复合肥20kg/亩，促上部果实膨大"
+        },
+        {
+          "opType": "pesticide",
+          "dayOffset": 95,
+          "title": "盛果期病虫防治",
+          "desc": "防晚疫病、棉铃虫、白粉虱，采前注意安全间隔期"
+        },
+        {
+          "opType": "harvest",
+          "dayOffset": 110,
+          "title": "开始采收",
+          "desc": "果实转色成熟，分批采收，及时摘除下部老叶病叶"
+        },
+        {
+          "opType": "harvest",
+          "dayOffset": 135,
+          "title": "采收盛期",
+          "desc": "继续分批采收，减轻植株负担"
+        }
+      ]
+    },
+    {
+      "cropId": "cucumber",
+      "name": "黄瓜（露地）",
+      "standardName": "黄瓜",
+      "source": "镇赉县/巴彦淖尔《黄瓜夏季栽培管理技术要点》与岳阳市农业农村局《瓜类蔬菜栽培》（5~7月直播；全生育期追肥3~4次；播后45~60天始收；结瓜后每10~15天追肥一次，花后8~10天采嫩瓜）",
+      "reviewStatus": "pending_review",
+      "nodes": [
+        {
+          "opType": "sowing",
+          "dayOffset": 0,
+          "title": "直播播种",
+          "desc": "浸种催芽后直播，每穴2~3粒，出苗后定苗"
+        },
+        {
+          "opType": "irrigation",
+          "dayOffset": 8,
+          "title": "齐苗水",
+          "desc": "齐苗后浇一次水，促苗整齐"
+        },
+        {
+          "opType": "fertilize",
+          "dayOffset": 20,
+          "title": "苗期提苗肥",
+          "desc": "稀薄三元复合肥5~10kg/亩，防徒长"
+        },
+        {
+          "opType": "pesticide",
+          "dayOffset": 30,
+          "title": "抽蔓期防病",
+          "desc": "防霜霉病、白粉病、枯萎病，搭架前喷一次"
+        },
+        {
+          "opType": "fertilize",
+          "dayOffset": 35,
+          "title": "初花期追肥",
+          "desc": "开花结果起用0.5%复合肥液淋施，7~10天一次"
+        },
+        {
+          "opType": "harvest",
+          "dayOffset": 45,
+          "title": "根瓜采收",
+          "desc": "花后8~10天采嫩瓜，根瓜要早采防坠秧"
+        },
+        {
+          "opType": "fertilize",
+          "dayOffset": 55,
+          "title": "盛瓜期追肥",
+          "desc": "每10~15天追一次氮磷钾复合肥，配叶面喷磷酸二氢钾"
+        },
+        {
+          "opType": "pesticide",
+          "dayOffset": 65,
+          "title": "盛瓜期病虫防治",
+          "desc": "防霜霉病、角斑病、蚜虫、黄守瓜"
+        },
+        {
+          "opType": "harvest",
+          "dayOffset": 75,
+          "title": "采收盛期",
+          "desc": "隔天或每天采收，勤采保瓜条鲜嫩"
+        }
+      ]
+    },
+    {
+      "cropId": "chili_pepper",
+      "name": "辣椒（露地）",
+      "standardName": "辣椒",
+      "source": "中椒网《辣椒及其露地的种植栽培技术》与甘肃《无公害茄子辣椒栽培技术》（苗龄30~50天定植；定植后7天追提苗肥5~10kg/亩，15天后再追7~8kg；盛花期每15~20天追10kg；开花到果实成熟25~40天）",
+      "reviewStatus": "pending_review",
+      "nodes": [
+        {
+          "opType": "sowing",
+          "dayOffset": 0,
+          "title": "播种育苗",
+          "desc": "苗龄30~50天，7~8片真叶定植"
+        },
+        {
+          "opType": "irrigation",
+          "dayOffset": 35,
+          "title": "定植缓苗水",
+          "desc": "定植后及时浇水，缓苗后控水蹲苗"
+        },
+        {
+          "opType": "fertilize",
+          "dayOffset": 42,
+          "title": "提苗肥",
+          "desc": "定植后7天，尿素5~10kg/亩"
+        },
+        {
+          "opType": "fertilize",
+          "dayOffset": 57,
+          "title": "初花期追肥",
+          "desc": "距上次15天，蔬菜专用肥7~8kg/亩"
+        },
+        {
+          "opType": "pesticide",
+          "dayOffset": 70,
+          "title": "防病毒病与蚜虫",
+          "desc": "苗期与定植后喷病毒A，先治蚜虫等传毒媒介"
+        },
+        {
+          "opType": "fertilize",
+          "dayOffset": 85,
+          "title": "盛花期追肥",
+          "desc": "每15~20天追蔬菜配方肥10kg/亩，培土前施入"
+        },
+        {
+          "opType": "harvest",
+          "dayOffset": 100,
+          "title": "开始采收",
+          "desc": "果实变红或商品成熟，分批采收"
+        },
+        {
+          "opType": "harvest",
+          "dayOffset": 120,
+          "title": "采收盛期",
+          "desc": "多次采收，霜降前收完"
+        }
+      ]
+    },
+    {
+      "cropId": "eggplant",
+      "name": "茄子（露地）",
+      "standardName": "茄子",
+      "source": "甘肃《无公害茄子辣椒栽培技术》（苗龄40~45天定植；移栽后7天追肥3~5kg/亩，15天后追7~8kg；盛花期每15~20天追10kg；开花后20~30天采收，果皮光亮时为佳）",
+      "reviewStatus": "pending_review",
+      "nodes": [
+        {
+          "opType": "sowing",
+          "dayOffset": 0,
+          "title": "播种育苗",
+          "desc": "苗龄40~45天，5~6片真叶定植"
+        },
+        {
+          "opType": "irrigation",
+          "dayOffset": 40,
+          "title": "定植缓苗水",
+          "desc": "定植后浇透水，缓苗后控水促根"
+        },
+        {
+          "opType": "fertilize",
+          "dayOffset": 47,
+          "title": "提苗肥",
+          "desc": "移栽后7天，蔬菜专用肥3~5kg/亩冲施"
+        },
+        {
+          "opType": "fertilize",
+          "dayOffset": 62,
+          "title": "初花期追肥",
+          "desc": "15天后再追7~8kg/亩"
+        },
+        {
+          "opType": "pesticide",
+          "dayOffset": 75,
+          "title": "防黄萎病与红蜘蛛",
+          "desc": "黄萎病灌根，红蜘蛛用哒螨灵喷雾"
+        },
+        {
+          "opType": "fertilize",
+          "dayOffset": 90,
+          "title": "盛花期追肥",
+          "desc": "每15~20天追蔬菜配方肥10kg/亩"
+        },
+        {
+          "opType": "harvest",
+          "dayOffset": 105,
+          "title": "门茄采收",
+          "desc": "开花后20~30天，果皮光亮时采收"
+        },
+        {
+          "opType": "harvest",
+          "dayOffset": 125,
+          "title": "采收盛期",
+          "desc": "分批采收，摘除基部老黄叶病叶"
+        }
+      ]
+    },
+    {
+      "cropId": "chinese_cabbage",
+      "name": "大白菜（秋播）",
+      "standardName": "大白菜",
+      "source": "科普中国《青蒜、马铃薯、青玉米、大白菜套种》与安徽农网、晋中太谷大白菜轻简化栽培（8月上中旬育苗、苗龄约20天定植；播后25天追稀粪水+尿素；莲座期与结球期追肥；包心结实后分期采收）",
+      "reviewStatus": "pending_review",
+      "nodes": [
+        {
+          "opType": "sowing",
+          "dayOffset": 0,
+          "title": "播种育苗",
+          "desc": "8月上中旬育苗，遮阴防暴雨，苗龄约20天"
+        },
+        {
+          "opType": "irrigation",
+          "dayOffset": 20,
+          "title": "定植缓苗水",
+          "desc": "3叶定植，浇透定根水"
+        },
+        {
+          "opType": "fertilize",
+          "dayOffset": 25,
+          "title": "提苗肥",
+          "desc": "稀粪水1500kg/亩 + 尿素25kg，促莲座叶"
+        },
+        {
+          "opType": "fertilize",
+          "dayOffset": 40,
+          "title": "莲座期追肥",
+          "desc": "三元复合肥20~25kg/亩，促叶片快速生长"
+        },
+        {
+          "opType": "pesticide",
+          "dayOffset": 50,
+          "title": "防霜霉病与软腐病",
+          "desc": "重点防霜霉病、软腐病、菜青虫、小菜蛾"
+        },
+        {
+          "opType": "fertilize",
+          "dayOffset": 60,
+          "title": "结球期追肥",
+          "desc": "硫酸钾或磷酸二氢钾20~25kg + 尿素10~15kg，促包心紧实"
+        },
+        {
+          "opType": "pesticide",
+          "dayOffset": 75,
+          "title": "包心期防病防虫",
+          "desc": "继续防软腐病与菜青虫，采前注意安全间隔期"
+        },
+        {
+          "opType": "harvest",
+          "dayOffset": 85,
+          "title": "开始采收",
+          "desc": "叶球紧实后分期分批采收"
+        }
+      ]
+    },
+    {
+      "cropId": "potato",
+      "name": "马铃薯（春播）",
+      "standardName": "马铃薯",
+      "source": "晋中太谷马铃薯栽培技术、安徽农网拱棚马铃薯与科普中国（种薯切块催芽后播种；追肥结合浇水5~8次；初花期追膨大肥；收获前15天停水，80%植株枯黄后杀秧一周收获）",
+      "reviewStatus": "pending_review",
+      "nodes": [
+        {
+          "opType": "sowing",
+          "dayOffset": 0,
+          "title": "播种",
+          "desc": "种薯切块留2个以上芽眼，芽眼向上，覆土12~15cm"
+        },
+        {
+          "opType": "irrigation",
+          "dayOffset": 15,
+          "title": "出苗水",
+          "desc": "出苗后视墒情浇水，促苗齐"
+        },
+        {
+          "opType": "fertilize",
+          "dayOffset": 30,
+          "title": "苗期追肥",
+          "desc": "以氮肥为主，促茎叶生长"
+        },
+        {
+          "opType": "fertilize",
+          "dayOffset": 45,
+          "title": "现蕾期膨大肥",
+          "desc": "钾肥为主，促块茎膨大，氮肥在花期前追完"
+        },
+        {
+          "opType": "pesticide",
+          "dayOffset": 55,
+          "title": "防晚疫病",
+          "desc": "开花前后重点防晚疫病，及时拔除病株"
+        },
+        {
+          "opType": "irrigation",
+          "dayOffset": 70,
+          "title": "膨大期浇水",
+          "desc": "保持土壤湿润，避免忽干忽湿"
+        },
+        {
+          "opType": "pesticide",
+          "dayOffset": 85,
+          "title": "后期防病防虫",
+          "desc": "防晚疫病与地下害虫"
+        },
+        {
+          "opType": "harvest",
+          "dayOffset": 95,
+          "title": "收获",
+          "desc": "80%植株枯黄后杀秧，一周后收获，收前15天停水"
+        }
+      ]
+    },
+    {
+      "cropId": "radish",
+      "name": "萝卜（露地）",
+      "standardName": "萝卜",
+      "source": "公开栽培资料综合（生长期60~80天，根径2~3cm时采收；苗期追薄氮肥，肉质根膨大期增施钾肥并均匀供水）",
+      "reviewStatus": "pending_review",
+      "nodes": [
+        {
+          "opType": "sowing",
+          "dayOffset": 0,
+          "title": "直播播种",
+          "desc": "条播或穴播，覆土1~2cm，及时间苗定苗"
+        },
+        {
+          "opType": "irrigation",
+          "dayOffset": 10,
+          "title": "出苗水",
+          "desc": "出苗后小水勤浇，保持土壤湿润"
+        },
+        {
+          "opType": "fertilize",
+          "dayOffset": 20,
+          "title": "苗期追肥",
+          "desc": "稀薄氮肥，促叶片生长"
+        },
+        {
+          "opType": "irrigation",
+          "dayOffset": 30,
+          "title": "膨大初期浇水",
+          "desc": "肉质根开始膨大，均匀供水防裂根"
+        },
+        {
+          "opType": "fertilize",
+          "dayOffset": 40,
+          "title": "膨大期追肥",
+          "desc": "钾肥为主，配合磷肥，忌偏施氮肥"
+        },
+        {
+          "opType": "pesticide",
+          "dayOffset": 50,
+          "title": "防蚜虫与霜霉病",
+          "desc": "防蚜虫、菜青虫与霜霉病"
+        },
+        {
+          "opType": "harvest",
+          "dayOffset": 60,
+          "title": "开始采收",
+          "desc": "根径2~3cm、单根重达标即可采收"
+        },
+        {
+          "opType": "harvest",
+          "dayOffset": 75,
+          "title": "采收盛期",
+          "desc": "及时采收防糠心，采前控水"
+        }
+      ]
+    },
+    {
+      "cropId": "watermelon",
+      "name": "西瓜（露地）",
+      "standardName": "西瓜",
+      "source": "上海奉贤《露地西瓜如何高产》与广西农科院西甜瓜栽培要点（团棵期5叶追三元复合肥10~15kg；落花后7天追尿素15~20kg+钾肥10~15kg；幼瓜碗口大追尿素10kg+钾肥10kg；开花后28~35天成熟，播后80~95天采收）",
+      "reviewStatus": "pending_review",
+      "nodes": [
+        {
+          "opType": "sowing",
+          "dayOffset": 0,
+          "title": "播种育苗",
+          "desc": "浸种催芽后穴播或育苗，苗龄约30天"
+        },
+        {
+          "opType": "irrigation",
+          "dayOffset": 30,
+          "title": "定植缓苗水",
+          "desc": "2~3片真叶定植，浇足定根水"
+        },
+        {
+          "opType": "fertilize",
+          "dayOffset": 35,
+          "title": "团棵期追肥",
+          "desc": "5叶期，三元复合肥10~15kg/亩"
+        },
+        {
+          "opType": "fertilize",
+          "dayOffset": 50,
+          "title": "落花后追肥",
+          "desc": "尿素15~20kg + 钾肥10~15kg/亩"
+        },
+        {
+          "opType": "pesticide",
+          "dayOffset": 55,
+          "title": "防枯萎病与蚜虫",
+          "desc": "防枯萎病、炭疽病、蚜虫，注意轮作"
+        },
+        {
+          "opType": "fertilize",
+          "dayOffset": 65,
+          "title": "膨瓜期追肥",
+          "desc": "幼瓜碗口大，尿素10kg + 钾肥10kg/亩"
+        },
+        {
+          "opType": "irrigation",
+          "dayOffset": 75,
+          "title": "膨瓜水",
+          "desc": "7~10天浇一次，均匀供水防裂瓜"
+        },
+        {
+          "opType": "harvest",
+          "dayOffset": 95,
+          "title": "成熟采收",
+          "desc": "开花后28~35天，果皮条纹清晰、卷须干枯时采收"
+        }
+      ]
     }
   ]
 }

@@ -23,7 +23,7 @@ import java.util.UUID;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
- * /api/support/* —— 客服工单系统（T14 / V5 T18）
+ * /api/support/* —— 反馈工单系统（T14 / V5 T18）
  *
  *   POST /api/support/ticket    用户提交工单 {subject, category, content}
  *   GET  /api/support/tickets   工单列表（分页 + 状态筛选）
@@ -41,7 +41,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  *   1. 列表分页并返回总数、总页数、各状态计数，不再一次把全部工单甩给前端；
  *   2. 状态从"open/replied/closed"改成"待处理/处理中/已解决"，回复与查看都会
  *      驱动状态变化；旧数据在读取时自动归一，不丢历史工单；
- *   3. 未读计数分身份算：用户看"客服回了我没"，管理员看"用户又追问了没"。
+ *   3. 未读计数分身份算：用户看"反馈回了我没"，管理员看"用户又追问了没"。
  *      查看详情即清当前身份的未读，回复后对方未读 +1。
  *
  * 持久化：../data/support/tickets.json，读写加锁。这里必须整份序列化原始 Map ——
@@ -285,7 +285,7 @@ public class SupportHandler implements HttpHandler {
         String now = FMT.format(AppTime.now());
         Map<String, Object> msg = new LinkedHashMap<>();
         msg.put("from", admin ? "admin" : "user");
-        msg.put("who", admin ? (u.nickname().isEmpty() ? "客服" : u.nickname()) : str(t.get("userName")));
+        msg.put("who", admin ? (u.nickname().isEmpty() ? "反馈处理员" : u.nickname()) : str(t.get("userName")));
         msg.put("content", content);
         msg.put("time", now);
 
@@ -294,7 +294,7 @@ public class SupportHandler implements HttpHandler {
             ((List<Object>) t.computeIfAbsent("replies", k -> new ArrayList<>())).add(msg);
             String current = normalizeStatus(str(t.get("status")));
             if (admin) {
-                // 客服回过话，工单就算在处理中；已解决的也能被客服重新打开
+                // 反馈回过话，工单就算在处理中；已解决的也能被反馈重新打开
                 t.put("status", "processing");
                 t.put("unreadForUser", true);
                 t.put("unreadForAdmin", false);

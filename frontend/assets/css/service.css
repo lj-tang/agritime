@@ -1,4 +1,4 @@
-/* 客服样式（T14），容器宽度/内边距由 common.css 的 .content-pane 统一控制 */
+/* 反馈样式（T14），容器宽度/内边距由 common.css 的 .content-pane 统一控制 */
 .service-header { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 18px; }
 .service-title { display: block; font-size: 22px; font-weight: 800; letter-spacing: 1px; color: var(--ink); }
 .service-sub { display: block; margin-top: 6px; font-size: 13px; color: var(--muted); }
@@ -166,7 +166,7 @@
   border-radius: 8px;
 }
 
-/* 侧栏「客服」未读角标 */
+/* 侧栏「反馈」未读角标 */
 .service-sidebar-badge {
   margin-left: auto;
   min-width: 18px;

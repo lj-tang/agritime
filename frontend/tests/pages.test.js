@@ -168,6 +168,32 @@ test('性能：规程生成等待窗口覆盖大模型耗时，不再 15 秒误�
   assert.ok(indexHtml.includes('warmCropProtocol'), '选中作物后应后台预热规程，减少点生成后的干等');
 });
 
+test('速度：常见作物进本地规程库（免大模型），且带来源与待复核标记', () => {
+  const p = JSON.parse(read(path.resolve(__dirname, '..', '..', 'backend', 'crop-protocols.json')));
+  const expect = ['番茄', '黄瓜', '辣椒', '茄子', '大白菜', '马铃薯', '萝卜', '西瓜'];
+  const byStd = {};
+  p.crops.forEach((c) => { if (c.standardName) byStd[c.standardName] = c; });
+
+  expect.forEach((name) => {
+    const c = byStd[name];
+    assert.ok(c, '规程库应包含 ' + name);
+    const nodes = c.nodes || [];
+    assert.ok(nodes.length >= 6 && nodes.length <= 10, name + ' 节点数应为 6~10');
+    let last = -1;
+    nodes.forEach((n) => {
+      assert.ok(['sowing', 'irrigation', 'fertilize', 'pesticide', 'harvest'].includes(n.opType), name + ' opType 非法');
+      assert.ok(n.dayOffset > last, name + ' dayOffset 应严格递增');
+      last = n.dayOffset;
+    });
+    assert.ok(c.source && c.source.length > 10, name + ' 应写明数据来源（可溯源）');
+    assert.ok(c.reviewStatus === 'pending_review', name + ' 公开资料整理应标 pending_review');
+  });
+
+  const llm = read(path.resolve(__dirname, '..', '..', 'backend', 'src', 'com', 'cropcalendar', 'compute', 'LlmService.java'));
+  assert.ok(!llm.includes('"desc":"描述"'), '提示词不应再要求 desc（解析层不读，纯属白生成）');
+  assert.ok(llm.includes('temperature') && llm.includes('0.3'), '温度应降到 0.3，输出更稳定');
+});
+
 test('流程对齐：作物映射共享模块完整且两页面共用', () => {
   ['dry_garlic', 'wheat_winter', 'corn_summer', 'rice', 'soybean'].forEach((id) => {
     assert.ok(cropMapJs.includes(id), 'crop-map.js 缺少 ' + id);
@@ -870,11 +896,11 @@ test('T15 推荐规则库：结构与字段完整', () => {
   });
 });
 
-// ---------------- T14 客服 ----------------
+// ---------------- T14 反馈 ----------------
 const serviceJs = read(path.resolve(__dirname, '..', 'assets', 'js', 'service.js'));
 const adminJs = read(path.resolve(__dirname, '..', 'assets', 'js', 'admin.js'));
 
-test('T14 客服：index.html 集成（service/admin 脚本与样式）', () => {
+test('T14 反馈：index.html 集成（service/admin 脚本与样式）', () => {
   assert.ok(indexHtml.includes('service.js'));
   assert.ok(indexHtml.includes('admin.js'));
   assert.ok(indexHtml.includes('service.css'));
@@ -882,13 +908,13 @@ test('T14 客服：index.html 集成（service/admin 脚本与样式）', () => 
   assert.ok(indexHtml.includes('data-module="service"'));
 });
 
-test('T14 客服：用户端走 /api/support 接口', () => {
+test('T14 反馈：用户端走 /api/support 接口', () => {
   assert.ok(serviceJs.includes('/api/support'));
   assert.ok(serviceJs.includes('/ticket'));
   assert.ok(serviceJs.includes('/reply'));
 });
 
-test('T14 客服：超管端复用账号系统而非独立密码登录', () => {
+test('T14 反馈：超管端复用账号系统而非独立密码登录', () => {
   assert.ok(adminJs.includes('/api/auth/me'));
   assert.ok(adminJs.includes("user.role === 'admin'"));
   assert.ok(adminJs.includes("'/close'"));
@@ -1770,7 +1796,7 @@ test('T16 病害问诊：匹配度与命中依据成对出现，没命中不硬�
   assert.ok(js.includes('disease-evidence-chip'), '前端应列出判断依据');
   assert.ok(js.includes('安全间隔期'), '前端应显示安全间隔期');
   assert.ok(js.includes('renderNeedHuman') && js.includes('goHuman'), '无匹配应给转人工入口');
-  assert.ok(js.includes("switchModule('service')"), '转人工应切到客服板块');
+  assert.ok(js.includes("switchModule('service')"), '转人工应切到反馈板块');
   assert.ok(css.includes('.disease-evidence-chip') && css.includes('.disease-safety'), '缺少依据与用药安全样式');
   assert.ok(html.includes('不承诺识别率'), '图像识别应标注仅辅助、不承诺识别率');
 });
@@ -2129,8 +2155,8 @@ test('健壮性：传感器调度批量 IO + 推荐坐标校验 + XSS + 撞库�
   assert.ok(auth.includes('LOCK_UNTIL.remove(key)'), '锁定到期应惰性清除');
 
   // XSS：用户昵称与外部地理数据一律走 textContent，不进 innerHTML
-  assert.ok(adminJs.includes('whoDiv.textContent'), '客服气泡昵称应走 textContent');
-  assert.ok(serviceJs.includes('whoDiv.textContent'), '客服气泡昵称应走 textContent');
+  assert.ok(adminJs.includes('whoDiv.textContent'), '反馈气泡昵称应走 textContent');
+  assert.ok(serviceJs.includes('whoDiv.textContent'), '反馈气泡昵称应走 textContent');
   assert.ok(adminJs.includes("querySelector('.service-item-meta').textContent"), '工单 meta 昵称应走 textContent');
   assert.ok(plotsJs.includes('createTextNode'), '附近河流名应走 createTextNode');
 });
@@ -2227,7 +2253,7 @@ test('完善性：错误态带重试、写操作防重复、触控热区、label
 
   // 1. 错误态带重试
   assert.ok(rec.includes('UiState.error') && rec.includes('onRetry'), '推荐错误态应带重试');
-  assert.ok(svc.includes('UiState.error') && svc.includes('onRetry: function () { openDetail(id); }'), '客服详情错误态应带重试');
+  assert.ok(svc.includes('UiState.error') && svc.includes('onRetry: function () { openDetail(id); }'), '反馈详情错误态应带重试');
   assert.ok(plots.includes('onRetry: function () { analyzePolygon'), '地块分析失败应带重试');
   assert.ok(adm.includes('onRetry: load') && adm.includes('onRetry: function () { openDetail(id); }'), '后台错误态应带重试');
 

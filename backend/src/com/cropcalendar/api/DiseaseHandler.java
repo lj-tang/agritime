@@ -166,7 +166,7 @@ public class DiseaseHandler implements HttpHandler {
                 "note", Json.str(note),
                 "needHuman", String.valueOf(needHuman),
                 "humanHint", Json.str(needHuman
-                        ? "点「转人工」把这段描述发给客服，或在「客服」里发起咨询；也可以补一句部位、颜色、有没有霉层"
+                        ? "点「转人工」把这段描述发给反馈，或在「反馈」里发起咨询；也可以补一句部位、颜色、有没有霉层"
                         : null),
                 "total", String.valueOf(items.size()),
                 "matches", Json.arr(items)));

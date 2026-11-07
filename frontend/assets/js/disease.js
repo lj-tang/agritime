@@ -277,7 +277,7 @@
 
   /**
    * 未匹配到时的转人工入口（T16）。
-   * 不在病害页重复造一个工单表单：切到「客服」板块，用现有新建咨询表单，
+   * 不在病害页重复造一个工单表单：切到「反馈」板块，用现有新建咨询表单，
    * 把作物与症状描述带过去，用户只需补一句就能提交。
    */
   function renderNeedHuman(hint, desc) {
@@ -295,7 +295,7 @@
     var btn = document.createElement('button');
     btn.type = 'button';
     btn.className = 'btn btn-ghost disease-human-btn';
-    btn.textContent = '把这段描述转给客服';
+    btn.textContent = '把这段描述转给反馈';
     btn.addEventListener('click', function () { goHuman(desc); });
     resultBox.appendChild(btn);
   }
@@ -316,7 +316,7 @@
       if (category) category.value = '病虫害';
       if (content) content.focus();
     } catch (e) {
-      showMessage('打开客服面板失败，请在左侧「客服」里新建咨询并粘贴描述');
+      showMessage('打开反馈面板失败，请在左侧「反馈」里新建咨询并粘贴描述');
     }
   }
 

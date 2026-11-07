@@ -1,4 +1,4 @@
-/* 管理后台 · 客服工单（T14）部分样式；账号/文件/开关样式在 admin-console.css */
+/* 管理后台 · 反馈工单（T14）部分样式；账号/文件/开关样式在 admin-console.css */
 .admin-header { margin-bottom: 18px; }
 .admin-title { display: block; font-size: 22px; font-weight: 800; letter-spacing: 1px; color: var(--ink); }
 .admin-sub { display: block; margin-top: 6px; font-size: 13px; color: var(--muted); }
