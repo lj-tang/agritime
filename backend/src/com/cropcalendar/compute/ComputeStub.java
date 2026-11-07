@@ -280,14 +280,17 @@ public final class ComputeStub {
 
     public static List<CropInfo> listCropInfos() {
         List<CropInfo> infos = new ArrayList<>();
+        java.util.Set<String> seen = new java.util.HashSet<>();
         Map<String, List<RawNode>> presets = loadProtocols();
         for (var entry : presets.entrySet()) {
+            if (!seen.add(entry.getKey())) continue;
             infos.add(new CropInfo(entry.getKey(), entry.getKey(), entry.getValue().size()));
         }
+        ensureLlmCacheLoaded();
         for (var entry : LLM_PROC_CACHE.entrySet()) {
-            if (!presets.containsKey(entry.getKey())) {
-                infos.add(new CropInfo(entry.getKey(), entry.getKey(), entry.getValue().size()));
-            }
+            if (presets.containsKey(entry.getKey())) continue;
+            if (!seen.add(entry.getKey())) continue;
+            infos.add(new CropInfo(entry.getKey(), entry.getKey(), entry.getValue().size()));
         }
         return infos;
     }
@@ -699,6 +702,12 @@ public final class ComputeStub {
                             if (!(o instanceof Map<?, ?> c)) continue;
                             String id = nonBlank(c.get("cropId"));
                             if (id == null || !(c.get("nodes") instanceof List<?> list)) continue;
+                            // 老缓存可能用中文名做键（番茄），而现在已有本地规程（tomato）：
+                            // 统一归一到规程 id；已有本地规程的作物直接丢弃缓存，
+                            // 否则作物列表里会同时出现「番茄/tomato」两条。
+                            String canonical = CropRegistry.timelineCropId(id);
+                            if (canonical == null || canonical.isBlank()) canonical = id;
+                            if (loadProtocols().containsKey(canonical)) continue;
                             List<RawNode> nodes = new ArrayList<>();
                             for (Object n : list) {
                                 if (!(n instanceof Map<?, ?> node)) continue;
@@ -707,9 +716,9 @@ public final class ComputeStub {
                                 if (op == null || title == null) continue;
                                 Double dOff = dayOffsetOf(node.get("dayOffset"));
                                 if (dOff == null) continue;
-                                nodes.add(new RawNode(id, op, (int) (double) dOff, title));
+                                nodes.add(new RawNode(canonical, op, (int) (double) dOff, title));
                             }
-                            if (!nodes.isEmpty()) LLM_PROC_CACHE.put(id, nodes);
+                            if (!nodes.isEmpty()) LLM_PROC_CACHE.put(canonical, nodes);
                         }
                     }
                 }
