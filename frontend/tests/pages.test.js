@@ -2121,3 +2121,38 @@ test('CropRegistry：别名/拼音/规程 id 归一与模糊闸门有单测，�
   assert.ok(t.includes('rice'), '应测规程 id 反查');
   assert.ok(t.includes('大豆'), '应测首字不同的模糊闸门');
 });
+
+// ---------------- 完善性优化五轮（错误重试/防重复/触控/无障碍/反馈） ----------------
+
+test('完善性：错误态带重试、写操作防重复、触控热区、label 关联、保存反馈', () => {
+  const uiState = read(path.resolve(__dirname, '..', 'assets', 'js', 'ui-state.js'));
+  const rec = read(path.resolve(__dirname, '..', 'assets', 'js', 'recommend.js'));
+  const svc = read(path.resolve(__dirname, '..', 'assets', 'js', 'service.js'));
+  const adm = read(path.resolve(__dirname, '..', 'assets', 'js', 'admin.js'));
+  const plots = read(path.resolve(__dirname, '..', 'assets', 'js', 'my-plots.js'));
+  const crops = read(path.resolve(__dirname, '..', 'assets', 'js', 'my-crops.js'));
+  const css = read(path.join(CSS, 'common.css'));
+  const html = read(path.resolve(__dirname, '..', 'pages', 'index.html'));
+
+  // 1. 错误态带重试
+  assert.ok(rec.includes('UiState.error') && rec.includes('onRetry'), '推荐错误态应带重试');
+  assert.ok(svc.includes('UiState.error') && svc.includes('onRetry: function () { openDetail(id); }'), '客服详情错误态应带重试');
+  assert.ok(plots.includes('onRetry: function () { analyzePolygon'), '地块分析失败应带重试');
+  assert.ok(adm.includes('onRetry: load') && adm.includes('onRetry: function () { openDetail(id); }'), '后台错误态应带重试');
+
+  // 2. 写操作防重复
+  assert.ok(svc.includes("submitBtn.disabled = true"), '工单提交应防重复');
+  assert.ok(svc.includes("btn.textContent = '发送中…'"), '回复应防重复');
+  assert.ok(adm.includes("sendBtn.disabled = true") && adm.includes("closeBtn.disabled = true"), '后台回复/关闭应防重复');
+
+  // 3. 触控热区
+  assert.ok(css.includes('map-picker-btn') && css.includes('width: 40px'), '地图标点按钮移动端应放大到 40px');
+
+  // 4. label 关联
+  assert.ok(html.includes('label for="mc-crop-name"') && html.includes('id="plot-type"'), '表单 label 应有关联 for/id');
+
+  // 5. 保存反馈
+  assert.ok(uiState.includes('window.showToast'), '应有全局 toast');
+  assert.ok(plots.includes("showToast('地块已保存'"), '保存地块应有反馈');
+  assert.ok(crops.includes("showToast('作物已保存'"), '保存作物应有反馈');
+});

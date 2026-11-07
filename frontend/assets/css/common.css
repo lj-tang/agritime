@@ -1153,6 +1153,12 @@ body.split-active .home-pane-back { display: inline-flex; align-items: center; }
 .field:has(> .map-picker-btn) > .voice-btn { right: 36px; }
 .field:has(> .map-picker-btn):has(> .voice-btn) input { padding-right: 72px; }
 
+/* 移动端触控热区：地图标点按钮放大，别让用户戳 28px 的小点 */
+@media (max-width: 767px) {
+  .field > .map-picker-btn { width: 40px; height: 40px; font-size: 18px; right: 4px; top: 26px; }
+  .field:has(> .map-picker-btn) input { padding-right: 48px; }
+}
+
 /* 日期行里的语音按钮：保持同一视觉语言，不要描边框 */
 .date-picker > .voice-btn {
   border-color: transparent;

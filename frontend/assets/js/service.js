@@ -255,7 +255,14 @@
         syncUnread();
       })
       .catch(function (e) {
-        detailBox.innerHTML = '<div class="service-empty">加载失败：' + e.message + '</div>';
+        if (window.UiState) {
+          window.UiState.error(detailBox, {
+            text: '工单详情加载失败：' + (e.message || '网络异常'),
+            onRetry: function () { openDetail(id); }
+          });
+        } else {
+          detailBox.innerHTML = '<div class="service-empty">加载失败：' + e.message + '</div>';
+        }
       });
   }
 
@@ -300,9 +307,11 @@
       btn.addEventListener('click', function () {
         var content = ta.value.trim();
         if (!content) return;
+        btn.disabled = true;
+        btn.textContent = '发送中…';
         post(API + '/reply', { ticketId: t.id, content: content })
-          .then(function (d) { renderDetail(d.data); syncUnread(); })
-          .catch(function (e) { alert('发送失败：' + e.message); });
+          .then(function (d) { btn.disabled = false; btn.textContent = '发送'; renderDetail(d.data); syncUnread(); })
+          .catch(function (e) { btn.disabled = false; btn.textContent = '发送'; alert('发送失败：' + e.message); });
       });
       replyBox.appendChild(ta);
       replyBox.appendChild(btn);
@@ -367,13 +376,18 @@
     var content = document.getElementById('service-content').value.trim();
     var userName = document.getElementById('service-user-name').value.trim();
     if (!subject || !content) { alert('请填写标题和描述'); return; }
+    var submitBtn = e.target.querySelector('button[type=submit]');
+    if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = '提交中…'; }
     post(API + '/ticket', { subject: subject, category: category, content: content, userName: userName })
       .then(function (d) {
         form.reset();
         rememberMine(d.data.id);
         renderSubmitted(d.data);
       })
-      .catch(function (err) { alert('提交失败：' + err.message); });
+      .catch(function (err) {
+        if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = '提交工单'; }
+        alert('提交失败：' + err.message);
+      });
   }
 
   function renderSubmitted(t) {

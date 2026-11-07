@@ -64,7 +64,16 @@
         if (countEl) countEl.textContent = '共 ' + list.length + ' 条';
         renderList(list);
       })
-      .catch(function (e) { listBox.innerHTML = '<div class="service-empty">加载失败：' + e.message + '</div>'; });
+      .catch(function (e) {
+        if (window.UiState) {
+          window.UiState.error(listBox, {
+            text: '工单加载失败：' + (e.message || '网络异常'),
+            onRetry: load
+          });
+        } else {
+          listBox.innerHTML = '<div class="service-empty">加载失败：' + e.message + '</div>';
+        }
+      });
   }
 
   function renderList(list) {
@@ -101,7 +110,16 @@
         if (d.code !== 0) throw new Error(d.message || '加载失败');
         renderDetail(d.data);
       })
-      .catch(function (e) { detailBox.innerHTML = '<div class="service-empty">' + e.message + '</div>'; });
+      .catch(function (e) {
+        if (window.UiState) {
+          window.UiState.error(detailBox, {
+            text: '工单详情加载失败：' + (e.message || '网络异常'),
+            onRetry: function () { openDetail(id); }
+          });
+        } else {
+          detailBox.innerHTML = '<div class="service-empty">' + e.message + '</div>';
+        }
+      });
   }
 
   function renderDetail(t) {
@@ -133,14 +151,22 @@
       sendBtn.addEventListener('click', function () {
         var content = ta.value.trim();
         if (!content) return;
-        send(API + '/reply', { ticketId: t.id, content: content }, function (d) { renderDetail(d.data); });
+        sendBtn.disabled = true;
+        sendBtn.textContent = '回复中…';
+        send(API + '/reply', { ticketId: t.id, content: content })
+          .then(function (d) { renderDetail(d.data); })
+          .catch(function (e) { sendBtn.disabled = false; sendBtn.textContent = '回复'; alert(e.message); });
       });
       var closeBtn = document.createElement('button');
       closeBtn.type = 'button';
       closeBtn.className = 'btn btn-ghost';
       closeBtn.textContent = '关闭工单';
       closeBtn.addEventListener('click', function () {
-        send(API + '/close', { ticketId: t.id }, function (d) { renderDetail(d.data); load(); });
+        closeBtn.disabled = true;
+        closeBtn.textContent = '关闭中…';
+        send(API + '/close', { ticketId: t.id })
+          .then(function (d) { renderDetail(d.data); load(); })
+          .catch(function (e) { closeBtn.disabled = false; closeBtn.textContent = '关闭工单'; alert(e.message); });
       });
       replyBox.appendChild(ta);
       replyBox.appendChild(sendBtn);
@@ -163,8 +189,8 @@
     return b;
   }
 
-  function send(url, body, done) {
-    fetch(url, {
+  function send(url, body) {
+    return fetch(url, {
       method: 'POST',
       credentials: 'same-origin',
       headers: { 'Content-Type': 'application/json' },
@@ -173,9 +199,8 @@
       .then(function (r) { return r.json().catch(function () { return {}; }); })
       .then(function (d) {
         if (d.code !== 0) throw new Error(d.message || '操作失败');
-        done(d);
-      })
-      .catch(function (e) { alert(e.message); });
+        return d;
+      });
   }
 
   if (typeof window !== 'undefined') {

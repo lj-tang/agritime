@@ -73,7 +73,7 @@
       </div>
 
       <div class="field" id="field-sowing-date">
-        <label>播种日期</label>
+        <label for="mc-sown-date">播种日期</label>
         <div class="date-picker" id="date-picker" title="可选范围：两年前至今天后 30 天" aria-label="可选范围：两年前至今天后 30 天">
           <select id="date-year" aria-label="年"></select>
           <select id="date-month" aria-label="月"></select>
@@ -183,47 +183,47 @@
         <input type="hidden" name="mc-record-id" />
         <div class="my-crops-form-row">
           <div class="field">
-            <label>作物名称</label>
-            <input type="text" name="mc-crop-name" required placeholder="如：番茄" />
+            <label for="mc-crop-name">作物名称</label>
+            <input type="text" name="mc-crop-name" id="mc-crop-name" required placeholder="如：番茄" />
           </div>
           <div class="field">
             <label>播种日期</label>
-            <input type="date" name="mc-sown-date" />
+            <input type="date" name="mc-sown-date" id="mc-sown-date" />
           </div>
         </div>
         <div class="my-crops-form-row">
           <div class="field">
-            <label>生长阶段</label>
-            <select name="mc-germination"></select>
+            <label for="mc-germination">生长阶段</label>
+            <select name="mc-germination" id="mc-germination"></select>
           </div>
           <div class="field">
-            <label>长势</label>
-            <select name="mc-vigor"></select>
-          </div>
-        </div>
-        <div class="my-crops-form-row">
-          <div class="field">
-            <label>株高（cm）</label>
-            <input type="number" name="mc-height" min="0" step="0.1" />
-          </div>
-          <div class="field">
-            <label>所属地块</label>
-            <select name="mc-plot-id"></select>
+            <label for="mc-vigor">长势</label>
+            <select name="mc-vigor" id="mc-vigor"></select>
           </div>
         </div>
         <div class="my-crops-form-row">
           <div class="field">
-            <label>收获日期 <span class="hint">选填，按实际收获补录</span></label>
-            <input type="date" name="mc-harvest-date" />
+            <label for="mc-height">株高（cm）</label>
+            <input type="number" name="mc-height" id="mc-height" min="0" step="0.1" />
           </div>
           <div class="field">
-            <label>产量（kg） <span class="hint">补录后可看地力趋势</span></label>
-            <input type="number" name="mc-yield" min="0" step="0.1" />
+            <label for="mc-plot-id">所属地块</label>
+            <select name="mc-plot-id" id="mc-plot-id"></select>
+          </div>
+        </div>
+        <div class="my-crops-form-row">
+          <div class="field">
+            <label for="mc-harvest-date">收获日期 <span class="hint">选填，按实际收获补录</span></label>
+            <input type="date" name="mc-harvest-date" id="mc-harvest-date" />
+          </div>
+          <div class="field">
+            <label for="mc-yield">产量（kg） <span class="hint">补录后可看地力趋势</span></label>
+            <input type="number" name="mc-yield" id="mc-yield" min="0" step="0.1" />
           </div>
         </div>
         <div class="field">
-          <label>备注</label>
-          <textarea name="mc-remark" rows="2" placeholder="病虫害、施肥、天气影响…"></textarea>
+          <label for="mc-remark">备注</label>
+          <textarea name="mc-remark" id="mc-remark" rows="2" placeholder="病虫害、施肥、天气影响…"></textarea>
         </div>
         <div class="my-crops-form-actions">
           <button type="submit" class="btn btn-primary">保存</button>
@@ -244,12 +244,12 @@
         <h3>地块信息</h3>
         <input type="hidden" name="plot-id" />
         <div class="field">
-          <label>地块名称</label>
-          <input type="text" name="plot-name" placeholder="如：东边麦田" required />
+          <label for="plot-name">地块名称</label>
+          <input type="text" name="plot-name" id="plot-name" placeholder="如：东边麦田" required />
         </div>
         <div class="field">
-          <label>地块种类</label>
-          <select name="plot-type">
+          <label for="plot-type">地块种类</label>
+          <select name="plot-type" id="plot-type">
             <option value="farmland">耕田</option>
             <option value="economic">经济作物田</option>
             <option value="greenhouse">大棚</option>
@@ -277,12 +277,12 @@
         <div class="my-plots-analysis" id="plot-analysis-preview" hidden></div>
         <div class="my-plots-form-row">
           <div class="field">
-            <label>面积（亩） <span class="hint">框选后自动计算</span></label>
-            <input type="number" name="plot-area" min="0" step="0.1" placeholder="0" />
+            <label for="plot-area">面积（亩） <span class="hint">框选后自动计算</span></label>
+            <input type="number" name="plot-area" id="plot-area" min="0" step="0.1" placeholder="0" />
           </div>
           <div class="field">
-            <label>形状 <span class="hint">按多边形自动判定</span></label>
-            <select name="plot-shape">
+            <label for="plot-shape">形状 <span class="hint">按多边形自动判定</span></label>
+            <select name="plot-shape" id="plot-shape">
               <option value="rectangle">方形</option>
               <option value="strip">条状</option>
               <option value="irregular">不规则</option>
@@ -293,8 +293,8 @@
           <summary>地形参数（框选后自动推导，可手动修正）</summary>
           <div class="my-plots-form-row">
             <div class="field">
-              <label>坡度（°） <span class="hint">框选后按 DEM 自动算</span></label>
-              <input type="number" name="plot-slope" min="0" max="90" step="0.1" value="0" />
+              <label for="plot-slope">坡度（°） <span class="hint">框选后按 DEM 自动算</span></label>
+              <input type="number" name="plot-slope" id="plot-slope" min="0" max="90" step="0.1" value="0" />
             </div>
             <div class="field">
               <label>坡向 <span class="hint">0-360°，由地形推导</span></label>
@@ -306,8 +306,8 @@
           </div>
         </details>
         <div class="field">
-          <label>备注</label>
-          <textarea name="plot-remark" placeholder="补充说明…"></textarea>
+          <label for="plot-remark">备注</label>
+          <textarea name="plot-remark" id="plot-remark" placeholder="补充说明…"></textarea>
         </div>
         <div class="my-plots-form-actions">
           <button type="submit" class="btn btn-primary">保存</button>

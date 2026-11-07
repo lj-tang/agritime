@@ -100,4 +100,22 @@
     },
     clear: clear
   };
+
+  /**
+   * 全局轻提示（保存成功 / 已复制 等）。各面板统一用这一个，
+   * 不再各自 alert —— alert 打断操作，toast 只在底部闪一下。
+   */
+  window.showToast = function (msg, type) {
+    var t = document.getElementById('global-toast');
+    if (!t) {
+      t = document.createElement('div');
+      t.id = 'global-toast';
+      t.className = 'toast';
+      document.body.appendChild(t);
+    }
+    t.textContent = msg;
+    t.className = 'toast show ' + (type || '');
+    if (t.__timer) clearTimeout(t.__timer);
+    t.__timer = setTimeout(function () { t.className = 'toast'; }, 2600);
+  };
 })();

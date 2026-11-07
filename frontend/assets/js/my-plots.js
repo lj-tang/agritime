@@ -117,8 +117,17 @@
       if (res) applyAnalysisToForm(d, res);
       renderAnalysisPreview(box, d);
     }).catch(function (err) {
-      if (box) box.innerHTML = '<div class="plot-analysis-error">分析失败：' +
-        (err.message || '网络异常') + '，面积已保存，评分稍后重试</div>';
+      if (!box) return;
+      if (window.UiState) {
+        window.UiState.error(box, {
+          text: '分析失败：' + (err.message || '网络异常'),
+          hint: '面积已保存，评分稍后重试。',
+          onRetry: function () { analyzePolygon(polygon, res); }
+        });
+      } else {
+        box.innerHTML = '<div class="plot-analysis-error">分析失败：' +
+          (err.message || '网络异常') + '，面积已保存，评分稍后重试</div>';
+      }
     });
   }
 
@@ -793,6 +802,7 @@
     if (id) { window.MyPlotsStore.update(id, data); } else { window.MyPlotsStore.add(data); }
     hideForm();
     renderList();
+    if (window.showToast) window.showToast('地块已保存', 'info');
   }
 
   function showDetail(plot) {

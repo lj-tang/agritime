@@ -341,6 +341,7 @@
     }
     form.style.display = 'none';
     renderList();
+    if (window.showToast) window.showToast('作物已保存', 'info');
   }
 
   function handlePhoto(record) {
