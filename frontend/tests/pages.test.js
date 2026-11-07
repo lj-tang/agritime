@@ -2405,7 +2405,7 @@ test('V5.3 首页：播种日期不再是必填，改为自动推算并展示适
   assert.ok(indexHtml.includes('function applyWindowInfo'), '应把窗口渲染到页面');
   assert.match(indexHtml, /fetchSowWindow\(cropName, function \(err, info\)/, '提交时应先推算窗口');
   // 结果区要能说清"窗口 / 建议日 / 最晚 / 预计收获"四件事
-  assert.ok(indexHtml.includes("label + ' ' + fmtMD(w.start) + '–' + fmtMD(w.end)"), '应展示窗口起止');
+  assert.ok(indexHtml.includes("label + ' ' + fmtRange(w.start, w.end)"), '应展示窗口起止');
   assert.ok(indexHtml.includes("'预计 ' + fmtMD(h.date) + ' 收获'"), '应展示预计收获');
   assert.ok(indexHtml.includes("'最晚 ' + fmtMD(info.latest.date)"), '应展示最晚播期');
   // 手填日期仍然保留，不剥夺控制权

@@ -61,6 +61,18 @@ public final class PlantingWindow {
      * 后者会把"五月播春茬"也放行，而这在多熟制地区已经是夏茬了）。
      */
     public static Set<Integer> monthsFor(CropProperties.Props p) {
+        return monthsFor(p, 35.0);
+    }
+
+    /**
+     * 带纬度的窗口推导。
+     *
+     * 手工校核过的 sowMonths 直接用，不做纬度修正（那是逐品种校核过的值）。
+     * 其余按季节推导的，必须做一层粗调：同样是"春播"，华北的窗口到 5 月，
+     * 华南 2 月就能开始 —— 不加这一层，北京会得到"3~4 月播种"，而北京终霜在 4 月底，
+     * 整段窗口都落在霜期里，推荐日和校验必然打架。
+     */
+    public static Set<Integer> monthsFor(CropProperties.Props p, double lat) {
         Set<Integer> out = new LinkedHashSet<>();
         if (p == null) return out;
         if (p.hasSowMonths()) {
@@ -77,6 +89,8 @@ public final class PlantingWindow {
             out.add(3);
             out.add(4);
             if (s.contains("茬")) out.add(4);
+            if (lat >= 35) out.add(5);      // 华北北部/东北：春季窗口延到 5 月
+            if (lat < 28) out.add(2);       // 华南：2 月即可开始
         }
         if (s.contains("夏")) {
             out.add(6);
@@ -140,7 +154,7 @@ public final class PlantingWindow {
      */
     public static Window of(CropProperties.Props p, double lat, double lon, LocalDate today) {
         if (p == null || today == null) return null;
-        Set<Integer> months = monthsFor(p);
+        Set<Integer> months = monthsFor(p, lat);
         if (months.isEmpty()) return null;
 
         List<LocalDate[]> wins = windows(months, today);
@@ -171,7 +185,7 @@ public final class PlantingWindow {
         String precision = p.hasSowMonths() ? "researched" : "season-rule";
         String basis = p.hasSowMonths()
                 ? "作物属性库中已校核的播期（" + monthsText(months) + "）"
-                : "按适宜季节「" + safe(p.suitableSeason()) + "」推导（" + monthsText(months)
+                : "按适宜季节「" + safe(p.suitableSeason()) + "」并按本地纬度粗调（" + monthsText(months)
                         + "），未逐品种校核，仅作参考";
 
         CropTemplates.Group group = CropTemplates.groupOf(p);
@@ -230,6 +244,16 @@ public final class PlantingWindow {
         }
 
         int total = Math.max(1, p.totalDays());
+        // 终霜修正：不耐寒的作物，推荐日不能落在终霜前（华北 3 月上旬还是冻土期）。
+        // 只在终霜日本身仍在窗口内时才前移 —— 像番茄 1~3 月是保护地育苗，
+        // 终霜（4 月中）已在窗口之外，此时保留原推荐日，由播期校验按"育苗"口径放行。
+        if (!AgroZone.isColdHardy(p.tempRequirement())) {
+            LocalDate lf = AgroZone.lastSpringFrost(recommended.getYear(), lat);
+            if (recommended.isBefore(lf) && !lf.isAfter(end)) {
+                recommended = lf;
+                note = join(note, "已避开终霜，按终霜后 " + lf + " 起算");
+            }
+        }
         if (perennial) {
             int years = Math.max(1, (int) Math.round(total / 365.0));
             return new Candidate(start, end, recommended, end,

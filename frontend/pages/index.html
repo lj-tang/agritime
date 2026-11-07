@@ -635,6 +635,14 @@
         return (y === thisYear ? '' : y + '年') + m + '月' + d + '日';
       }
 
+      /** 同年区间不重复年份：2027年3月1日–4月30日 */
+      function fmtRange(a, b) {
+        var same = a && b && a.slice(0, 4) === b.slice(0, 4);
+        var tail = fmtMD(b);
+        if (same) tail = tail.replace(/^\d{4}年/, '');
+        return fmtMD(a) + '–' + tail;
+      }
+
       /**
        * 把服务端的"适宜播期窗口"渲染到表单里。
        * 这是删掉日期输入后的主结果：窗口起止、建议日、最晚日、预计收获，一眼看完。
@@ -654,7 +662,7 @@
         var act = w.action || '播种';
         var label = act.indexOf('定植') >= 0 ? '适宜定植期' : (act === '接种' ? '适宜接种期' : '适宜播期');
         var date = (info.sowDate || '');
-        main.textContent = label + ' ' + fmtMD(w.start) + '–' + fmtMD(w.end)
+        main.textContent = label + ' ' + fmtRange(w.start, w.end)
           + (date ? ' · 建议 ' + fmtMD(date) : '');
 
         var bits = [];
@@ -1169,6 +1177,8 @@
 
       form.addEventListener('submit', function (e) {
         e.preventDefault();
+        // 建议下拉还开着会盖住下面的播期结果卡片
+        suggestions.classList.remove('show');
         if (!validate()) { showToast('请先补全并检查表单', 'error'); return; }
         var cropName = cropInput.value.trim();
         var location = locationInput.value.trim();

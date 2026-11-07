@@ -124,7 +124,7 @@ public final class AgroZone {
      */
     private static String[] tokensOf(String region) {
         return switch (region == null ? "" : region) {
-            case "华北" -> new String[]{"华北", "黄淮海", "海河", "黄河中下游", "山东", "河南", "河北", "皖北", "苏北", "京津"};
+            case "华北" -> new String[]{"华北", "黄淮海", "海河", "黄河中下游", "山东", "河南", "河北", "皖北", "苏北", "京津", "环渤海", "渤海湾"};
             case "东北" -> new String[]{"东北", "松嫩", "三江平原", "辽宁", "吉林", "黑龙江", "内蒙古东部"};
             case "西北" -> new String[]{"西北", "黄土高原", "河西", "新疆", "陕西", "甘肃", "宁夏", "内蒙古", "青海东部"};
             case "长江流域" -> new String[]{"长江", "江淮", "江南", "华中", "江苏", "安徽", "湖北", "湖南", "江西", "浙江", "四川盆地"};

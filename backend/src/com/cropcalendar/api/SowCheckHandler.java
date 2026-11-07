@@ -47,8 +47,14 @@ public class SowCheckHandler implements HttpHandler {
      * 超过 60 天才算"明显不合理"，因为茬口和天气都还没定。
      */
     private static final int PLANNED_FUTURE_DAYS = 60;
-    /** 超过这个天数连计划都谈不上。 */
-    private static final int HARD_FUTURE_DAYS = 120;
+    /**
+     * 超过这个天数连计划都谈不上。
+     *
+     * V5.3 起放宽到 400 天：用户不再填日期，系统会自己推荐"下一季窗口"——
+     * 比如 11 月查大蒜，推荐的是次年 9~10 月（约 300 天后）。若仍按 120 天拦，
+     * 系统推荐的日期会被自己判死，主流程直接走不通。
+     */
+    private static final int HARD_FUTURE_DAYS = 400;
 
     @Override
     public void handle(HttpExchange ex) throws IOException {
@@ -188,7 +194,7 @@ public class SowCheckHandler implements HttpHandler {
             // ---- 3. 播季是否对口 ----
             // 与 /api/sow-window 共用 PlantingWindow.monthsFor：推荐日和校验必须是同一套规则，
             // 否则会出现"系统推荐的日期，自己校验不通过"这种自相矛盾。
-            Set<Integer> months = PlantingWindow.monthsFor(props);
+            Set<Integer> months = PlantingWindow.monthsFor(props, lat);
             String seasonText = props.hasSowMonths()
                     ? AgroZone.monthsText(months) + "（精确播期）"
                     : "「" + props.suitableSeason() + "」（约 " + AgroZone.monthsText(months) + "）";
@@ -210,7 +216,10 @@ public class SowCheckHandler implements HttpHandler {
             // ---- 4. 霜期 / 越冬 ----
             // 只有明确「耐寒/越冬」的作物才允许播在霜期、或让收获跨进霜期。
             // 喜温作物霜前收不了就是不能种；喜冷凉作物能耐轻霜，只提醒不强拦。
-            if (!AgroZone.isColdHardy(props.tempRequirement())) {
+            // 多年生作物跳过：它的 totalDays 是"几年投产"（如苹果 3650），
+            // 拿去和 187 天无霜期比毫无意义，而且春季定植本来就常安排在终霜前后。
+            if (!AgroZone.isColdHardy(props.tempRequirement())
+                    && !"perennial".equals(props.lifespan())) {
                 int ff = AgroZone.frostFreeDays(lat);
                 boolean warm = AgroZone.isWarmLoving(props.tempRequirement());
 
@@ -247,15 +256,17 @@ public class SowCheckHandler implements HttpHandler {
             }
 
             // ---- 5. 积温是否够 ----
+            // 多年生不比：totalDays 是投产年限（苹果 3650 天），不是一季生育期
             int ff = AgroZone.frostFreeDays(lat);
-            if (total > ff && !AgroZone.isColdHardy(props.tempRequirement())) {
+            if (total > ff && !AgroZone.isColdHardy(props.tempRequirement())
+                    && !"perennial".equals(props.lifespan())) {
                 items.add(item("warn", "gdd-short", "生育期长于本地无霜期",
                         standard + " 需要 " + total + " 天，本地无霜期约 " + ff + " 天，积温可能不足以正常成熟。",
                         "改种早熟品种，或采用育苗移栽争取 15~20 天"));
             }
         } else {
             // 没给日期：只给建议窗口，不算通过也不算阻断
-            Set<Integer> months = PlantingWindow.monthsFor(props);
+            Set<Integer> months = PlantingWindow.monthsFor(props, lat);
             items.add(item("ok", "suggest-window", "建议播种窗口",
                     months.isEmpty() ? "该作物未限定播季" : standard + " 适播期约 " + AgroZone.monthsText(months),
                     months.isEmpty() ? "可直接生成日历" : "点「按节气推荐」可自动填入最近的可播日期"));
@@ -296,7 +307,7 @@ public class SowCheckHandler implements HttpHandler {
         // 给一个可执行的替代日期：最近一个落在适播期内的日子；
         // 若地块还被上一季占着，取两者中更晚的那个 —— 早于腾地日期等于没建议
         String seasonSuggested = null;
-        Set<Integer> months = PlantingWindow.monthsFor(props);
+        Set<Integer> months = PlantingWindow.monthsFor(props, lat);
         if (sow != null && !months.isEmpty() && !months.contains(sow.getMonthValue())) {
             seasonSuggested = nearestSowDate(sow, months, today).toString();
         }
