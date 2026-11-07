@@ -48,6 +48,10 @@ public class StoreTest {
         // 无驱动时写也应降级到文件而不是抛异常
         mysql.write("fallback_key", "{\"v\":1}");
         eq("{\"v\":1}", new FileBlobStore(dir.toString()).read("fallback_key"), "连接失败时写应落到文件后端");
+        // 删除也应同步删文件镜像：否则 MySQL 挂了会把已删数据「复活」
+        mysql.write("to_delete", "{\"v\":1}");
+        mysql.delete("to_delete");
+        eq("{}", new FileBlobStore(dir.toString()).read("to_delete"), "删除应同步文件镜像");
 
         // ---- 4. StoreFactory 默认 file ----
         eq("file", StoreFactory.forCollection("userdata").backend(), "默认后端应为 file");

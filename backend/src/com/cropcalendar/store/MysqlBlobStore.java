@@ -20,7 +20,8 @@ import java.sql.SQLException;
  *
  * 健壮性：MySQL 连接失败时**降级到文件后端**，读写删都不丢数据、不 500 ——
  * 这对应任务书里"切换失败可回滚到文件存储、服务不可用时降级读本地"。
- * 恢复后再跑 migrate-to-mysql.py 把文件里的新数据搬回 MySQL 即可。
+ * 文件后端同时充当「实时镜像」：写成功也同步一份到文件、删也同步删，
+ * 保证 MySQL 挂掉后降级读到的本地数据是最新的，而不是迁移前那批旧数据。
  */
 public final class MysqlBlobStore implements BlobStore {
 
@@ -62,6 +63,7 @@ public final class MysqlBlobStore implements BlobStore {
 
     @Override
     public void write(String key, String json) throws IOException {
+        boolean mysqlOk = true;
         try (Connection c = open();
              PreparedStatement ps = c.prepareStatement(
                      "REPLACE INTO " + table + " (k, data, updated_at) VALUES (?, ?, NOW())")) {
@@ -70,19 +72,34 @@ public final class MysqlBlobStore implements BlobStore {
             ps.executeUpdate();
         } catch (SQLException e) {
             warn("写入", key, e);
+            mysqlOk = false;
+        }
+        // 文件既是 MySQL 失败时的唯一落点，也是成功时的实时镜像：
+        // 否则 MySQL 一挂，「降级读本地」拿到的还是迁移前那批旧数据。
+        try {
             fileFallback.write(key, json);
+        } catch (IOException mirrorFail) {
+            if (!mysqlOk) throw mirrorFail;   // 两个后端都写失败才向上抛
+            // MySQL 成功、文件镜像失败：主数据已在库，忽略镜像错误
         }
     }
 
     @Override
     public void delete(String key) throws IOException {
+        boolean mysqlOk = true;
         try (Connection c = open();
              PreparedStatement ps = c.prepareStatement("DELETE FROM " + table + " WHERE k = ?")) {
             ps.setString(1, key);
             ps.executeUpdate();
         } catch (SQLException e) {
             warn("删除", key, e);
+            mysqlOk = false;
+        }
+        // 同步删文件镜像：否则 MySQL 挂了之后会把已删的数据「复活」出来
+        try {
             fileFallback.delete(key);
+        } catch (IOException mirrorFail) {
+            if (!mysqlOk) throw mirrorFail;
         }
     }
 
