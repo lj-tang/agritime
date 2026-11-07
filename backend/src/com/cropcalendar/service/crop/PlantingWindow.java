@@ -107,7 +107,7 @@ public final class PlantingWindow {
         return p != null && p.hasSouthMonths() && lat < SOUTH_LAT;
     }
 
-    /** 是否喜冷凉（能耐轻霜），用于给收获期留出余量。 */
+    /** 是否喜冷凉（能耐轻霜）。 */
     static boolean coolLoving(String tempRequirement) {
         if (tempRequirement == null) return false;
         return tempRequirement.contains("冷凉") || tempRequirement.contains("耐寒");
@@ -115,8 +115,21 @@ public final class PlantingWindow {
 
     /** 该作物收获期可比初霜日宽限几天（0 = 一天都不能让）。 */
     public static int frostGraceDays(String tempRequirement) {
-        return coolLoving(tempRequirement) ? FROST_GRACE_DAYS : 0;
+        if (tempRequirement == null || tempRequirement.isBlank()) return FROST_GRACE_DAYS;
+        // 喜温/热带作物一天霜都不能碰；冷凉、耐寒，以及属性表里没有温度信息的目录作物，
+        // 都按"能耐轻霜"给余量 —— 绝大多数目录作物是温带蔬菜，一刀切按喜温算会大面积误判。
+        if (tempRequirement.contains("喜温") || tempRequirement.contains("喜热")
+                || tempRequirement.contains("耐热") || tempRequirement.contains("热带")) {
+            return 0;
+        }
+        return FROST_GRACE_DAYS;
     }
+
+    /**
+     * 收获期略晚于常年初霜的容差：覆盖、熏烟、选向阳地都能救回来，
+     * 属于"要留神的农事风险"，不是"种不熟"。超过这个天数才判不宜露地种植。
+     */
+    private static final int MATURITY_TOLERANCE_DAYS = 20;
 
     /**
      * 该作物允许播种的月份。
@@ -394,6 +407,26 @@ public final class PlantingWindow {
             }
         }
         boolean canMature = !recommended.plusDays(total).isAfter(safeFrost);
+        LocalDate harvestDate = recommended.plusDays(total);
+        // 三种情况不该判"种不熟"：
+        //   1) 全年无霜（华南热带）：年份边界没有意义；
+        //   2) 秋植/越冬作物：跨年收获本来就是正常农事（白芍、郁金香、越冬叶菜）；
+        //   3) 收获只比初霜晚一点点：属于要留神的农事风险，不是种不熟。
+        boolean noFrost = AgroZone.frostFreeDays(lat) >= 350;
+        boolean warmLoving = AgroZone.isWarmLoving(p.tempRequirement())
+                && !AgroZone.isColdHardy(p.tempRequirement());
+        boolean overwinter = harvestDate.getYear() > recommended.getYear() && !warmLoving;
+        if (noFrost) {
+            canMature = true;
+        } else if (overwinter) {
+            canMature = true;
+            note = join(note, "跨年收获：越冬后约 " + harvestDate + " 成熟，冬季需保证存活");
+        } else if (!canMature) {
+            canMature = !harvestDate.isAfter(safeFrost.plusDays(MATURITY_TOLERANCE_DAYS));
+            if (canMature) {
+                note = join(note, "收获期贴近初霜（约 " + harvestDate + "），需关注天气，必要时覆盖保温");
+            }
+        }
 
         LocalDate latest;
         String latestBasis;

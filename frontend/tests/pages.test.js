@@ -2493,6 +2493,11 @@ test('V5.8 本地露地种不熟：不给推荐日，只给结论与参考日', 
     '不可种时推荐日必须置空');
   assert.ok(win.includes('露地种不熟'), '应明确给出"露地种不熟"的结论');
   assert.ok(win.includes('建议改保护地栽培'), '应给出替代方案而不是一句"不行"');
+  // 三条不该误判成"种不熟"的情形（实测踩过：白芍/郁金香/芥菜/广州甜菜被误判）
+  assert.ok(win.includes('MATURITY_TOLERANCE_DAYS'), '收获略晚于初霜应给容差，而不是直接判死');
+  assert.ok(win.includes('overwinter'), '秋植/越冬作物跨年收获应视为正常农事');
+  assert.ok(win.includes('frostFreeDays(lat) >= 350'), '全年无霜区不应受年份边界限制');
+  assert.ok(win.includes('喜温') && win.includes('热带'), '喜温/热带作物才不给轻霜余量');
 
   const handler = read(path.resolve(base, '..', 'backend', 'src', 'com', 'cropcalendar', 'api', 'SowWindowHandler.java'));
   assert.ok(handler.includes('"suitable"'), '接口应返回 suitable');
