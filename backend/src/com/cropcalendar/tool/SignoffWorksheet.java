@@ -44,8 +44,7 @@ public final class SignoffWorksheet {
         String text = Files.readString(base, StandardCharsets.UTF_8);
         Object root = JsonParser.parse(text);
         if (!(root instanceof Map<?, ?> m) || !(m.get("plots") instanceof List<?> list)) {
-            System.err.println("基线结构不对：应为 {plots:[...]}");
-            System.exit(1);
+            throw new IllegalStateException("基线结构不对：应为 {plots:[...]}");
         }
 
         StringBuilder md = new StringBuilder();
