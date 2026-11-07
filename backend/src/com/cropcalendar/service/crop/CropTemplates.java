@@ -105,6 +105,10 @@ public final class CropTemplates {
             "棉花", "甘蔗", "甜菜", "烟草", "烤烟", "桑", "苎麻", "亚麻", "橡胶", "咖啡", "可可"
     };
 
+    private static final String[] FORAGE_NAMES = {
+            "苜蓿", "燕麦草", "籽粒苋", "黑麦草", "苏丹草", "象草", "饲用甜菜", "三叶草"
+    };
+
     private static final String[] AQUATIC_NAMES = {
             "莲藕", "茭白", "莼菜", "蒲菜", "菱角", "芡实", "水芹", "莲子"
     };
@@ -156,6 +160,7 @@ public final class CropTemplates {
         boolean perennial = "perennial".equals(p.lifespan());
 
         if (containsAny(name, MUSHROOM_NAMES) || temp.contains("喜湿避光")) return Group.MUSHROOM;
+        if (containsAny(name, FORAGE_NAMES)) return Group.FORAGE;
         // 茶树菇是菌、茶花是花，都要在"茶"之前判掉
         if (containsAny(name, AQUATIC_NAMES)) return Group.AQUATIC;
         if (containsAny(name, FLOWER_NAMES)) return Group.FLOWER;
@@ -229,10 +234,10 @@ public final class CropTemplates {
             add(p, 0.72, 4); add(p, 0.90, 14);
             return p;
         }
-        // 多年生药材（枸杞/黄芪/白芍等）：定植后不再"间苗"，改为苗期追肥与修剪
+        // 多年生药材（枸杞/黄芪/白芍等）：定植后不再"间苗"，用除草与田间管理代替修剪
         if (perennial && g == Group.MEDICINAL) {
-            add(p, 0.00, 1); add(p, 0.20, 4); add(p, 0.45, 15); add(p, 0.70, 11);
-            add(p, 0.90, 9);
+            add(p, 0.00, 1); add(p, 0.20, 4); add(p, 0.45, 15); add(p, 0.70, 15);
+            add(p, 0.90, 8);
             return p;
         }
         switch (g) {
@@ -271,7 +276,7 @@ public final class CropTemplates {
             case PERENNIAL_FRUIT -> {
                 // 首年从"定植"起算，后面才是成龄树的年周期管理
                 add(p, 0.00, 1); add(p, 0.06, 3); add(p, 0.20, 12); add(p, 0.30, 13);
-                add(p, 0.42, 4); add(p, 0.55, 3); add(p, 0.72, 9); add(p, 0.85, 4);
+                add(p, 0.42, 4); add(p, 0.55, 3); add(p, 0.72, 8); add(p, 0.85, 4);
                 add(p, 0.95, 14);
             }
             case TEA -> {
@@ -299,7 +304,7 @@ public final class CropTemplates {
                 add(p, 0.90, 9);
             }
             case SPICE -> {
-                add(p, 0.00, 1); add(p, 0.15, 12); add(p, 0.35, 13); add(p, 0.70, 9);
+                add(p, 0.00, 1); add(p, 0.15, 12); add(p, 0.35, 13); add(p, 0.70, 8);
                 add(p, 0.90, 15);
             }
             default -> {
