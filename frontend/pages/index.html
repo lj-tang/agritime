@@ -672,7 +672,7 @@
           var why = info.note || '生育期超过本地无霜期，露地难以正常成熟';
           // 后端说明里已经带了建议，别重复一遍
           if (why.indexOf('建议') < 0) why += ' · 建议改保护地栽培、换早熟品种，或改种其他作物';
-          sub.textContent = why;
+          sub.textContent = (window.__geoUnresolved ? '地点未解析，按默认地点估算 · ' : '') + why;
           box.classList.add('is-ready');
           box.classList.add('is-unsuitable');
           box.classList.remove('is-estimated');
@@ -696,6 +696,7 @@
           + (date ? ' · 建议 ' + fmtMD(date) : '');
 
         var bits = [];
+        if (window.__geoUnresolved) bits.push('地点未解析，按默认地点估算');
         if (h.date) bits.push('预计 ' + fmtMD(h.date) + ' 收获');
         if (h.perennial) bits.push('多年生，定植后按年管理');
         if (h.canMatureBeforeFrost === false) bits.push('本季霜前难以成熟');
@@ -1128,10 +1129,18 @@
 
       /** 把地点文字解析成坐标；解析不出来就回调 null，由调用方退回默认地点。 */
       function resolveLocationLL(text, cb) {
+        resolveLocationLLOnce(text, 0, cb);
+      }
+
+      /**
+       * 解析地点成坐标。网络抖动时重试一次 —— 解析失败会退回默认地点，
+       * 那意味着霜期、播期全按另一个省算，用户还看不出来，所以宁可多等两秒。
+       */
+      function resolveLocationLLOnce(text, attempt, cb) {
         if (!text) { cb(null); return; }
         var xhr = new XMLHttpRequest();
         xhr.open('GET', '/api/geo/search?q=' + encodeURIComponent(text), true);
-        xhr.timeout = 6000;
+        xhr.timeout = 10000;
         xhr.onload = function () {
           try {
             var body = JSON.parse(xhr.responseText);
@@ -1143,7 +1152,13 @@
             cb({ lat: lat, lon: lon, title: it.title || text, text: text });
           } catch (e) { cb(null); }
         };
-        xhr.onerror = xhr.ontimeout = function () { cb(null); };
+        xhr.onerror = xhr.ontimeout = function () {
+          if (attempt < 1) {
+            setTimeout(function () { resolveLocationLLOnce(text, attempt + 1, cb); }, 300);
+            return;
+          }
+          cb(null);
+        };
         xhr.send();
       }
 
@@ -1323,8 +1338,10 @@
         window.__resolvedLL = null;
         resolveLocationLL(location, function (ll) {
           window.__resolvedLL = ll;
-          if (!ll && location !== '山东济宁') {
-            showToast('没能解析「' + location + '」，将按默认地点山东济宁计算', 'info');
+          // 解析失败会退回默认地点，霜期与播期全按另一个省算 —— 必须在卡片上说出来
+          window.__geoUnresolved = (!ll && !!location && location !== '山东济宁');
+          if (window.__geoUnresolved) {
+            showToast('没能解析「' + location + '」，暂按默认地点山东济宁计算，建议换成「市/县」全称', 'info');
           }
           proceed();
         });

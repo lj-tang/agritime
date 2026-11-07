@@ -2513,6 +2513,9 @@ test('V5.8 本地露地种不熟：不给推荐日，只给结论与参考日', 
   // 没有推荐日不等于请求失败，前端不能把它当成错误（否则只会弹"播期推算失败"）
   assert.ok(!/body\.data && body\.data\.sowDate/.test(indexHtml),
     '不应把"缺 sowDate"当成请求失败');
+  // 地点解析失败会退回默认地点，等于按另一个省算霜期 —— 必须重试并在卡片上明示
+  assert.ok(indexHtml.includes('resolveLocationLLOnce'), '地点解析应支持重试');
+  assert.ok(indexHtml.includes('__geoUnresolved'), '地点未解析时卡片要写明按默认地点估算');
 
   const css = read(path.join(base, 'assets', 'css', 'common.css'));
   assert.ok(css.includes('.sow-auto.is-unsuitable'), '不可种应有独立配色，不能复用"已就绪"的绿色');
