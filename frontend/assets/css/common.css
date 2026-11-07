@@ -1123,13 +1123,13 @@ body.split-active .home-pane-back { display: inline-flex; align-items: center; }
   cursor: pointer;
 }
 
-/* 我的地块：绿色渐变实心（与 V4 一致） */
+/* 我的地块：纯色叶片绿实心按钮（去渐变） */
 .my-plots-add {
   color: #fff !important;
-  background: linear-gradient(155deg, var(--leaf-2), var(--leaf)) !important;
+  background: var(--brand) !important;
   border: 1px solid transparent !important;
 }
-.my-plots-add:hover { background: linear-gradient(155deg, #47a05f, var(--leaf)) !important; }
+.my-plots-add:hover { background: var(--brand-hover) !important; }
 
 /* 我的作物：叶绿浅底描边（与 V4 一致） */
 .my-crops-add {

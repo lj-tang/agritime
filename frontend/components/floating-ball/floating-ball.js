@@ -10,7 +10,8 @@
     var ball = document.createElement('div');
     ball.className = 'floating-ball';
     ball.setAttribute('aria-label', '农事智能问答');
-    ball.innerHTML = '🤖';
+    // 用简洁的聊天气泡图标替代机器人 emoji，视觉更统一
+    ball.innerHTML = '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>';
     ball.addEventListener('click', toggleChat);
     document.body.appendChild(ball);
 
