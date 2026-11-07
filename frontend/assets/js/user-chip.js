@@ -203,7 +203,7 @@
     var locItem = el('div', 'user-menu-item user-menu-item--block');
     locItem.innerHTML =
       '<span class="user-menu-icon">' + ic('locate') + '</span>'
-      + '<span class="user-menu-row-label">定位权限<span class="user-menu-row-sub">允许自动定位 / 当前位置</span></span>';
+      + '<span class="user-menu-row-label">定位权限<span class="user-menu-row-sub">允许使用定位服务</span></span>';
     var sw = el('button', 'switch');
     sw.type = 'button';
     sw.setAttribute('role', 'switch');
