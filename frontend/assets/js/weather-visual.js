@@ -11,6 +11,9 @@
   var DEFAULT_LAT = 39.9042;
   var DEFAULT_LON = 116.4074;
   var DEFAULT_LOC_NAME = '当前位置';
+  // 地名要过一次 Photon，最多等这么久；超时就先按原名显示，不拖首屏
+  var GEONAME_TIMEOUT_MS = 2500;
+  var GEONAME_BUDGET_MS = 3000;
 
   var WMO_MAP = {
     0: 'sunny', 1: 'sunny', 2: 'cloudy', 3: 'cloudy',
@@ -78,6 +81,82 @@
     });
   }
 
+  function isChinese(s) { return /[\u4e00-\u9fa5]/.test(s || ''); }
+
+  /**
+   * 英文/拼音城市名 → 中文地名。
+   * ipinfo 只给 "Nanjing"，直接贴上卡片就是中英混杂；/api/geo/search 能换成「江苏省南京市」。
+   * 取不到返回 null，由调用方退回原名 —— 宁可显示英文，也不能编一个地名。
+   */
+  function lookupChineseName(raw, lat, lon) {
+    if (!raw) return Promise.resolve(null);
+    if (isChinese(raw)) return Promise.resolve(raw);
+    var controller = new AbortController();
+    var timer = setTimeout(function () { controller.abort(); }, GEONAME_TIMEOUT_MS);
+    return fetch('/api/geo/search?q=' + encodeURIComponent(raw)
+        + '&lat=' + lat + '&lon=' + lon, { signal: controller.signal })
+      .then(function (r) { clearTimeout(timer); return r.ok ? r.json() : null; })
+      .then(function (body) {
+        var items = (body && body.data && body.data.items) || [];
+        for (var i = 0; i < items.length; i += 1) {
+          var it = items[i] || {};
+          if (!isChinese(it.title)) continue;
+          var addr = it.address || '';
+          // 「南京市」+「江苏省」→「江苏省南京市」；带 · 的地址本身已含完整层级，直接用 title
+          if (addr && addr.indexOf(it.title) < 0 && addr.indexOf('·') < 0) return addr + it.title;
+          return it.title;
+        }
+        return null;
+      })
+      .catch(function () { clearTimeout(timer); return null; });
+  }
+
+  /** 只有坐标没有地名时（GPS 授权成功）反查中文地名。 */
+  function reverseName(lat, lon) {
+    var controller = new AbortController();
+    var timer = setTimeout(function () { controller.abort(); }, GEONAME_TIMEOUT_MS);
+    return fetch('/api/geo/reverse?lat=' + lat + '&lon=' + lon, { signal: controller.signal })
+      .then(function (r) { clearTimeout(timer); return r.ok ? r.json() : null; })
+      .then(function (body) {
+        var d = (body && body.data) || {};
+        var name = d.city || d.district || d.name || '';
+        return isChinese(name) ? name : null;
+      })
+      .catch(function () { clearTimeout(timer); return null; });
+  }
+
+  /**
+   * 地名统一出口：有名字就翻译成中文，只有坐标就先反查，
+   * 再退一步用出口 IP 的城市名（GPS 与 IP 一般同城）。
+   */
+  function resolvePlaceName(loc, lat, lon) {
+    if (loc && loc.name) return lookupChineseName(loc.name, lat, lon);
+    return reverseName(lat, lon).then(function (n) {
+      if (n) return n;
+      return getLocationByIP().then(function (ip) {
+        return ip && ip.name ? lookupChineseName(ip.name, lat, lon) : null;
+      });
+    });
+  }
+
+  /** 地名解析是锦上添花，超时就放弃，别把首屏卡住。 */
+  function withTimeout(p, ms) {
+    return new Promise(function (resolve) {
+      var done = false;
+      var timer = setTimeout(function () {
+        if (done) return;
+        done = true;
+        resolve(null);
+      }, ms);
+      p.then(function (v) {
+        if (done) return;
+        done = true;
+        clearTimeout(timer);
+        resolve(v);
+      });
+    });
+  }
+
   function fetchWeather(lat, lon) {
     var url = OPEN_METEO_URL + '?latitude=' + lat + '&longitude=' + lon +
       '&current=temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m' +
@@ -117,7 +196,27 @@
     };
   }
 
-  function renderCard(info, locationName) {
+  /**
+   * 天气 → 一句农事建议。
+   * 只给一句，但结论必须能被上面的数据支撑：雨天/大风/低温都不该喷药，
+   * 高温、高湿、干燥各有各的坑。判断不了就不说话，不硬凑。
+   */
+  function farmAdvice(info) {
+    if (!info) return null;
+    var t = info.temp, hum = info.humidity, wind = info.windSpeed, w = info.weather;
+    if (w === 'rain') return { level: 'no', text: '今日有雨，不宜喷药施肥，药液会被冲走' };
+    if (w === 'snow') return { level: 'no', text: '今日有雪，田间作业暂停，注意棚室保温' };
+    if (wind != null && wind >= 20) {
+      return { level: 'no', text: '今日风大（' + Math.round(wind) + 'km/h），不宜喷药，药液易飘移' };
+    }
+    if (t != null && t <= 5) return { level: 'no', text: '今日气温低，药效起得慢，喷药可等回暖' };
+    if (t != null && t >= 33) return { level: 'care', text: '今日高温，避开正午喷药，防药害和中暑' };
+    if (hum != null && hum >= 85) return { level: 'care', text: '今日湿度偏高，病害易发，注意查田排湿' };
+    if (hum != null && hum <= 30) return { level: 'care', text: '今日空气干燥，旱地注意保墒，喷药宜傍晚' };
+    return { level: 'ok', text: '今日适宜喷药、施肥和田间作业' };
+  }
+
+  function renderCard(info, locationName, advice) {
     var card = document.getElementById('weather-card');
     if (!card) return;
     if (!info) {
@@ -136,6 +235,16 @@
     if (desc) desc.textContent = (WEATHER_ICON[info.weather] || '') + ' ' + info.label;
     if (extra) extra.textContent = (info.humidity != null ? '湿度' + info.humidity + '%' : '') +
       (info.windSpeed != null ? ' 风速' + Math.round(info.windSpeed) + 'km/h' : '');
+    renderFarmAdvice(advice || farmAdvice(info));
+  }
+
+  function renderFarmAdvice(advice) {
+    var el = document.getElementById('weather-farm');
+    if (!el) return;
+    if (!advice || !advice.text) { el.hidden = true; el.textContent = ''; return; }
+    el.hidden = false;
+    el.className = 'weather-farm weather-farm--' + advice.level;
+    el.textContent = advice.text;
   }
 
   function applyTheme(weather, season) {
@@ -185,8 +294,14 @@
       if (temp) temp.textContent = '--°';
       if (desc) desc.textContent = '天气数据暂不可用';
       if (extra) extra.textContent = '';
+      // 没有天气数据就不给农事建议：宁可空着，也不能凭空说"今日适宜喷药"
+      renderFarmAdvice(null);
     }
     notifyReady();
+  }
+
+  function notifyLocated(detail) {
+    document.dispatchEvent(new CustomEvent('weather-located', { detail: detail }));
   }
 
   function init() {
@@ -198,12 +313,17 @@
     getLocation().then(function (loc) {
       var lat = loc ? loc.lat : DEFAULT_LAT;
       var lon = loc ? loc.lon : DEFAULT_LON;
-      var locName = (loc && loc.name) ? loc.name : DEFAULT_LOC_NAME;
-      if (loc) window.__lastLocation = { lat: loc.lat, lon: loc.lon, name: loc.name };
-      fetchWeather(lat, lon).then(function (data) {
+      // 天气与地名并行：地名要过一次 Photon，串起来会让首屏多等一两秒
+      Promise.all([
+        fetchWeather(lat, lon),
+        withTimeout(resolvePlaceName(loc, lat, lon), GEONAME_BUDGET_MS)
+      ]).then(function (arr) {
+        var data = arr[0];
+        var zhName = arr[1];
         var info = buildWeatherInfo(data);
         if (!info) { fallback(); ensureReady(); return; }
-        renderCard(info, locName);
+        var rawName = (loc && loc.name) || null;
+        renderCard(info, zhName || rawName || DEFAULT_LOC_NAME);
         applyTheme(info.weather, info.season);
         applyBackground(info.weather);
         if (data && data.daily && window.TimePeriod) {
@@ -211,17 +331,34 @@
           var ss = window.TimePeriod.parseSunTime(data.daily.sunset && data.daily.sunset[0]);
           window.TimePeriod.applySunData(sr, ss);
         }
+        // 卡片上显示的是什么地方，就把同一个地名交给首页预填，避免顶部写"南京"、表单写"济宁"
+        if (loc) {
+          var placeName = zhName || rawName || null;
+          window.__lastLocation = { lat: lat, lon: lon, name: placeName };
+          if (placeName) notifyLocated({ lat: lat, lon: lon, name: placeName });
+        }
         ensureReady();
       });
     });
   }
 
   if (typeof window !== 'undefined') {
-    window.WeatherVisual = { init: init, normalizeWeather: normalizeWeather, inferSeason: inferSeason };
+    window.WeatherVisual = {
+      init: init,
+      normalizeWeather: normalizeWeather,
+      inferSeason: inferSeason,
+      farmAdvice: farmAdvice
+    };
     if (document.readyState !== 'loading') { init(); }
     else { document.addEventListener('DOMContentLoaded', init); }
   }
   if (typeof module !== 'undefined' && module.exports) {
-    module.exports = { normalizeWeather: normalizeWeather, inferSeason: inferSeason, buildWeatherInfo: buildWeatherInfo };
+    module.exports = {
+      normalizeWeather: normalizeWeather,
+      inferSeason: inferSeason,
+      buildWeatherInfo: buildWeatherInfo,
+      farmAdvice: farmAdvice,
+      lookupChineseName: lookupChineseName
+    };
   }
 })();

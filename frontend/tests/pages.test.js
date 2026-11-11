@@ -2597,3 +2597,62 @@ test('V5.3 数据：400 种作物都能推导窗口，类别模板覆盖全部�
   const llmAt = stub.indexOf('LLM_NEGATIVE.get(cropId)');
   assert.ok(tplAt > -1 && llmAt > -1 && tplAt < llmAt, '类别模板应在调用大模型之前生效');
 });
+
+/* ============================================================
+   V5.4 首屏不空着：常用作物快捷选择 + 一键示例
+   ============================================================ */
+
+const weatherVisual = require(path.resolve(__dirname, '..', 'assets', 'js', 'weather-visual.js'));
+
+test('V5.4 首屏空状态：常用作物 chip 与一键示例', () => {
+  for (const name of ['水稻', '小麦', '玉米', '大豆', '油菜']) {
+    assert.ok(indexHtml.includes('data-crop="' + name + '"'), '缺少常用作物 chip：' + name);
+  }
+  assert.ok(indexHtml.includes('id="crop-quick"'), '快捷作物应是一组可点的 chip');
+  assert.ok(indexHtml.includes('id="demo-btn"'), '应有「试一试示例」按钮');
+  assert.ok(indexHtml.includes('试一试示例'), '按钮文案要让用户知道这是示例');
+  assert.ok(indexHtml.includes("DEMO_CROP = '水稻'"), '示例作物应是水稻');
+  assert.ok(indexHtml.includes("DEMO_LOCATION = '江苏省南京市'"), '示例地点应是江苏南京');
+  // 点一次就要看到结果：填完表单还得继续走生成流程
+  assert.match(indexHtml, /demo\.addEventListener\('click'[\s\S]{0,1400}?handleSubmit\(\)/,
+    '示例应直接触发生成，不能只把字填进输入框');
+  assert.ok(indexHtml.includes('crop-chip'), '缺少 chip 样式挂载点');
+  assert.ok(commonCss.includes('.crop-chip'), '缺少 chip 样式');
+  assert.ok(commonCss.includes('.crop-quick'), 'chips 应放在 .field 外，避免挡住联想下拉');
+});
+
+test('V5.4 示例不被"远期计划"提示卡住', () => {
+  assert.ok(indexHtml.includes('window.__demoMode'), '示例需要单独的放行标记');
+  assert.match(indexHtml, /if \(isDemo\) \{[\s\S]{0,300}?goTimeline/,
+    'warn（如「属于远期计划」）时示例应继续生成');
+  // block 必须照旧拦住：排一份不成立的计划比不排更糟
+  assert.ok(indexHtml.includes("showToast('这个播期安排不合理，已阻止生成'"), 'block 仍应阻止生成');
+});
+
+test('V5.4 地点与定位一致：中文地名 + 自动预填', () => {
+  assert.ok(weatherVisualJs.includes('/api/geo/search'), '英文城市名应换成中文地名');
+  assert.ok(weatherVisualJs.includes('weather-located'), '定位结果应通知首页');
+  assert.ok(indexHtml.includes("addEventListener('weather-located'"), '首页应接收定位地名');
+  assert.ok(indexHtml.includes('__resolvedLL = { lat: d.lat, lon: d.lon'), '预填地名时要一起给出坐标，省掉一次地名解析');
+  assert.ok(!indexHtml.includes('placeholder="如：山东济宁（留空按默认地点）"'),
+    '占位不该再写死一个与定位无关的城市');
+  // 用户自己写过的地点不能被定位覆盖
+  assert.ok(/autofill !== '1'\) return/.test(indexHtml), '用户已填地点时不应被定位覆盖');
+});
+
+test('V5.4 天气服务农事：给一句能执行的结论', () => {
+  assert.ok(indexHtml.includes('id="weather-farm"'), '天气卡应有农事建议位');
+  assert.ok(commonCss.includes('.weather-farm'), '缺少农事建议样式');
+  assert.equal(weatherVisual.farmAdvice({ weather: 'rain', temp: 22, humidity: 80, windSpeed: 5 }).level, 'no',
+    '有雨不宜喷药');
+  assert.equal(weatherVisual.farmAdvice({ weather: 'snow', temp: -2, humidity: 80, windSpeed: 5 }).level, 'no',
+    '下雪不宜田间作业');
+  assert.equal(weatherVisual.farmAdvice({ weather: 'sunny', temp: 22, humidity: 60, windSpeed: 26 }).level, 'no',
+    '大风不宜喷药');
+  assert.equal(weatherVisual.farmAdvice({ weather: 'cloudy', temp: 2, humidity: 60, windSpeed: 5 }).level, 'no',
+    '低温不宜喷药');
+  const good = weatherVisual.farmAdvice({ weather: 'sunny', temp: 22, humidity: 60, windSpeed: 8 });
+  assert.equal(good.level, 'ok', '正常天气应判为适宜');
+  assert.match(good.text, /喷药/, '结论要落到能不能喷药这种具体动作上');
+  assert.equal(weatherVisual.farmAdvice(null), null, '没有天气数据就不该硬给建议');
+});

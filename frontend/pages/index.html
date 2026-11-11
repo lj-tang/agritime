@@ -60,6 +60,7 @@
       <span class="weather-temp" id="weather-temp">--°</span>
       <span class="weather-desc" id="weather-desc">--</span>
       <span class="weather-extra" id="weather-extra">--</span>
+      <span class="weather-farm" id="weather-farm" hidden></span>
     </div>
 
 
@@ -68,11 +69,26 @@
     <form class="card" id="timeline-form" novalidate>
       <div class="field" id="field-crop">
         <label for="crop">作物品种</label>
-        <input id="crop" name="crop" type="text" autocomplete="off" />
+        <input id="crop" name="crop" type="text" autocomplete="off" placeholder="如：水稻 / 小麦 / 番茄" />
         <div class="suggestions" id="crop-suggestions"></div>
         <div class="error" id="error-crop">请输入作物品种</div>
         <p class="voice-hint" id="voice-hint" hidden></p>
       </div>
+
+      <!-- 首屏就能点：不打字也能试，评委不用想"我该种什么" -->
+      <div class="crop-quick" id="crop-quick" role="group" aria-label="常用作物快速选择">
+        <span class="crop-quick-label">常用</span>
+        <button type="button" class="crop-chip" data-crop="水稻">水稻</button>
+        <button type="button" class="crop-chip" data-crop="小麦">小麦</button>
+        <button type="button" class="crop-chip" data-crop="玉米">玉米</button>
+        <button type="button" class="crop-chip" data-crop="大豆">大豆</button>
+        <button type="button" class="crop-chip" data-crop="油菜">油菜</button>
+      </div>
+
+      <button type="button" class="demo-btn" id="demo-btn">
+        <svg viewBox="0 0 24 24" width="15" height="15" fill="none" aria-hidden="true"><path d="M13 2 3 14h7l-1 8 10-12h-7l1-8z" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        试一试示例：水稻 · 江苏南京
+      </button>
 
       <div class="field" id="field-sowing-date">
         <label>播期 <span class="hint">不用填，按作物和地点自动推算</span></label>
@@ -104,7 +120,7 @@
 
       <div class="field" id="field-location">
         <label for="location">所在地</label>
-        <input id="location" name="location" type="text" autocomplete="off" placeholder="如：山东济宁（留空按默认地点）" />
+        <input id="location" name="location" type="text" autocomplete="off" placeholder="留空则按当前定位自动填入" />
         <button type="button" class="map-picker-btn" id="map-picker-btn" aria-label="地图标点"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg></button>
         <div class="error" id="error-location">请输入所在地</div>
       </div>
@@ -1316,11 +1332,10 @@
           + '识别为「' + d.corrected + '」：' + pairs + '（文本纠错，非方言语音识别）';
       });
 
-      form.addEventListener('submit', function (e) {
-        e.preventDefault();
+      function handleSubmit() {
         // 建议下拉还开着会盖住下面的播期结果卡片
         suggestions.classList.remove('show');
-        if (!validate()) { showToast('请先补全并检查表单', 'error'); return; }
+        if (!validate()) { setDemoBusy(false); showToast('请先补全并检查表单', 'error'); return; }
         var cropName = cropInput.value.trim();
         var location = locationInput.value.trim();
         // 地点留空时按默认地点算，并明确告诉用户，而不是静默用别处天气
@@ -1340,6 +1355,7 @@
             fetchSowWindow(cropName, function (err, info) {
               if (genBtn) genBtn.disabled = false;
               if (err) {
+                setDemoBusy(false);
                 showToast('没能推算适宜播期：' + err + '，可点「手动指定」自己选日期', 'error');
                 if (manualBox) manualBox.hidden = false;
                 return;
@@ -1349,6 +1365,7 @@
               if (!rec && info.suitable === false) {
                 // 本地露地种不熟：不给推荐日，也不自动生成日历，
                 // 只把结论说清楚，用户想要参考日历可点卡片上的「看参考日历」。
+                setDemoBusy(false);
                 showToast('本地露地难以种成，已改为给出结论而不是推荐日', 'info');
                 return;
               }
@@ -1376,6 +1393,11 @@
           }
           proceed();
         });
+      }
+
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        handleSubmit();
       });
 
       /**
@@ -1420,6 +1442,9 @@
           return r.json();
         }).then(function (d) {
           if (btn) { btn.disabled = false; delete btn.dataset.busy; }
+          setDemoBusy(false);
+          var isDemo = window.__demoMode === true;
+          window.__demoMode = false;
           renderSowCheck(box, d, function () {
             goTimeline(cropName, location, sowDate, termInfo);
           });
@@ -1427,11 +1452,21 @@
             if (box) box.hidden = true;
             goTimeline(cropName, location, sowDate, termInfo);
           } else if (d.verdict === 'warn') {
+            // 示例是给人一分钟内看到效果的：warn（如"属于远期计划"）直接放行，
+            // 别让人卡在「仍然生成」上；block 一律照旧拦住 —— 排一份不成立的计划更糟。
+            if (isDemo) {
+              if (box) box.hidden = true;
+              showToast('示例已按推荐播期 ' + sowDate + ' 排期', 'info');
+              goTimeline(cropName, location, sowDate, termInfo);
+              return;
+            }
             showToast('有几项提醒，确认无误后再点一次生成', 'info');
           } else {
             showToast('这个播期安排不合理，已阻止生成', 'error');
           }
         }).catch(function (err) {
+          window.__demoMode = false;
+          setDemoBusy(false);
           // 校验服务不可用时不阻断用户 —— 但要说明这次没校验过
           if (btn) { btn.disabled = false; delete btn.dataset.busy; }
           showToast('播期校验暂不可用（' + (err.message || '网络异常') + '），本次直接生成', 'error');
@@ -1563,6 +1598,92 @@
         } catch (err) { /* 降级回退整页跳转 */ }
         window.location.href = resolveTimelineUrl() + '?' + query;
       }
+
+      // ---- 快捷作物 / 一键示例：首屏不打字也能看到结果 ----
+      var DEMO_CROP = '水稻';
+      var DEMO_LOCATION = '江苏省南京市';
+      // 示例地点写死南京市中心：演示不该卡在地名解析上，也不该被解析到"高淳区检察院"这种点上
+      var DEMO_LL = { lat: 32.0603, lon: 118.7969 };
+
+      // 推算积温要几秒，按钮得给个"在干活"的反馈，否则看起来像没反应
+      var demoBtn = document.getElementById('demo-btn');
+      var demoBtnLabel = demoBtn ? demoBtn.innerHTML : '';
+      function setDemoBusy(on) {
+        if (!demoBtn) return;
+        demoBtn.disabled = !!on;
+        if (on) demoBtn.textContent = '正在生成时间线…';
+        else demoBtn.innerHTML = demoBtnLabel;
+      }
+
+      (function bindQuickPick() {
+        var box = document.getElementById('crop-quick');
+        if (box) {
+          box.addEventListener('click', function (e) {
+            var el = e.target;
+            while (el && el !== box && !(el.classList && el.classList.contains('crop-chip'))) {
+              el = el.parentNode;
+            }
+            if (!el || el === box || !el.dataset) return;
+            var name = el.dataset.crop || '';
+            if (!name) return;
+            cropInput.value = name;
+            setInvalid('field-crop', false);
+            historyBox.classList.add('hidden');
+            warmCropProtocol(name);
+          });
+        }
+        var demo = document.getElementById('demo-btn');
+        if (demo) {
+          demo.addEventListener('click', function () {
+            cropInput.value = DEMO_CROP;
+            locationInput.value = DEMO_LOCATION;
+            locationInput.dataset.autofill = '';
+            // 上一次若展开过「手动指定」，旧的播期会一路带到校验里，示例可能被误判为不合理
+            if (manualBox) manualBox.hidden = true;
+            var editBtn = document.getElementById('sow-auto-edit');
+            if (editBtn) editBtn.textContent = '手动指定';
+            sowingInput.value = '';
+            suggestedSowDate = '';
+            var checkBox = document.getElementById('sow-check');
+            if (checkBox) checkBox.hidden = true;
+            // 示例地点固定南京：坐标直接给，省掉一次地名解析，也避免解析到远郊的点
+            window.__resolvedLL = {
+              lat: DEMO_LL.lat, lon: DEMO_LL.lon, title: DEMO_LOCATION, text: DEMO_LOCATION
+            };
+            window.__geoUnresolved = false;
+            window.__demoMode = true;
+            setInvalid('field-crop', false);
+            historyBox.classList.add('hidden');
+            warmCropProtocol(DEMO_CROP);
+            showToast('示例：水稻 · 江苏南京，正在推算播期…', 'info');
+            setDemoBusy(true);
+            handleSubmit();
+          });
+        }
+      })();
+
+      // ---- 定位地名回填：让顶部天气与「所在地」说的是同一个地方 ----
+      function applyLocatedPlace(d) {
+        if (!d || !d.name || d.lat == null || d.lon == null) return;
+        var cur = locationInput.value.trim();
+        // 用户自己写过就不动，只覆盖「空的」或「上次自动填的」
+        if (cur && locationInput.dataset.autofill !== '1') return;
+        locationInput.value = d.name;
+        locationInput.dataset.autofill = '1';
+        locationInput.placeholder = '已按定位填好，可改成更具体的市县';
+        // 定位坐标直接用，省掉一次地名解析；submit 时 text 对得上就不会重新解析
+        window.__resolvedLL = { lat: d.lat, lon: d.lon, title: d.name, text: d.name };
+        window.__markerLatLon = { lat: d.lat, lon: d.lon };
+      }
+      document.addEventListener('weather-located', function (ev) { applyLocatedPlace(ev.detail); });
+      if (window.__lastLocation) applyLocatedPlace(window.__lastLocation);
+
+      locationInput.addEventListener('input', function () {
+        locationInput.dataset.autofill = '';
+        if (window.__resolvedLL && window.__resolvedLL.text !== locationInput.value.trim()) {
+          window.__resolvedLL = null;
+        }
+      });
 
       fillYears();
       renderRuler();

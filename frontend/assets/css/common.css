@@ -361,6 +361,22 @@ body[data-layout="app"] .content-pane > * {
 .weather-desc { color: var(--ink-soft); }
 .weather-extra { color: var(--muted); font-size: 12px; }
 
+/* 一句农事建议：天气要落到"今天能不能干活"上，光有温度湿度没用 */
+.weather-farm {
+  flex: 1 0 100%;
+  padding-top: 6px;
+  margin-top: 2px;
+  border-top: 1px dashed var(--line-soft);
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--ink-soft);
+}
+.weather-farm[hidden] { display: none; }
+.weather-farm::before { content: "🌱"; margin-right: 4px; }
+.weather-farm--ok { color: var(--brand); }
+.weather-farm--no,
+.weather-farm--care { color: var(--warn-text); }
+
 .weather-fx-overlay { display: none; }
 
 /* ============================================================
@@ -508,6 +524,77 @@ body[data-layout="app"] .content-pane > * {
   color: var(--ink);
 }
 .field:has(> .voice-btn) input { padding-right: 42px; }
+
+/* ============================================================
+   常用作物 chip + 一键示例
+   ============================================================ */
+
+.crop-quick {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  /* 紧贴作物输入框，但放在 .field 外面：field 里挂着联想下拉的绝对定位 */
+  margin: -8px 0 10px;
+}
+
+.crop-quick-label {
+  font-size: 12px;
+  color: var(--muted);
+  margin-right: 2px;
+}
+
+.crop-chip {
+  height: 26px;
+  padding: 0 11px;
+  font-size: 12.5px;
+  font-family: inherit;
+  line-height: 24px;
+  color: var(--ink-soft);
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+
+.crop-chip:hover {
+  color: var(--brand-hover);
+  background: var(--brand-soft);
+  border-color: var(--brand-line);
+}
+
+.crop-chip:active { transform: translateY(1px); }
+.crop-chip:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
+
+.demo-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  justify-content: center;
+  margin: 0 0 16px;
+  padding: 9px 14px;
+  font-size: 13px;
+  font-family: inherit;
+  color: var(--brand-hover);
+  background: var(--brand-soft);
+  border: 1px dashed var(--brand-line);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.demo-btn:hover {
+  background: var(--brand-soft);
+  border-color: var(--brand);
+  border-style: solid;
+}
+
+.demo-btn:active { transform: translateY(1px); }
+.demo-btn:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
+.demo-btn[disabled] { opacity: 0.6; cursor: default; transform: none; }
+.demo-btn svg { flex: none; }
 
 /* 联想下拉 */
 .suggestions {
