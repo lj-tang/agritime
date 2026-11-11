@@ -15,14 +15,14 @@
   border-radius: 8px;
   background: var(--surface, #ffffff);
   color: var(--ink, #23301f);
-  font-size: 13.5px;
+  font-size: calc(13.5px * var(--fs, 1));
   font-family: inherit;
   cursor: pointer;
   position: relative;
   text-align: left;
 }
 .rc-entry:hover { background: var(--surface-2, #f7f2e6); border-color: var(--brand-line, var(--brand-line)); }
-.rc-bell { font-size: 16px; line-height: 1; display: inline-flex; }
+.rc-bell { font-size: calc(16px * var(--fs, 1)); line-height: 1; display: inline-flex; }
 .rc-bell svg { width: 18px; height: 18px; display: block; }
 .rc-entry-label { color: var(--ink-soft, #55634e); }
 .rc-badge {
@@ -35,7 +35,7 @@
   border-radius: 999px;
   background: var(--red, #c65547);
   color: #fff;
-  font-size: 11px;
+  font-size: calc(11px * var(--fs, 1));
   font-weight: 700;
   line-height: 18px;
   text-align: center;
@@ -75,14 +75,14 @@ body > .rc-entry {
   justify-content: space-between;
   padding: 12px 14px;
   border-bottom: 1px solid var(--line-soft, #ece5d6);
-  font-size: 15px;
+  font-size: calc(15px * var(--fs, 1));
   color: var(--ink, #23301f);
 }
 .rc-close {
   border: 0;
   background: transparent;
   color: var(--muted, #8b9382);
-  font-size: 22px;
+  font-size: calc(22px * var(--fs, 1));
   line-height: 1;
   cursor: pointer;
   padding: 0 4px;
@@ -96,14 +96,14 @@ body > .rc-entry {
   justify-content: space-between;
   margin-bottom: 12px;
 }
-.rc-unread { font-size: 13px; font-weight: 700; color: var(--brand, var(--brand)); }
+.rc-unread { font-size: calc(13px * var(--fs, 1)); font-weight: 700; color: var(--brand, var(--brand)); }
 .rc-tool-btn {
   border: 1px solid var(--line, #e4ddcb);
   background: var(--surface-2, #f7f2e6);
   color: var(--ink-soft, #55634e);
   border-radius: 6px;
   padding: 5px 10px;
-  font-size: 12px;
+  font-size: calc(12px * var(--fs, 1));
   font-family: inherit;
   cursor: pointer;
 }
@@ -118,19 +118,19 @@ body > .rc-entry {
   background: var(--surface-2, #f7f2e6);
   border-radius: 8px;
 }
-.rc-settings-title { width: 100%; font-size: 12px; color: var(--muted, #8b9382); }
+.rc-settings-title { width: 100%; font-size: calc(12px * var(--fs, 1)); color: var(--muted, #8b9382); }
 .rc-switch {
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  font-size: 12.5px;
+  font-size: calc(12.5px * var(--fs, 1));
   color: var(--ink-soft, #55634e);
   cursor: pointer;
 }
 .rc-switch input { accent-color: var(--brand, var(--brand)); }
-.rc-switch-icon { font-size: 13px; display: inline-flex; align-items: center; }
+.rc-switch-icon { font-size: calc(13px * var(--fs, 1)); display: inline-flex; align-items: center; }
 .rc-switch-icon svg { width: 13px; height: 13px; display: block; }
-.rc-storage { margin: 0 0 12px; font-size: 12px; color: var(--muted, #8b9382); }
+.rc-storage { margin: 0 0 12px; font-size: calc(12px * var(--fs, 1)); color: var(--muted, #8b9382); }
 .rc-storage--local { color: var(--sun, #d99b2b); }
 
 .rc-item {
@@ -147,7 +147,7 @@ body > .rc-entry {
   display: inline-block;
   padding: 2px 8px;
   border-radius: 999px;
-  font-size: 11px;
+  font-size: calc(11px * var(--fs, 1));
   font-weight: 700;
   margin-bottom: 6px;
 }
@@ -155,17 +155,17 @@ body > .rc-entry {
 .rc-medium { background: var(--sun-soft, #fbf0d8); color: #a16f16; }
 .rc-low { background: var(--leaf-soft, #e6f0e3); color: var(--brand, var(--brand)); }
 .rc-item--high, .rc-item.rc-level-high { border-left-color: var(--red, #c65547); }
-.rc-item-head { display: flex; align-items: center; gap: 8px; font-size: 11.5px; color: var(--muted, #8b9382); }
+.rc-item-head { display: flex; align-items: center; gap: 8px; font-size: calc(11.5px * var(--fs, 1)); color: var(--muted, #8b9382); }
 .rc-count { margin-left: auto; color: var(--brand, var(--brand)); font-weight: 700; }
 .reminder-countdown {
   margin: 0 0 10px;
-  font-size: 12.5px;
+  font-size: calc(12.5px * var(--fs, 1));
   color: var(--brand, var(--brand));
 }
-.rc-item-title { font-size: 14px; font-weight: 700; color: var(--ink, #23301f); margin: 4px 0; }
-.rc-item-detail { font-size: 12.5px; color: var(--ink-soft, #55634e); line-height: 1.55; margin: 4px 0; }
+.rc-item-title { font-size: calc(14px * var(--fs, 1)); font-weight: 700; color: var(--ink, #23301f); margin: 4px 0; }
+.rc-item-detail { font-size: calc(12.5px * var(--fs, 1)); color: var(--ink-soft, #55634e); line-height: 1.55; margin: 4px 0; }
 .rc-item-advice {
-  font-size: 12.5px;
+  font-size: calc(12.5px * var(--fs, 1));
   color: var(--brand, var(--brand));
   background: var(--leaf-wash, rgba(47, 107, 64, 0.06));
   border-radius: 6px;
@@ -178,7 +178,7 @@ body > .rc-entry {
   border: 0;
   background: transparent;
   color: var(--muted, #8b9382);
-  font-size: 12px;
+  font-size: calc(12px * var(--fs, 1));
   font-family: inherit;
   cursor: pointer;
   padding: 3px 4px;
@@ -187,11 +187,11 @@ body > .rc-entry {
 .rc-op--del:hover { color: var(--red, #c65547); }
 
 .rc-empty { text-align: center; padding: 26px 10px; color: var(--muted, #8b9382); }
-.rc-empty-icon { font-size: 28px; display: inline-flex; }
+.rc-empty-icon { font-size: calc(28px * var(--fs, 1)); display: inline-flex; }
 .rc-empty-icon svg { width: 28px; height: 28px; display: block; }
 .rc-type svg { width: 13px; height: 13px; display: inline-block; vertical-align: -2px; }
-.rc-empty-title { font-size: 14px; font-weight: 700; color: var(--ink-soft, #55634e); margin: 8px 0 4px; }
-.rc-empty-hint { font-size: 12px; margin: 0; }
+.rc-empty-title { font-size: calc(14px * var(--fs, 1)); font-weight: 700; color: var(--ink-soft, #55634e); margin: 8px 0 4px; }
+.rc-empty-hint { font-size: calc(12px * var(--fs, 1)); margin: 0; }
 
 /* 时间线页内嵌面板：沿用组件样式，但去掉浮层定位 */
 #reminder-list .rc-toolbar,

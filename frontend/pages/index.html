@@ -3,6 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <script>(function(){try{var t=localStorage.getItem('agritime.theme')||'system';var d=(t==='system'?(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'):t);document.documentElement.setAttribute('data-theme',d);document.documentElement.style.colorScheme=d;}catch(e){document.documentElement.setAttribute('data-theme','light');}})();</script>
+  <!-- 大字模式也要在首帧前生效，否则页面会先小字再放大，跳一下 -->
+  <script>(function(){try{if(localStorage.getItem('agritime.fontscale')==='large'){document.documentElement.setAttribute('data-font','large');}else{document.documentElement.setAttribute('data-font','normal');}}catch(e){}})();</script>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover" />
   <meta name="theme-color" content="#f5f7f5" />
   <title>知农时</title>
@@ -51,6 +53,11 @@
           <h1 class="home-title">农事日历</h1>
           <p class="home-sub">选作物与播期，生成这一季能照着做的安排</p>
         </div>
+        <!-- 字太小看不清？不用去设置里翻，页头就能放大 -->
+        <button type="button" class="font-toggle" id="font-toggle" aria-pressed="false" title="字太小？点这里放大正文">
+          <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 19 9 5l6 14"/><path d="M5.4 14h7.2"/><path d="M16.5 19V9"/><path d="M14 11.5 16.5 9l2.5 2.5"/></svg>
+          <span data-font-label>大字</span>
+        </button>
       </div>
     </header>
 
@@ -64,13 +71,26 @@
     </div>
 
 
-    <div class="term-ruler" id="term-ruler" aria-hidden="true"></div>
+    <!-- 二十四节气尺：给出「现在处在哪个节气」，不再只是一排看不出含义的刻度 -->
+    <section class="term-strip" id="term-strip" aria-label="二十四节气">
+      <div class="term-strip-head">
+        <span class="term-now" id="term-now">--</span>
+        <span class="term-next" id="term-next"></span>
+      </div>
+      <div class="term-ruler" id="term-ruler" role="img" aria-label="二十四节气刻度"></div>
+      <p class="term-tip" id="term-tip" hidden></p>
+    </section>
 
     <form class="card" id="timeline-form" novalidate>
       <div class="field" id="field-crop">
         <label for="crop">作物品种</label>
         <input id="crop" name="crop" type="text" autocomplete="off" placeholder="如：水稻 / 小麦 / 番茄" />
+        <!-- 点开是全部品种，打字则边输边搜：下拉 + 搜索，不是纯文本框 -->
+        <button type="button" class="crop-toggle" id="crop-toggle" aria-label="展开作物列表" aria-expanded="false" aria-controls="crop-suggestions">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+        </button>
         <div class="suggestions" id="crop-suggestions"></div>
+        <p class="crop-alias-hint">输入「<b>稻子</b>」「<b>大米</b>」「<b>洋柿子</b>」这类说法也能找到对应的标准品种，选中后按标准名生成</p>
         <div class="error" id="error-crop">请输入作物品种</div>
         <p class="voice-hint" id="voice-hint" hidden></p>
       </div>
@@ -95,7 +115,23 @@
         <!-- 主路径：只给作物+地点，播期由服务端按适宜窗口和积温推算 -->
         <div class="sow-auto" id="sow-auto">
           <div class="sow-auto-body">
-            <span class="sow-auto-main" id="sow-auto-main">选好作物和地点，自动给出适宜播期、最晚播期与预计收获</span>
+            <!-- 三个占位小标签：还没选作物时就告诉用户"点了会得到什么" -->
+            <div class="sow-metrics" id="sow-metrics" role="group" aria-label="播期结论">
+              <div class="sow-metric is-empty" data-metric="window">
+                <span class="sow-metric-label" id="sow-window-label">适宜播期</span>
+                <span class="sow-metric-value" id="sow-window-value">待推算</span>
+              </div>
+              <div class="sow-metric is-empty" data-metric="latest">
+                <span class="sow-metric-label">最晚播期</span>
+                <span class="sow-metric-value" id="sow-latest-value">待推算</span>
+              </div>
+              <div class="sow-metric is-empty" data-metric="harvest">
+                <span class="sow-metric-label">预计收获</span>
+                <span class="sow-metric-value" id="sow-harvest-value">待推算</span>
+              </div>
+            </div>
+            <!-- 只在"本地种不熟"这类结论场景出现，平时不占位 -->
+            <span class="sow-auto-main" id="sow-auto-main" hidden></span>
             <span class="sow-auto-sub" id="sow-auto-sub"></span>
           </div>
           <button type="button" class="sow-auto-edit" id="sow-auto-edit">手动指定</button>
@@ -104,6 +140,11 @@
         </div>
         <!-- 备用：想自己定播期的人仍然可以展开，不剥夺控制权 -->
         <div class="sow-manual" id="sow-manual" hidden>
+          <label class="date-native" for="sow-date-native">
+            <span>选日期</span>
+            <input type="date" id="sow-date-native" />
+          </label>
+          <p class="date-picker-cap">也可以按年 / 月 / 日分开选</p>
           <div class="date-picker" id="date-picker" title="可选范围：两年前至今天后 30 天" aria-label="可选范围：两年前至今天后 30 天">
             <select id="date-year" aria-label="年"></select>
             <select id="date-month" aria-label="月"></select>
@@ -111,6 +152,8 @@
           </div>
           <p class="date-range-hint" id="date-range-hint">可选范围：两年前至今天后 30 天；不选则按适宜播期自动推荐</p>
           <button type="button" class="term-sow-btn" id="term-sow-btn">不知道播种时间？按节气推荐</button>
+          <!-- 早于 / 晚于适宜播期会有什么代价，选了日子就告诉他 -->
+          <p class="sow-risk" id="sow-risk" hidden></p>
         </div>
         <!-- 唯一的数据源：主路径写"推算出的推荐日"，手动展开时写用户选的日子 -->
         <input id="sowingDate" name="sowingDate" type="hidden" />
@@ -139,6 +182,11 @@
         <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h13M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
         生成时间线
       </button>
+      <!-- 生成要几秒到几十秒，这里得一直有话说 -->
+      <div class="gen-loading" id="gen-loading" role="status" aria-live="polite">
+        <span class="gen-loading-spinner" aria-hidden="true"></span>
+        <span class="gen-loading-text" id="gen-loading-text">正在推算…</span>
+      </div>
       <div class="photo-channels">
         <button type="button" class="btn btn-ghost" id="photo-btn">
           <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 8h3l1.4-2h7.2L17 8h3v11H4z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><circle cx="12" cy="13" r="3.2" stroke="currentColor" stroke-width="1.7"/></svg>
@@ -149,7 +197,10 @@
           上传 / 选图
         </button>
       </div>
-      <p class="photo-entry">识别只给候选，需你点一下确认</p>
+      <p class="photo-entry">
+        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3 4 6.5v5.2c0 4.4 3.2 7.6 8 9.3 4.8-1.7 8-4.9 8-9.3V6.5z"/><path d="m9 12 2.2 2.2L15.4 10"/></svg>
+        <span>识别只给候选，需你点一下确认</span>
+      </p>
       <div class="toast" id="toast"></div>
     </form>
 
@@ -521,6 +572,10 @@
 
   <div class="timeline-pane" id="timeline-pane">
     <button type="button" class="btn home-pane-back" id="home-back" onclick="document.body.classList.remove('split-active');document.getElementById('timeline-pane').style.display='none';this.style.display='none';">← 返回编辑</button>
+    <div class="pane-loading" id="pane-loading">
+      <span class="gen-loading-spinner" aria-hidden="true"></span>
+      <span id="pane-loading-text">正在结合当地气候推算这一季的安排…</span>
+    </div>
     <iframe class="timeline-iframe" id="timeline-iframe" title="农事时间线"></iframe>
   </div>
 
@@ -537,6 +592,7 @@
   <script src="../assets/js/ui-state.js"></script>
   <script src="../assets/js/theme.js"></script>
   <script src="../assets/js/icons.js"></script>
+  <script src="../assets/js/solar-terms.js"></script>
   <script src="../assets/js/prefs.js"></script>
   <script src="../assets/js/my-plots-store.js"></script>
   <script src="../assets/js/sensors-store.js"></script>
@@ -558,6 +614,7 @@
   <script src="../assets/js/sowing-bridge.js"></script>
   <script src="../assets/js/user-sync.js"></script>
   <script src="../assets/js/site-config.js"></script>
+  <script src="../assets/js/font-scale.js"></script>
   <script>
     document.addEventListener('weather-ready', function () {
       var gate = document.getElementById('loading-gate');
@@ -692,9 +749,20 @@
         return fmtMD(a) + '–' + tail;
       }
 
+      /** 播期卡片的一格指标（适宜播期 / 最晚播期 / 预计收获） */
+      function setMetric(key, label, value, empty) {
+        var cell = document.querySelector('.sow-metric[data-metric="' + key + '"]');
+        var valEl = document.getElementById('sow-' + key + '-value');
+        var labEl = key === 'window' ? document.getElementById('sow-window-label') : null;
+        if (labEl && label) labEl.textContent = label;
+        if (valEl) valEl.textContent = value || '待推算';
+        if (cell) cell.classList.toggle('is-empty', !!empty);
+      }
+
       /**
        * 把服务端的"适宜播期窗口"渲染到表单里。
-       * 这是删掉日期输入后的主结果：窗口起止、建议日、最晚日、预计收获，一眼看完。
+       * 这是删掉日期输入后的主结果，拆成三个小格：窗口起止、最晚日、预计收获。
+       * 「本地种不熟」这类结论才用下面那行粗体，平时不占位。
        */
       function applyWindowInfo(info) {
         var main = document.getElementById('sow-auto-main');
@@ -703,9 +771,16 @@
         if (!main) return;
         var w = info && info.window;
         var h = (info && info.harvest) || {};
+        // 手动指定日期的偏离提示要拿它做对比，先存下来
+        window.__sowWindow = w || null;
         if (!w) {
-          main.textContent = info && info.sowDate ? ('建议播期 ' + fmtMD(info.sowDate)) : '暂未算出适宜播期';
+          var only = info && info.sowDate ? fmtMD(info.sowDate) : '';
+          setMetric('window', '适宜播期', only || '待推算', !only);
+          setMetric('latest', null, '待推算', true);
+          setMetric('harvest', null, '待推算', true);
+          main.hidden = true;
           sub.textContent = (info && info.basis) || '';
+          renderRisk();
           return;
         }
         var act = w.action || '播种';
@@ -715,6 +790,10 @@
 
         // 本地露地种不熟：不给推荐日，直接给结论。给了日期就等于承诺，用户照着种却收不了。
         if (w.suitable === false) {
+          setMetric('window', label, '不宜露地', false);
+          setMetric('latest', null, '—', true);
+          setMetric('harvest', null, '—', true);
+          main.hidden = false;
           main.textContent = '本地不宜露地种植（' + fmtRange(w.start, w.end) + ' 播种也难在霜前成熟）';
           var why = info.note || '生育期超过本地无霜期，露地难以正常成熟';
           // 后端说明里已经带了建议，别重复一遍
@@ -734,23 +813,27 @@
               delete forceBtn.dataset.date;
             }
           }
+          renderRisk();
           return;
         }
         if (forceBtn) { forceBtn.hidden = true; delete forceBtn.dataset.date; }
         box.classList.remove('is-unsuitable');
 
-        main.textContent = label + ' ' + fmtRange(w.start, w.end)
-          + (date ? ' · 建议 ' + fmtMD(date) : '');
+        // 三个数各就各位：窗口、最晚、收获。长句不再挤成一行粗体
+        setMetric('window', label, fmtRange(w.start, w.end), false);
+        setMetric('latest', null,
+          (info.latest && info.latest.date) ? fmtMD(info.latest.date)
+            : (w.end ? fmtMD(w.end) : '—'), !(info.latest && info.latest.date) && !w.end);
+        setMetric('harvest', null,
+          h.date ? fmtMD(h.date) : (h.perennial ? '多年生' : '—'),
+          !h.date && !h.perennial);
+        main.hidden = true;
 
         var bits = [];
         if (window.__geoUnresolved) bits.push('地点未解析，按默认地点估算');
-        if (h.date) bits.push('预计 ' + fmtMD(h.date) + ' 收获');
-        if (h.perennial) bits.push('多年生，定植后按年管理');
+        if (date) bits.push('建议 ' + fmtMD(date) + ' 播种');
+        if (h.perennial) bits.push('定植后按年管理');
         if (h.canMatureBeforeFrost === false) bits.push('本季霜前难以成熟');
-        if (info.latest && info.latest.date && info.latest.date !== (w.end || '')
-            && info.latest.date !== date) {
-          bits.push('最晚 ' + fmtMD(info.latest.date));
-        }
         var regionLabel = w.region === 'south' ? '南方窗口'
           : (w.region === 'southwest' ? '西南窗口' : '');
         if (w.precision === 'season-rule') {
@@ -768,14 +851,46 @@
           box.classList.toggle('is-estimated', w.precision === 'season-rule');
           box.title = (w.basis || '') + (w.groupLabel ? '｜' + w.groupLabel : '');
         }
+        renderRisk();
       }
 
-      function renderRuler() {
+      /**
+       * 二十四节气尺。
+       * 以前只是 24 个橙色小方块，用户看不出是节气还是进度条 —— 现在明确写
+       * 「立冬 · 11月7日 / 距小雪 11 天」，并点亮当前节气那一格。
+       * 节气日期由 solar-terms.js 用通用公式算，不额外请求接口。
+       */
+      function renderTermStrip() {
         var ruler = document.getElementById('term-ruler');
-        for (var i = 0; i < 24; i += 1) {
+        if (!ruler || !window.SolarTerms) return;
+        var info = window.SolarTerms.current(new Date());
+        ruler.innerHTML = '';
+        (info.all || []).forEach(function (t, i) {
           var tick = document.createElement('i');
-          if (i % 6 === 0) tick.className = 'hi';
+          var cls = '';
+          if (i % 6 === 0) cls += ' hi';
+          if (i === info.index) cls += ' is-now';
+          tick.className = cls.trim();
+          // 每一格都能 hover 出节气名与日期，不用猜
+          tick.title = t.name + ' · ' + t.md;
           ruler.appendChild(tick);
+        });
+        ruler.setAttribute('aria-label', '二十四节气刻度，当前是' + info.name + '（' + info.md + '）');
+
+        var nowEl = document.getElementById('term-now');
+        if (nowEl) nowEl.textContent = info.name + ' · ' + info.md;
+
+        var nextEl = document.getElementById('term-next');
+        if (nextEl) {
+          nextEl.textContent = info.next.days === 0
+            ? '明天 ' + info.next.name
+            : '距' + info.next.name + ' ' + info.next.days + ' 天';
+        }
+
+        var tipEl = document.getElementById('term-tip');
+        if (tipEl) {
+          tipEl.hidden = !info.tip;
+          tipEl.textContent = info.tip || '';
         }
       }
 
@@ -833,6 +948,7 @@
         // 只在有产地时填地点，别把用户已填或已定位的地点清成空串
         if (c.city) locationInput.value = c.city;
         suggestions.classList.remove('show');
+        setSuggestExpanded(false);
         suggestHits = [];
         suggestActive = -1;
         warmCropProtocol(c.name);
@@ -862,6 +978,50 @@
 
       var suggestTimer = null;
       var suggestSeq = 0;
+
+      /**
+       * 展开全部品种（下拉）与打字搜索走同一个列表：
+       * 用户不知道标准名时先浏览，知道个大概就打字，两种都能到同一个结果 —— 选中即标准名。
+       */
+      function openCropList() {
+        requestAllCrops(function (list) {
+          if (!list.length) {
+            showToast('品种列表暂时取不到，可直接输入品种名，例如「水稻」', 'error');
+            return;
+          }
+          renderSuggestionList(list, '');
+          setSuggestExpanded(true);
+        });
+      }
+
+      function requestAllCrops(done) {
+        var xhr = new XMLHttpRequest();
+        xhr.open('GET', '/api/crops', true);
+        xhr.timeout = 3000;
+        xhr.onload = function () {
+          try {
+            var body = JSON.parse(xhr.responseText);
+            var list = (body.crops || []).map(function (c) { return c.displayName || c.name; });
+            done(list.length ? list : localAllCrops());
+          } catch (e) { done(localAllCrops()); }
+        };
+        xhr.onerror = xhr.ontimeout = function () { done(localAllCrops()); };
+        xhr.send();
+      }
+
+      function localAllCrops() {
+        // CROP_LIST_ALL 是标准品种表；CROPS 里是带产地前缀的示范条目（"山东金乡大蒜"），
+        // 只适合做定位示例，不适合当品种名让用户挑
+        if (window.CropMap && window.CropMap.CROP_LIST_ALL) {
+          return window.CropMap.CROP_LIST_ALL.map(function (c) { return c.name; });
+        }
+        return CROPS.map(function (c) { return c.name; });
+      }
+
+      function setSuggestExpanded(open) {
+        var btn = document.getElementById('crop-toggle');
+        if (btn) btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+      }
 
       function requestCropSuggestions(kw, done) {
         if (suggestTimer) clearTimeout(suggestTimer);
@@ -911,6 +1071,7 @@
           suggestions.appendChild(btn);
         });
         suggestions.classList.add('show');
+        setSuggestExpanded(true);
       }
 
       function updateSuggestActive() {
@@ -927,6 +1088,32 @@
       function showToast(msg, type) {
         toast.textContent = msg;
         toast.className = 'toast show ' + (type || 'info');
+      }
+
+      /** 「江苏省南京市」→「江苏南京」，用在加载文案里，短一点好读 */
+      function shortPlace(loc) {
+        var s = String(loc || '').replace(/(省|市|自治区|自治州|地区|特别行政区)/g, '').trim();
+        return s || '当地';
+      }
+
+      /**
+       * 生成过程中的状态提示。
+       * 生成一季时间线要几秒到几十秒，只把按钮变灰用户会以为卡住了；
+       * 把"正在用哪儿的气候算什么"说出来，等待才有意义。
+       */
+      function showGenLoading(text) {
+        var el = document.getElementById('gen-loading');
+        var txt = document.getElementById('gen-loading-text');
+        if (!el) return;
+        if (txt && text) txt.textContent = text;
+        el.classList.add('show');
+        var btn = document.getElementById('generate-btn');
+        if (btn) btn.disabled = true;
+      }
+
+      function hideGenLoading() {
+        var el = document.getElementById('gen-loading');
+        if (el) el.classList.remove('show');
       }
 
       function findCrop(name) {
@@ -961,12 +1148,21 @@
           manualBox.hidden = !open;
           sowEditBtn.textContent = open ? '收起手动' : '手动指定';
           if (open) {
-            var y = document.getElementById('date-year');
-            if (y) y.focus();
+            // 有推荐日就把它带进日期控件，用户多半只是微调几天，不用从头选
+            syncNativeDate();
+            renderRisk();
+            if (dateNative) dateNative.focus();
+            else {
+              var y = document.getElementById('date-year');
+              if (y) y.focus();
+            }
           } else {
             // 收起手动 = 回到自动推算，清掉手填的日期，避免旧值继续生效
             sowingInput.value = '';
             suggestedSowDate = '';
+            syncNativeDate();
+            var risk = document.getElementById('sow-risk');
+            if (risk) { risk.hidden = true; risk.textContent = ''; }
             var hint = document.getElementById('term-sow-hint');
             if (hint) hint.hidden = true;
           }
@@ -986,9 +1182,78 @@
         });
       }
 
-      yearSel.addEventListener('change', function () { fillMonths(); clampDay(); fillDays(); composeDate(); setInvalid('field-sowing-date', false); });
-      monthSel.addEventListener('change', function () { clampDay(); fillDays(); composeDate(); setInvalid('field-sowing-date', false); });
-      daySel.addEventListener('change', function () { composeDate(); setInvalid('field-sowing-date', false); });
+      yearSel.addEventListener('change', function () { fillMonths(); clampDay(); fillDays(); composeDate(); syncNativeDate(); setInvalid('field-sowing-date', false); renderRisk(); });
+      monthSel.addEventListener('change', function () { clampDay(); fillDays(); composeDate(); syncNativeDate(); setInvalid('field-sowing-date', false); renderRisk(); });
+      daySel.addEventListener('change', function () { composeDate(); syncNativeDate(); setInvalid('field-sowing-date', false); renderRisk(); });
+
+      /**
+       * 手动指定播期：
+       * 1) 给一个原生日期控件 —— 点开就是日历，比"年/月/日三个下拉"更像选日期；
+       * 2) 选完顺手对比适宜播期窗口，说清早/晚多少天、代价是什么。
+       *    这不是错误，用户当然可以自己定，只是要让他知道代价。
+       */
+      var dateNative = document.getElementById('sow-date-native');
+
+      function syncNativeDate() {
+        if (!dateNative) return;
+        dateNative.value = sowingInput.value || '';
+      }
+
+      function riskOf(picked) {
+        var w = window.__sowWindow;
+        if (!picked) return null;
+        if (!w || !w.start || !w.end) {
+          return { cls: '', text: '还没有适宜播期可对比：先填作物和地点，回到自动推算看一眼，再回来定这天早了多少、晚了多少' };
+        }
+        var day = 86400000;
+        var d = Date.parse(picked + 'T00:00:00');
+        var s = Date.parse(w.start + 'T00:00:00');
+        var e = Date.parse(w.end + 'T00:00:00');
+        if (isNaN(d) || isNaN(s) || isNaN(e)) return null;
+        if (d < s) {
+          return {
+            cls: 'is-early',
+            text: '比适宜播期早 ' + Math.round((s - d) / day) + ' 天：地温可能还不够，出苗慢，烂种、烂秧的风险明显上升'
+          };
+        }
+        if (d > e) {
+          return {
+            cls: 'is-late',
+            text: '比适宜播期晚 ' + Math.round((d - e) / day) + ' 天：生育期整体后移，灌浆成熟可能赶在初霜前收不完'
+          };
+        }
+        return { cls: 'is-ok', text: '在适宜播期 ' + fmtRange(w.start, w.end) + ' 之内，按正常管理即可' };
+      }
+
+      function renderRisk() {
+        var el = document.getElementById('sow-risk');
+        if (!el) return;
+        var r = riskOf(sowingInput.value);
+        if (!r) { el.hidden = true; el.textContent = ''; el.className = 'sow-risk'; return; }
+        el.hidden = false;
+        el.className = 'sow-risk' + (r.cls ? ' ' + r.cls : '');
+        el.textContent = r.text;
+      }
+
+      if (dateNative) {
+        dateNative.min = dateToStr(getMinDate());
+        dateNative.max = dateToStr(getMaxDate());
+        dateNative.addEventListener('change', function () {
+          var v = dateNative.value || '';
+          if (!v) {
+            sowingInput.value = '';
+            yearSel.value = '';
+            fillMonths();
+            fillDays();
+          } else {
+            // 轮盘可能不含这个日子（比如按节气推荐到 3 个月后），以原生控件为准
+            syncSelectsFromDate(v);
+            sowingInput.value = v;
+          }
+          setInvalid('field-sowing-date', false);
+          renderRisk();
+        });
+      }
 
       cropInput.addEventListener('input', function () {
         setInvalid('field-crop', false);
@@ -1014,9 +1279,30 @@
           if (suggestActive >= 0) { e.preventDefault(); pickSuggestion(suggestHits[suggestActive]); }
         } else if (e.key === 'Escape') {
           suggestions.classList.remove('show');
+          setSuggestExpanded(false);
         }
       });
-      cropInput.addEventListener('blur', function () { setTimeout(function () { suggestions.classList.remove('show'); }, 150); });
+      // 失焦 150ms 后再收起：留出点选列表的时间
+      cropInput.addEventListener('blur', function () {
+        setTimeout(function () {
+          suggestions.classList.remove('show');
+          setSuggestExpanded(false);
+        }, 150);
+      });
+
+      // 点箭头展开全部品种。mousedown 阻止默认行为，否则输入框先失焦、列表刚开就被收起
+      var cropToggle = document.getElementById('crop-toggle');
+      if (cropToggle) {
+        cropToggle.addEventListener('mousedown', function (e) { e.preventDefault(); });
+        cropToggle.addEventListener('click', function () {
+          if (suggestions.classList.contains('show')) {
+            suggestions.classList.remove('show');
+            setSuggestExpanded(false);
+            return;
+          }
+          openCropList();
+        });
+      }
 
       function openPhoto(prefer) {
         if (window.PhotoCapture) {
@@ -1153,8 +1439,42 @@
           o.textContent = (p.name || '未命名地块') + (p.area ? '（' + p.area + ' 亩）' : '');
           sel.appendChild(o);
         });
+        // 没有地块时下拉只剩"不关联"，像个死胡同 —— 直接给一个新建入口
+        var add = document.createElement('option');
+        add.value = '__new__';
+        add.textContent = items.length ? '＋ 新建地块' : '＋ 新建地块（还没有地块）';
+        sel.appendChild(add);
         // 从推荐页带过来的地块在这里恢复选中，用户能看到"这次是按哪块地算的"
         if (keep && items.some(function (p) { return p.plotId === keep; })) sel.value = keep;
+        applyPlotSelection();
+      }
+
+      /** 选了「＋ 新建地块」：跳到地块页并直接打开新建表单，别让用户自己再找按钮 */
+      function openNewPlotForm() {
+        if (window.Sidebar && window.Sidebar.switchModule) {
+          window.Sidebar.switchModule('plots');
+        } else {
+          location.href = './index.html?pane=plots';
+          return;
+        }
+        setTimeout(function () {
+          var addBtn = document.getElementById('my-plots-add-btn');
+          if (addBtn) addBtn.click();
+          var nameInput = document.getElementById('plot-name');
+          if (nameInput) nameInput.focus();
+        }, 80);
+      }
+
+      function handlePlotChange() {
+        var sel = document.getElementById('plot-select');
+        if (!sel) return;
+        if (sel.value === '__new__') {
+          // 先把选择还原，避免"新建地块"被当成一个已选地块带进生成参数
+          sel.value = window.__timelinePlotId || '';
+          applyPlotSelection();
+          openNewPlotForm();
+          return;
+        }
         applyPlotSelection();
       }
 
@@ -1238,6 +1558,8 @@
         // 这种情况下日期轮盘没有对应选项，直接写隐藏域并保持轮盘原样
         try { syncSelectsFromDate(info.sowDate); composeDate(); } catch (e) { /* 轮盘不含该日期时忽略 */ }
         if (!sowingInput.value) sowingInput.value = info.sowDate;
+        syncNativeDate();
+        renderRisk();
       }
 
       /**
@@ -1335,6 +1657,7 @@
       function handleSubmit() {
         // 建议下拉还开着会盖住下面的播期结果卡片
         suggestions.classList.remove('show');
+        setSuggestExpanded(false);
         if (!validate()) { setDemoBusy(false); showToast('请先补全并检查表单', 'error'); return; }
         var cropName = cropInput.value.trim();
         var location = locationInput.value.trim();
@@ -1352,7 +1675,9 @@
             // 主路径：不填日期，只给作物与地点，由服务端推算适宜播期窗口
             var genBtn = document.getElementById('generate-btn');
             if (genBtn) genBtn.disabled = true;
+            showGenLoading('正在结合' + shortPlace(location) + '的气候推算适宜播期…');
             fetchSowWindow(cropName, function (err, info) {
+              hideGenLoading();
               if (genBtn) genBtn.disabled = false;
               if (err) {
                 setDemoBusy(false);
@@ -1406,6 +1731,8 @@
        * 明显不成立的直接拦住 —— 排一份排得整整齐齐的假计划，比不排更糟。
        */
       function checkSowThenGo(cropName, location, sowDate, termInfo) {
+        // 交给用户一句正在拿哪儿的数据核什么，比只把按钮置灰更让人安心
+        showGenLoading('正在核对「' + cropName + '」在' + shortPlace(location) + '能不能种、会不会撞霜…');
         var box = document.getElementById('sow-check');
         var btn = document.getElementById('generate-btn');
         var ll = currentLL(cropName);
@@ -1441,6 +1768,7 @@
           if (!r.ok) throw new Error('HTTP ' + r.status);
           return r.json();
         }).then(function (d) {
+          hideGenLoading();
           if (btn) { btn.disabled = false; delete btn.dataset.busy; }
           setDemoBusy(false);
           var isDemo = window.__demoMode === true;
@@ -1465,6 +1793,7 @@
             showToast('这个播期安排不合理，已阻止生成', 'error');
           }
         }).catch(function (err) {
+          hideGenLoading();
           window.__demoMode = false;
           setDemoBusy(false);
           // 校验服务不可用时不阻断用户 —— 但要说明这次没校验过
@@ -1589,6 +1918,13 @@
           var iframe = document.getElementById('timeline-iframe');
           var backBtn = document.getElementById('home-back');
           if (pane && iframe) {
+            // 时间线是后端现算的（几十秒不稀奇），先给个可读的等待说明
+            hideGenLoading();
+            var paneText = document.getElementById('pane-loading-text');
+            if (paneText) {
+              paneText.textContent = '正在结合' + shortPlace(location) + '的气候推算这一季的安排…';
+            }
+            pane.classList.add('is-loading');
             iframe.src = resolveTimelineUrl() + '?' + query;
             document.body.classList.add('split-active');
             pane.style.display = 'block';
@@ -1686,15 +2022,25 @@
       });
 
       fillYears();
-      renderRuler();
+      renderTermStrip();
       setDefaultValues();
       renderHistory();
       renderPlotSelect();
       (function () {
         var sel = document.getElementById('plot-select');
-        if (sel) sel.addEventListener('change', applyPlotSelection);
+        if (sel) sel.addEventListener('change', handlePlotChange);
         // 地块在别的面板增删改后，选择器要跟着更新，否则会指向一个已经不存在的地块
         document.addEventListener('agritime:plots-changed', renderPlotSelect);
+      })();
+
+      // 时间线算完会触发 iframe 的 load，这时才收起等待态
+      (function () {
+        var iframe = document.getElementById('timeline-iframe');
+        if (!iframe) return;
+        iframe.addEventListener('load', function () {
+          var pane = document.getElementById('timeline-pane');
+          if (pane) pane.classList.remove('is-loading');
+        });
       })();
     })();
   </script>

@@ -1,7 +1,7 @@
 /* 种植推荐样式（T15），容器宽度/内边距由 common.css 的 .content-pane 统一控制 */
 .recommend-header { margin-bottom: 18px; }
-.recommend-title { display: block; font-size: 22px; font-weight: 800; letter-spacing: 1px; color: var(--ink); }
-.recommend-sub { display: block; margin-top: 6px; font-size: 13px; color: var(--muted); }
+.recommend-title { display: block; font-size: calc(22px * var(--fs, 1)); font-weight: 800; letter-spacing: 1px; color: var(--ink); }
+.recommend-sub { display: block; margin-top: 6px; font-size: calc(13px * var(--fs, 1)); color: var(--muted); }
 
 /* 左表单 + 右结果，两列 */
 .recommend-body { display: grid; grid-template-columns: minmax(300px, 380px) 1fr; gap: 22px; align-items: start; }
@@ -11,10 +11,10 @@
   box-shadow: var(--shadow-soft); padding: 20px; margin: 0; position: sticky; top: 20px;
 }
 .recommend-form .field { margin-bottom: 16px; }
-.recommend-form .field label { font-size: 14.5px; font-weight: 600; color: var(--ink); }
-.recommend-form .field .hint { font-size: 12px; font-weight: 400; color: var(--muted); }
+.recommend-form .field label { font-size: calc(14.5px * var(--fs, 1)); font-weight: 600; color: var(--ink); }
+.recommend-form .field .hint { font-size: calc(12px * var(--fs, 1)); font-weight: 400; color: var(--muted); }
 .recommend-form select, .recommend-form input {
-  width: 100%; font-family: inherit; font-size: 15px; padding: 11px 12px; color: var(--ink);
+  width: 100%; font-family: inherit; font-size: calc(15px * var(--fs, 1)); padding: 11px 12px; color: var(--ink);
   background: var(--surface); border: 1.5px solid var(--line); border-radius: 10px; box-sizing: border-box;
 }
 .recommend-form select:focus, .recommend-form input:focus {
@@ -22,7 +22,7 @@
 }
 .recommend-loc-row { display: flex; align-items: center; gap: 10px; }
 .recommend-loc-row .btn { margin-top: 0; white-space: nowrap; }
-.recommend-loc-status { font-size: 12.5px; color: var(--muted); }
+.recommend-loc-status { font-size: calc(12.5px * var(--fs, 1)); color: var(--muted); }
 .recommend-submit-row { margin-top: 4px; }
 .recommend-submit-row .btn { margin-top: 0; width: 100%; }
 
@@ -30,7 +30,7 @@
 .recommend-loading, .recommend-empty {
   display: flex; align-items: center; justify-content: center;
   min-height: 220px; padding: 32px 20px; text-align: center;
-  color: var(--muted); font-size: 14px; line-height: 1.8;
+  color: var(--muted); font-size: calc(14px * var(--fs, 1)); line-height: 1.8;
   background: var(--card); border: 1px dashed var(--line); border-radius: var(--radius);
 }
 
@@ -44,23 +44,23 @@
 .recommend-card-head { display: flex; align-items: center; gap: 8px; }
 .recommend-rank {
   flex: none; width: 22px; height: 22px; border-radius: 50%; background: var(--leaf-soft);
-  color: var(--leaf); font-size: 12px; font-weight: 700; display: flex; align-items: center; justify-content: center;
+  color: var(--leaf); font-size: calc(12px * var(--fs, 1)); font-weight: 700; display: flex; align-items: center; justify-content: center;
 }
-.recommend-name { font-size: 17px; font-weight: 700; color: var(--ink); }
-.recommend-score { margin-left: auto; font-size: 15px; font-weight: 800; color: var(--leaf); }
+.recommend-name { font-size: calc(17px * var(--fs, 1)); font-weight: 700; color: var(--ink); }
+.recommend-score { margin-left: auto; font-size: calc(15px * var(--fs, 1)); font-weight: 800; color: var(--leaf); }
 
 .recommend-bar { height: 5px; background: var(--paper-2); border-radius: 999px; overflow: hidden; margin: 10px 0 10px; }
 .recommend-bar-fill { height: 100%; background: linear-gradient(90deg, var(--leaf-2), var(--leaf)); border-radius: 999px; }
 
 .recommend-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
-.recommend-tag { font-size: 12px; color: var(--ink-soft); background: var(--paper-2); border-radius: 999px; padding: 3px 10px; }
+.recommend-tag { font-size: calc(12px * var(--fs, 1)); color: var(--ink-soft); background: var(--paper-2); border-radius: 999px; padding: 3px 10px; }
 .recommend-tag--on { color: var(--leaf); background: var(--leaf-soft); }
 
-.recommend-reason { margin: 0 0 8px; font-size: 13.5px; color: var(--ink-soft); line-height: 1.7; flex: 1; }
-.recommend-sow-months { font-size: 12.5px; color: var(--muted); }
+.recommend-reason { margin: 0 0 8px; font-size: calc(13.5px * var(--fs, 1)); color: var(--ink-soft); line-height: 1.7; flex: 1; }
+.recommend-sow-months { font-size: calc(12.5px * var(--fs, 1)); color: var(--muted); }
 .recommend-foot { margin-top: 12px; display: flex; align-items: center; }
-.recommend-go { font-size: 14px; width: 100%; }
-.recommend-nocal { font-size: 12px; color: var(--muted); }
+.recommend-go { font-size: calc(14px * var(--fs, 1)); width: 100%; }
+.recommend-nocal { font-size: calc(12px * var(--fs, 1)); color: var(--muted); }
 
 /* 结果区：卡片网格，等高排布 */
 #recommend-result {
@@ -84,7 +84,7 @@
 .recommend-loc-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
 .recommend-loc-status {
   margin: 6px 0 0;
-  font-size: 12px;
+  font-size: calc(12px * var(--fs, 1));
   line-height: 1.6;
   color: var(--muted);
 }
@@ -99,7 +99,7 @@
   border-radius: 10px;
   background: var(--card);
 }
-.recommend-context-line { font-size: 12.5px; line-height: 1.7; color: var(--ink-soft); }
+.recommend-context-line { font-size: calc(12.5px * var(--fs, 1)); line-height: 1.7; color: var(--ink-soft); }
 .recommend-context-line.is-ok { color: var(--leaf); }
 .recommend-context-line.is-warn { color: #a8752a; }
 
@@ -108,7 +108,7 @@
   border: 0;
   background: transparent;
   color: var(--leaf);
-  font-size: 12.5px;
+  font-size: calc(12.5px * var(--fs, 1));
   cursor: pointer;
   padding: 0;
 }
@@ -125,7 +125,7 @@
   grid-template-columns: 84px 1fr 40px;
   gap: 8px;
   align-items: baseline;
-  font-size: 12px;
+  font-size: calc(12px * var(--fs, 1));
   line-height: 1.7;
   color: var(--muted);
 }
@@ -149,7 +149,7 @@
   flex-wrap: wrap;
   gap: 4px 10px;
   padding: 6px 0;
-  font-size: 12.5px;
+  font-size: calc(12.5px * var(--fs, 1));
   color: var(--muted);
   border-bottom: 1px dashed var(--line);
 }

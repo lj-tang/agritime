@@ -53,6 +53,27 @@
     var isRecording = false;
     var recognition = null;
 
+    // 录音中的反馈：输入框下面出现跳动的音量条 + 一句话说明。
+    // 只有按钮变色的话，用户（尤其第一次用的人）不知道到底有没有在听。
+    var hintBox = targetInput && targetInput.closest ? targetInput.closest('.field') : null;
+    var status = null;
+
+    function showStatus(text) {
+      if (!hintBox) return;
+      if (!status) {
+        status = document.createElement('span');
+        status.className = 'voice-status';
+        status.setAttribute('role', 'status');
+        status.innerHTML = '<span class="voice-bars" aria-hidden="true"><i></i><i></i><i></i><i></i></span>'
+          + '<span class="voice-status-text"></span>';
+        hintBox.appendChild(status);
+      }
+      status.querySelector('.voice-status-text').textContent = text;
+      status.hidden = false;
+    }
+
+    function hideStatus() { if (status) status.hidden = true; }
+
     btn.addEventListener('click', function () {
       if (isRecording) {
         if (recognition) recognition.stop();
@@ -68,7 +89,9 @@
       recognition.onstart = function () {
         isRecording = true;
         btn.classList.add('voice-btn--active');
+        btn.setAttribute('aria-label', '正在录音，点一下结束');
         btn.innerHTML = stopIcon();
+        showStatus('正在聆听…说完点一下结束');
       };
 
       recognition.onresult = function (event) {
@@ -107,14 +130,18 @@
 
       recognition.onerror = function () {
         btn.classList.remove('voice-btn--active');
+        btn.setAttribute('aria-label', '语音输入');
         btn.innerHTML = micIcon();
         isRecording = false;
+        hideStatus();
       };
 
       recognition.onend = function () {
         btn.classList.remove('voice-btn--active');
+        btn.setAttribute('aria-label', '语音输入');
         btn.innerHTML = micIcon();
         isRecording = false;
+        hideStatus();
       };
 
       try {
@@ -122,6 +149,7 @@
       } catch (e) {
         isRecording = false;
         btn.innerHTML = micIcon();
+        hideStatus();
       }
     });
 

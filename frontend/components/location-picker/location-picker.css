@@ -8,7 +8,7 @@
   border-radius: var(--radius-sm);
   background: var(--card);
   cursor: pointer;
-  font-size: 16px;
+  font-size: calc(16px * var(--fs, 1));
   margin-left: 6px;
   flex-shrink: 0;
   vertical-align: middle;
@@ -49,35 +49,35 @@
   font-weight: 600;
   color: var(--leaf);
 }
-.map-close { border: none; background: none; font-size: 20px; cursor: pointer; color: var(--muted); }
+.map-close { border: none; background: none; font-size: calc(20px * var(--fs, 1)); cursor: pointer; color: var(--muted); }
 
 .map-search-area { display: flex; gap: 8px; padding: 12px 16px; border-bottom: 1px solid var(--line); }
-.map-search-area input { flex: 1; padding: 8px; border: 1px solid var(--line); border-radius: var(--radius-sm); font-size: 14px; }
-.map-search-area button { padding: 8px 16px; border: none; border-radius: var(--radius-sm); background: var(--leaf); color: var(--paper); cursor: pointer; font-size: 14px; }
-.map-search-area #map-locate-btn { padding: 8px 10px; font-size: 16px; }
+.map-search-area input { flex: 1; padding: 8px; border: 1px solid var(--line); border-radius: var(--radius-sm); font-size: calc(14px * var(--fs, 1)); }
+.map-search-area button { padding: 8px 16px; border: none; border-radius: var(--radius-sm); background: var(--leaf); color: var(--paper); cursor: pointer; font-size: calc(14px * var(--fs, 1)); }
+.map-search-area #map-locate-btn { padding: 8px 10px; font-size: calc(16px * var(--fs, 1)); }
 
 .map-search-results { max-height: 150px; overflow-y: auto; border-bottom: 1px solid var(--line); }
-.map-search-item { padding: 8px 16px; cursor: pointer; font-size: 13px; color: var(--ink-soft); border-bottom: 1px solid var(--line); }
+.map-search-item { padding: 8px 16px; cursor: pointer; font-size: calc(13px * var(--fs, 1)); color: var(--ink-soft); border-bottom: 1px solid var(--line); }
 .map-search-item:hover { background: var(--leaf-soft); }
-.map-search-title { font-size: 13px; color: var(--ink); }
-.map-search-addr { font-size: 12px; color: var(--muted); margin-top: 2px; }
-.map-searching, .map-no-result { padding: 12px 16px; color: var(--muted); font-size: 13px; text-align: center; }
+.map-search-title { font-size: calc(13px * var(--fs, 1)); color: var(--ink); }
+.map-search-addr { font-size: calc(12px * var(--fs, 1)); color: var(--muted); margin-top: 2px; }
+.map-searching, .map-no-result { padding: 12px 16px; color: var(--muted); font-size: calc(13px * var(--fs, 1)); text-align: center; }
 
 /* flex-basis:0 让地图吃掉剩余空间；min-height 不能太大，否则会把底部按钮挤出面板 */
 .map-canvas { flex: 1 1 0; min-height: 220px; }
 
 /* 标点 / 画地块 模式切换 */
 .map-mode-switch { display: flex; gap: 8px; padding: 10px 16px; border-bottom: 1px solid var(--line); }
-.map-mode-btn { flex: 1; font-family: inherit; font-size: 14px; font-weight: 600; padding: 8px 10px; border: 1.5px solid var(--line); border-radius: 8px; background: var(--card); color: var(--ink-soft); cursor: pointer; }
+.map-mode-btn { flex: 1; font-family: inherit; font-size: calc(14px * var(--fs, 1)); font-weight: 600; padding: 8px 10px; border: 1.5px solid var(--line); border-radius: 8px; background: var(--card); color: var(--ink-soft); cursor: pointer; }
 .map-mode-btn.active { border-color: var(--leaf-2); background: var(--leaf-soft); color: var(--leaf); }
 
 /* 框地工具条 */
 .map-draw-tools { padding: 10px 16px; border-bottom: 1px solid var(--line); background: var(--paper-2); }
-.map-draw-hint { font-size: 12.5px; color: var(--muted); margin-bottom: 8px; line-height: 1.5; }
+.map-draw-hint { font-size: calc(12.5px * var(--fs, 1)); color: var(--muted); margin-bottom: 8px; line-height: 1.5; }
 .map-draw-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
-.map-draw-area { font-size: 13px; font-weight: 700; color: var(--leaf); }
+.map-draw-area { font-size: calc(13px * var(--fs, 1)); font-weight: 700; color: var(--leaf); }
 .map-draw-btns { display: flex; gap: 6px; }
-.map-draw-btns button { font-family: inherit; font-size: 12.5px; font-weight: 600; padding: 6px 10px; border: 1px solid var(--leaf-2); border-radius: 7px; background: var(--card); color: var(--leaf); cursor: pointer; }
+.map-draw-btns button { font-family: inherit; font-size: calc(12.5px * var(--fs, 1)); font-weight: 600; padding: 6px 10px; border: 1px solid var(--leaf-2); border-radius: 7px; background: var(--card); color: var(--leaf); cursor: pointer; }
 .map-draw-btns button:hover { background: var(--leaf-soft); }
 .map-draw-btns #map-draw-finish { background: var(--leaf); color: #fff; border-color: var(--leaf); }
 
@@ -87,7 +87,7 @@
 .agritime-vertex-dot.is-first { background: var(--brand-hover); border-color: #fff; box-shadow: 0 0 0 2px var(--brand-hover), 0 1px 3px rgba(43, 58, 38,.35); }
 
 /* 可种植性判定 */
-.map-verdict { padding: 10px 16px; font-size: 13px; line-height: 1.6; border-top: 1px solid var(--line); }
+.map-verdict { padding: 10px 16px; font-size: calc(13px * var(--fs, 1)); line-height: 1.6; border-top: 1px solid var(--line); }
 .map-verdict-suitable { background: rgba(63,143,86,.12); color: var(--brand); }
 .map-verdict-caution { background: rgba(214,158,46,.16); color: #8a6415; }
 .map-verdict-unsuitable { background: rgba(190,60,50,.14); color: #a33227; font-weight: 600; }
@@ -96,7 +96,7 @@
 /* hidden 属性必须能盖住 flex 布局 */
 .map-panel [hidden] { display: none !important; }
 
-.map-info { padding: 8px 16px; font-size: 13px; color: var(--ink-soft); border-top: 1px solid var(--line); }
+.map-info { padding: 8px 16px; font-size: calc(13px * var(--fs, 1)); color: var(--ink-soft); border-top: 1px solid var(--line); }
 
 .map-actions { display: flex; gap: 8px; padding: 12px 16px; border-top: 1px solid var(--line); }
 .map-actions .btn { flex: 1; }

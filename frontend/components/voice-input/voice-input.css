@@ -8,7 +8,7 @@
   border-radius: var(--radius-sm);
   background: var(--card);
   cursor: pointer;
-  font-size: 16px;
+  font-size: calc(16px * var(--fs, 1));
   line-height: 1;
   vertical-align: middle;
   margin-left: 6px;
@@ -29,7 +29,48 @@
 
 @media (prefers-reduced-motion: reduce) {
   .voice-btn--active { animation: none; }
+
+  .voice-bars i { animation: none; height: 8px; }
 }
+
+/* 录音中的提示：跳动的音量条 + 一句"正在聆听"，让用户确信麦克风在工作 */
+.voice-status {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin: 6px 0 0;
+  font-size: calc(12.5px * var(--fs, 1));
+  color: var(--red);
+  line-height: 1.4;
+}
+
+.voice-status[hidden] { display: none; }
+
+.voice-bars {
+  display: inline-flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: 12px;
+  flex: none;
+}
+
+.voice-bars i {
+  width: 3px;
+  height: 5px;
+  border-radius: 2px;
+  background: currentColor;
+  animation: voice-bar 0.9s ease-in-out infinite;
+}
+
+.voice-bars i:nth-child(2) { animation-delay: 0.15s; }
+.voice-bars i:nth-child(3) { animation-delay: 0.3s; }
+.voice-bars i:nth-child(4) { animation-delay: 0.45s; }
+
+@keyframes voice-bar {
+  0%, 100% { height: 4px; opacity: 0.7; }
+  50% { height: 12px; opacity: 1; }
+}
+
 /* T11 移动端：32px 在手机上点不中，撑到 44×44（该行高度本就是 44，不影响排版） */
 @media (max-width: 767px) {
   .voice-btn { width: 44px; height: 44px; flex: none; }

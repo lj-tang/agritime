@@ -1,7 +1,7 @@
 /* 管理后台 · 反馈工单（T14）部分样式；账号/文件/开关样式在 admin-console.css */
 .admin-header { margin-bottom: 18px; }
-.admin-title { display: block; font-size: 22px; font-weight: 800; letter-spacing: 1px; color: var(--ink); }
-.admin-sub { display: block; margin-top: 6px; font-size: 13px; color: var(--muted); }
+.admin-title { display: block; font-size: calc(22px * var(--fs, 1)); font-weight: 800; letter-spacing: 1px; color: var(--ink); }
+.admin-sub { display: block; margin-top: 6px; font-size: calc(13px * var(--fs, 1)); color: var(--muted); }
 
 #admin-login {
   display: flex; align-items: center; justify-content: center; min-height: 320px;
@@ -10,12 +10,12 @@
   background: var(--card); border: 1px solid var(--line); border-radius: var(--radius);
   box-shadow: var(--shadow-soft); padding: 32px 28px; max-width: 420px; width: 100%; text-align: center;
 }
-.admin-login-box h3 { margin: 0 0 8px; font-size: 20px; font-weight: 800; color: var(--ink); }
-.admin-login-box p { margin: 0 0 20px; font-size: 13.5px; color: var(--muted); line-height: 1.7; }
+.admin-login-box h3 { margin: 0 0 8px; font-size: calc(20px * var(--fs, 1)); font-weight: 800; color: var(--ink); }
+.admin-login-box p { margin: 0 0 20px; font-size: calc(13.5px * var(--fs, 1)); color: var(--muted); line-height: 1.7; }
 .admin-login-box .field { margin-bottom: 16px; text-align: left; }
-.admin-login-box .field label { font-size: 14px; font-weight: 600; }
+.admin-login-box .field label { font-size: calc(14px * var(--fs, 1)); font-weight: 600; }
 .admin-login-box input {
-  width: 100%; font-family: inherit; font-size: 15px; padding: 11px 12px; color: var(--ink);
+  width: 100%; font-family: inherit; font-size: calc(15px * var(--fs, 1)); padding: 11px 12px; color: var(--ink);
   background: var(--surface); border: 1.5px solid var(--line); border-radius: 10px; box-sizing: border-box;
 }
 .admin-login-box input:focus { outline: none; border-color: var(--leaf-2); }
@@ -23,10 +23,10 @@
 
 .admin-toolbar { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
 .admin-toolbar select {
-  font-family: inherit; font-size: 14px; padding: 8px 12px; color: var(--ink);
+  font-family: inherit; font-size: calc(14px * var(--fs, 1)); padding: 8px 12px; color: var(--ink);
   background: var(--surface); border: 1.5px solid var(--line); border-radius: 8px;
 }
-.admin-count { font-size: 13px; color: var(--muted); }
+.admin-count { font-size: calc(13px * var(--fs, 1)); color: var(--muted); }
 .admin-toolbar .btn { margin-top: 0; }
 
 /* 列表与详情复用 service.css 的 .service-item / .service-bubble */

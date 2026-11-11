@@ -2,8 +2,8 @@
    容器宽度/内边距由 common.css 的 .content-pane 统一控制，这里只管板块内部 */
 
 .industry-header { margin-bottom: 18px; }
-.industry-title { display: block; font-size: 22px; font-weight: 800; letter-spacing: 1px; color: var(--ink); }
-.industry-sub { display: block; margin-top: 6px; font-size: 13px; line-height: 1.6; color: var(--muted); }
+.industry-title { display: block; font-size: calc(22px * var(--fs, 1)); font-weight: 800; letter-spacing: 1px; color: var(--ink); }
+.industry-sub { display: block; margin-top: 6px; font-size: calc(13px * var(--fs, 1)); line-height: 1.6; color: var(--muted); }
 
 /* 宽屏两列：左边表单吸顶，右边生产日历随内容伸展 */
 .industry-body {
@@ -25,12 +25,12 @@
 }
 
 .industry-field { margin-bottom: 16px; }
-.industry-field label { display: block; margin-bottom: 7px; font-size: 14.5px; font-weight: 600; color: var(--ink); }
+.industry-field label { display: block; margin-bottom: 7px; font-size: calc(14.5px * var(--fs, 1)); font-weight: 600; color: var(--ink); }
 .industry-field select,
 .industry-field input {
   width: 100%;
   font-family: inherit;
-  font-size: 15px;
+  font-size: calc(15px * var(--fs, 1));
   padding: 11px 12px;
   color: var(--ink);
   background: var(--surface);
@@ -51,7 +51,7 @@
 
 .industry-form .industry-tip {
   margin: 14px 0 0;
-  font-size: 12px;
+  font-size: calc(12px * var(--fs, 1));
   line-height: 1.65;
   color: var(--muted);
 }
@@ -62,7 +62,7 @@
 .industry-empty {
   display: flex; align-items: center; justify-content: center;
   min-height: 220px; padding: 32px 20px; text-align: center;
-  color: var(--muted); font-size: 14px; line-height: 1.8;
+  color: var(--muted); font-size: calc(14px * var(--fs, 1)); line-height: 1.8;
   background: var(--card); border: 1px dashed var(--line); border-radius: var(--radius);
 }
 
@@ -74,10 +74,10 @@
   padding: 16px 18px;
   margin-bottom: 14px;
 }
-.industry-head-title { font-size: 18px; font-weight: 800; color: var(--ink); }
-.industry-head-meta { margin-top: 6px; font-size: 12.5px; color: var(--muted); }
+.industry-head-title { font-size: calc(18px * var(--fs, 1)); font-weight: 800; color: var(--ink); }
+.industry-head-meta { margin-top: 6px; font-size: calc(12.5px * var(--fs, 1)); color: var(--muted); }
 
-.industry-tip { margin: 0 0 14px; font-size: 13px; line-height: 1.7; color: var(--ink-soft); }
+.industry-tip { margin: 0 0 14px; font-size: calc(13px * var(--fs, 1)); line-height: 1.7; color: var(--ink-soft); }
 
 .industry-nodes { display: flex; flex-direction: column; gap: 10px; }
 
@@ -104,24 +104,24 @@
 
 .industry-node-body { flex: 1; min-width: 0; }
 .industry-node-top { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
-.industry-node-top .name { font-size: 15px; font-weight: 700; color: var(--ink); }
-.industry-node-top .date { font-size: 12px; color: var(--muted); }
+.industry-node-top .name { font-size: calc(15px * var(--fs, 1)); font-weight: 700; color: var(--ink); }
+.industry-node-top .date { font-size: calc(12px * var(--fs, 1)); color: var(--muted); }
 
-.industry-detail { margin: 7px 0 0; font-size: 13.5px; line-height: 1.7; color: var(--ink-soft); }
+.industry-detail { margin: 7px 0 0; font-size: calc(13.5px * var(--fs, 1)); line-height: 1.7; color: var(--ink-soft); }
 
 .industry-badge {
   display: inline-block; margin-top: 9px; padding: 2px 9px;
-  font-size: 11.5px; font-weight: 600; border-radius: 999px;
+  font-size: calc(11.5px * var(--fs, 1)); font-weight: 600; border-radius: 999px;
   color: var(--muted); background: var(--surface-2);
 }
 .status-ok .industry-badge { color: var(--brand); background: var(--brand-soft); }
 .status-caution .industry-badge { color: var(--warn-text); background: var(--warn-soft); }
 
-.industry-advice { margin: 7px 0 0; font-size: 13px; line-height: 1.7; color: var(--ink-soft); }
+.industry-advice { margin: 7px 0 0; font-size: calc(13px * var(--fs, 1)); line-height: 1.7; color: var(--ink-soft); }
 
 .industry-note {
   margin: 16px 0 0; padding: 10px 12px;
-  font-size: 12px; line-height: 1.65; color: var(--warn-text);
+  font-size: calc(12px * var(--fs, 1)); line-height: 1.65; color: var(--warn-text);
   background: var(--warn-soft);
   border: 1px solid var(--warn-line);
   border-radius: 10px;
@@ -130,5 +130,5 @@
 @media (max-width: 900px) {
   .industry-body { grid-template-columns: 1fr; gap: 16px; }
   .industry-form { position: static; }
-  .industry-title { font-size: 20px; }
+  .industry-title { font-size: calc(20px * var(--fs, 1)); }
 }

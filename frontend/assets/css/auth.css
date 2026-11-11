@@ -29,7 +29,7 @@
   align-items: center;
   gap: 10px;
   font-weight: 700;
-  font-size: 18px;
+  font-size: calc(18px * var(--fs, 1));
   letter-spacing: 0.5px;
 }
 
@@ -37,7 +37,7 @@
 
 .auth-brand-main h1 {
   margin: 0 0 14px;
-  font-size: 34px;
+  font-size: calc(34px * var(--fs, 1));
   line-height: 1.25;
   font-weight: 700;
   letter-spacing: 1px;
@@ -45,7 +45,7 @@
 
 .auth-brand-main p {
   margin: 0;
-  font-size: 15px;
+  font-size: calc(15px * var(--fs, 1));
   line-height: 1.8;
   color: rgba(243, 247, 239, 0.78);
 }
@@ -57,7 +57,7 @@
   display: flex;
   flex-direction: column;
   gap: 12px;
-  font-size: 14px;
+  font-size: calc(14px * var(--fs, 1));
   color: rgba(243, 247, 239, 0.86);
 }
 
@@ -79,7 +79,7 @@
 
 .auth-brand-back {
   margin-top: auto;
-  font-size: 13px;
+  font-size: calc(13px * var(--fs, 1));
   color: rgba(243, 247, 239, 0.7);
   text-decoration: none;
 }
@@ -118,7 +118,7 @@
   border: 0;
   border-radius: 999px;
   background: transparent;
-  font-size: 15px;
+  font-size: calc(15px * var(--fs, 1));
   font-family: inherit;
   color: var(--ink-soft);
   cursor: pointer;
@@ -134,14 +134,14 @@
 
 .auth-title {
   margin: 0 0 6px;
-  font-size: 22px;
+  font-size: calc(22px * var(--fs, 1));
   font-weight: 700;
   color: var(--ink);
 }
 
 .auth-sub {
   margin: 0 0 20px;
-  font-size: 13px;
+  font-size: calc(13px * var(--fs, 1));
   color: var(--muted);
 }
 
@@ -155,20 +155,20 @@
   align-items: baseline;
   gap: 6px;
   margin-bottom: 6px;
-  font-size: 13px;
+  font-size: calc(13px * var(--fs, 1));
   color: var(--ink-soft);
 }
 
 .auth-field em {
   font-style: normal;
-  font-size: 12px;
+  font-size: calc(12px * var(--fs, 1));
   color: var(--muted);
 }
 
 .auth-field input {
   width: 100%;
   padding: 11px 14px;
-  font-size: 15px;
+  font-size: calc(15px * var(--fs, 1));
   font-family: inherit;
   color: var(--ink);
   background: var(--paper);
@@ -186,7 +186,7 @@
 .auth-error {
   margin: 0 0 14px;
   padding: 9px 12px;
-  font-size: 13px;
+  font-size: calc(13px * var(--fs, 1));
   line-height: 1.6;
   color: var(--red);
   background: var(--red-soft);
@@ -196,7 +196,7 @@
 .auth-submit {
   width: 100%;
   padding: 12px 0;
-  font-size: 15px;
+  font-size: calc(15px * var(--fs, 1));
   font-weight: 600;
   font-family: inherit;
   color: #fff;
@@ -213,7 +213,7 @@
 
 .auth-switch {
   margin: 16px 0 0;
-  font-size: 13px;
+  font-size: calc(13px * var(--fs, 1));
   color: var(--muted);
   text-align: center;
 }
@@ -224,7 +224,7 @@
   margin: 18px 0 0;
   padding-top: 16px;
   border-top: 1px dashed var(--line);
-  font-size: 13px;
+  font-size: calc(13px * var(--fs, 1));
   color: var(--ink-soft);
   text-align: center;
 }
@@ -246,14 +246,14 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 13px;
+  font-size: calc(13px * var(--fs, 1));
 }
 
 .user-chip--sidebar {
   margin-left: 0;
   display: block;
   width: 100%;
-  font-size: 12.5px;
+  font-size: calc(12.5px * var(--fs, 1));
 }
 
 /* 未登录：整行可点的入口，与导航项一致 */
@@ -298,7 +298,7 @@
   background: var(--surface);
   color: var(--ink);
   font: inherit;
-  font-size: 13px;
+  font-size: calc(13px * var(--fs, 1));
   cursor: pointer;
   text-align: left;
   transition: border-color 0.16s ease, background 0.16s ease, box-shadow 0.16s ease;
@@ -313,7 +313,7 @@
   border-radius: 50%;
   background: var(--brand-soft);
   color: var(--brand);
-  font-size: 14px;
+  font-size: calc(14px * var(--fs, 1));
   line-height: 1;
   font-weight: 700;
   display: inline-flex;
@@ -325,7 +325,7 @@
   flex: 1;
   min-width: 0;
   font-weight: 600;
-  font-size: 13px;
+  font-size: calc(13px * var(--fs, 1));
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -374,15 +374,15 @@
   border-radius: 50%;
   background: var(--brand-soft);
   color: var(--brand);
-  font-size: 20px;
+  font-size: calc(20px * var(--fs, 1));
   font-weight: 700;
   display: inline-flex;
   align-items: center;
   justify-content: center;
 }
 .user-menu-id { min-width: 0; }
-.user-menu-name { font-size: 14px; font-weight: 700; color: var(--ink); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.user-menu-sub { font-size: 11.5px; color: var(--muted); margin-top: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.user-menu-name { font-size: calc(14px * var(--fs, 1)); font-weight: 700; color: var(--ink); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.user-menu-sub { font-size: calc(11.5px * var(--fs, 1)); color: var(--muted); margin-top: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
 .user-menu-body { padding: 6px; overflow-y: auto; }
 
@@ -390,7 +390,7 @@
 .user-menu-section + .user-menu-section { border-top: 1px solid var(--line-soft); margin-top: 4px; }
 .user-menu-section-title {
   padding: 6px 10px 4px;
-  font-size: 11px;
+  font-size: calc(11px * var(--fs, 1));
   font-weight: 600;
   letter-spacing: 0.04em;
   color: var(--muted);
@@ -408,7 +408,7 @@
   background: transparent;
   color: var(--ink-soft);
   font: inherit;
-  font-size: 13px;
+  font-size: calc(13px * var(--fs, 1));
   text-align: left;
   text-decoration: none;
   cursor: pointer;
@@ -428,7 +428,7 @@
 .user-menu-item--static:hover, .user-menu-item--block:hover { background: transparent; color: var(--ink-soft); }
 
 .user-menu-row-label { flex: 1; min-width: 0; display: flex; flex-direction: column; }
-.user-menu-row-sub { font-size: 11px; color: var(--muted); font-weight: 400; margin-top: 1px; }
+.user-menu-row-sub { font-size: calc(11px * var(--fs, 1)); color: var(--muted); font-weight: 400; margin-top: 1px; }
 
 /* 头像选择器 */
 .avatar-picker {
@@ -445,7 +445,7 @@
   border-radius: 50%;
   border: 1px solid var(--line);
   background: var(--surface);
-  font-size: 17px;
+  font-size: calc(17px * var(--fs, 1));
   line-height: 1;
   cursor: pointer;
   display: inline-flex;
@@ -460,7 +460,7 @@
   height: 34px;
   padding: 0 10px;
   border-radius: 999px;
-  font-size: 11.5px;
+  font-size: calc(11.5px * var(--fs, 1));
   color: var(--muted);
 }
 
@@ -483,7 +483,7 @@
   background: transparent;
   color: var(--muted);
   font: inherit;
-  font-size: 11.5px;
+  font-size: calc(11.5px * var(--fs, 1));
   cursor: pointer;
   white-space: nowrap;
   transition: background 0.14s ease, color 0.14s ease, box-shadow 0.14s ease;
@@ -568,7 +568,7 @@
   border-radius: 50%;
   background: var(--leaf-soft);
   color: var(--leaf);
-  font-size: 18px;
+  font-size: calc(18px * var(--fs, 1));
   font-weight: 700;
   display: flex;
   align-items: center;
@@ -576,8 +576,8 @@
 }
 
 .account-head-text { min-width: 0; }
-.account-head-text .auth-title { margin: 0 0 2px; font-size: 18px; }
-.account-head-text .auth-sub { margin: 0; font-size: 12.5px; }
+.account-head-text .auth-title { margin: 0 0 2px; font-size: calc(18px * var(--fs, 1)); }
+.account-head-text .auth-sub { margin: 0; font-size: calc(12.5px * var(--fs, 1)); }
 
 .account-force {
   margin: 12px 0 4px;
@@ -586,10 +586,10 @@
   border: 1px solid #e6cfa8;
   background: var(--sun-soft, #fbf0d8);
   color: #8a5a2a;
-  font-size: 12.5px;
+  font-size: calc(12.5px * var(--fs, 1));
   line-height: 1.6;
 }
-.account-force strong { display: block; font-size: 13px; margin-bottom: 2px; }
+.account-force strong { display: block; font-size: calc(13px * var(--fs, 1)); margin-bottom: 2px; }
 .account-force p { margin: 0; }
 
 .account-block {
@@ -600,14 +600,14 @@
 
 .account-block h3 {
   margin: 0 0 10px;
-  font-size: 14px;
+  font-size: calc(14px * var(--fs, 1));
   font-weight: 600;
   color: var(--ink);
 }
 
 .account-hint {
   margin-left: 6px;
-  font-size: 11.5px;
+  font-size: calc(11.5px * var(--fs, 1));
   font-weight: 400;
   color: var(--muted);
 }
@@ -622,13 +622,13 @@
 }
 
 .account-meta { margin: 0; display: flex; flex-direction: column; gap: 6px; }
-.account-meta-row { display: flex; gap: 12px; font-size: 12.5px; line-height: 1.6; }
+.account-meta-row { display: flex; gap: 12px; font-size: calc(12.5px * var(--fs, 1)); line-height: 1.6; }
 .account-meta-row dt { flex: 0 0 72px; color: var(--muted); margin: 0; }
 .account-meta-row dd { margin: 0; color: var(--ink-soft); min-width: 0; word-break: break-all; }
 
 .account-strength {
   margin: -2px 0 6px;
-  font-size: 11.5px;
+  font-size: calc(11.5px * var(--fs, 1));
   min-height: 16px;
   color: var(--muted);
 }
@@ -641,7 +641,7 @@
 .account-foot {
   padding-top: 12px;
   text-align: center;
-  font-size: 12.5px;
+  font-size: calc(12.5px * var(--fs, 1));
 }
 .account-foot a { color: var(--muted); text-decoration: none; }
 .account-foot a:hover { color: var(--leaf); }
@@ -666,7 +666,7 @@
   border: 1px solid var(--brand-line);
   background: var(--leaf-soft);
   color: var(--leaf);
-  font-size: 13px;
+  font-size: calc(13px * var(--fs, 1));
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.18s ease, transform 0.18s ease;
@@ -681,7 +681,7 @@
 /* T26：数据导出与注销 */
 .account-note {
   margin: 0 0 12px;
-  font-size: 12.5px;
+  font-size: calc(12.5px * var(--fs, 1));
   line-height: 1.7;
   color: var(--muted);
 }

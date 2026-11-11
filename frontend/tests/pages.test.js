@@ -2538,10 +2538,13 @@ test('V5.3 首页：播种日期不再是必填，改为自动推算并展示适
   assert.ok(indexHtml.includes('id="sow-manual" hidden'), '手动指定应默认收起，不占主流程');
   assert.ok(indexHtml.includes('function applyWindowInfo'), '应把窗口渲染到页面');
   assert.match(indexHtml, /fetchSowWindow\(cropName, function \(err, info\)/, '提交时应先推算窗口');
-  // 结果区要能说清"窗口 / 建议日 / 最晚 / 预计收获"四件事
-  assert.ok(indexHtml.includes("label + ' ' + fmtRange(w.start, w.end)"), '应展示窗口起止');
-  assert.ok(indexHtml.includes("'预计 ' + fmtMD(h.date) + ' 收获'"), '应展示预计收获');
-  assert.ok(indexHtml.includes("'最晚 ' + fmtMD(info.latest.date)"), '应展示最晚播期');
+  // 结果区拆成三个小标签：适宜播期 / 最晚播期 / 预计收获（长句粗体读不动）
+  assert.ok(indexHtml.includes('id="sow-window-value"'), '应有适宜播期格');
+  assert.ok(indexHtml.includes('id="sow-latest-value"'), '应有最晚播期格');
+  assert.ok(indexHtml.includes('id="sow-harvest-value"'), '应有预计收获格');
+  assert.ok(indexHtml.includes("setMetric('window', label, fmtRange(w.start, w.end)"), '应展示窗口起止');
+  assert.ok(indexHtml.includes('fmtMD(info.latest.date)'), '应展示最晚播期');
+  assert.ok(indexHtml.includes('h.date ? fmtMD(h.date)'), '应展示预计收获');
   // 手填日期仍然保留，不剥夺控制权
   assert.ok(indexHtml.includes("sowEditBtn.textContent = open ? '收起手动' : '手动指定'"), '手动指定应可展开/收起');
 });
@@ -2655,4 +2658,145 @@ test('V5.4 天气服务农事：给一句能执行的结论', () => {
   assert.equal(good.level, 'ok', '正常天气应判为适宜');
   assert.match(good.text, /喷药/, '结论要落到能不能喷药这种具体动作上');
   assert.equal(weatherVisual.farmAdvice(null), null, '没有天气数据就不该硬给建议');
+});
+
+/* ============================================================
+   V5.5 可读性与交互：节气尺 / 播期三格 / 大字模式 / 下拉搜索 /
+   日期选择器 / 新建地块 / 录音动画 / 加载状态 / 悬浮球
+   ============================================================ */
+
+const solarTerms = require(path.resolve(__dirname, '..', 'assets', 'js', 'solar-terms.js'));
+const termFarming = JSON.parse(read(path.resolve(__dirname, '..', '..', 'data', 'guidance', 'solar-term-farming.json')));
+const floatingBallJs = read(path.resolve(__dirname, '..', 'components', 'floating-ball', 'floating-ball.js'));
+const floatingBallCss = read(path.resolve(__dirname, '..', 'components', 'floating-ball', 'floating-ball.css'));
+
+test('V5.5 节气尺：一串橙色方块写上名字和日期', () => {
+  assert.ok(indexHtml.includes('id="term-strip"'), '节气尺应有独立容器');
+  assert.ok(indexHtml.includes('id="term-now"'), '应写出当前节气');
+  assert.ok(indexHtml.includes('id="term-next"'), '应写出距下一节气几天');
+  assert.ok(indexHtml.includes('id="term-tip"'), '应带一句农事提示');
+  assert.ok(indexHtml.includes('../assets/js/solar-terms.js'), '应引入节气模块');
+  assert.ok(commonCss.includes('.term-ruler i.is-now'), '当前节气那一格要单独点亮');
+  assert.ok(indexHtml.includes('tick.title = t.name'), '每格 hover 要能看出是什么节气');
+
+  const info = solarTerms.current(new Date(2026, 10, 11));
+  assert.equal(info.name, '立冬');
+  assert.equal(info.md, '11月7日');
+  assert.equal(info.next.name, '小雪');
+  assert.equal(info.next.days, 11);
+  assert.equal(info.index, 20, '立冬在 24 个节气里是第 21 个');
+  assert.equal(info.tip, '冬前管理，浇灌越冬水');
+});
+
+test('V5.5 节气：年初几天不能点错格', () => {
+  // 1 月 2 日的当前节气还是上一年的冬至，尺子画的是今年的 24 格，所以不点亮
+  const jan = solarTerms.current(new Date(2027, 0, 2));
+  assert.equal(jan.name, '冬至');
+  assert.equal(jan.index, -1);
+  assert.equal(jan.next.name, '小寒');
+});
+
+test('V5.5 节气数据与后端农事表同源', () => {
+  assert.equal(solarTerms.TERMS.length, 24);
+  assert.equal(termFarming.length, 24);
+  solarTerms.TERMS.forEach((t, i) => {
+    assert.equal(t.name, termFarming[i].termName, '第 ' + (i + 1) + ' 个节气名不一致');
+    assert.equal(t.month, termFarming[i].dateRule.month, t.name + ' 月份不一致');
+    assert.equal(t.c, termFarming[i].dateRule.cConstant, t.name + ' 世纪常数不一致');
+    assert.equal(t.tip, termFarming[i].farmingTip, t.name + ' 农事提示不一致');
+  });
+});
+
+test('V5.5 播期卡片：三个小标签先告诉用户会得到什么', () => {
+  ['适宜播期', '最晚播期', '预计收获'].forEach((label) => {
+    assert.ok(indexHtml.includes(label), '缺少标签：' + label);
+  });
+  assert.ok(indexHtml.includes('class="sow-metric is-empty"'), '未推算时应是占位态');
+  assert.ok((indexHtml.match(/待推算/g) || []).length >= 3, '三格都要有占位值');
+  assert.ok(commonCss.includes('.sow-metrics'), '缺少三格布局');
+  assert.ok(commonCss.includes('.sow-metric.is-empty'), '占位态要有独立样式');
+  // 说明文字对比度：不再用最浅的 --muted
+  assert.ok(commonCss.includes('--muted-strong'), '应有一档更深的说明文字颜色');
+  assert.ok(commonCss.includes('.sow-auto-sub { font-size: calc(12.5px * var(--fs, 1)); color: var(--muted-strong)'), '副说明要用更深的灰');
+});
+
+test('V5.5 大字模式：一个开关放大全局正文', () => {
+  assert.ok(indexHtml.includes('id="font-toggle"'), '页头应有大字开关');
+  assert.ok(indexHtml.includes("localStorage.getItem('agritime.fontscale')"), '首帧前应用，避免先小后大');
+  assert.match(timelineHtml, /agritime\.fontscale/, '时间线页也要跟着放大');
+  assert.ok(commonCss.includes('html[data-font="large"] { --fs: 1.16; }'), '倍率要落在 CSS 变量上');
+  assert.ok(commonCss.includes('.font-toggle'), '缺少开关样式');
+  assert.ok(commonCss.includes('--fs: 1;'), '默认倍率为 1');
+
+  // 所有字号都必须走倍率，否则会出现"标题变大、说明还是小字"
+  const bareSizes = commonCss.match(/font-size:\s*\d+(?:\.\d+)?px/g) || [];
+  assert.deepEqual(bareSizes, [], '还有硬编码字号：' + bareSizes.join(', '));
+});
+
+test('V5.5 作物品种：下拉 + 搜索，不是纯文本框', () => {
+  assert.ok(indexHtml.includes('id="crop-toggle"'), '应有展开全部品种的按钮');
+  assert.ok(indexHtml.includes('aria-expanded="false"'), '展开状态要能读出来');
+  assert.ok(indexHtml.includes("xhr.open('GET', '/api/crops', true)"), '展开时读后端全部品种');
+  assert.ok(indexHtml.includes('function openCropList'));
+  assert.ok(indexHtml.includes('localAllCrops'), '接口不可用时要能退回本地品种表');
+  assert.ok(indexHtml.includes('稻子'), '要说明别名也能找到标准名');
+  assert.ok(commonCss.includes('.crop-toggle'), '缺少下拉箭头样式');
+});
+
+test('V5.5 手动指定播期：日期选择器 + 偏离风险', () => {
+  assert.match(indexHtml, /<input type="date" id="sow-date-native"/, '应给原生日期控件');
+  assert.ok(indexHtml.includes('id="sow-risk"'), '应有风险提示位');
+  assert.ok(indexHtml.includes('比适宜播期早 '), '早于窗口要说早多少天');
+  assert.ok(indexHtml.includes('比适宜播期晚 '), '晚于窗口要说晚多少天');
+  assert.ok(indexHtml.includes("cls: 'is-early'"));
+  assert.ok(indexHtml.includes("cls: 'is-late'"));
+  assert.ok(indexHtml.includes("cls: 'is-ok'"), '窗口内也要给结论');
+  assert.ok(indexHtml.includes('dateNative.min = dateToStr(getMinDate())'), '范围与三联动一致');
+  assert.ok(indexHtml.includes('dateNative.addEventListener'), '两个控件要互相同步');
+  assert.ok(commonCss.includes('.sow-risk.is-early'));
+});
+
+test('V5.5 关联地块：没有地块时不是死胡同', () => {
+  assert.ok(indexHtml.includes("add.value = '__new__'"), '下拉里要有新建入口');
+  assert.ok(indexHtml.includes('＋ 新建地块'), '文案要说清是新建地块');
+  assert.ok(indexHtml.includes('function openNewPlotForm'));
+  assert.ok(indexHtml.includes("switchModule('plots')"), '应跳到地块面板');
+  assert.ok(indexHtml.includes("getElementById('my-plots-add-btn')"), '直接打开新建表单');
+  // "新建地块"不能被当成一个已选中的地块带进生成参数
+  assert.ok(indexHtml.includes("sel.value = window.__timelinePlotId || ''"));
+});
+
+test('V5.5 语音输入：录音中有动画反馈', () => {
+  assert.ok(voiceInputJs.includes('voice-status'), '录音中要有状态提示');
+  assert.ok(voiceInputJs.includes('正在聆听'), '要有明确文案');
+  assert.ok(voiceInputJs.includes('hideStatus'), '结束录音要收起提示');
+  assert.ok(voiceInputCss.includes('.voice-bars'), '缺少音量条');
+  assert.ok(voiceInputCss.includes('@keyframes voice-bar'), '缺少跳动动画');
+  assert.ok(voiceInputCss.includes('prefers-reduced-motion'), '减少动效时也要能看');
+});
+
+test('V5.5 生成时间线：等待时一直有话可说', () => {
+  assert.ok(indexHtml.includes('id="gen-loading"'), '表单里应有加载条');
+  assert.ok(indexHtml.includes('id="pane-loading"'), '时间线面板应有加载态');
+  assert.ok(indexHtml.includes('function showGenLoading'));
+  assert.ok(indexHtml.includes("'正在结合' + shortPlace(location) + '的气候推算适宜播期…'"), '推算播期要说清用哪儿的气候');
+  assert.ok(indexHtml.includes("'正在核对「' + cropName"), '校验阶段也要有文案');
+  assert.ok(indexHtml.includes("iframe.addEventListener('load'"), '算完要收起等待态');
+  assert.ok(commonCss.includes('.gen-loading-spinner'));
+  assert.ok(indexHtml.includes('function shortPlace'), '地点要写短，别把「江苏省南京市」整串塞进去');
+});
+
+test('V5.5 悬浮客服：让开主按钮，且能收起', () => {
+  assert.match(floatingBallCss, /\.floating-ball-dock \{[^}]*bottom: 88px/, '悬浮球要抬高，别压住上传按钮');
+  assert.ok(floatingBallCss.includes('.floating-ball-dock.is-hidden'), '收起后要能隐藏');
+  assert.ok(floatingBallCss.includes('.chat-tab'), '收起后要留一个能叫回来的入口');
+  assert.ok(floatingBallJs.includes('agritime.chatcollapsed'), '收起状态要记住');
+  assert.ok(floatingBallJs.includes('e.stopPropagation()'), '收起按钮不能冒泡成打开对话');
+  assert.ok(floatingBallJs.includes('setCollapsed(readCollapsed())'));
+});
+
+test('V5.5 病害提示：加图标，别让它灰到看不见', () => {
+  assert.match(indexHtml, /class="photo-entry">\s*<svg/, '提示前应有图标');
+  assert.ok(indexHtml.includes('识别只给候选，需你点一下确认'), '这句是产品诚实的证据，必须保留');
+  assert.ok(commonCss.includes('.photo-entry svg'));
 });
