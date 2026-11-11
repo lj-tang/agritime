@@ -14,6 +14,7 @@
   <link rel="stylesheet" href="../assets/css/my-crops.css" />
   <link rel="stylesheet" href="../assets/css/my-plots.css" />
   <link rel="stylesheet" href="../assets/css/disease.css" />
+  <link rel="stylesheet" href="../assets/css/industry.css" />
   <link rel="stylesheet" href="../assets/css/service.css" />
   <link rel="stylesheet" href="../assets/css/admin.css" />
   <link rel="stylesheet" href="../assets/css/recommend.css" />
@@ -379,6 +380,35 @@
     </div>
   </div>
 
+  <div class="content-pane" data-module="industry" id="industry-pane">
+    <div class="industry-pane">
+      <div class="industry-header">
+        <span class="industry-title">渔业养殖</span>
+        <span class="industry-sub">选择品种和放养日期，按阶段生成生产日历；水温适宜度用气温近似，不是水温实测</span>
+      </div>
+      <div class="industry-body">
+        <form class="industry-form" id="industry-form">
+          <div class="industry-field">
+            <label for="industry-species">品种</label>
+            <select id="industry-species" name="species"></select>
+          </div>
+          <div class="industry-field">
+            <label for="industry-date">放养日期</label>
+            <input type="date" id="industry-date" name="stockDate" />
+          </div>
+          <div class="industry-field">
+            <label for="industry-location">地区</label>
+            <input type="text" id="industry-location" name="location" placeholder="湖北省荆州市" value="湖北省荆州市" />
+          </div>
+          <div class="industry-actions">
+            <button type="submit" class="btn btn-primary">生成生产日历</button>
+          </div>
+          <p class="industry-tip">塘口记录、投喂与成本核算仍建议在「我的地块 → 鱼塘」里做，本页只做品种规程与生产日历。</p>
+        </form>
+        <div id="industry-result"></div>
+      </div>
+    </div>
+  </div>
 
   <div class="content-pane" data-module="service" id="service-pane">
     <div class="service-pane">
@@ -498,6 +528,7 @@
   <script src="../assets/js/my-crops.js"></script>
   <script src="../assets/js/my-plots.js"></script>
   <script src="../assets/js/disease.js"></script>
+  <script src="../assets/js/industry.js"></script>
   <script src="../assets/js/recommend.js"></script>
   <script src="../assets/js/service.js"></script>
   <script src="../assets/js/admin.js"></script>

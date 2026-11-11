@@ -1230,13 +1230,21 @@ test('T09 渔业：接口注册与水质口径声明', () => {
   assert.ok(h.includes('fetchWindowWeather'), '应叠加天气适宜度');
 });
 
-test('T09 渔业：并入地块而非独立板块', () => {
+test('T09 渔业：独立板块与地块内嵌并存，品种只认后端', () => {
   const myPlotsJs = read(path.resolve(__dirname, '..', 'assets', 'js', 'my-plots.js'));
-  assert.ok(!indexHtml.includes('data-module="industry"'), '不应再有独立的渔业板块');
-  assert.ok(!/id: 'industry'/.test(sidebarJs), '侧栏不应再有渔业入口');
+  const industryJs = read(path.resolve(__dirname, '..', 'assets', 'js', 'industry.js'));
+  // 独立板块：侧栏入口 + 页内面板 + 资源都要在
+  assert.ok(indexHtml.includes('data-module="industry"'), '应有独立的渔业板块面板');
+  assert.ok(/id: 'industry'/.test(sidebarJs), '侧栏应有渔业入口');
+  assert.ok(indexHtml.includes('assets/js/industry.js'), '首页应引入 industry.js');
+  assert.ok(indexHtml.includes('assets/css/industry.css'), '首页应引入 industry.css');
+  // 地块内嵌的养殖日历不能因为独立板块而消失，两边共用同一套规程接口
   assert.ok(myPlotsJs.includes('pond-calendar'), '养殖日历应嵌在地块详情里');
   assert.ok(myPlotsJs.includes('/api/industry/timeline'), '养殖日历复用同一套规程接口');
   assert.ok(myPlotsJs.includes('loadSpecies'), '鱼种应读后端品种库，不在前端硬编码');
+  // 独立板块同样以接口为准：必须请求 /species，内置表只能当兜底
+  assert.ok(industryJs.includes("'/species'"), '板块应请求后端品种库');
+  assert.ok(!/var\s+SPECIES_50\s*=[^;]*;\s*renderSpecies\(/.test(industryJs), '不应跳过接口直接用内置表渲染');
 });
 
 test('T08 方言：三方言区词表，且都映射到标准作物名', () => {

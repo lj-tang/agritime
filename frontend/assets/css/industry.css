@@ -1,0 +1,134 @@
+/* 渔业养殖板块样式（T09）
+   容器宽度/内边距由 common.css 的 .content-pane 统一控制，这里只管板块内部 */
+
+.industry-header { margin-bottom: 18px; }
+.industry-title { display: block; font-size: 22px; font-weight: 800; letter-spacing: 1px; color: var(--ink); }
+.industry-sub { display: block; margin-top: 6px; font-size: 13px; line-height: 1.6; color: var(--muted); }
+
+/* 宽屏两列：左边表单吸顶，右边生产日历随内容伸展 */
+.industry-body {
+  display: grid;
+  grid-template-columns: minmax(300px, 360px) 1fr;
+  gap: 22px;
+  align-items: start;
+}
+
+.industry-form {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-soft);
+  padding: 20px;
+  margin: 0;
+  position: sticky;
+  top: 20px;
+}
+
+.industry-field { margin-bottom: 16px; }
+.industry-field label { display: block; margin-bottom: 7px; font-size: 14.5px; font-weight: 600; color: var(--ink); }
+.industry-field select,
+.industry-field input {
+  width: 100%;
+  font-family: inherit;
+  font-size: 15px;
+  padding: 11px 12px;
+  color: var(--ink);
+  background: var(--surface);
+  border: 1.5px solid var(--line);
+  border-radius: 10px;
+  box-sizing: border-box;
+}
+.industry-field select:focus,
+.industry-field input:focus {
+  outline: none;
+  border-color: var(--leaf-2);
+  background: var(--card);
+  box-shadow: var(--focus-ring);
+}
+
+.industry-actions { display: flex; gap: 10px; }
+.industry-actions .btn { margin-top: 0; flex: 1; }
+
+.industry-form .industry-tip {
+  margin: 14px 0 0;
+  font-size: 12px;
+  line-height: 1.65;
+  color: var(--muted);
+}
+
+/* ---- 结果区 ---- */
+#industry-result { min-height: 220px; }
+
+.industry-empty {
+  display: flex; align-items: center; justify-content: center;
+  min-height: 220px; padding: 32px 20px; text-align: center;
+  color: var(--muted); font-size: 14px; line-height: 1.8;
+  background: var(--card); border: 1px dashed var(--line); border-radius: var(--radius);
+}
+
+.industry-head {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-soft);
+  padding: 16px 18px;
+  margin-bottom: 14px;
+}
+.industry-head-title { font-size: 18px; font-weight: 800; color: var(--ink); }
+.industry-head-meta { margin-top: 6px; font-size: 12.5px; color: var(--muted); }
+
+.industry-tip { margin: 0 0 14px; font-size: 13px; line-height: 1.7; color: var(--ink-soft); }
+
+.industry-nodes { display: flex; flex-direction: column; gap: 10px; }
+
+.industry-node {
+  display: flex; gap: 12px; align-items: flex-start;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-soft);
+  padding: 14px 16px;
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+.industry-node:hover { box-shadow: var(--shadow); transform: translateY(-1px); }
+
+/* 阶段状态：左侧圆点用色区分，卡片本身保持中性，避免整屏花掉 */
+.industry-dot {
+  flex: none; width: 10px; height: 10px; margin-top: 6px;
+  border-radius: 50%; background: var(--muted);
+  box-shadow: 0 0 0 3px var(--surface-2);
+}
+.status-ok .industry-dot { background: var(--brand); box-shadow: 0 0 0 3px var(--brand-soft); }
+.status-caution .industry-dot { background: var(--sun); box-shadow: 0 0 0 3px var(--sun-soft); }
+.status-unknown .industry-dot { background: var(--muted); box-shadow: 0 0 0 3px var(--surface-2); }
+
+.industry-node-body { flex: 1; min-width: 0; }
+.industry-node-top { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+.industry-node-top .name { font-size: 15px; font-weight: 700; color: var(--ink); }
+.industry-node-top .date { font-size: 12px; color: var(--muted); }
+
+.industry-detail { margin: 7px 0 0; font-size: 13.5px; line-height: 1.7; color: var(--ink-soft); }
+
+.industry-badge {
+  display: inline-block; margin-top: 9px; padding: 2px 9px;
+  font-size: 11.5px; font-weight: 600; border-radius: 999px;
+  color: var(--muted); background: var(--surface-2);
+}
+.status-ok .industry-badge { color: var(--brand); background: var(--brand-soft); }
+.status-caution .industry-badge { color: var(--warn-text); background: var(--warn-soft); }
+
+.industry-advice { margin: 7px 0 0; font-size: 13px; line-height: 1.7; color: var(--ink-soft); }
+
+.industry-note {
+  margin: 16px 0 0; padding: 10px 12px;
+  font-size: 12px; line-height: 1.65; color: var(--warn-text);
+  background: var(--warn-soft);
+  border: 1px solid var(--warn-line);
+  border-radius: 10px;
+}
+
+@media (max-width: 900px) {
+  .industry-body { grid-template-columns: 1fr; gap: 16px; }
+  .industry-form { position: static; }
+  .industry-title { font-size: 20px; }
+}

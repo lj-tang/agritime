@@ -1,6 +1,6 @@
 /**
  * 左侧栏导航组件（V4 T01）
- * 6 个板块入口：种植推荐/我的地块/农事日历/病害检查/我的作物/反馈
+ * 板块入口：农事日历/种植推荐/病害检查/渔业养殖/我的地块/我的作物/反馈
  * 点击切换对应 content pane，移动端抽屉式折叠。
  */
 (function () {
@@ -9,6 +9,9 @@
     { id: 'calendar', label: '农事日历', icon: 'calendar', implemented: true },
     { id: 'recommend', label: '种植推荐', icon: 'sprout', implemented: true },
     { id: 'disease', label: '病害检查', icon: 'search', implemented: true },
+    // 渔业：独立板块做「品种规程 + 生产日历」；塘口档案/投喂成本仍在「我的地块 → 鱼塘」，
+    // 两边共用 /api/industry/*，不存两套品种口径
+    { id: 'industry', label: '渔业养殖', icon: 'fish', implemented: true },
     { id: 'my', label: '我的', icon: 'user', implemented: true, children: [
       { id: 'plots', label: '我的地块', icon: 'pin', implemented: true },
       { id: 'my-crops', label: '我的作物', icon: 'leaf', implemented: true }
