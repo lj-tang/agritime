@@ -15,7 +15,6 @@ const timelineCss = read(path.join(CSS, 'timeline.css'));
 const cropMapJs = read(path.resolve(__dirname, '..', 'assets', 'js', 'crop-map.js'));
 const timelineLogicJs = read(path.resolve(__dirname, '..', '..', 'shared', 'utils', 'timeline-logic.js'));
 const historyStoreJs = read(path.resolve(__dirname, '..', '..', 'shared', 'utils', 'storage.js'));
-const chartClientJs = read(path.resolve(__dirname, '..', 'assets', 'js', 'chart-client.js'));
 const weatherVisualJs = read(path.resolve(__dirname, '..', 'assets', 'js', 'weather-visual.js'));
 const sunnySvg = read(path.resolve(__dirname, '..', 'assets', 'weather-bg', 'sunny.svg'));
 const rainSvg = read(path.resolve(__dirname, '..', 'assets', 'weather-bg', 'rain.svg'));
@@ -97,30 +96,15 @@ test('自定义日期选择器：三联动下拉与范围校验', () => {
   assert.match(indexHtml, /id="sowingDate"[^>]*type="hidden"/, '主表单播种日期应是隐藏域，由三联动写入');
   assert.ok(indexHtml.includes('id="sowingDate"'));
 });
-test('函数图像模式：切换控件与模式选项', () => {
-  assert.match(timelineHtml, /mode-switch/);
-  assert.match(timelineHtml, /mode-tab/);
-  assert.ok(timelineHtml.includes('data-mode="node"'));
-  assert.ok(timelineHtml.includes('data-mode="chart"'));
-  assert.match(timelineHtml, /class="mode-tab active"/);
+test('时间线页：函数图像模块已下线', () => {
+  assert.ok(!timelineHtml.includes('mode-switch'), '不应再有「时间节点/函数图像」切换条');
+  assert.ok(!timelineHtml.includes('data-mode="chart"'), '不应再有函数图像模式');
+  assert.ok(!timelineHtml.includes('CHART_CONFIG'), '图表常量应随模块一起删除');
+  assert.ok(!timelineHtml.includes('id="chart"'), '不应再有图表容器');
+  assert.ok(!timelineHtml.includes('chart-client.js'), '不应再加载图表数据客户端');
+  assert.ok(!timelineHtml.includes('createElementNS'), '不再用原生 SVG 画曲线');
 });
 
-test('函数图像模式：chart 容器与原生 SVG 构建', () => {
-  assert.match(timelineHtml, /id="chart"/);
-  assert.match(timelineHtml, /createElementNS/);
-});
-
-test('函数图像模式：具名常量与占位提示', () => {
-  assert.match(timelineHtml, /CHART_CONFIG/);
-  assert.match(timelineHtml, /SIGMA/);
-  assert.ok(timelineHtml.includes('数据待接入'));
-});
-
-test('函数图像模式：无外部图表库', () => {
-  assert.ok(!timelineHtml.includes('Chart.js'));
-  assert.ok(!timelineHtml.includes('echarts'));
-  assert.ok(!timelineHtml.includes('d3'));
-});
 test('流程对齐：时间线请求为 GET 且参数名与后端一致', () => {
   assert.match(timelineHtml, /method:\s*'GET'/);
   assert.ok(!timelineHtml.includes("method: 'POST'"));
@@ -287,11 +271,6 @@ test('流程对齐：首页跳转参数链路自洽', () => {
   assert.match(indexHtml, /lon/);
 });
 
-test('流程对齐：函数图像真实/占位双形态闸门', () => {
-  assert.match(timelineHtml, /hasRealData/);
-  assert.match(timelineHtml, /hasValidDays/);
-});
-
 test('流程对齐：reminders 缺失容错', () => {
   // 节点区重绘后改为从 cachedData 取 reminders，容错口径不变
   assert.match(timelineHtml, /Array\.isArray\((data|cachedData)\.reminders\)/);
@@ -322,13 +301,9 @@ test('天气图标扩展与适宜度/警示/因子', () => {
   assert.ok(timelineHtml.includes('天气数据暂不可用'));
 });
 
-test('图表降级：POST 隔离到 chart-client', () => {
-  assert.ok(!timelineHtml.includes("method: 'POST'"));
-  assert.ok(chartClientJs.includes('/api/chart'));
-  assert.ok(chartClientJs.includes("method: 'POST'"));
-  assert.match(timelineHtml, /hasRealData/);
-  assert.match(timelineHtml, /hasValidDays/);
-  assert.ok(timelineHtml.includes('数据待接入'));
+test('时间线页：不再请求图表接口', () => {
+  assert.ok(!timelineHtml.includes('/api/chart'), '函数图像已下线，页面不应再请求图表接口');
+  assert.ok(!timelineHtml.includes("method: 'POST'"), '时间线页只发 GET');
 });
 
 test('识别双通道：拍照 + 上传并列入口', () => {
@@ -1375,7 +1350,10 @@ test('修复：大模型生成不再阻塞请求，返回 202 让前端重试', 
   assert.ok(cs.includes('persistLlmCache'), '生成结果应落盘');
   const th = read(path.resolve(__dirname, '..', '..', 'backend', 'src', 'com', 'cropcalendar', 'api', 'TimelineHandler.java'));
   assert.ok(th.includes('20201'), '生成中应返回 202');
-  assert.ok(timelineHtml.includes('正在生成'), '前端应显示生成中并重试');
+  // 202 分支与「等了多少秒」的提示都在时间线自己的加载态里；
+  // 原断言借的是函数图像那句「正在生成图像…」，模块下线后不能再依赖它
+  assert.ok(timelineHtml.includes('res.status === 202'), '前端应识别 202 并继续轮询');
+  assert.ok(/正在为该作物生成农事规程|正在生成/.test(timelineHtml), '前端应告诉用户规程正在生成');
 });
 
 test('落地：我的作物联动去重、拍照留痕、来源可见', () => {

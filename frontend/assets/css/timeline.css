@@ -239,75 +239,6 @@
   .tl-node, .tl-detail { animation: none; }
 }
 
-/* 模式切换 */
-.mode-switch {
-  display: flex;
-  gap: 0;
-  margin-bottom: 18px;
-  border-radius: var(--radius-sm);
-  overflow: hidden;
-  border: 1px solid var(--line);
-}
-
-.mode-tab {
-  flex: 1;
-  padding: 11px;
-  border: none;
-  background: var(--paper-2);
-  font-size: calc(15px * var(--fs, 1));
-  font-weight: 600;
-  cursor: pointer;
-  transition: background 0.18s;
-  color: var(--ink-soft);
-}
-
-.mode-tab.active {
-  background: var(--card);
-  color: var(--leaf);
-  font-weight: 700;
-  box-shadow: inset 0 -2px 0 var(--leaf-2);
-}
-
-/* 函数图像 */
-.chart-wrap {
-  background: var(--card);
-  border: 1px solid rgba(228, 221, 203, 0.9);
-  border-radius: var(--radius);
-  box-shadow: var(--shadow);
-  padding: 18px;
-  margin-bottom: 22px;
-}
-
-.chart-svg {
-  width: 100%;
-  height: auto;
-  display: block;
-}
-
-.chart-axis {
-  stroke: var(--line);
-  stroke-width: 1.5;
-}
-
-.chart-curve {
-  fill: none;
-  stroke: var(--leaf-2);
-  stroke-width: 2;
-}
-
-.chart-placeholder {
-  fill: var(--muted);
-  font-size: calc(13px * var(--fs, 1));
-}
-.chart-loading {
-  margin: 0;
-  padding: 40px 0;
-  text-align: center;
-  color: var(--muted);
-  font-size: calc(14px * var(--fs, 1));
-  letter-spacing: 1px;
-}
-
 /* 加载进度条（不确定态，纯 CSS） */
 .loading-bar {
   height: 4px;
@@ -395,7 +326,6 @@
 @media (min-width: 768px) {
   .timeline { padding-left: 10px; }
   .tl-card { padding: 18px 20px 17px; }
-  .chart-wrap { padding: 24px 28px; }
 }
 
 @media (min-width: 1024px) {
@@ -512,18 +442,6 @@
 
 .tl-node.certain::before { border-left-color: var(--line); }
 .tl-node.predicted::before { border-left-color: var(--line-soft); }
-
-.mode-tab {
-  font-size: calc(13px * var(--fs, 1));
-  font-weight: 500;
-  background: var(--paper-2);
-}
-
-.mode-tab.active {
-  font-weight: 700;
-  color: var(--leaf);
-  box-shadow: inset 0 -2px 0 var(--leaf-2);
-}
 
 /* 远期节点保持虚线卡片，但底色跟整体一致 */
 .tl-node.seasonal .tl-card { background: var(--surface); }
