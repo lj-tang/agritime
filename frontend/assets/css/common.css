@@ -14,6 +14,9 @@
      大字模式（font-scale.js 给 <html> 挂 data-font="large"）只需改这一个值 */
   --fs: 1;
 
+  /* 页面底纹：稻穗 + 水波纹，随主题换图 */
+  --bg-pattern: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22128%22%20height%3D%22128%22%20viewBox%3D%220%200%20128%20128%22%3E%3Cg%20fill%3D%22none%22%20stroke%3D%22rgba%2822%2C163%2C74%2C0.06%29%22%20stroke-width%3D%222%22%3E%3Cpath%20d%3D%22M20%20104%20Q30%2070%2018%2044%22%2F%3E%3Cpath%20d%3D%22M100%20122%20Q110%2092%2098%2066%22%2F%3E%3Cpath%20d%3D%22M0%2034%20Q32%2026%2064%2034%20T128%2032%22%2F%3E%3Cpath%20d%3D%22M0%2084%20Q32%2076%2064%2084%20T128%2082%22%2F%3E%3C%2Fg%3E%3Cg%20fill%3D%22rgba%28217%2C162%2C27%2C0.09%29%22%3E%3Cellipse%20cx%3D%2218%22%20cy%3D%2240%22%20rx%3D%222.2%22%20ry%3D%223.6%22%20transform%3D%22rotate%28-14%2018%2040%29%22%2F%3E%3Cellipse%20cx%3D%2215%22%20cy%3D%2249%22%20rx%3D%222.2%22%20ry%3D%223.6%22%20transform%3D%22rotate%28-20%2015%2049%29%22%2F%3E%3Cellipse%20cx%3D%2221%22%20cy%3D%2249%22%20rx%3D%222.2%22%20ry%3D%223.6%22%20transform%3D%22rotate%2814%2021%2049%29%22%2F%3E%3Cellipse%20cx%3D%2298%22%20cy%3D%2262%22%20rx%3D%222.2%22%20ry%3D%223.6%22%20transform%3D%22rotate%28-14%2098%2062%29%22%2F%3E%3Cellipse%20cx%3D%2295%22%20cy%3D%2271%22%20rx%3D%222.2%22%20ry%3D%223.6%22%20transform%3D%22rotate%28-20%2095%2071%29%22%2F%3E%3Cellipse%20cx%3D%22101%22%20cy%3D%2271%22%20rx%3D%222.2%22%20ry%3D%223.6%22%20transform%3D%22rotate%2814%20101%2071%29%22%2F%3E%3C%2Fg%3E%3Ccircle%20cx%3D%2260%22%20cy%3D%2260%22%20r%3D%221.6%22%20fill%3D%22rgba%2822%2C163%2C74%2C0.05%29%22%2F%3E%3Ccircle%20cx%3D%2286%22%20cy%3D%2218%22%20r%3D%221.6%22%20fill%3D%22rgba%2822%2C163%2C74%2C0.05%29%22%2F%3E%3Ccircle%20cx%3D%2230%22%20cy%3D%22120%22%20r%3D%221.4%22%20fill%3D%22rgba%2822%2C163%2C74%2C0.05%29%22%2F%3E%3C%2Fsvg%3E");
+
   /* ---- 干净浅色底 + 纯白卡片 + 鲜明叶片绿 ---- */
   --bg: #f5f7f5;
   --surface: #ffffff;
@@ -112,12 +115,16 @@
     --shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 12px 32px -16px rgba(0, 0, 0, 0.6);
     --shadow-soft: 0 1px 2px rgba(0, 0, 0, 0.35), 0 4px 16px -8px rgba(0, 0, 0, 0.5);
     --focus-ring: 0 0 0 3px rgba(74, 222, 128, 0.22);
+  --bg-pattern: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22128%22%20height%3D%22128%22%20viewBox%3D%220%200%20128%20128%22%3E%3Cg%20fill%3D%22rgba%2874%2C222%2C128%2C0.30%29%22%3E%3Ccircle%20cx%3D%2218%22%20cy%3D%2224%22%20r%3D%222.6%22%2F%3E%3Ccircle%20cx%3D%2252%22%20cy%3D%2212%22%20r%3D%221.9%22%2F%3E%3Ccircle%20cx%3D%2290%22%20cy%3D%2230%22%20r%3D%222.4%22%2F%3E%3Ccircle%20cx%3D%2230%22%20cy%3D%2270%22%20r%3D%221.9%22%2F%3E%3Ccircle%20cx%3D%2274%22%20cy%3D%2286%22%20r%3D%222.6%22%2F%3E%3Ccircle%20cx%3D%22108%22%20cy%3D%2260%22%20r%3D%221.9%22%2F%3E%3Ccircle%20cx%3D%2216%22%20cy%3D%22108%22%20r%3D%222.2%22%2F%3E%3Ccircle%20cx%3D%2296%22%20cy%3D%22112%22%20r%3D%222.0%22%2F%3E%3Ccircle%20cx%3D%2240%22%20cy%3D%2238%22%20r%3D%221.6%22%2F%3E%3Ccircle%20cx%3D%2266%22%20cy%3D%2252%22%20r%3D%221.4%22%2F%3E%3Ccircle%20cx%3D%22112%22%20cy%3D%2218%22%20r%3D%221.6%22%2F%3E%3Ccircle%20cx%3D%226%22%20cy%3D%2256%22%20r%3D%221.7%22%2F%3E%3Ccircle%20cx%3D%2258%22%20cy%3D%22104%22%20r%3D%221.7%22%2F%3E%3Ccircle%20cx%3D%2286%22%20cy%3D%2266%22%20r%3D%221.4%22%2F%3E%3C%2Fg%3E%3Cg%20stroke%3D%22rgba%28251%2C191%2C36%2C0.22%29%22%20stroke-width%3D%221.2%22%20stroke-linecap%3D%22round%22%3E%3Cpath%20d%3D%22M64%2020%20l-10%208%22%2F%3E%3Cpath%20d%3D%22M24%2092%20l-8%206%22%2F%3E%3C%2Fg%3E%3Cpath%20d%3D%22M104%2092%20a11%2011%200%201%200%2011%2018%20a13.4%2013.4%200%201%201%20-11%20-18%20z%22%20fill%3D%22rgba%28251%2C191%2C36%2C0.26%29%22%2F%3E%3C%2Fsvg%3E");
 }
 
 /* 大字模式：只放大字号，不动留白与控件高度，避免行高撑破固定高控件 */
 html[data-font="large"] { --fs: 1.16; }
 
-html { background: var(--bg); }
+html {
+  background-color: var(--bg);
+  background-image: var(--bg-pattern);
+}
 
 * { box-sizing: border-box; }
 
@@ -1977,6 +1984,7 @@ body.split-active .home-pane-back { display: inline-flex; align-items: center; }
   --rain: #3d8ea8;
   --rain-soft: #e0eff4;
   --focus-ring: 0 0 0 3px rgba(47, 125, 93, 0.18);
+  --bg-pattern: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22128%22%20height%3D%22128%22%20viewBox%3D%220%200%20128%20128%22%3E%3Cg%20fill%3D%22none%22%20stroke%3D%22rgba%2847%2C125%2C93%2C0.06%29%22%20stroke-width%3D%222%22%3E%3Cpath%20d%3D%22M20%20104%20Q30%2070%2018%2044%22%2F%3E%3Cpath%20d%3D%22M100%20122%20Q110%2092%2098%2066%22%2F%3E%3Cpath%20d%3D%22M0%2034%20Q32%2026%2064%2034%20T128%2032%22%2F%3E%3Cpath%20d%3D%22M0%2084%20Q32%2076%2064%2084%20T128%2082%22%2F%3E%3C%2Fg%3E%3Cg%20fill%3D%22rgba%28217%2C162%2C27%2C0.09%29%22%3E%3Cellipse%20cx%3D%2218%22%20cy%3D%2240%22%20rx%3D%222.2%22%20ry%3D%223.6%22%20transform%3D%22rotate%28-14%2018%2040%29%22%2F%3E%3Cellipse%20cx%3D%2215%22%20cy%3D%2249%22%20rx%3D%222.2%22%20ry%3D%223.6%22%20transform%3D%22rotate%28-20%2015%2049%29%22%2F%3E%3Cellipse%20cx%3D%2221%22%20cy%3D%2249%22%20rx%3D%222.2%22%20ry%3D%223.6%22%20transform%3D%22rotate%2814%2021%2049%29%22%2F%3E%3Cellipse%20cx%3D%2298%22%20cy%3D%2262%22%20rx%3D%222.2%22%20ry%3D%223.6%22%20transform%3D%22rotate%28-14%2098%2062%29%22%2F%3E%3Cellipse%20cx%3D%2295%22%20cy%3D%2271%22%20rx%3D%222.2%22%20ry%3D%223.6%22%20transform%3D%22rotate%28-20%2095%2071%29%22%2F%3E%3Cellipse%20cx%3D%22101%22%20cy%3D%2271%22%20rx%3D%222.2%22%20ry%3D%223.6%22%20transform%3D%22rotate%2814%20101%2071%29%22%2F%3E%3C%2Fg%3E%3Ccircle%20cx%3D%2260%22%20cy%3D%2260%22%20r%3D%221.6%22%20fill%3D%22rgba%2847%2C125%2C93%2C0.05%29%22%2F%3E%3Ccircle%20cx%3D%2286%22%20cy%3D%2218%22%20r%3D%221.6%22%20fill%3D%22rgba%2847%2C125%2C93%2C0.05%29%22%2F%3E%3Ccircle%20cx%3D%2230%22%20cy%3D%22120%22%20r%3D%221.4%22%20fill%3D%22rgba%2847%2C125%2C93%2C0.05%29%22%2F%3E%3C%2Fsvg%3E");
 }
 
 /* ---- 麦浪金黄：麦熟时节的麦色，暖但不刺眼 ---- */
@@ -2008,6 +2016,7 @@ body.split-active .home-pane-back { display: inline-flex; align-items: center; }
   --rain: #5a8fa8;
   --rain-soft: #e3eff4;
   --focus-ring: 0 0 0 3px rgba(154, 95, 12, 0.18);
+  --bg-pattern: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22128%22%20height%3D%22128%22%20viewBox%3D%220%200%20128%20128%22%3E%3Cg%20fill%3D%22none%22%20stroke%3D%22rgba%28154%2C95%2C12%2C0.06%29%22%20stroke-width%3D%222%22%3E%3Cpath%20d%3D%22M24%20108%20V58%22%2F%3E%3Cpath%20d%3D%22M100%20116%20V64%22%2F%3E%3Cpath%20d%3D%22M0%2040%20Q32%2030%2064%2040%20T128%2038%22%2F%3E%3Cpath%20d%3D%22M0%2092%20Q32%2084%2064%2092%20T128%2090%22%2F%3E%3C%2Fg%3E%3Cg%20stroke%3D%22rgba%28154%2C95%2C12%2C0.07%29%22%20stroke-width%3D%221.4%22%3E%3Cpath%20d%3D%22M24%2058%20l-5%20-8%20M24%2058%20l5%20-8%20M100%2064%20l-5%20-8%20M100%2064%20l5%20-8%22%2F%3E%3C%2Fg%3E%3Cg%20fill%3D%22rgba%28221%2C167%2C42%2C0.1%29%22%3E%3Cellipse%20cx%3D%2221%22%20cy%3D%2266%22%20rx%3D%222%22%20ry%3D%223.2%22%20transform%3D%22rotate%28-18%2021%2066%29%22%2F%3E%3Cellipse%20cx%3D%2227%22%20cy%3D%2266%22%20rx%3D%222%22%20ry%3D%223.2%22%20transform%3D%22rotate%2818%2027%2066%29%22%2F%3E%3Cellipse%20cx%3D%2221%22%20cy%3D%2275%22%20rx%3D%222%22%20ry%3D%223.2%22%20transform%3D%22rotate%28-18%2021%2075%29%22%2F%3E%3Cellipse%20cx%3D%2227%22%20cy%3D%2275%22%20rx%3D%222%22%20ry%3D%223.2%22%20transform%3D%22rotate%2818%2027%2075%29%22%2F%3E%3Cellipse%20cx%3D%2297%22%20cy%3D%2272%22%20rx%3D%222%22%20ry%3D%223.2%22%20transform%3D%22rotate%28-18%2097%2072%29%22%2F%3E%3Cellipse%20cx%3D%22103%22%20cy%3D%2272%22%20rx%3D%222%22%20ry%3D%223.2%22%20transform%3D%22rotate%2818%20103%2072%29%22%2F%3E%3Cellipse%20cx%3D%2297%22%20cy%3D%2281%22%20rx%3D%222%22%20ry%3D%223.2%22%20transform%3D%22rotate%28-18%2097%2081%29%22%2F%3E%3Cellipse%20cx%3D%22103%22%20cy%3D%2281%22%20rx%3D%222%22%20ry%3D%223.2%22%20transform%3D%22rotate%2818%20103%2081%29%22%2F%3E%3C%2Fg%3E%3Ccircle%20cx%3D%2256%22%20cy%3D%2220%22%20r%3D%221.5%22%20fill%3D%22rgba%28154%2C95%2C12%2C0.06%29%22%2F%3E%3Ccircle%20cx%3D%2276%22%20cy%3D%2246%22%20r%3D%221.5%22%20fill%3D%22rgba%28154%2C95%2C12%2C0.06%29%22%2F%3E%3C%2Fsvg%3E");
 }
 
 /* ---- 油菜花田：三月里的黄绿撞色，花黄压在地面，叶绿做正文主色 ---- */
@@ -2039,6 +2048,7 @@ body.split-active .home-pane-back { display: inline-flex; align-items: center; }
   --rain: #4a8fa0;
   --rain-soft: #e2eff2;
   --focus-ring: 0 0 0 3px rgba(95, 127, 20, 0.18);
+  --bg-pattern: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22128%22%20height%3D%22128%22%20viewBox%3D%220%200%20128%20128%22%3E%3Cg%20fill%3D%22none%22%20stroke%3D%22rgba%2895%2C127%2C20%2C0.06%29%22%20stroke-width%3D%222%22%3E%3Cpath%20d%3D%22M30%20108%20Q32%2084%2028%2060%22%2F%3E%3Cpath%20d%3D%22M92%20118%20Q90%2092%2094%2066%22%2F%3E%3Cpath%20d%3D%22M0%2030%20Q32%2024%2064%2030%20T128%2028%22%2F%3E%3C%2Fg%3E%3Ccircle%20cx%3D%2228.0%22%20cy%3D%2247.0%22%20r%3D%224.5%22%20fill%3D%22rgba%28232%2C184%2C28%2C0.11%29%22%2F%3E%3Ccircle%20cx%3D%2232.8%22%20cy%3D%2250.5%22%20r%3D%224.5%22%20fill%3D%22rgba%28232%2C184%2C28%2C0.11%29%22%2F%3E%3Ccircle%20cx%3D%2230.9%22%20cy%3D%2256.0%22%20r%3D%224.5%22%20fill%3D%22rgba%28232%2C184%2C28%2C0.11%29%22%2F%3E%3Ccircle%20cx%3D%2225.1%22%20cy%3D%2256.0%22%20r%3D%224.5%22%20fill%3D%22rgba%28232%2C184%2C28%2C0.11%29%22%2F%3E%3Ccircle%20cx%3D%2223.2%22%20cy%3D%2250.5%22%20r%3D%224.5%22%20fill%3D%22rgba%28232%2C184%2C28%2C0.11%29%22%2F%3E%3Ccircle%20cx%3D%2228%22%20cy%3D%2252%22%20r%3D%222.2%22%20fill%3D%22rgba%2895%2C127%2C20%2C0.12%29%22%2F%3E%3Ccircle%20cx%3D%2294.0%22%20cy%3D%2253.6%22%20r%3D%224.0%22%20fill%3D%22rgba%28232%2C184%2C28%2C0.11%29%22%2F%3E%3Ccircle%20cx%3D%2298.2%22%20cy%3D%2256.6%22%20r%3D%224.0%22%20fill%3D%22rgba%28232%2C184%2C28%2C0.11%29%22%2F%3E%3Ccircle%20cx%3D%2296.6%22%20cy%3D%2261.6%22%20r%3D%224.0%22%20fill%3D%22rgba%28232%2C184%2C28%2C0.11%29%22%2F%3E%3Ccircle%20cx%3D%2291.4%22%20cy%3D%2261.6%22%20r%3D%224.0%22%20fill%3D%22rgba%28232%2C184%2C28%2C0.11%29%22%2F%3E%3Ccircle%20cx%3D%2289.8%22%20cy%3D%2256.6%22%20r%3D%224.0%22%20fill%3D%22rgba%28232%2C184%2C28%2C0.11%29%22%2F%3E%3Ccircle%20cx%3D%2294%22%20cy%3D%2258%22%20r%3D%222.0%22%20fill%3D%22rgba%2895%2C127%2C20%2C0.12%29%22%2F%3E%3Ccircle%20cx%3D%2258%22%20cy%3D%2290%22%20r%3D%221.6%22%20fill%3D%22rgba%2895%2C127%2C20%2C0.06%29%22%2F%3E%3Ccircle%20cx%3D%2280%22%20cy%3D%2214%22%20r%3D%221.6%22%20fill%3D%22rgba%2895%2C127%2C20%2C0.06%29%22%2F%3E%3Ccircle%20cx%3D%2212%22%20cy%3D%2288%22%20r%3D%221.4%22%20fill%3D%22rgba%28232%2C184%2C28%2C0.05%29%22%2F%3E%3C%2Fsvg%3E");
 }
 
 /* ---- 红壤梯田：南方红壤的砖红，土气但有劲，适合种果树的坡地 ---- */
@@ -2070,6 +2080,7 @@ body.split-active .home-pane-back { display: inline-flex; align-items: center; }
   --rain: #4d8fa6;
   --rain-soft: #e2eef3;
   --focus-ring: 0 0 0 3px rgba(162, 74, 47, 0.18);
+  --bg-pattern: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22128%22%20height%3D%22128%22%20viewBox%3D%220%200%20128%20128%22%3E%3Cg%20fill%3D%22none%22%20stroke%3D%22rgba%28162%2C74%2C47%2C0.07%29%22%20stroke-width%3D%222%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22M0%2096%20H24%20V72%20H52%20V48%20H84%20V24%20H128%22%2F%3E%3Cpath%20d%3D%22M0%20118%20H40%20V94%20H72%20V70%20H104%20V52%20H128%22%2F%3E%3C%2Fg%3E%3Cg%20stroke%3D%22rgba%28217%2C137%2C24%2C0.09%29%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%3E%3Cpath%20d%3D%22M32%2072%20v-6%20M60%2048%20v-6%20M92%2024%20v-6%20M48%2094%20v-6%20M80%2070%20v-6%22%2F%3E%3C%2Fg%3E%3Ccircle%20cx%3D%2220%22%20cy%3D%2230%22%20r%3D%221.6%22%20fill%3D%22rgba%28162%2C74%2C47%2C0.05%29%22%2F%3E%3Ccircle%20cx%3D%22112%22%20cy%3D%22104%22%20r%3D%221.6%22%20fill%3D%22rgba%28162%2C74%2C47%2C0.05%29%22%2F%3E%3C%2Fsvg%3E");
 }
 
 /* ---- 谷仓木纸：谷仓的木头与牛皮纸，最接近纸质阅读的一种 ---- */
@@ -2101,6 +2112,7 @@ body.split-active .home-pane-back { display: inline-flex; align-items: center; }
   --rain: #5b8a94;
   --rain-soft: #e4eff0;
   --focus-ring: 0 0 0 3px rgba(138, 90, 43, 0.18);
+  --bg-pattern: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22128%22%20height%3D%22128%22%20viewBox%3D%220%200%20128%20128%22%3E%3Cg%20fill%3D%22none%22%20stroke%3D%22rgba%28138%2C90%2C43%2C0.055%29%22%20stroke-width%3D%222%22%3E%3Cpath%20d%3D%22M24%200%20Q22%2064%2026%20128%22%2F%3E%3Cpath%20d%3D%22M64%200%20Q66%2064%2062%20128%22%2F%3E%3Cpath%20d%3D%22M104%200%20Q102%2064%20106%20128%22%2F%3E%3C%2Fg%3E%3Cellipse%20cx%3D%2264%22%20cy%3D%2252%22%20rx%3D%224.6%22%20ry%3D%227%22%20fill%3D%22none%22%20stroke%3D%22rgba%28138%2C90%2C43%2C0.07%29%22%20stroke-width%3D%221.6%22%2F%3E%3Cellipse%20cx%3D%2264%22%20cy%3D%2252%22%20rx%3D%221.8%22%20ry%3D%223%22%20fill%3D%22rgba%28138%2C90%2C43%2C0.07%29%22%2F%3E%3Ccircle%20cx%3D%2224%22%20cy%3D%2296%22%20r%3D%221.5%22%20fill%3D%22rgba%28201%2C138%2C21%2C0.08%29%22%2F%3E%3Ccircle%20cx%3D%22104%22%20cy%3D%2230%22%20r%3D%221.5%22%20fill%3D%22rgba%28201%2C138%2C21%2C0.08%29%22%2F%3E%3C%2Fsvg%3E");
 }
 
 /* ---- 纯黑：OLED 省电，纯黑底 + 亮绿 ---- */
@@ -2141,6 +2153,7 @@ body.split-active .home-pane-back { display: inline-flex; align-items: center; }
   --shadow: 0 1px 2px rgba(0, 0, 0, 0.5), 0 12px 32px -16px rgba(0, 0, 0, 0.8);
   --shadow-soft: 0 1px 2px rgba(0, 0, 0, 0.45), 0 4px 16px -8px rgba(0, 0, 0, 0.6);
   --focus-ring: 0 0 0 3px rgba(34, 197, 94, 0.22);
+  --bg-pattern: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22128%22%20height%3D%22128%22%20viewBox%3D%220%200%20128%20128%22%3E%3Cg%20fill%3D%22rgba%2834%2C197%2C94%2C0.26%29%22%3E%3Ccircle%20cx%3D%2218%22%20cy%3D%2224%22%20r%3D%222.6%22%2F%3E%3Ccircle%20cx%3D%2252%22%20cy%3D%2212%22%20r%3D%221.9%22%2F%3E%3Ccircle%20cx%3D%2290%22%20cy%3D%2230%22%20r%3D%222.4%22%2F%3E%3Ccircle%20cx%3D%2230%22%20cy%3D%2270%22%20r%3D%221.9%22%2F%3E%3Ccircle%20cx%3D%2274%22%20cy%3D%2286%22%20r%3D%222.6%22%2F%3E%3Ccircle%20cx%3D%22108%22%20cy%3D%2260%22%20r%3D%221.9%22%2F%3E%3Ccircle%20cx%3D%2216%22%20cy%3D%22108%22%20r%3D%222.2%22%2F%3E%3Ccircle%20cx%3D%2296%22%20cy%3D%22112%22%20r%3D%222.0%22%2F%3E%3Ccircle%20cx%3D%2240%22%20cy%3D%2238%22%20r%3D%221.6%22%2F%3E%3Ccircle%20cx%3D%2266%22%20cy%3D%2252%22%20r%3D%221.4%22%2F%3E%3Ccircle%20cx%3D%22112%22%20cy%3D%2218%22%20r%3D%221.6%22%2F%3E%3Ccircle%20cx%3D%226%22%20cy%3D%2256%22%20r%3D%221.7%22%2F%3E%3Ccircle%20cx%3D%2258%22%20cy%3D%22104%22%20r%3D%221.7%22%2F%3E%3Ccircle%20cx%3D%2286%22%20cy%3D%2266%22%20r%3D%221.4%22%2F%3E%3C%2Fg%3E%3Cg%20stroke%3D%22rgba%28251%2C191%2C36%2C0.22%29%22%20stroke-width%3D%221.2%22%20stroke-linecap%3D%22round%22%3E%3Cpath%20d%3D%22M64%2020%20l-10%208%22%2F%3E%3Cpath%20d%3D%22M24%2092%20l-8%206%22%2F%3E%3C%2Fg%3E%3Cpath%20d%3D%22M104%2092%20a11%2011%200%201%200%2011%2018%20a13.4%2013.4%200%201%201%20-11%20-18%20z%22%20fill%3D%22rgba%28251%2C191%2C36%2C0.26%29%22%2F%3E%3C%2Fsvg%3E");
 }
 
 /* ============================================================
