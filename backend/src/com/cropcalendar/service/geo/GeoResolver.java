@@ -82,11 +82,28 @@ public final class GeoResolver {
      */
     private static final int PHOTON_TIMEOUT_MS = 7_000;
 
+    /**
+     * refine 是「慢慢查」的请求，HTTP 线程池只有 8 个，不能被它占满：
+     * 同时最多 2 个在等 Photon，多出来的直接返回离线结果。
+     */
+    private static final java.util.concurrent.Semaphore REFINE_SLOTS =
+            new java.util.concurrent.Semaphore(2);
+
     public static Place resolve(double lat, double lon) {
+        return resolve(lat, lon, false);
+    }
+
+    /**
+     * @param refine true 表示「我不着急，要最细的地名」：肯为 Photon 的 7 秒买单。
+     *               前端先用快速结果把地名填上，再带 refine=1 补一刀，
+     *               拿到小区/村名就替换——这样既不会卡住确认，也不至于永远只有市级。
+     */
+    public static Place resolve(double lat, double lon, boolean refine) {
         String key = String.format(Locale.ROOT, "%.6f,%.6f", lat, lon);
         Entry hit = CACHE.get(key);
         if (hit != null && hit.expireAtMs() > System.currentTimeMillis()) {
-            return hit.place();
+            // 缓存里已经是精确结果时直接给；只有市级结果时才值得为 refine 再等一次
+            if (!refine || !"local".equals(hit.place().source())) return hit.place();
         }
 
         Place place = null;
@@ -98,13 +115,22 @@ public final class GeoResolver {
             Place amap = amap(lat, lon, AppConfig.geoAmapKey());
             if (amap != null && amap.known()) place = amap;
         }
+        // refine 请求愿意等 Photon：它基于 OSM，能到小区/村一级，这是离线库给不了的精度
+        if (refine && (place == null || !place.known()) && REFINE_SLOTS.tryAcquire()) {
+            try {
+                Place photon = photon(lat, lon);
+                if (photon != null && photon.known()) place = photon;
+            } finally {
+                REFINE_SLOTS.release();
+            }
+        }
         // 没有 key 也必须有地名：离线库覆盖全国省市县，毫秒级、不联网、不会超时
         if (place == null || !place.known()) {
             Place local = CnGazetteer.resolve(lat, lon);
             if (local != null && local.known()) place = local;
         }
         // 离线库覆盖不到（境外、远海）才去问 Photon —— 它免注册但没有国内节点
-        if (place == null || !place.known()) {
+        if ((place == null || !place.known()) && !refine) {
             Place photon = photon(lat, lon);
             if (photon != null && photon.known()) place = photon;
         }
@@ -206,6 +232,10 @@ public final class GeoResolver {
             java.util.List<Suggestion> r = dedupe(amapSearch(kw, n, amapKey));
             if (!r.isEmpty()) return r;
         }
+        // 没有 key 时先查离线库：省市县名是搜得最多的，秒回；
+        // 查不到（多半是想搜商场/路口这类 POI）再退到 Photon
+        java.util.List<Suggestion> local = CnGazetteer.search(kw, n);
+        if (!local.isEmpty()) return local;
         return dedupe(photonSearch(kw, lat, lon, n));
     }
 
@@ -517,7 +547,9 @@ public final class GeoResolver {
         if (lat != 0 || lon != 0) {
             url += "&lat=" + fmt6(lat) + "&lon=" + fmt6(lon);
         }
-        Map<String, Object> root = photonGet(url, UPSTREAM_TIMEOUT_MS);
+        // 搜索框是用户主动触发的，等 7 秒也比返回「搜索服务暂不可用」强：
+        // Photon 从国内访问常态 5~7 秒，2.5 秒的上游超时会让搜索永远空手而归
+        Map<String, Object> root = photonGet(url, PHOTON_TIMEOUT_MS);
         java.util.List<Suggestion> out = new java.util.ArrayList<>();
         List<?> features = list(root, "features");
         if (features == null) return out;

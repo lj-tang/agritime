@@ -95,7 +95,11 @@ public final class CnGazetteer {
 
         String province = city.province();
         boolean rural = cd >= CITY_CORE_KM;
-        String district = (rural && near != null && kd <= COUNTY_MAX_KM) ? near.name() : "";
+        // 城区里只有当区县驻地就贴在脚下（8 公里内）才敢报，否则宁可只报市；
+        // 农村视野大，25 公里内的区县基本就是它所属的那个
+        boolean useCounty = near != null
+                && (kd <= 8 || (rural && kd <= COUNTY_MAX_KM));
+        String district = useCounty ? near.name() : "";
         // 直辖市的省名就是市名，拼一次即可，避免「北京市北京市」
         StringBuilder sb = new StringBuilder(province);
         if (!province.equals(city.name())) sb.append(city.name());
@@ -108,6 +112,52 @@ public final class CnGazetteer {
                 sb.toString(), name, "",
                 district, city.name(), province,
                 district.isEmpty() ? "city" : "district", "local");
+    }
+
+    /**
+     * 关键字搜地点。上游（腾讯/高德）没配 key、Photon 又慢到超时时，
+     * 至少能按省/市/区县名字搜到——用户输的多半就是自己所在的县市。
+     */
+    public static java.util.List<GeoResolver.Suggestion> search(String keyword, int limit) {
+        if (!ensureLoaded()) return java.util.List.of();
+        String q = keyword == null ? "" : keyword.trim();
+        if (q.length() < 2) return java.util.List.of();
+        String qc = core(q);
+
+        java.util.List<GeoResolver.Suggestion> exact = new java.util.ArrayList<>();
+        java.util.List<GeoResolver.Suggestion> loose = new java.util.ArrayList<>();
+
+        City[] cs = cities;
+        for (City c : cs) {
+            String cn = core(c.name());
+            if (!cn.equals(qc) && !c.name().contains(q)) continue;
+            boolean hit = cn.equals(qc) || qc.length() >= 2 && cn.startsWith(qc);
+            (hit ? exact : loose).add(new GeoResolver.Suggestion(
+                    c.name(), c.province() + c.name(), c.lat(), c.lon(), "local"));
+        }
+        for (County k : counties) {
+            String cn = core(k.name());
+            if (!cn.equals(qc) && !k.name().contains(q)) continue;
+            City c = cs[k.city()];
+            boolean hit = cn.equals(qc) || qc.length() >= 2 && cn.startsWith(qc);
+            (hit ? exact : loose).add(new GeoResolver.Suggestion(
+                    k.name(), c.province() + c.name() + k.name(), k.lat(), k.lon(), "local"));
+        }
+
+        java.util.List<GeoResolver.Suggestion> out = new java.util.ArrayList<>(limit);
+        out.addAll(exact);
+        out.addAll(loose);
+        return out.size() > limit ? out.subList(0, limit) : out;
+    }
+
+    /** 去掉行政区划后缀，用于「武汉市」和「武汉」互相匹配 */
+    private static String core(String name) {
+        for (String s : new String[]{"特别行政区", "自治州", "自治县", "自治旗", "地区", "省", "市", "县", "区", "盟", "旗"}) {
+            if (name.endsWith(s) && name.length() > s.length() + 1) {
+                return name.substring(0, name.length() - s.length());
+            }
+        }
+        return name;
     }
 
     private static boolean ensureLoaded() {

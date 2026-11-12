@@ -83,7 +83,9 @@ public class GeoHandler implements HttpHandler {
             return;
         }
 
-        GeoResolver.Place p = GeoResolver.resolve(lat, lon);
+        // refine=1：允许等上游慢慢查（前端先拿快速结果填界面，再补一刀换精确地名）
+        boolean refine = "1".equals(q.get("refine"));
+        GeoResolver.Place p = GeoResolver.resolve(lat, lon, refine);
         String data = Json.obj(
                 "displayName", Json.str(p.displayName()),
                 "name", Json.str(p.name()),
