@@ -893,18 +893,25 @@
         }
 
         // 右：上一个节气已经过去几天 + 下一个节气还有几天（今天正好是节气当天时说「今天立冬」）
-        var prevText = info.since === 0
-          ? ('今天 <b>' + info.name + '</b>')
-          : ('<b>' + info.name + '</b> 已过 <em>' + info.since + '</em> 天');
-        var nextText = info.next.days === 1
-          ? ('明天 <b>' + info.next.name + '</b>')
-          : ('距 <b>' + info.next.name + '</b> <em>' + info.next.days + '</em> 天');
+        // since 是后来才加的字段：万一浏览器还在用旧的 solar-terms.js，
+        // 这里宁可只显示「距小雪 10 天」，也不能把 undefined 甩到界面上
+        var sinceOk = typeof info.since === 'number' && info.since >= 0;
+        var parts = [];
+        if (sinceOk) {
+          parts.push('<span class="term-gap is-prev">'
+            + (info.since === 0
+              ? ('今天 <b>' + info.name + '</b>')
+              : ('<b>' + info.name + '</b> 已过 <em>' + info.since + '</em> 天'))
+            + '</span>');
+        }
+        parts.push('<span class="term-gap is-next">'
+          + (info.next.days === 1
+            ? ('明天 <b>' + info.next.name + '</b>')
+            : ('距 <b>' + info.next.name + '</b> <em>' + info.next.days + '</em> 天'))
+          + '</span>');
         var nextEl = document.getElementById('term-next');
         if (nextEl) {
-          nextEl.innerHTML =
-            '<span class="term-gap is-prev">' + prevText + '</span>'
-            + '<span class="term-gap-sep" aria-hidden="true">·</span>'
-            + '<span class="term-gap is-next">' + nextText + '</span>';
+          nextEl.innerHTML = sinceOk ? parts.join('<span class="term-gap-sep" aria-hidden="true">·</span>') : parts[0];
           nextEl.title = info.name + ' ' + info.md + ' → ' + info.next.name + ' ' + info.next.md;
         }
 
@@ -912,7 +919,8 @@
         if (strip) {
           strip.setAttribute('aria-label',
             '今天是' + (today.getMonth() + 1) + '月' + today.getDate() + '日，' + info.name
-            + '已过 ' + info.since + ' 天，距' + info.next.name + ' ' + info.next.days + ' 天');
+            + (sinceOk ? ('已过 ' + info.since + ' 天，') : '')
+            + '距' + info.next.name + ' ' + info.next.days + ' 天');
         }
 
         var tipEl = document.getElementById('term-tip');
