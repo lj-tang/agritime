@@ -26,10 +26,15 @@ import java.util.concurrent.atomic.AtomicInteger;
  *   2. 密钥不能落到浏览器里；
  *   3. 经纬度是高精度值（6 位小数 ≈ 0.1 米），由后端统一收口、缓存、参与后续计算。
  *
- * 服务商按可用性排序，谁配了 key 用谁：
+ * 服务商按「快且准」排序，前一个拿不到才问下一个：
  *   · 腾讯位置服务（formatted_addresses.recommend 直接就是小区级地址）
  *   · 高德 Web 服务（neighborhood / aois / pois 能拿到小区与楼宇）
- *   · 都没有 → 返回 level=unknown，由前端提示「该位置暂无法识别」
+ *   · 离线地名库（CnGazetteer，省/市/区县，毫秒级，不需要 key，也从不超时）
+ *   · Photon（境外兜底，免 key 但国内要 5~7 秒，只在离线库覆盖不到时才等它）
+ *
+ * 离线库排在前面的原因：地块标点要马上给出可信地名。之前没有它时，
+ * 没配 key 的环境只能依赖 Photon，而 Photon 的耗时远超 2.5 秒的上游超时，
+ * 结果就是用户每次点地图都被告知「该位置暂无法识别地名」。
  *
  * 零依赖：JDK 自带 HttpClient + 项目内 JsonParser。
  */
@@ -70,6 +75,12 @@ public final class GeoResolver {
 
     /** 单次上游超时。超过就降级，不阻塞用户确认标点。 */
     private static final int UPSTREAM_TIMEOUT_MS = 2_500;
+    /**
+     * Photon 单独放宽到 7 秒：它从国内访问常态就要 5~7 秒（DNS/TLS 只占 1 秒，
+     * 大头是首字节）。它现在只在离线库覆盖不到（境外）时才被调用，
+     * 这时候慢一点也比直接告诉用户「识别不了」强。
+     */
+    private static final int PHOTON_TIMEOUT_MS = 7_000;
 
     public static Place resolve(double lat, double lon) {
         String key = String.format(Locale.ROOT, "%.6f,%.6f", lat, lon);
@@ -87,8 +98,12 @@ public final class GeoResolver {
             Place amap = amap(lat, lon, AppConfig.geoAmapKey());
             if (amap != null && amap.known()) place = amap;
         }
-        // 没有 key 也必须有地名：Photon 基于 OpenStreetMap，免注册、免 key，
-        // 实测国内可直连（Nominatim 不行，Photon 可以）。
+        // 没有 key 也必须有地名：离线库覆盖全国省市县，毫秒级、不联网、不会超时
+        if (place == null || !place.known()) {
+            Place local = CnGazetteer.resolve(lat, lon);
+            if (local != null && local.known()) place = local;
+        }
+        // 离线库覆盖不到（境外、远海）才去问 Photon —— 它免注册但没有国内节点
         if (place == null || !place.known()) {
             Place photon = photon(lat, lon);
             if (photon != null && photon.known()) place = photon;
@@ -415,7 +430,7 @@ public final class GeoResolver {
     private static Place photon(double lat, double lon) {
         String url = "https://photon.komoot.io/reverse?lat=" + fmt6(lat) + "&lon=" + fmt6(lon)
                 + "&limit=8&radius=2";
-        return parsePhoton(photonGet(url, UPSTREAM_TIMEOUT_MS), lat, lon);
+        return parsePhoton(photonGet(url, PHOTON_TIMEOUT_MS), lat, lon);
     }
 
     static Place parsePhoton(Map<String, Object> root, double lat, double lon) {
