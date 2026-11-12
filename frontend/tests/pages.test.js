@@ -2670,22 +2670,41 @@ const termFarming = JSON.parse(read(path.resolve(__dirname, '..', '..', 'data', 
 const floatingBallJs = read(path.resolve(__dirname, '..', 'components', 'floating-ball', 'floating-ball.js'));
 const floatingBallCss = read(path.resolve(__dirname, '..', 'components', 'floating-ball', 'floating-ball.css'));
 
-test('V5.5 节气尺：一串橙色方块写上名字和日期', () => {
+test('V5.5 节气尺：写今天几号，左右夹住前后两个节气的天数', () => {
   assert.ok(indexHtml.includes('id="term-strip"'), '节气尺应有独立容器');
-  assert.ok(indexHtml.includes('id="term-now"'), '应写出当前节气');
-  assert.ok(indexHtml.includes('id="term-next"'), '应写出距下一节气几天');
+  assert.ok(indexHtml.includes('id="term-now"'), '应写出今天的日期');
+  assert.ok(indexHtml.includes('id="term-next"'), '应写出距前后节气几天');
   assert.ok(indexHtml.includes('id="term-tip"'), '应带一句农事提示');
   assert.ok(indexHtml.includes('../assets/js/solar-terms.js'), '应引入节气模块');
   assert.ok(commonCss.includes('.term-ruler i.is-now'), '当前节气那一格要单独点亮');
   assert.ok(indexHtml.includes('tick.title = t.name'), '每格 hover 要能看出是什么节气');
 
+  // 左边是「今天」，不是上一个节气的日期
+  assert.ok(indexHtml.includes('class="term-today-tag"') && indexHtml.includes('class="term-today-date"'),
+    '左侧应是今天日期，而不是节气日期');
+  assert.ok(indexHtml.includes("WEEK[today.getDay()]"), '日期旁要带星期');
+  assert.ok(commonCss.includes('.term-today-tag') && commonCss.includes('.term-today-date'), '缺少今日日期样式');
+
+  // 右边两头夹住今天：立冬已过 N 天 · 距小雪 M 天
+  assert.ok(indexHtml.includes('term-gap is-prev') && indexHtml.includes('term-gap is-next'),
+    '右侧要同时给上一个和下一个节气的天数');
+  assert.ok(indexHtml.includes('info.since'), '上一个节气要用「已过几天」表达');
+  assert.ok(commonCss.includes('.term-gap em'), '天数要单独加粗');
+
   const info = solarTerms.current(new Date(2026, 10, 11));
   assert.equal(info.name, '立冬');
   assert.equal(info.md, '11月7日');
+  assert.equal(info.since, 4, '11月11日已进入立冬 4 天');
   assert.equal(info.next.name, '小雪');
   assert.equal(info.next.days, 11);
   assert.equal(info.index, 20, '立冬在 24 个节气里是第 21 个');
   assert.equal(info.tip, '冬前管理，浇灌越冬水');
+
+  // 正好是节气当天：since 归零，文案说「今天立冬」
+  const onDay = solarTerms.current(new Date(2026, 10, 7));
+  assert.equal(onDay.name, '立冬');
+  assert.equal(onDay.since, 0);
+  assert.equal(onDay.next.days, 15, '立冬到小雪 15 天');
 });
 
 test('V5.5 节气：年初几天不能点错格', () => {

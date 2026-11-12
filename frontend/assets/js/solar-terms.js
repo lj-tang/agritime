@@ -84,6 +84,9 @@
    * 当前节气。跨年也算对：1 月 1~4 日的当前节气是上一年的冬至。
    * 返回的 all 是「今年」的 24 个刻度（首页那条尺子用它画）；
    * index 是当前节气在 all 里的下标，不在今年（年初那几天）时为 -1，尺子上就不点亮。
+   *
+   * since 是「已经进入当前节气第几天」：立冬 11月7日、今天 11月12日 → since = 5。
+   * 首页顶部用 since 和 next.days 两头夹住今天，不再直接甩一个节气日期给用户去心算。
    */
   function current(now) {
     var today = startOfDay(now || new Date());
@@ -109,6 +112,7 @@
       date: cur.date,
       md: cur.md,
       tip: cur.tip,
+      since: Math.round((today.getTime() - cur.time) / DAY_MS),
       next: {
         name: next.name,
         date: next.date,

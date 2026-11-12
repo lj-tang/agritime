@@ -26,6 +26,7 @@
   <link rel="stylesheet" href="../components/reminder-center/reminder-center.css" />
   <!-- leaflet 的 css/js 由 location-picker 在首次打开地图时按需注入，首屏不加载（省约 160KB） -->
   <link rel="stylesheet" href="../assets/css/theme-dark.css" />
+  <link rel="stylesheet" href="../assets/css/theme-decor.css" />
 </head>
 <body data-layout="app">
 
@@ -71,10 +72,12 @@
     </div>
 
 
-    <!-- 二十四节气尺：给出「现在处在哪个节气」，不再只是一排看不出含义的刻度 -->
+    <!-- 二十四节气尺：左边是今天几号，右边是「上一个节气已过几天 / 距下一个还有几天」 -->
     <section class="term-strip" id="term-strip" aria-label="二十四节气">
       <div class="term-strip-head">
-        <span class="term-now" id="term-now">--</span>
+        <span class="term-now" id="term-now">
+          <span class="term-today-tag">今天</span><span class="term-today-date">--</span><span class="term-today-week"></span>
+        </span>
         <span class="term-next" id="term-next"></span>
       </div>
       <div class="term-ruler" id="term-ruler" role="img" aria-label="二十四节气刻度"></div>
@@ -591,6 +594,7 @@
   <script src="../assets/js/my-crops-store.js"></script>
   <script src="../assets/js/ui-state.js"></script>
   <script src="../assets/js/theme.js"></script>
+  <script src="../assets/js/theme-decor.js"></script>
   <script src="../assets/js/icons.js"></script>
   <script src="../assets/js/solar-terms.js"></script>
   <script src="../assets/js/prefs.js"></script>
@@ -856,14 +860,17 @@
 
       /**
        * 二十四节气尺。
-       * 以前只是 24 个橙色小方块，用户看不出是节气还是进度条 —— 现在明确写
-       * 「立冬 · 11月7日 / 距小雪 11 天」，并点亮当前节气那一格。
+       * 以前写「立冬 · 11月7日」：给的是一个日期，用户还得自己减一遍才知道过了几天。
+       * 现在左边是今天的日期，右边两头夹住今天 ——「立冬已过 5 天 · 距小雪 10 天」。
        * 节气日期由 solar-terms.js 用通用公式算，不额外请求接口。
        */
       function renderTermStrip() {
         var ruler = document.getElementById('term-ruler');
         if (!ruler || !window.SolarTerms) return;
-        var info = window.SolarTerms.current(new Date());
+        var today = new Date();
+        var info = window.SolarTerms.current(today);
+        var WEEK = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
+
         ruler.innerHTML = '';
         (info.all || []).forEach(function (t, i) {
           var tick = document.createElement('i');
@@ -875,16 +882,37 @@
           tick.title = t.name + ' · ' + t.md;
           ruler.appendChild(tick);
         });
-        ruler.setAttribute('aria-label', '二十四节气刻度，当前是' + info.name + '（' + info.md + '）');
 
+        // 左：今天几号、星期几
         var nowEl = document.getElementById('term-now');
-        if (nowEl) nowEl.textContent = info.name + ' · ' + info.md;
+        if (nowEl) {
+          nowEl.innerHTML =
+            '<span class="term-today-tag">今天</span>'
+            + '<span class="term-today-date">' + (today.getMonth() + 1) + '月' + today.getDate() + '日</span>'
+            + '<span class="term-today-week">' + WEEK[today.getDay()] + '</span>';
+        }
 
+        // 右：上一个节气已经过去几天 + 下一个节气还有几天（今天正好是节气当天时说「今天立冬」）
+        var prevText = info.since === 0
+          ? ('今天 <b>' + info.name + '</b>')
+          : ('<b>' + info.name + '</b> 已过 <em>' + info.since + '</em> 天');
+        var nextText = info.next.days === 1
+          ? ('明天 <b>' + info.next.name + '</b>')
+          : ('距 <b>' + info.next.name + '</b> <em>' + info.next.days + '</em> 天');
         var nextEl = document.getElementById('term-next');
         if (nextEl) {
-          nextEl.textContent = info.next.days === 0
-            ? '明天 ' + info.next.name
-            : '距' + info.next.name + ' ' + info.next.days + ' 天';
+          nextEl.innerHTML =
+            '<span class="term-gap is-prev">' + prevText + '</span>'
+            + '<span class="term-gap-sep" aria-hidden="true">·</span>'
+            + '<span class="term-gap is-next">' + nextText + '</span>';
+          nextEl.title = info.name + ' ' + info.md + ' → ' + info.next.name + ' ' + info.next.md;
+        }
+
+        var strip = document.getElementById('term-strip');
+        if (strip) {
+          strip.setAttribute('aria-label',
+            '今天是' + (today.getMonth() + 1) + '月' + today.getDate() + '日，' + info.name
+            + '已过 ' + info.since + ' 天，距' + info.next.name + ' ' + info.next.days + ' 天');
         }
 
         var tipEl = document.getElementById('term-tip');
