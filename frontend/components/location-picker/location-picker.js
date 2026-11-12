@@ -113,12 +113,10 @@
    * 国内访问 nominatim.openstreetmap.org 基本是超时，用户只能看到一串经纬度；
    * 后端接的是国内服务商，能返回到小区/村级的中文地名，key 也不会落到浏览器里。
    */
-  function reverseGeocode(lat, lon, cb, refine) {
+  function reverseGeocode(lat, lon, cb) {
     var controller = typeof AbortController !== 'undefined' ? new AbortController() : null;
-    // refine 要等上游把小区/村名查完，超时得比它自己的 7 秒宽
-    var timer = setTimeout(function () { if (controller) controller.abort(); }, refine ? 12000 : 6000);
-    var url = GEO_API + '?lat=' + encodeURIComponent(lat) + '&lon=' + encodeURIComponent(lon)
-      + (refine ? '&refine=1' : '');
+    var timer = setTimeout(function () { if (controller) controller.abort(); }, 6000);
+    var url = GEO_API + '?lat=' + encodeURIComponent(lat) + '&lon=' + encodeURIComponent(lon);
     fetch(url, { signal: controller ? controller.signal : undefined })
       .then(function (r) { clearTimeout(timer); if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
       .then(function (res) {
@@ -337,21 +335,9 @@
       if (place) {
         if (el) el.textContent = place.displayName;
       } else if (el) {
-        el.textContent = '该位置暂无法识别地名，可直接确认后手动填写地点';
+        el.textContent = '该位置不在已收录范围内（境外或海域），可直接确认后手动填写地点';
       }
       setConfirmBusy(false);
-      // 快速结果来自离线库，只到省/市/县；后台再补一刀，能查到小区/村名就悄悄换掉。
-      // 不占确认按钮，也不改经纬度，查不到就保持原样。
-      if (place && place.source === 'local') {
-        reverseGeocode(lat, lon, function (better) {
-          if (token !== geoToken) return;                 // 用户已经拖到别处了
-          if (!better || better.source === 'local') return;
-          if (confirmBusy) return;                        // 用户正在确认，别改他看到的字
-          currentPlace = better;
-          var box = document.getElementById('map-info');
-          if (box) box.textContent = better.displayName;
-        }, true);
-      }
     });
   }
 

@@ -100,6 +100,9 @@ public final class CnGazetteer {
         boolean useCounty = near != null
                 && (kd <= 8 || (rural && kd <= COUNTY_MAX_KM));
         String district = useCounty ? near.name() : "";
+        // 「乌鲁木齐市」旁边就是「乌鲁木齐县」，同一块地方拼两遍像结巴；
+        // 去掉行政后缀再比，重名就只报市
+        if (!district.isEmpty() && core(district).equals(core(city.name()))) district = "";
         // 直辖市的省名就是市名，拼一次即可，避免「北京市北京市」
         StringBuilder sb = new StringBuilder(province);
         if (!province.equals(city.name())) sb.append(city.name());

@@ -75,35 +75,21 @@ public final class GeoResolver {
 
     /** 单次上游超时。超过就降级，不阻塞用户确认标点。 */
     private static final int UPSTREAM_TIMEOUT_MS = 2_500;
-    /**
-     * Photon 单独放宽到 7 秒：它从国内访问常态就要 5~7 秒（DNS/TLS 只占 1 秒，
-     * 大头是首字节）。它现在只在离线库覆盖不到（境外）时才被调用，
-     * 这时候慢一点也比直接告诉用户「识别不了」强。
-     */
-    private static final int PHOTON_TIMEOUT_MS = 7_000;
 
     /**
-     * refine 是「慢慢查」的请求，HTTP 线程池只有 8 个，不能被它占满：
-     * 同时最多 2 个在等 Photon，多出来的直接返回离线结果。
+     * 逆地理只有两条路，都要快：
+     *   1) 配了腾讯/高德 key → 用服务商结果（能到门牌/POI，最准）；
+     *   2) 没 key → 查项目内的离线省市县库（毫秒级、不联网）。
+     *
+     * 曾经在这里挂过 Photon 兜底：它虽然免 key 也能到村/小区，但从国内访问
+     * 首字节要 5~7 秒、且经常直接超时，用户标个点要干等十几秒才看到地名，
+     * 体验比「只有省市区」差得多，所以主链路不再调用它，任何点都是百毫秒内返回。
      */
-    private static final java.util.concurrent.Semaphore REFINE_SLOTS =
-            new java.util.concurrent.Semaphore(2);
-
     public static Place resolve(double lat, double lon) {
-        return resolve(lat, lon, false);
-    }
-
-    /**
-     * @param refine true 表示「我不着急，要最细的地名」：肯为 Photon 的 7 秒买单。
-     *               前端先用快速结果把地名填上，再带 refine=1 补一刀，
-     *               拿到小区/村名就替换——这样既不会卡住确认，也不至于永远只有市级。
-     */
-    public static Place resolve(double lat, double lon, boolean refine) {
         String key = String.format(Locale.ROOT, "%.6f,%.6f", lat, lon);
         Entry hit = CACHE.get(key);
         if (hit != null && hit.expireAtMs() > System.currentTimeMillis()) {
-            // 缓存里已经是精确结果时直接给；只有市级结果时才值得为 refine 再等一次
-            if (!refine || !"local".equals(hit.place().source())) return hit.place();
+            return hit.place();
         }
 
         Place place = null;
@@ -115,24 +101,10 @@ public final class GeoResolver {
             Place amap = amap(lat, lon, AppConfig.geoAmapKey());
             if (amap != null && amap.known()) place = amap;
         }
-        // refine 请求愿意等 Photon：它基于 OSM，能到小区/村一级，这是离线库给不了的精度
-        if (refine && (place == null || !place.known()) && REFINE_SLOTS.tryAcquire()) {
-            try {
-                Place photon = photon(lat, lon);
-                if (photon != null && photon.known()) place = photon;
-            } finally {
-                REFINE_SLOTS.release();
-            }
-        }
         // 没有 key 也必须有地名：离线库覆盖全国省市县，毫秒级、不联网、不会超时
         if (place == null || !place.known()) {
             Place local = CnGazetteer.resolve(lat, lon);
             if (local != null && local.known()) place = local;
-        }
-        // 离线库覆盖不到（境外、远海）才去问 Photon —— 它免注册但没有国内节点
-        if ((place == null || !place.known()) && !refine) {
-            Place photon = photon(lat, lon);
-            if (photon != null && photon.known()) place = photon;
         }
         if (place == null) place = Place.unknown();
 
@@ -452,17 +424,10 @@ public final class GeoResolver {
             "amenity", "shop", "tourism", "leisure", "office", "landuse", "railway", "man_made", "historic");
 
     /**
-     * Photon 是 Komoot 提供的免费 OSM 检索服务，不需要注册、不需要 key。
-     * 实测国内可直连（Nominatim 同源但被墙），这是目前唯一「零门槛」的中文地名来源。
-     * 数据是 OSM 众包的：城市里小区覆盖尚可，偏远农田常常只有路名，
-     * 所以按「小区 > 片区 > 楼宇 > POI > 道路」打分，再按距离扣分。
+     * 解析 Photon 的返回。方法保留是因为它的打分逻辑（小区 > 片区 > 楼宇 > POI > 道路）
+     * 仍是「有 key 时怎么从多个候选里挑最像地址的那个」的参考实现；
+     * 主链路已不再请求 Photon（见 resolve 的注释）。
      */
-    private static Place photon(double lat, double lon) {
-        String url = "https://photon.komoot.io/reverse?lat=" + fmt6(lat) + "&lon=" + fmt6(lon)
-                + "&limit=8&radius=2";
-        return parsePhoton(photonGet(url, PHOTON_TIMEOUT_MS), lat, lon);
-    }
-
     static Place parsePhoton(Map<String, Object> root, double lat, double lon) {
         List<?> features = list(root, "features");
         if (features == null || features.isEmpty()) return null;
@@ -547,9 +512,9 @@ public final class GeoResolver {
         if (lat != 0 || lon != 0) {
             url += "&lat=" + fmt6(lat) + "&lon=" + fmt6(lon);
         }
-        // 搜索框是用户主动触发的，等 7 秒也比返回「搜索服务暂不可用」强：
-        // Photon 从国内访问常态 5~7 秒，2.5 秒的上游超时会让搜索永远空手而归
-        Map<String, Object> root = photonGet(url, PHOTON_TIMEOUT_MS);
+        // 搜索框是用户主动触发的，但也不能让它转太久：Photon 从国内基本等不到，
+        // 2.5 秒拿不到就返回空，前端提示「换个说法」比一直转圈好
+        Map<String, Object> root = photonGet(url, UPSTREAM_TIMEOUT_MS);
         java.util.List<Suggestion> out = new java.util.ArrayList<>();
         List<?> features = list(root, "features");
         if (features == null) return out;
