@@ -105,6 +105,71 @@ public final class GeoResolver {
         return CACHE.size();
     }
 
+    // ---------------- IP 粗定位 ----------------
+
+    /** IP 定位结果。只到城市级，农事日历这个精度够用。 */
+    public record IpLocation(double lat, double lon, String city, String region, String ip) {
+    }
+
+    private record IpEntry(IpLocation loc, long expireAtMs) {
+    }
+
+    private static final Map<String, IpEntry> IP_CACHE = new ConcurrentHashMap<>();
+    /** IP 与位置的对应关系稳定，但为避免用户换网后一直错，只缓存一小时 */
+    private static final int IP_TTL_SECONDS = 3_600;
+
+    /**
+     * 站点是 http://，浏览器不会给 navigator.geolocation（非安全上下文），
+     * 前端只剩 IP 粗定位一条路；而浏览器直连 ipinfo.io 在国内时通时断，
+     * 所以由后端代查并缓存。内网/本机地址（nginx 同机代理、本机调试）查出口位置。
+     */
+    public static IpLocation ipLocate(String ip) {
+        String target = (ip == null || ip.isBlank() || isPrivateIp(ip)) ? "" : ip.trim();
+        String cacheKey = target.isEmpty() ? "@self" : target;
+        IpEntry hit = IP_CACHE.get(cacheKey);
+        if (hit != null && hit.expireAtMs() > System.currentTimeMillis()) {
+            return hit.loc();
+        }
+
+        String url = target.isEmpty()
+                ? "https://ipinfo.io/json"
+                : "https://ipinfo.io/" + enc(target) + "/json";
+        Map<String, Object> root = getJson(url);
+        IpLocation loc = null;
+        if (root != null) {
+            String[] parts = str(root, "loc").split(",");
+            if (parts.length == 2) {
+                try {
+                    double la = Double.parseDouble(parts[0].trim());
+                    double lo = Double.parseDouble(parts[1].trim());
+                    if (valid(la, lo)) {
+                        loc = new IpLocation(la, lo, str(root, "city"), str(root, "region"), target);
+                    }
+                } catch (NumberFormatException ignored) {
+                    // loc 字段异常就当没查到，前端会提示手动填写
+                }
+            }
+        }
+        IP_CACHE.put(cacheKey, new IpEntry(loc, System.currentTimeMillis() + IP_TTL_SECONDS * 1000L));
+        return loc;
+    }
+
+    private static boolean isPrivateIp(String ip) {
+        if (ip.startsWith("10.") || ip.startsWith("192.168.") || ip.startsWith("127.")
+                || ip.equals("::1") || ip.startsWith("fe80:") || ip.startsWith("169.254.")) {
+            return true;
+        }
+        if (ip.startsWith("172.")) {
+            try {
+                int second = Integer.parseInt(ip.substring(4, ip.indexOf('.', 4)));
+                return second >= 16 && second <= 31;
+            } catch (Exception e) {
+                return false;
+            }
+        }
+        return false;
+    }
+
     // ---------------- 关键字搜索 ----------------
 
     /**

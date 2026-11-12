@@ -161,16 +161,32 @@
   }
 
   function getLocationByIP() {
+    // 站点是 http://，浏览器没有 geolocation，IP 粗定位是唯一出路；
+    // 而浏览器直连 ipinfo.io 在国内时通时断，所以先走后端代查，失败再直连兜底。
+    return fetchIpApi('/api/geo/ip', 4000).then(function (r) {
+      if (r) return r;
+      return fetchIpApi('https://ipinfo.io/json', 5000);
+    });
+  }
+
+  /** 同时兼容两种返回：/api/geo/ip 的 {lat, lon} 与 ipinfo.io 的 {loc: "lat,lon"} */
+  function fetchIpApi(url, timeoutMs) {
     return new Promise(function (resolve) {
       var controller = new AbortController();
-      var timer = setTimeout(function () { controller.abort(); }, 5000);
-      fetch('https://ipinfo.io/json', { signal: controller.signal })
-        .then(function (r) { clearTimeout(timer); return r.json(); })
-        .then(function (data) {
+      var timer = setTimeout(function () { controller.abort(); }, timeoutMs);
+      fetch(url, { signal: controller.signal })
+        .then(function (r) { clearTimeout(timer); if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+        .then(function (body) {
+          var data = (body && body.data && typeof body.data === 'object') ? body.data : body;
+          var lat = parseFloat(data && data.lat);
+          var lon = parseFloat(data && data.lon);
+          if (isFinite(lat) && isFinite(lon)) { resolve({ lat: lat, lon: lon }); return; }
           if (data && data.loc) {
-            var parts = data.loc.split(',');
+            var parts = String(data.loc).split(',');
             resolve({ lat: parseFloat(parts[0]), lon: parseFloat(parts[1]) });
-          } else { resolve(null); }
+            return;
+          }
+          resolve(null);
         })
         .catch(function () { clearTimeout(timer); resolve(null); });
     });

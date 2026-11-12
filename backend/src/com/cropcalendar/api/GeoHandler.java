@@ -37,9 +37,41 @@ public class GeoHandler implements HttpHandler {
             handleSearch(ex);
         } else if (path.endsWith("/suitability")) {
             handleSuitability(ex);
+        } else if (path.endsWith("/ip")) {
+            handleIp(ex);
         } else {
             handleReverse(ex);
         }
+    }
+
+    /**
+     * GET /api/geo/ip —— 城市级粗定位（经纬度 + 城市名）。
+     * 站点是 http://，浏览器不给 navigator.geolocation（非安全上下文），
+     * 前端只剩 IP 定位；而浏览器直连 ipinfo.io 在国内不稳定，由后端代查并缓存。
+     */
+    private void handleIp(HttpExchange ex) throws IOException {
+        GeoResolver.IpLocation loc = GeoResolver.ipLocate(clientIp(ex));
+        String data = loc == null
+                ? Json.obj()
+                : Json.obj(
+                        "lat", String.valueOf(loc.lat()),
+                        "lon", String.valueOf(loc.lon()),
+                        "city", Json.str(loc.city()),
+                        "region", Json.str(loc.region()),
+                        "ip", Json.str(loc.ip()));
+        HttpSupport.write(ex, 200, Json.obj(
+                "code", "0",
+                "message", Json.str("ok"),
+                "data", data));
+    }
+
+    private static String clientIp(HttpExchange ex) {
+        // nginx 的 proxy_add_x_forwarded_for 是追加不是覆盖，取第一段才是真实客户端
+        String fwd = ex.getRequestHeaders().getFirst("X-Forwarded-For");
+        if (fwd != null && !fwd.isBlank()) {
+            return fwd.split(",")[0].trim();
+        }
+        return ex.getRemoteAddress() == null ? "" : ex.getRemoteAddress().getAddress().getHostAddress();
     }
 
     private void handleReverse(HttpExchange ex) throws IOException {
