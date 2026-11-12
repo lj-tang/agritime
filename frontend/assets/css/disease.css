@@ -27,12 +27,13 @@
 .disease-form .field label { font-size: calc(14.5px * var(--fs, 1)); font-weight: 600; color: var(--ink); }
 .disease-form .field .hint { font-size: calc(12px * var(--fs, 1)); font-weight: 400; color: var(--muted); }
 .disease-form .field select,
-.disease-form .field textarea { width: 100%; font-family: inherit; font-size: calc(15px * var(--fs, 1)); padding: 11px 12px; color: var(--ink);
+.disease-form .field textarea { width: 100%; font-family: inherit; font-size: calc(15px * var(--fs, 1)); color: var(--ink);
   /* 用 background-color 而不是简写：简写会把 common.css 画的下拉箭头一起清掉 */
   background-color: var(--surface); border: 1.5px solid var(--line); border-radius: 10px; box-sizing: border-box; }
-/* 给箭头留位置（箭头定位在 right 10px center） */
-.disease-form .field select { padding-right: 36px; }
-.disease-form .field textarea { resize: vertical; min-height: 96px; line-height: 1.65; }
+/* 下拉框高度用 min-height 撑：写 11px 纵向内边距会把 15px 的字挤成半截。
+   右侧 36px 是给箭头留的位置（箭头定位在 right 10px center） */
+.disease-form .field select { min-height: calc(44px * var(--fs, 1)); padding: 0 36px 0 12px; }
+.disease-form .field textarea { padding: 11px 12px; resize: vertical; min-height: 96px; line-height: 1.65; }
 .disease-form .field select:focus,
 .disease-form .field textarea:focus { outline: none; border-color: var(--leaf-2); background-color: #fff; box-shadow: 0 0 0 3px rgba(63,143,86,0.14); }
 

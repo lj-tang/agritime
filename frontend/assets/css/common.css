@@ -476,7 +476,11 @@ body[data-layout="app"] .content-pane > * {
 
 .field input {
   width: 100%;
-  height: 40px;
+  /* 用 min-height 而不是 height：种植推荐、病害检查、我的地块这些模块会把这条规则的
+     纵向内边距覆盖成 11~12px。写死 height: 40px 时内容区被压到十几像素，
+     15px 的字上下各裁掉一截，看上去只露一半。min-height 保证不低于 40px，
+     内边距变大时高度能跟着长，字号变大（大字模式）也不会裁字。 */
+  min-height: 40px;
   padding: 0 12px;
   font-size: calc(14px * var(--fs, 1));
   font-family: inherit;
@@ -500,7 +504,8 @@ body[data-layout="app"] .content-pane > * {
 /* 地块选择器与输入框保持同一套外观，避免原生 select 在深色行高下显得突兀 */
 .field select {
   width: 100%;
-  height: 40px;
+  /* 同 .field input：不写死 height，否则模块补的纵向内边距会把文字挤出框外 */
+  min-height: 40px;
   padding: 0 12px;
   font-size: calc(14px * var(--fs, 1));
   font-family: inherit;

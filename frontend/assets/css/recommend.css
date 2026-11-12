@@ -14,7 +14,10 @@
 .recommend-form .field label { font-size: calc(14.5px * var(--fs, 1)); font-weight: 600; color: var(--ink); }
 .recommend-form .field .hint { font-size: calc(12px * var(--fs, 1)); font-weight: 400; color: var(--muted); }
 .recommend-form select, .recommend-form input {
-  width: 100%; font-family: inherit; font-size: calc(15px * var(--fs, 1)); padding: 11px 12px; color: var(--ink);
+  width: 100%; font-family: inherit; font-size: calc(15px * var(--fs, 1)); color: var(--ink);
+  /* 高度用 min-height + 0 纵向内边距：靠内边距撑高的话，15px 的字在 40px 框里会被上下裁掉，
+     看上去只露一半。这样文本框和下拉框都是 44px，字自动垂直居中。 */
+  min-height: calc(44px * var(--fs, 1)); padding: 0 12px;
   /* 只改底色，不要用 background 简写：简写会把 common.css 画在 select 上的下拉箭头一并清掉，
      框看着就跟输入框一样，用户不知道能点开 */
   background-color: var(--surface); border: 1.5px solid var(--line); border-radius: 10px; box-sizing: border-box;

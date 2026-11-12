@@ -2819,3 +2819,19 @@ test('V5.5 病害提示：加图标，别让它灰到看不见', () => {
   assert.ok(indexHtml.includes('识别只给候选，需你点一下确认'), '这句是产品诚实的证据，必须保留');
   assert.ok(commonCss.includes('.photo-entry svg'));
 });
+
+test('V5.6 表单控件：字不能被框裁成半截', () => {
+  // 教训：.field input/select 写死 height: 40px，模块再把纵向内边距补成 11~12px，
+  // 内容区就被压到 16px 左右，15px 的中文上下各裁掉一截，界面上看着只露一半字。
+  // 现在统一用 min-height：内边距变大时框能跟着长高，大字模式放大字号也不会裁字。
+  assert.match(commonCss, /\.field input \{[^}]*min-height: 40px/, '输入框要用 min-height 撑高');
+  assert.match(commonCss, /\.field select \{[^}]*min-height: 40px/, '下拉框要用 min-height 撑高');
+  assert.doesNotMatch(commonCss, /\.field (input|select) \{[^}]*\n\s*height: 40px/, '不能写死 height');
+  assert.match(recommendCss, /\.recommend-form select, \.recommend-form input \{[^}]*padding: 0 12px/,
+    '种植推荐控件不能靠纵向内边距撑高');
+  assert.match(recommendCss, /min-height: calc\(44px \* var\(--fs, 1\)\)/, '框高要随字号一起变');
+  assert.match(diseaseCss, /\.disease-form \.field select \{[^}]*padding: 0 36px 0 12px/,
+    '病害下拉框不能靠纵向内边距撑高，右侧要留出箭头位置');
+  assert.match(diseaseCss, /\.disease-form \.field textarea \{[^}]*padding: 11px 12px/,
+    '文本域是多行控件，内边距照旧');
+});
