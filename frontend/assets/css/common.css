@@ -1606,7 +1606,8 @@ body.split-active .home-pane-back { display: inline-flex; align-items: center; }
   font-size: calc(10.5px * var(--fs, 1));
   font-weight: 600;
   line-height: 1.6;
-  color: var(--brand);
+  /* 浅底上 #16a34a 只有 3:1，10.5px 小字读着虚，用深一档的绿 */
+  color: var(--brand-hover);
   background: var(--brand-soft);
   border-radius: 999px;
   padding: 0 7px;
@@ -1636,11 +1637,13 @@ body.split-active .home-pane-back { display: inline-flex; align-items: center; }
 
 .term-gap { white-space: nowrap; }
 .term-gap b { font-weight: 600; color: var(--ink-soft); }
-/* 天数单独加粗标绿：这两个数字才是用户要的答案 */
+/* 天数单独加粗标绿：这两个数字才是用户要的答案。
+   用 --brand-hover 而不是 --brand：各主题都把它调成了「更清楚的那一档」，
+   浅色下是深绿、深色下是亮绿，两种底都能读。 */
 .term-gap em {
   font-style: normal;
   font-weight: 700;
-  color: var(--brand);
+  color: var(--brand-hover);
   font-variant-numeric: tabular-nums;
 }
 .term-gap.is-next b { color: var(--ink); }
