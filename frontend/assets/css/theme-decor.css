@@ -1,0 +1,136 @@
+/* ============================================================
+   主题装饰层（不参与布局，纯视觉）
+   theme-decor.js 往 body 注入 .theme-decor，按 data-theme 渲染场景：
+     rice     稻花随风     -> light / paddy
+     wheat    麦穗压枝     -> wheat
+     bloom    油菜花       -> rapeseed
+     terrace  梯田水面     -> terra
+     smoke    炊烟袅袅     -> barn
+     windmill 风车转动     -> 旧主题过渡用
+     town     村镇剪影     -> dark / amoled
+   全部用当前主题 CSS 变量着色，随主题自动换色。
+   ============================================================ */
+
+.theme-decor {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.theme-decor .deco-svg { position: absolute; will-change: transform; }
+
+/* ---------- 风车：右下角，叶片慢速旋转 ---------- */
+.theme-decor[data-scene="windmill"] .deco-windmill {
+  right: 3vw;
+  bottom: 0;
+  width: 210px;
+  height: 230px;
+  color: var(--leaf);
+}
+.deco-windmill .deco-blade { fill: var(--leaf-soft); stroke: var(--leaf); stroke-width: 1.4; opacity: 0.9; }
+.deco-windmill .deco-hub { fill: var(--leaf); }
+.deco-windmill .deco-tower { fill: var(--surface-3); stroke: var(--leaf); stroke-width: 1.5; }
+.deco-windmill .deco-ground { fill: var(--surface-2); }
+.deco-spin { transform-box: fill-box; transform-origin: 50% 50%; animation: deco-spin 30s linear infinite; }
+@keyframes deco-spin { to { transform: rotate(360deg); } }
+
+/* ---------- 稻花：右下角，稻穗轻摆 ---------- */
+.theme-decor[data-scene="rice"] .deco-rice {
+  right: 4vw;
+  bottom: 0;
+  width: 180px;
+  height: 210px;
+}
+.deco-rice .deco-stem { fill: none; stroke: var(--leaf-2); stroke-width: 4; stroke-linecap: round; opacity: 0.55; }
+.deco-rice .deco-grain ellipse { fill: var(--sun); opacity: 0.72; }
+.deco-rice .deco-leaf { fill: var(--leaf-2); opacity: 0.35; }
+.deco-sway { transform-box: fill-box; transform-origin: 50% 100%; animation: deco-sway 5.5s ease-in-out infinite alternate; }
+@keyframes deco-sway { from { transform: rotate(-4deg); } to { transform: rotate(4deg); } }
+
+/* ---------- 炊烟：左上角，烟缕缓缓上升 ---------- */
+.theme-decor[data-scene="smoke"] .deco-smoke {
+  left: 2vw;
+  top: 3vh;
+  width: 140px;
+  height: 180px;
+}
+.deco-smoke .deco-smoke-line { fill: none; stroke: var(--muted-strong); stroke-width: 6; stroke-linecap: round; opacity: 0.18; }
+.deco-smoke .deco-smoke-a { animation: deco-rise 7s ease-in-out infinite; }
+.deco-smoke .deco-smoke-b { animation: deco-rise 9s ease-in-out infinite 1.5s; }
+@keyframes deco-rise {
+  0%, 100% { opacity: 0.10; transform: translateY(0); }
+  50% { opacity: 0.30; transform: translateY(-10px); }
+}
+.deco-smoke .deco-house { fill: var(--surface-3); stroke: var(--line); stroke-width: 1.2; }
+
+/* ---------- 城镇：底部天际线 ---------- */
+.theme-decor[data-scene="town"] .deco-town {
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  height: 140px;
+}
+.deco-town path { fill: var(--surface-3); opacity: 0.55; }
+.deco-town .deco-window { fill: var(--sun); opacity: 0.55; }
+.deco-town .deco-window--twinkle { animation: deco-twinkle 4s ease-in-out infinite; }
+@keyframes deco-twinkle { 0%, 100% { opacity: 0.25; } 50% { opacity: 0.75; } }
+
+/* ---------- 星空点缀（深色/纯黑背景通用） ---------- */
+.deco-town .deco-star { fill: var(--muted); opacity: 0.3; animation: deco-twinkle 5s ease-in-out infinite; }
+
+@media (prefers-reduced-motion: reduce) {
+  .deco-spin, .deco-sway, .deco-smoke-a, .deco-smoke-b, .deco-window--twinkle, .deco-star {
+    animation: none !important;
+  }
+}
+
+@media (max-width: 767px) {
+  .theme-decor[data-scene="windmill"] .deco-windmill { width: 130px; height: 145px; }
+  .theme-decor[data-scene="rice"] .deco-rice { width: 120px; height: 140px; }
+  .theme-decor[data-scene="smoke"] .deco-smoke { width: 92px; height: 118px; }
+  .theme-decor[data-scene="town"] .deco-town { height: 96px; }
+}
+/* ---------- 麦穗：右下角，两穗随风轻摆（麦浪金黄主题） ---------- */
+.theme-decor[data-scene="wheat"] .deco-wheat {
+  right: 3vw;
+  bottom: 0;
+  width: 190px;
+  height: 220px;
+}
+.deco-wheat .deco-stem { fill: none; stroke: var(--leaf-2); stroke-width: 4; stroke-linecap: round; opacity: 0.55; }
+.deco-wheat .deco-ear ellipse { fill: var(--sun); opacity: 0.75; }
+.deco-wheat .deco-awn { fill: none; stroke: var(--sun); stroke-width: 2; stroke-linecap: round; opacity: 0.4; }
+
+/* ---------- 油菜花：右下角，四瓣小花（油菜花田主题） ---------- */
+.theme-decor[data-scene="bloom"] .deco-bloom {
+  right: 4vw;
+  bottom: 0;
+  width: 180px;
+  height: 195px;
+}
+.deco-bloom .deco-stem { fill: none; stroke: var(--leaf-2); stroke-width: 3.6; stroke-linecap: round; opacity: 0.5; }
+.deco-bloom .deco-flower circle { fill: var(--sun); opacity: 0.7; }
+.deco-bloom .deco-flower-core { fill: var(--leaf); opacity: 0.6; }
+.deco-bloom .deco-leaf { fill: var(--leaf-2); opacity: 0.32; }
+
+/* ---------- 梯田：底部一层层错开的水面（红壤梯田主题） ---------- */
+.theme-decor[data-scene="terrace"] .deco-terrace {
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  height: 170px;
+}
+.deco-terrace .deco-step { fill: var(--leaf); }
+.deco-terrace .deco-step-1 { opacity: 0.06; }
+.deco-terrace .deco-step-2 { opacity: 0.1; }
+.deco-terrace .deco-step-3 { opacity: 0.14; }
+
+@media (max-width: 767px) {
+  .theme-decor[data-scene="wheat"] .deco-wheat { width: 130px; height: 150px; }
+  .theme-decor[data-scene="bloom"] .deco-bloom { width: 120px; height: 130px; }
+  .theme-decor[data-scene="terrace"] .deco-terrace { height: 110px; }
+}

@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8" />
-  <script>(function(){try{var t=localStorage.getItem('agritime.theme')||'system';var d=(t==='system'?(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'):t);document.documentElement.setAttribute('data-theme',d);document.documentElement.style.colorScheme=d;}catch(e){document.documentElement.setAttribute('data-theme','light');}})();</script>
+  <script>(function(){try{var t=localStorage.getItem('agritime.theme')||'system';if(t==='ocean'||t==='forest')t='paddy';else if(t==='sunset')t='wheat';else if(t==='sepia')t='barn';var d=(t==='system'?(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'):t);document.documentElement.setAttribute('data-theme',d);document.documentElement.style.colorScheme=d;}catch(e){document.documentElement.setAttribute('data-theme','light');}})();</script>
   <!-- 大字模式在首帧前生效，避免页面先小字再放大 -->
   <script>(function(){try{if(localStorage.getItem('agritime.fontscale')==='large'){document.documentElement.setAttribute('data-font','large');}else{document.documentElement.setAttribute('data-font','normal');}}catch(e){}})();</script>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover" />
@@ -12,6 +12,7 @@
   <link rel="stylesheet" href="../assets/css/common.css" />
   <link rel="stylesheet" href="../assets/css/auth.css" />
   <link rel="stylesheet" href="../assets/css/theme-dark.css" />
+  <link rel="stylesheet" href="../assets/css/theme-decor.css" />
 </head>
 <body class="auth-body">
 
@@ -120,6 +121,7 @@
   </div>
 
   <script src="../assets/js/theme.js"></script>
+  <script src="../assets/js/theme-decor.js"></script>
   <script src="../assets/js/icons.js"></script>
   <script src="../assets/js/prefs.js"></script>
   <script src="../assets/js/ui-state.js"></script>

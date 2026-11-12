@@ -2835,3 +2835,41 @@ test('V5.6 表单控件：字不能被框裁成半截', () => {
   assert.match(diseaseCss, /\.disease-form \.field textarea \{[^}]*padding: 11px 12px/,
     '文本域是多行控件，内边距照旧');
 });
+
+test('V5.7 外观主题：九块地，各长各的庄稼', () => {
+  const themeJs = read(path.resolve(__dirname, '..', 'assets', 'js', 'theme.js'));
+  const userChipJs = read(path.resolve(__dirname, '..', 'assets', 'js', 'user-chip.js'));
+  const decorJs = read(path.resolve(__dirname, '..', 'assets', 'js', 'theme-decor.js'));
+  const common = read(path.join(CSS, 'common.css'));
+
+  // 五个农业主题：theme.js 认得，common.css 有对应配色
+  ['paddy', 'wheat', 'rapeseed', 'terra', 'barn'].forEach((id) => {
+    assert.ok(themeJs.includes("'" + id + "'"), '主题清单应含 ' + id);
+    assert.ok(common.includes(':root[data-theme="' + id + '"]'), '缺少 ' + id + ' 的配色变量块');
+  });
+  // 老主题的偏好不能丢：ocean/forest→paddy、sunset→wheat、sepia→barn
+  assert.match(themeJs, /ocean: 'paddy'/, '海洋主题应并入稻田晨雾');
+  assert.match(themeJs, /forest: 'paddy'/, '森林主题应并入稻田晨雾');
+  assert.match(themeJs, /sunset: 'wheat'/, '秋收主题应并入麦浪金黄');
+  assert.match(themeJs, /sepia: 'barn'/, '暖纸主题应并入谷仓木纸');
+  assert.ok(themeJs.includes('LEGACY[pref]') && themeJs.includes('LEGACY[v]'),
+    '读取与解析都要走迁移表，否则老用户会被打回浅色');
+
+  // 面板上九个名字都是农事意象，不再是 浅色/深色/海洋 这种通用色名
+  ['稻米白', '稻田晨雾', '麦浪金黄', '油菜花田', '红壤梯田', '谷仓木纸', '夜田墨绿', '黑土深夜', '跟随系统']
+    .forEach((label) => assert.ok(userChipJs.includes(label), '缺少主题「' + label + '」'));
+  assert.ok(!userChipJs.includes("label: '海洋'"), '不该再出现「海洋」这种通用色名');
+  // 色卡换成场景缩略图，配色取自该主题自己的变量
+  assert.ok(userChipJs.includes("'theme-thumb'"), '色卡应该是场景缩略图');
+  assert.ok(userChipJs.includes('function art('), '缩略图按场景生成');
+  assert.ok(userChipJs.includes("colors[3]"), '穗粒/花瓣要用比主色更亮的作物色');
+  assert.ok(common.includes('.theme-thumb svg'), '缩略图要撑满卡片');
+  assert.ok(common.includes('.theme-card.is-active::after'), '选中要有标记');
+
+  // 装饰层：每个主题都映射到场景，不能全落到稻花上
+  ['light', 'paddy', 'wheat', 'rapeseed', 'terra', 'barn', 'dark', 'amoled'].forEach((id) => {
+    assert.match(decorJs, new RegExp(id + ": '[a-z]+'"), '装饰层缺少 ' + id + ' 的场景映射');
+  });
+  assert.ok(decorJs.includes("bloom: BLOOM") && decorJs.includes("terrace: TERRACE"),
+    '油菜花与梯田要有各自的场景');
+});
