@@ -233,33 +233,69 @@ public final class GeoFactors {
     }
 
     /**
-     * 坐标是不是落在城镇建成区。
+     * 坐标离城镇建成区有多近。
      *
      * 为什么用行政区划距离而不是 OSM landuse：这台服务器访问 overpass-api.de 与
      * nominatim 全部超时（实测 25s 无响应）、高德又没配 key，靠外部数据只会得到
-     * "一直 unknown"，等于没做。改成用本地区划库：
-     *   · 落在「市辖区」且距区政府驻地 ≤ 3 公里 → 城区
-     *   · 距地级市中心 ≤ 5 公里 → 城区
-     * 这两条覆盖的是"人民广场/天安门"这类真正的建成区核心；
-     * 城郊的农场（离市中心 10 公里以上、离镇区几公里）不会被误伤。
+     * "一直 unknown"，等于没做。
+     *
+     * 但"离政府驻地几公里"和"是不是农用地"不是一回事，所以这里分三档而不是一刀切：
+     *   core  距市中心 ≤2.5 公里（或紧贴区驻地且本就在主城范围内）—— 基本是建成区核心
+     *   edge  距市中心 ≤6 公里，或距市辖区驻地 ≤3 公里 —— 城郊结合部，可能仍是菜地
+     *   rural 其余
+     *
+     * 第一版把 core 定在 5 公里 / 3 公里，实测把县城边上的大棚、城郊菜地全判成了城区
+     * （县级市 GeoNames 坐标本身还有几公里误差），等于在真正种地的人身上设卡。
+     * 现在的原则是：只有 core 才拦，edge 只提示，且前端永远留"仍按这里生成"的口子。
      */
-    public record Urban(boolean urban, String label, double cityKm, double districtKm) {
+    public record Urban(String level, String label, String hint, double cityKm, double districtKm) {
+        /** 兼容旧调用：只有 core 才算"不能作为农用地"。 */
+        public boolean urban() {
+            return "core".equals(level);
+        }
     }
+
+    /** core：建成区核心，默认拦。只认真正贴着市中心的点 */
+    private static final double CORE_CITY_KM = 2.5;
+    /** 区驻地单独不足以判核心：杨凌这类"区中心就是农田"的地方会被误伤，所以还要求不离主城 */
+    private static final double CORE_DISTRICT_KM = 1.0;
+    private static final double CORE_MAX_CITY_KM = 15.0;
+    /** edge：靠近城区，只提示不拦 */
+    private static final double EDGE_CITY_KM = 6.0;
+    private static final double EDGE_DISTRICT_KM = 3.0;
+    private static final double EDGE_MAX_CITY_KM = 20.0;
 
     public static Urban urbanCheck(double lat, double lon) {
         CnGazetteer.Nearest n = CnGazetteer.nearest(lat, lon);
         if (n == null) return null;
         String city = n.city() == null ? "" : n.city();
         String dist = n.district() == null ? "" : n.district();
-        if (n.urbanDistrict() && n.districtKm() >= 0 && n.districtKm() <= 3) {
-            return new Urban(true, dist + "驻地 " + fmtKm(n.districtKm()) + " 公里内（城区）",
+        boolean hasD = n.urbanDistrict() && n.districtKm() >= 0;
+
+        // 哪条距离更近就用哪条来措辞，避免说"距区驻地 0.4 公里"却其实是市中心
+        boolean coreCity = n.cityKm() <= CORE_CITY_KM;
+        boolean coreDist = hasD && n.districtKm() <= CORE_DISTRICT_KM
+                && n.cityKm() <= CORE_MAX_CITY_KM;
+        if (coreCity || coreDist) {
+            String label = (coreDist && n.districtKm() < n.cityKm())
+                    ? dist + "驻地 " + fmtKm(n.districtKm()) + " 公里内"
+                    : city + "市中心 " + fmtKm(n.cityKm()) + " 公里内";
+            return new Urban("core", label,
+                    "这里是城镇建成区核心，通常不是农用地；阳台、屋顶等非耕地种植请忽略此提示",
                     n.cityKm(), n.districtKm());
         }
-        if (n.cityKm() <= 5) {
-            return new Urban(true, city + "市中心 " + fmtKm(n.cityKm()) + " 公里内（城区）",
+        boolean edgeCity = n.cityKm() <= EDGE_CITY_KM;
+        boolean edgeDist = hasD && n.districtKm() <= EDGE_DISTRICT_KM
+                && n.cityKm() <= EDGE_MAX_CITY_KM;
+        if (edgeCity || edgeDist) {
+            String label = (edgeDist && n.districtKm() < n.cityKm())
+                    ? "距" + dist + "驻地 " + fmtKm(n.districtKm()) + " 公里"
+                    : "距" + city + "市中心 " + fmtKm(n.cityKm()) + " 公里";
+            return new Urban("edge", label,
+                    "靠近城镇建成区，若这里是城郊菜地、大棚或庭院，可以照常生成",
                     n.cityKm(), n.districtKm());
         }
-        return new Urban(false, "", n.cityKm(), n.districtKm());
+        return new Urban("rural", "", "", n.cityKm(), n.districtKm());
     }
 
     private static String fmtKm(double km) {

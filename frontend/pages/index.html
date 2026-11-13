@@ -136,10 +136,14 @@
             <!-- 只在"本地种不熟"这类结论场景出现，平时不占位 -->
             <span class="sow-auto-main" id="sow-auto-main" hidden></span>
             <span class="sow-auto-sub" id="sow-auto-sub"></span>
+            <!-- 城郊结合部：只提示，不打断（城里阳台、县城边大棚都是真实场景） -->
+            <span class="sow-auto-urban" id="sow-auto-urban" hidden></span>
           </div>
           <button type="button" class="sow-auto-edit" id="sow-auto-edit">手动指定</button>
           <!-- 只在"本地露地种不熟"时出现：不推荐你种，但想看日历仍然可以看 -->
           <button type="button" class="sow-auto-edit sow-auto-force" id="sow-auto-force" hidden>看参考日历</button>
+          <!-- 标点落在建成区核心时出现：说清理由，但把决定权留给用户 -->
+          <button type="button" class="sow-auto-edit sow-auto-force" id="sow-auto-urban-force" hidden>仍按这里生成</button>
         </div>
         <!-- 备用：想自己定播期的人仍然可以展开，不剥夺控制权 -->
         <div class="sow-manual" id="sow-manual" hidden>
@@ -878,6 +882,7 @@
         // 霜期内的育苗说明必须让用户看见：否则"建议 1 月 1 日播种"会被当成能露地撒种
         if (info.note && info.note.indexOf('育苗') >= 0) bits.push(info.note);
         sub.textContent = bits.join(' · ');
+        renderUrbanEdge();
         if (box) {
           box.classList.add('is-ready');
           box.classList.toggle('is-estimated', w.precision === 'season-rule');
@@ -1299,6 +1304,23 @@
             var hint = document.getElementById('term-sow-hint');
             if (hint) hint.hidden = true;
           }
+        });
+      }
+
+      // 建成区提示只是"问一句"，不是"不许"：用户按住这块地，就按这块地算
+      var urbanForceBtn = document.getElementById('sow-auto-urban-force');
+      if (urbanForceBtn) {
+        urbanForceBtn.addEventListener('click', function () {
+          var p = window.__urbanPending;
+          urbanForceBtn.hidden = true;
+          if (!p) return;
+          var ll = currentLL(p.cropName);
+          window.__urbanConfirmed = ll.lat + ',' + ll.lon;
+          window.__urbanPending = null;
+          window.__urbanEdge = null;
+          var urbanEl = document.getElementById('sow-auto-urban');
+          if (urbanEl) { urbanEl.hidden = true; urbanEl.textContent = ''; }
+          runSowCheck(p.cropName, p.location, p.sowDate, p.termInfo);
         });
       }
 
@@ -1864,58 +1886,100 @@
        * 明显不成立的直接拦住 —— 排一份排得整整齐齐的假计划，比不排更糟。
        */
       /**
-       * 精确坐标（地图标点 / 我的地块）先确认不是城镇建成区。
-       * 在小区里排一份"适宜播种"的日历，比直接说"这儿不能种"更误导。
-       * 只有 OSM 明确判定"点落在居民区/商业区/工业区多边形内"才拦；
-       * 上游超时或没数据一律放行 —— 不能因为第三方挂了就把人挡在门外。
+       * 精确坐标（地图标点 / 我的地块）先看离建成区有多近。
+       *
+       * 三档，而不是"是/不是"：
+       *   core   建成区核心 → 停下来问一句，但留「仍按这里生成」的出口
+       *   edge   城郊结合部 → 照常生成，只在卡片上提一句
+       *   rural  农村 → 什么都不说
+       * 第一版把 edge 也算城区直接拦，结果县城边上的大棚、城郊菜地全被挡在外面。
+       * 城里阳台种菜、县郊搭棚都是真实需求，判断权应该留给用户。
        */
       function checkSowThenGo(cropName, location, sowDate, termInfo) {
-        var precise = !!(window.__markerLatLon || window.__timelinePlotId);
-        if (!precise) { runSowCheck(cropName, location, sowDate, termInfo); return; }
+        // 只有用户亲手标的点（src=map）和地块才算精确位置。
+        // 浏览器/IP 定位给的是城市级中心点，用户在家打开页面就落在"市中心"，
+        // 拿它判建成区会把所有用定位的人都挡在门外 —— 这是上一版最要命的误伤。
+        var mk = window.__markerLatLon;
+        var precise = !!((mk && mk.src === 'map') || window.__timelinePlotId);
+        if (!precise) { window.__urbanEdge = null; runSowCheck(cropName, location, sowDate, termInfo); return; }
         var ll = currentLL(cropName);
+        // 用户已经对这块地按过「仍按这里生成」，同一坐标不再问第二遍
+        if (window.__urbanConfirmed === (ll.lat + ',' + ll.lon)) {
+          window.__urbanEdge = null;
+          runSowCheck(cropName, location, sowDate, termInfo);
+          return;
+        }
         var controller = new AbortController();
         var timer = setTimeout(function () { controller.abort(); }, 6000);
         fetch('/api/geo/landuse?lat=' + ll.lat + '&lon=' + ll.lon, { signal: controller.signal })
           .then(function (r) { clearTimeout(timer); return r.ok ? r.json() : null; })
           .then(function (b) {
             var d = (b && b.data) || {};
-            if (d.known && d.urban) { showUrbanBlock(d.landUseLabel || '城镇建成区'); return; }
+            var level = d.level || (d.known && d.urban ? 'core' : 'rural');
+            if (level === 'core') {
+              showUrbanBlock(d.label || '城镇建成区', d.hint || '', {
+                cropName: cropName, location: location, sowDate: sowDate, termInfo: termInfo
+              });
+              return;
+            }
+            window.__urbanEdge = (level === 'edge' && d.label) ? d.label : null;
             runSowCheck(cropName, location, sowDate, termInfo);
           })
-          .catch(function () { clearTimeout(timer); runSowCheck(cropName, location, sowDate, termInfo); });
+          .catch(function () {
+            clearTimeout(timer);
+            window.__urbanEdge = null;
+            runSowCheck(cropName, location, sowDate, termInfo);
+          });
       }
 
-      /** 城区拦截：这块地不是农用地，不给播期也不给日历。 */
-      function showUrbanBlock(kind) {
+      /** 城郊提示：只挂在播期卡片上，不影响生成。 */
+      function renderUrbanEdge() {
+        var el = document.getElementById('sow-auto-urban');
+        if (!el) return;
+        var note = window.__urbanEdge;
+        if (!note) { el.hidden = true; el.textContent = ''; return; }
+        el.hidden = false;
+        el.textContent = note + '，属城郊结合部。若确实是这块地，播期按此计算即可。';
+      }
+
+      /** 建成区核心：说清依据，把决定权交回用户（不生成、不跳转，只是先问一句）。 */
+      function showUrbanBlock(kind, hint, pending) {
         var main = document.getElementById('sow-auto-main');
         var sub = document.getElementById('sow-auto-sub');
         var box = document.getElementById('sow-auto');
         var btn = document.getElementById('generate-btn');
         if (btn) { btn.disabled = false; delete btn.dataset.busy; }
-        setMetric('window', '适宜播期', '不适用', true);
+        setMetric('window', '适宜播期', '待确认', true);
         setMetric('latest', null, '—', true);
         setMetric('harvest', null, '—', true);
         if (main) {
           main.hidden = false;
-          main.textContent = '这里不是农用地（' + kind + '）';
+          main.textContent = '这里可能在城镇建成区内';
         }
         if (sub) {
-          sub.textContent = '系统按地图标点/地块坐标判断，该位置属于' + kind
-            + '（距市中心或区政府驻地过近），不能作为耕地或塘口。请改用村外的实际地块，或回「我的地块」重新框选。';
+          sub.textContent = '系统按坐标判断：' + kind + '。'
+            + (hint || '若不是耕地或塘口，建议换个位置。');
         }
         if (box) {
           box.classList.add('is-ready');
-          box.classList.add('is-unsuitable');
           box.classList.remove('is-estimated');
+          box.classList.add('is-unsuitable');
         }
         var forceBtn = document.getElementById('sow-auto-force');
         if (forceBtn) { forceBtn.hidden = true; delete forceBtn.dataset.date; }
+        var urbanForce = document.getElementById('sow-auto-urban-force');
+        if (urbanForce) urbanForce.hidden = false;
+        window.__urbanPending = pending || null;
+        var urbanEl = document.getElementById('sow-auto-urban');
+        if (urbanEl) { urbanEl.hidden = true; urbanEl.textContent = ''; }
         var check = document.getElementById('sow-check');
         if (check) check.hidden = true;
         renderRisk();
       }
 
       function runSowCheck(cropName, location, sowDate, termInfo) {
+        var urbanForce0 = document.getElementById('sow-auto-urban-force');
+        if (urbanForce0) urbanForce0.hidden = true;
         // 交给用户一句正在拿哪儿的数据核什么，比只把按钮置灰更让人安心
         showGenLoading('正在核对「' + cropName + '」在' + shortPlace(location) + '能不能种、会不会撞霜…');
         var box = document.getElementById('sow-check');
@@ -2194,7 +2258,8 @@
         locationInput.placeholder = '已按定位填好，可改成更具体的市县';
         // 定位坐标直接用，省掉一次地名解析；submit 时 text 对得上就不会重新解析
         window.__resolvedLL = { lat: d.lat, lon: d.lon, title: d.name, text: d.name };
-        window.__markerLatLon = { lat: d.lat, lon: d.lon };
+        // src=locate：这是城市级粗定位，不代表地块精确位置，不能拿它去判"是不是建成区"
+        window.__markerLatLon = { lat: d.lat, lon: d.lon, src: 'locate' };
       }
       document.addEventListener('weather-located', function (ev) { applyLocatedPlace(ev.detail); });
       if (window.__lastLocation) applyLocatedPlace(window.__lastLocation);

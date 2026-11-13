@@ -167,10 +167,16 @@ public class PlotAnalyzeHandler implements HttpHandler {
 
         // 城区判定用本地区划库，毫秒级、不依赖外部服务；
         // 上面 extended 分支里的 OSM landuse 只作为补充证据。
+        // 只有 core 才影响结论；edge 只加一条低优先级提示 —— 城郊菜地不该被当成小区。
         GeoFactors.Urban urban = GeoFactors.urbanCheck(g.centroidLat, g.centroidLon);
+        boolean urbanEdge = false;
+        String urbanEdgeNote = "";
         if (urban != null && urban.urban()) {
             urbanPlot = true;
             if (urbanKind.isBlank()) urbanKind = "城镇建成区";
+        } else if (urban != null && "edge".equals(urban.level())) {
+            urbanEdge = true;
+            urbanEdgeNote = urban.label();
         }
 
         addTerrainFactor(factors, t, limits, pond);
@@ -210,15 +216,22 @@ public class PlotAnalyzeHandler implements HttpHandler {
 
         String level;
         if (urbanPlot) {
-            level = "不适宜";
-            limits.add(new Limit("urban-land", "落在城镇建成区",
+            // 不再直接判"不适宜"：离政府驻地近只说明它可能在城里，不能证明这块地不能种。
+            // 压到"需注意"并把理由写清楚，剩下的交给用户判断（阳台、屋顶、城郊菜地都真实存在）。
+            level = "需注意";
+            limits.add(new Limit("urban-land", "可能落在城镇建成区",
                     "该坐标位于" + (urbanKind.isBlank() ? "城镇建成区" : urbanKind)
-                            + "，不是农用地，不能作为耕地或塘口使用；请改到村外的实际地块", 3));
+                            + "。若这是村外耕地、大棚或鱼塘，可忽略本条；若确在小区/厂区里，不建议作为农用地", 3));
         }
         else if (score >= 85) level = "适宜";
         else if (score >= 70) level = "较适宜";
         else if (score >= 55) level = "一般";
         else level = "需注意";
+
+        if (urbanEdge) {
+            limits.add(new Limit("urban-edge", "靠近城镇建成区",
+                    urbanEdgeNote + "，处于城郊结合部。若周边已是建成区，注意灌溉水源与地块权属", 1));
+        }
 
         List<String> fj = new ArrayList<>();
         for (Factor f : factors) {

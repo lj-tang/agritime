@@ -546,7 +546,8 @@
   /** 进日历时把地点和地块都带上，用户不用再填一遍 */
   function goCalendar(r) {
     var resolved = locState.lat != null && locState.lon != null;
-    if (resolved) window.__markerLatLon = { lat: locState.lat, lon: locState.lon };
+    // src=locate：推荐页给的是"地区"，不是地块，别拿它去判建成区
+    if (resolved) window.__markerLatLon = { lat: locState.lat, lon: locState.lon, src: 'locate' };
     var plot = plotContext();
 
     if (window.Sidebar && window.Sidebar.switchModule) window.Sidebar.switchModule('calendar');

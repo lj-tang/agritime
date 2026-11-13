@@ -48,10 +48,11 @@ public class GeoHandler implements HttpHandler {
     }
 
     /**
-     * GET /api/geo/landuse?lat=&lon= —— 这个坐标是不是城镇建成区。
+     * GET /api/geo/landuse?lat=&lon= —— 这个坐标离城镇建成区有多近。
      *
-     * 用 OSM 的 landuse 多边形做点面判定，只有"点确实落在居民区/商业区/工业区里"才判城区；
-     * 取不到数据时返回 known=false，前端据此**不拦截**（宁可放过，不能因为上游超时把人挡在门外）。
+     * 返回 level：core（建成区核心）/ edge（靠近城区）/ rural（农村）。
+     * 只有 core 的 urban=true —— 前端据此拦一次，并给出"仍按这里生成"的出口；
+     * edge 只做提示。不返回三档的话，前端只能一刀切，城郊菜地会被误伤。
      */
     private void handleLandUse(HttpExchange ex) throws IOException {
         Map<String, String> q = HttpSupport.query(ex.getRequestURI().getRawQuery());
@@ -67,13 +68,16 @@ public class GeoHandler implements HttpHandler {
         GeoFactors.Urban u = GeoFactors.urbanCheck(lat, lon);
         boolean known = u != null;
         boolean urban = u != null && u.urban();
+        String level = u == null ? "unknown" : u.level();
         HttpSupport.write(ex, 200, Json.obj(
                 "code", Json.str("0"),
                 "message", Json.str("ok"),
                 "data", Json.obj(
                         "known", String.valueOf(known),
                         "urban", String.valueOf(urban),
+                        "level", Json.str(level),
                         "label", Json.str(u == null ? "" : u.label()),
+                        "hint", Json.str(u == null ? "" : u.hint()),
                         "cityKm", Json.str(u == null ? "" : fmtKm(u.cityKm())),
                         "districtKm", Json.str(u == null ? "" : fmtKm(u.districtKm())),
                         "source", Json.str("local-gazetteer"))));

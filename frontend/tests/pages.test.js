@@ -2710,20 +2710,36 @@ test('V6.8 天气走代理、渔业可定位选地块、城区该拦', () => {
   // 曾经把 currentSpecies 的声明误删，导致换品种时报 undefined
   assert.ok(ind.includes('var currentSpecies = []'), 'currentSpecies 必须声明');
 
-  // 3) 城区拦截
+  // 3) 城区判定：三档（core 才拦、edge 只提示）
   const gf = read(path.join(root, 'backend', 'src', 'com', 'cropcalendar', 'service', 'geo', 'GeoFactors.java'));
-  // 城区判定走本地区划库（外部 landuse 源在这台机器上全部超时）
   assert.ok(gf.includes('public static Urban urbanCheck'), '应能按区划距离判城区');
   assert.ok(gf.includes('CnGazetteer.nearest'), '城区判定应查本地库，不依赖外部服务');
-  assert.ok(gf.includes('cityKm() <= 5'), '市中心 5 公里内应判城区');
-  assert.ok(gf.includes('districtKm() <= 3'), '市辖区驻地 3 公里内应判城区');
+  // 第一版 5/3 公里一刀切，县城边的大棚、城郊菜地全被挡；核心圈收到 2.5 公里
+  assert.ok(gf.includes('CORE_CITY_KM = 2.5'), '建成区核心应按 2.5 公里');
+  assert.ok(gf.includes('CORE_DISTRICT_KM = 1.0'), '区驻地核心半径 1 公里');
+  assert.ok(gf.includes('CORE_MAX_CITY_KM = 15.0'), '区驻地判核心还要求本就在主城范围内（杨凌这类不能误伤）');
+  assert.ok(gf.includes('EDGE_CITY_KM = 6.0') && gf.includes('EDGE_DISTRICT_KM = 3.0'), '城郊圈 6/3 公里');
+  assert.ok(gf.includes('"core"') && gf.includes('"edge"') && gf.includes('"rural"'), '应返回三档而非是/否');
+  assert.ok(gf.includes('public boolean urban()'), '旧调用仍要能拿到"是否拦"');
+  // 城市级粗定位（浏览器/IP）不能当精确地块，否则在家打开页面就落在"市中心"
+  assert.ok(html.includes("src: 'locate'"), '自动定位要标记为粗定位');
+  assert.ok(html.includes("mk.src === 'map'"), '只有地图标点才参与建成区判定');
+  const lp = read(path.resolve(base, 'components', 'location-picker', 'location-picker.js'));
+  assert.ok(lp.includes("src: 'map'"), '地图标点要标记为精确点');
+  assert.ok(lp.includes('window.__resolvedLL = {'), '标点后要登记坐标，避免提交时被地名重新解析覆盖');
   const geo = read(path.join(root, 'backend', 'src', 'com', 'cropcalendar', 'api', 'GeoHandler.java'));
   assert.ok(geo.includes('handleLandUse'), '应提供 /api/geo/landuse');
+  assert.ok(geo.includes('"level"'), '接口应把档位给前端');
   const pa = read(path.join(root, 'backend', 'src', 'com', 'cropcalendar', 'api', 'PlotAnalyzeHandler.java'));
   assert.ok(pa.includes('urban-land'), '地块分析应给出城区限制');
-  assert.ok(/if \(urbanPlot\) \{[\s\S]{0,80}level = "不适宜"/.test(pa), '城区地块不能给"适宜"');
-  assert.ok(html.includes('function showUrbanBlock'), '首页应拦截城区坐标');
-  assert.ok(html.includes('这里不是农用地'), '拦截文案要直说');
+  assert.ok(pa.includes('urban-edge'), '城郊结合部只给低优先级提示');
+  assert.ok(!/if \(urbanPlot\) \{[\s\S]{0,200}level = "不适宜"/.test(pa), '不能再因离政府近就判"不适宜"');
+  assert.ok(html.includes('function showUrbanBlock'), '首页应拦建成区核心');
+  assert.ok(html.includes('这里可能在城镇建成区内'), '文案要留余地，不能断言"不是农用地"');
+  assert.ok(html.includes('仍按这里生成'), '要留出口：确认后照常生成');
+  assert.ok(html.includes('function renderUrbanEdge'), '城郊提示不应阻断生成');
+  assert.ok(!/function checkSowThenGo[\s\S]{0,900}if \(d\.known && d\.urban\)/.test(html),
+    '不能再用布尔 urban 一刀切');
 });
 
 test('V6.1 作物分类：芽苗独立成类，且不被"麦/芝麻/红薯"带偏', () => {

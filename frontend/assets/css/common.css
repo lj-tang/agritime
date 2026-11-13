@@ -793,6 +793,24 @@ body[data-layout="app"] .content-pane > * {
 .sow-auto-main { font-size: calc(13.5px * var(--fs, 1)); font-weight: 600; color: var(--ink); line-height: 1.45; }
 .sow-auto.is-ready .sow-auto-main { color: var(--brand-hover); }
 .sow-auto-sub { font-size: calc(12.5px * var(--fs, 1)); color: var(--muted-strong); line-height: 1.5; }
+/* 城郊提示：比正文弱一档，是提醒不是结论 */
+.sow-auto-urban {
+  font-size: calc(12px * var(--fs, 1));
+  color: var(--muted-strong);
+  line-height: 1.5;
+  display: flex;
+  gap: 6px;
+  align-items: flex-start;
+}
+.sow-auto-urban::before {
+  content: "";
+  flex: 0 0 auto;
+  width: 6px;
+  height: 6px;
+  margin-top: 6px;
+  border-radius: 50%;
+  background: var(--muted);
+}
 
 /* 播期三标签：适宜播期 / 最晚播期 / 预计收获。
    没填作物之前也显示这三个标签和「待推算」，让用户先知道点了会得到什么。 */

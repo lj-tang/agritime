@@ -771,7 +771,16 @@
     var name = selectionName();
 
     // 经纬度保留 6 位小数（约 0.1 米），只交给后端参与计算，界面不展示
-    window.__markerLatLon = { lat: round6(currentPoint.lat), lon: round6(currentPoint.lon) };
+    // src=map：这是用户亲手标的点，够精确，可以参与"是不是建成区"的判断
+    window.__markerLatLon = { lat: round6(currentPoint.lat), lon: round6(currentPoint.lon), src: 'map' };
+    // 同步成"地名 → 坐标"的解析结果：否则提交时会对同一个地名再解析一次，
+    // 把用户标的那块地换成市政府坐标（城区判定、霜期全都跟着错）
+    window.__resolvedLL = {
+      lat: window.__markerLatLon.lat,
+      lon: window.__markerLatLon.lon,
+      title: name,
+      text: name
+    };
     window.__markerPlace = currentPlace ? {
       displayName: currentPlace.displayName,
       name: currentPlace.name,
