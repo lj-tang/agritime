@@ -1320,7 +1320,8 @@
           window.__urbanEdge = null;
           var urbanEl = document.getElementById('sow-auto-urban');
           if (urbanEl) { urbanEl.hidden = true; urbanEl.textContent = ''; }
-          runSowCheck(p.cropName, p.location, p.sowDate, p.termInfo);
+          // 重走一遍提交：卡片还停在「待确认」，只跑 sow-check 的话播期永远不会补上
+          handleSubmit();
         });
       }
 
@@ -1923,11 +1924,14 @@
               return;
             }
             window.__urbanEdge = (level === 'edge' && d.label) ? d.label : null;
+            // applyWindowInfo 比这里早跑（播期先出、再判城区），所以自己再刷一次提示
+            renderUrbanEdge();
             runSowCheck(cropName, location, sowDate, termInfo);
           })
           .catch(function () {
             clearTimeout(timer);
             window.__urbanEdge = null;
+            renderUrbanEdge();
             runSowCheck(cropName, location, sowDate, termInfo);
           });
       }
