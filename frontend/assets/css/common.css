@@ -721,6 +721,34 @@ body[data-layout="app"] .content-pane > * {
 .suggestions button:active { background: var(--surface-3); }
 .suggestions button .hl { color: var(--brand); font-weight: 600; }
 
+/* 作物库浏览：全部 400 种按类别分组，右侧带播期窗口与数据精度 */
+.suggestions.is-browse { max-height: 52vh; }
+.suggest-lead {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  padding: 7px 12px;
+  font-size: calc(11.5px * var(--fs, 1));
+  color: var(--muted);
+  background: var(--surface-2);
+  border-bottom: 1px solid var(--line-soft);
+}
+.suggest-group {
+  position: sticky;
+  top: 31px;
+  z-index: 1;
+  padding: 5px 12px;
+  font-size: calc(11.5px * var(--fs, 1));
+  font-weight: 600;
+  color: var(--leaf);
+  background: var(--surface-2);
+  border-bottom: 1px solid var(--line-soft);
+  letter-spacing: 0.02em;
+}
+.suggestions button { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.suggest-name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.suggest-meta { flex-shrink: 0; font-size: calc(11.5px * var(--fs, 1)); color: var(--muted); }
+
 /* 日期轮盘 */
 .date-picker { display: flex; gap: 8px; }
 

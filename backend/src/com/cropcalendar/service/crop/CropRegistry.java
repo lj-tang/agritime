@@ -158,6 +158,11 @@ public final class CropRegistry {
         return pid != null ? pid : std;
     }
 
+    /** 全部作物（400 条），按注册表顺序；供作物库列表与前端分组浏览使用。 */
+    public static List<Entry> all() {
+        return List.copyOf(entries());
+    }
+
     /** 搜索联想：返回带命中方式的候选，供 /api/crops?q= 使用。 */
     public static List<Match> search(String q, int limit) {
         List<Match> out = new ArrayList<>();

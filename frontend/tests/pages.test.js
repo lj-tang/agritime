@@ -2387,20 +2387,31 @@ test('完善性：超管后台错误反馈走 toast，保留确认类交互', ()
 test('V5.4/V5.5 播期校核：100 种作物有精确月份，且区分南北窗口', () => {
   const props = JSON.parse(read(path.resolve(__dirname, '..', '..', 'data', 'crop-base', 'properties.json')));
   const checked = props.crops.filter((c) => Array.isArray(c.sowMonths) && c.sowMonths.length);
-  assert.ok(checked.length >= 200, '校核播期的作物应不少于 200 种，实际 ' + checked.length);
+  // V6.0：库里 400 种必须全部有播期窗口，不再有"只能靠季节词猜"的空条目
+  assert.strictEqual(checked.length, props.crops.length,
+    '每种作物都应有播期窗口，缺 ' + (props.crops.length - checked.length) + ' 种');
 
   // 南方窗口：至少 90 种有，且月份合法
   const south = checked.filter((c) => Array.isArray(c.sowMonthsSouth) && c.sowMonthsSouth.length);
   assert.ok(south.length >= 100, '应有不少于 100 种带南方窗口，实际 ' + south.length);
 
-  // 精度分层：derived（近缘推定）应已清零；品种走 inherited，其余是逐条查证
+  // 精度三层，如实区分：逐条查证 / 继承母本 / 按类别推定
   const derived = checked.filter((c) => c.sowMonthsPrecision === 'derived');
-  assert.strictEqual(derived.length, 0,
-    '不应再有"近缘推定"的作物，剩余：' + derived.map((c) => c.displayName).join('、'));
   const inherited = checked.filter((c) => c.sowMonthsPrecision === 'inherited');
-  assert.ok(inherited.length >= 20, '应有不少于 20 个品种继承母本窗口，实际 ' + inherited.length);
   const researched = checked.filter((c) => !c.sowMonthsPrecision || c.sowMonthsPrecision === 'researched');
   assert.ok(researched.length >= 170, '逐条查证应不少于 170 种，实际 ' + researched.length);
+  assert.ok(inherited.length >= 95, '继承母本应不少于 95 种，实际 ' + inherited.length);
+  assert.ok(derived.length >= 110, '按类别推定应不少于 110 种，实际 ' + derived.length);
+  // 推定不是"没来源"的借口：必须写清依据，且注明未逐品种校核
+  for (const c of derived) {
+    assert.ok(c.sowMonthsSource && c.sowMonthsSource.trim(),
+      c.displayName + ' 判为推定却没写依据');
+    assert.ok(c.sowMonthsSource.includes('推定') || c.sowMonthsSource.includes('通用')
+      || c.sowMonthsSource.includes('常识') || c.sowMonthsSource.includes('栽培方式'),
+      c.displayName + ' 的推定来源应说明依据类型：' + c.sowMonthsSource);
+    assert.ok(c.sowMonthsNote && c.sowMonthsNote.trim(),
+      c.displayName + ' 推定作物应写地区/茬口说明');
+  }
 
   // 继承必须写明母本，不能只说"按近缘作物推定"
   for (const c of inherited) {
@@ -2506,6 +2517,30 @@ test('V5.8 本地露地种不熟：不给推荐日，只给结论与参考日', 
   const css = read(path.join(base, 'assets', 'css', 'common.css'));
   assert.ok(css.includes('.sow-auto.is-unsuitable'), '不可种应有独立配色，不能复用"已就绪"的绿色');
   assert.ok(css.includes('--warn-soft'), '应有警示底色变量（深浅色都要给值）');
+});
+
+test('V6.0 作物库完整：400 种全部可浏览，且带类别/窗口/精度', () => {
+  const base = path.resolve(__dirname, '..');
+  const handler = read(path.resolve(base, '..', 'backend', 'src', 'com', 'cropcalendar', 'api', 'CropsHandler.java'));
+  // 无关键词时不再只返回"有规程的 21 种"
+  assert.ok(handler.includes('CropRegistry.all()'), '作物库列表应遍历全部作物');
+  assert.ok(handler.includes('"categories"'), '应返回类别汇总，前端才能分组');
+  assert.ok(handler.includes('"windowPrecision"'), '每条应带播期精度');
+  assert.ok(handler.includes('"propsSource"'), '每条应带属性来源，别把推定说成实测');
+  assert.ok(handler.includes('"limit"') || handler.includes('limit'), '应支持分页参数，避免一次吐太多');
+
+  const registry = read(path.resolve(base, '..', 'backend', 'src', 'com', 'cropcalendar', 'service', 'crop', 'CropRegistry.java'));
+  assert.ok(registry.includes('public static List<Entry> all()'), '注册表应能列出全部作物');
+
+  const indexHtml = read(path.join(base, 'pages', 'index.html'));
+  assert.ok(indexHtml.includes('suggest-group'), '浏览全部品种时应按类别分组');
+  assert.ok(indexHtml.includes('is-browse'), '浏览模式应有独立样式（更高的下拉）');
+  assert.ok(indexHtml.includes('function metaOf'), '每个品种应显示播期与精度');
+  assert.ok(indexHtml.includes('共 ' + "' + suggestHits.length + '" + ' 种作物'), '应告诉用户库里到底有多少种');
+
+  const css = read(path.join(base, 'assets', 'css', 'common.css'));
+  assert.ok(css.includes('.suggest-group'), '类别分组标题需要样式');
+  assert.ok(css.includes('.suggestions.is-browse'), '浏览模式需要更大的下拉高度');
 });
 
 // ---------------- V5.3：只给作物 + 地点，播期由系统推算 ----------------

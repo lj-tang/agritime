@@ -1030,18 +1030,33 @@
         });
       }
 
+      function nameOnly(n) { return { name: n }; }
+
+      /**
+       * 取全部作物。接口现在返回 400 种（带类别、播期窗口、数据精度），
+       * 不再只给"有规程的 21 种" —— 那让用户以为库里只有二十来种。
+       */
       function requestAllCrops(done) {
         var xhr = new XMLHttpRequest();
         xhr.open('GET', '/api/crops', true);
-        xhr.timeout = 3000;
+        xhr.timeout = 4000;   // 400 条比原来的 21 条重，给宽一点
         xhr.onload = function () {
           try {
             var body = JSON.parse(xhr.responseText);
-            var list = (body.crops || []).map(function (c) { return c.displayName || c.name; });
-            done(list.length ? list : localAllCrops());
-          } catch (e) { done(localAllCrops()); }
+            var list = (body.crops || []).map(function (c) {
+              return {
+                name: c.displayName || c.name,
+                category: c.category || '',
+                window: c.window || '',
+                action: c.windowAction || '',
+                precision: c.windowPrecision || '',
+                hasProtocol: !!c.hasProtocol
+              };
+            });
+            done(list.length ? list : localAllCrops().map(nameOnly));
+          } catch (e) { done(localAllCrops().map(nameOnly)); }
         };
-        xhr.onerror = xhr.ontimeout = function () { done(localAllCrops()); };
+        xhr.onerror = xhr.ontimeout = function () { done(localAllCrops().map(nameOnly)); };
         xhr.send();
       }
 
@@ -1094,20 +1109,72 @@
       function renderSuggestionList(matches, kw) {
         suggestions.innerHTML = '';
         suggestActive = -1;
-        if (!matches.length) { suggestions.classList.remove('show'); return; }
-        suggestHits = matches.map(function (name) {
-          var hit = findCrop(name);
-          return { name: name, city: hit ? hit.city : '', lat: hit ? hit.lat : 35.07, lng: hit ? hit.lng : 116.31 };
+        if (!matches || !matches.length) { suggestions.classList.remove('show'); return; }
+        var norm = matches.map(function (x) { return typeof x === 'string' ? { name: x } : x; });
+        suggestHits = norm.map(function (o) {
+          var hit = findCrop(o.name);
+          return {
+            name: o.name,
+            city: hit ? hit.city : '',
+            lat: hit ? hit.lat : 35.07,
+            lng: hit ? hit.lng : 116.31,
+            category: o.category || '',
+            window: o.window || '',
+            action: o.action || '',
+            precision: o.precision || '',
+            hasProtocol: o.hasProtocol
+          };
         });
+
+        // 浏览模式（没有关键词）才分组、显示窗口：打字时只出 8 条，加头部反而更难扫
+        var grouped = !kw && suggestHits.some(function (c) { return c.category; });
+        suggestions.classList.toggle('is-browse', grouped);
+        if (grouped) {
+          var lead = document.createElement('div');
+          lead.className = 'suggest-lead';
+          lead.textContent = '共 ' + suggestHits.length + ' 种作物 · 输入关键词可快速筛选';
+          suggestions.appendChild(lead);
+        }
+
+        var lastCat = '';
         suggestHits.forEach(function (c) {
+          if (grouped && c.category && c.category !== lastCat) {
+            lastCat = c.category;
+            var head = document.createElement('div');
+            head.className = 'suggest-group';
+            head.textContent = c.category;
+            suggestions.appendChild(head);
+          }
           var btn = document.createElement('button');
           btn.type = 'button';
-          btn.appendChild(highlight(c.name, kw));
+          var nameSpan = document.createElement('span');
+          nameSpan.className = 'suggest-name';
+          nameSpan.appendChild(highlight(c.name, kw));
+          btn.appendChild(nameSpan);
+          var meta = metaOf(c);
+          if (meta) {
+            var metaSpan = document.createElement('span');
+            metaSpan.className = 'suggest-meta';
+            metaSpan.textContent = meta;
+            btn.appendChild(metaSpan);
+          }
           btn.addEventListener('click', function () { pickSuggestion(c); });
           suggestions.appendChild(btn);
         });
         suggestions.classList.add('show');
         setSuggestExpanded(true);
+      }
+
+      /** 下拉右侧的一行说明：播期窗口 + 数据精度，让用户选之前就知道能不能直接排日历 */
+      function metaOf(c) {
+        var bits = [];
+        if (c.window) bits.push((c.action || '播期') + ' ' + c.window);
+        var p = c.precision;
+        if (p === 'researched') bits.push('已校核');
+        else if (p === 'inherited') bits.push('同母本');
+        else if (p === 'derived') bits.push('推定');
+        else if (p === 'season-rule') bits.push('按季节');
+        return bits.join(' · ');
       }
 
       function updateSuggestActive() {
