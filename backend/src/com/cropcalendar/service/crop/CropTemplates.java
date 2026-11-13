@@ -228,7 +228,11 @@ public final class CropTemplates {
         // 多年生按自然年铺，一年生的按生育期铺。
         // 注意用 lifespan 而不是 group.perennial()：月季/菊花同样多年生，但归类是花卉。
         boolean per = p != null && "perennial".equals(p.lifespan());
-        int span = per ? 365 : Math.max(45, p == null ? 120 : p.totalDays());
+        // 芽苗一茬只有 7–15 天，不能被 45 天的下限撑开（否则"淋水"排到一个月后）
+        int span = per ? 365
+                : (g == Group.SPROUT
+                        ? Math.max(7, p == null ? 12 : p.totalDays())
+                        : Math.max(45, p == null ? 120 : p.totalDays()));
 
         List<double[]> plan = planFor(g, per);
         List<RawNode> out = new ArrayList<>();
