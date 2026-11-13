@@ -373,7 +373,9 @@ public final class CropTemplates {
         return switch ((int) code) {
             case 1 -> g == Group.SPROUT ? "浸种 / 装盘" : (perennial ? "定植" : "播种");
             case 2 -> "出苗 / 齐苗";
-            case 3 -> g == Group.SPROUT ? "淋水 / 控温" : "灌溉 / 排涝";
+            // 菇房没有"排涝"这回事，统一说喷水保湿；芽苗是淋水控温
+            case 3 -> g == Group.SPROUT ? "淋水 / 控温"
+                    : (g == Group.MUSHROOM ? "喷水 / 保湿" : "灌溉 / 排涝");
             case 4 -> "追肥";
             case 5 -> "病虫害防治";
             case 6 -> "间苗 / 定苗";
