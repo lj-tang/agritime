@@ -139,7 +139,8 @@
   top: 50%;
   transform: translateY(-50%);
 }
-.industry-loc-row > .btn { flex: 0 0 auto; margin: 0; white-space: nowrap; }
+/* .btn 默认 width:100%，放在 flex 行里会把输入框挤成 0 宽，必须显式改回 auto */
+.industry-loc-row > .btn { flex: 0 0 auto; width: auto; margin: 0; white-space: nowrap; }
 
 /* 触控热区同首页：手机上别让人戳 28px 的小图标 */
 @media (max-width: 767px) {
