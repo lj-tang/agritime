@@ -265,6 +265,12 @@ public final class CropTemplates {
             add(p, 0.62, 8); add(p, 0.78, 4); add(p, 0.92, 14);
             return p;
         }
+        // 多年生经济作物（苎麻等宿根麻类）：一年割 2–3 茬，冬季清园，不谈"末茬"
+        if (perennial && g == Group.CASH) {
+            add(p, 0.00, 1); add(p, 0.18, 4); add(p, 0.35, 5); add(p, 0.50, 8);
+            add(p, 0.65, 4); add(p, 0.80, 8); add(p, 0.93, 14);
+            return p;
+        }
         // 多年生药材（枸杞/黄芪/白芍等）：定植后不再"间苗"，用除草与田间管理代替修剪
         if (perennial && g == Group.MEDICINAL) {
             add(p, 0.00, 1); add(p, 0.20, 4); add(p, 0.45, 15); add(p, 0.70, 15);
@@ -300,9 +306,11 @@ public final class CropTemplates {
                 add(p, 0.00, 1); add(p, 0.15, 2); add(p, 0.40, 4); add(p, 0.62, 3);
                 add(p, 0.78, 5); add(p, 0.93, 9);
             }
+            // 经济作物（亚麻/红麻等一年生纤维、油料）：一季只收一次，
+            // 用 code 8（采收）而不是 9（末茬）——"末茬"意味着还能再收，与实际不符
             case CASH -> {
-                add(p, 0.00, 1); add(p, 0.12, 2); add(p, 0.30, 4); add(p, 0.52, 5);
-                add(p, 0.70, 3); add(p, 0.94, 9);
+                add(p, 0.00, 1); add(p, 0.12, 2); add(p, 0.30, 4); add(p, 0.48, 15);
+                add(p, 0.66, 5); add(p, 0.94, 8);
             }
             case PERENNIAL_FRUIT -> {
                 // 首年从"定植"起算，后面才是成龄树的年周期管理
@@ -328,7 +336,9 @@ public final class CropTemplates {
             }
             case FORAGE -> {
                 add(p, 0.00, 1); add(p, 0.15, 2); add(p, 0.40, 20); add(p, 0.65, 20);
-                add(p, 0.88, 14);
+                // 一年生饲草（籽粒苋/小黑麦）霜后即枯，刈割到末茬为止；
+                // 多年生（苜蓿/菊苣）才需要越冬管理
+                add(p, 0.88, perennial ? 14 : 20);
             }
             case AQUATIC -> {
                 add(p, 0.00, 7); add(p, 0.20, 3); add(p, 0.40, 4); add(p, 0.65, 5);
