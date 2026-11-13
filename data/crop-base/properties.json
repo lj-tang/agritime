@@ -3217,9 +3217,12 @@
         8,
         9
       ],
-      "sowMonthsNote": "秋播 8–9 月（芥菜疙瘩），霜前收获",
-      "sowMonthsSource": "根用芥菜栽培常识（未逐品种校核）",
-      "sowMonthsPrecision": "derived"
+      "sowMonthsNote": "8–9 月播种育苗，秋冬定植，冬春收根",
+      "sowMonthsSource": "《9 月种菜黄金时间表》（9 月中旬大头菜育苗越冬）/ 根用芥菜栽培资料",
+      "sowMonthsSouth": [
+        9,
+        10
+      ]
     },
     {
       "cropId": "C110",
@@ -3243,9 +3246,12 @@
         9,
         10
       ],
-      "sowMonthsNote": "秋播 8–9 月（西南 9–10 月），冬春收",
-      "sowMonthsSource": "川渝儿菜栽培常识（未逐品种校核）",
-      "sowMonthsPrecision": "derived"
+      "sowMonthsNote": "川渝 9 月上旬–10 月上旬播种，苗龄 30 天定植，冬春收",
+      "sowMonthsSource": "川渝儿菜栽培资料（9 月育苗、10 月定植）/《9 月种菜黄金时间表》",
+      "sowMonthsSouthwest": [
+        9,
+        10
+      ]
     },
     {
       "cropId": "C111",
@@ -3288,14 +3294,17 @@
       "tempRequirement": "蔬菜类，生育期短，需水肥充足",
       "source": "category-rule",
       "sowMonths": [
+        2,
         3,
-        4,
-        7,
-        8
+        6,
+        7
       ],
-      "sowMonthsNote": "春播 3–4 月、秋播 7–8 月",
-      "sowMonthsSource": "甘蓝类栽培常识（未逐品种校核）",
-      "sowMonthsPrecision": "derived"
+      "sowMonthsNote": "春茬 2 月中下旬育苗、3 下–4 上定植；秋茬 6 月下旬育苗、7 下–8 上定植；南方秋播 8–9 月",
+      "sowMonthsSource": "科普中国《羽衣甘蓝》/ 安徽农网（露地春播 2 月中下育苗、秋播 6 月下育苗）",
+      "sowMonthsSouth": [
+        8,
+        9
+      ]
     },
     {
       "cropId": "C113",
@@ -3396,14 +3405,18 @@
       "tempRequirement": "蔬菜类，生育期短，需水肥充足",
       "source": "category-rule",
       "sowMonths": [
-        3,
-        4,
         8,
-        9
+        9,
+        10
       ],
-      "sowMonthsNote": "春播 3–4 月、秋播 8–9 月，30–50 天可收",
-      "sowMonthsSource": "小白菜类栽培常识（未逐品种校核）",
-      "sowMonthsPrecision": "derived"
+      "sowMonthsNote": "小白菜类：8–11 月均可播，秋冬品质最好",
+      "sowMonthsSource": "科普中国《小白菜》（蒜头白、瓢儿白等小白菜 8–11 月均可以播）",
+      "sowMonthsSouth": [
+        8,
+        9,
+        10,
+        11
+      ]
     },
     {
       "cropId": "C117",
@@ -3420,12 +3433,16 @@
       "tempRequirement": "蔬菜类，生育期短，需水肥充足",
       "source": "category-rule",
       "sowMonths": [
-        8,
-        9
+        10,
+        11
       ],
-      "sowMonthsNote": "秋播 8–9 月，耐寒，可露地越冬",
-      "sowMonthsSource": "白菜类栽培常识（未逐品种校核）",
-      "sowMonthsPrecision": "derived"
+      "sowMonthsNote": "耐寒不耐热，10–11 月播种，露地可越冬，翌春收",
+      "sowMonthsSource": "科普中国《小白菜》/ 安徽农网（乌塌菜一般 10–11 月播）",
+      "sowMonthsSouth": [
+        10,
+        11,
+        12
+      ]
     },
     {
       "cropId": "C118",
@@ -3588,13 +3605,18 @@
       "sowMonths": [
         3,
         4,
-        5,
         8,
         9
       ],
-      "sowMonthsNote": "春播 3–5 月、秋播 8–9 月，25–40 天一茬",
-      "sowMonthsSource": "速生白菜类栽培常识（未逐品种校核）",
-      "sowMonthsPrecision": "derived"
+      "sowMonthsNote": "同小白菜：北方春 3–4 月、秋 8 月；长江流域 2 下–4 上、8 下–10 上",
+      "sowMonthsSource": "惠农网《鸡毛菜最佳播种时间》（小白菜/快菜同类）/ 12396 北京科技特派员",
+      "sowMonthsSouth": [
+        2,
+        3,
+        4,
+        9,
+        10
+      ]
     },
     {
       "cropId": "C124",
@@ -3613,13 +3635,18 @@
       "sowMonths": [
         3,
         4,
-        5,
         8,
         9
       ],
-      "sowMonthsNote": "春播 3–5 月、秋播 8–9 月，20–30 天采收",
-      "sowMonthsSource": "速生小白菜栽培常识（未逐品种校核）",
-      "sowMonthsPrecision": "derived"
+      "sowMonthsNote": "北方春 3–4 月、秋 7 下–8 下；长江流域 2 下–4 上、8 下–10 上；25–30 天收",
+      "sowMonthsSource": "惠农网《鸡毛菜最佳播种时间》/ 黄淮区域露地蔬菜播期表（3–5 月、9–11 月）",
+      "sowMonthsSouth": [
+        2,
+        3,
+        4,
+        9,
+        10
+      ]
     },
     {
       "cropId": "C125",
@@ -3670,9 +3697,8 @@
         8,
         9
       ],
-      "sowMonthsNote": "春播 3–4 月、秋播 8–9 月",
-      "sowMonthsSource": "菊苣类栽培常识（未逐品种校核）",
-      "sowMonthsPrecision": "derived"
+      "sowMonthsNote": "春秋两季播种；9 月上旬秋播品质好，也可早春 3–4 月播",
+      "sowMonthsSource": "《9 月种菜黄金时间表》（9 月上旬苦菊可直播）/ 叶菜栽培资料"
     },
     {
       "cropId": "C127",
@@ -3689,15 +3715,19 @@
       "tempRequirement": "蔬菜类，生育期短，需水肥充足",
       "source": "category-rule",
       "sowMonths": [
-        3,
         4,
         5,
         8,
         9
       ],
-      "sowMonthsNote": "春播 3–5 月、秋播 8–9 月，30 天可收",
-      "sowMonthsSource": "叶菜类栽培常识（未逐品种校核）",
-      "sowMonthsPrecision": "derived"
+      "sowMonthsNote": "传统露地 4–6 月、8–10 月播种；华北以 8 月上旬播品质最好，50–60 天收",
+      "sowMonthsSource": "全国蔬菜质量标准中心《芝麻菜》（露地 4–6 月、8–10 月；北京 8 月 6–8 日播）",
+      "sowMonthsSouth": [
+        4,
+        5,
+        9,
+        10
+      ]
     },
     {
       "cropId": "C128",
@@ -3742,11 +3772,12 @@
       "source": "category-rule",
       "sowMonths": [
         4,
-        5
+        5,
+        8,
+        9
       ],
-      "sowMonthsNote": "春播 4–5 月，地温 15℃ 以上",
-      "sowMonthsSource": "紫苏栽培常识（未逐品种校核）",
-      "sowMonthsPrecision": "derived"
+      "sowMonthsNote": "春播 3–6 月、秋播 8–10 月；北方以 4–5 月地温稳定后为主",
+      "sowMonthsSource": "香草栽培资料（紫苏春 3–6 月、秋 8–10 月播）/ 顶端新闻（北方 5 月后）"
     },
     {
       "cropId": "C130",
@@ -3766,9 +3797,12 @@
         4,
         5
       ],
-      "sowMonthsNote": "春播 4–5 月，喜温怕霜",
-      "sowMonthsSource": "罗勒栽培常识（未逐品种校核）",
-      "sowMonthsPrecision": "derived"
+      "sowMonthsNote": "南方 3–4 月播，北方 4 月下旬–5 月播，喜温怕霜",
+      "sowMonthsSource": "百度百科《罗勒》（南方 3–4 月、北方 4 月下旬至 5 月播种）",
+      "sowMonthsSouth": [
+        3,
+        4
+      ]
     },
     {
       "cropId": "C131",
@@ -5786,9 +5820,13 @@
         8,
         9
       ],
-      "sowMonthsNote": "秋植 8–9 月，冬季采收",
-      "sowMonthsSource": "水生蔬菜栽培常识（未逐品种校核）",
-      "sowMonthsPrecision": "derived"
+      "sowMonthsNote": "8 月下旬–9 月上旬撒播，冬春收；也可 4 下–8 下移栽",
+      "sowMonthsSource": "河南省《城市河流湿地水生植物建植技术规程》/ 植物59《水生蔬菜栽培》",
+      "sowMonthsSouth": [
+        8,
+        9,
+        10
+      ]
     },
     {
       "cropId": "C197",
@@ -5808,9 +5846,13 @@
         3,
         4
       ],
-      "sowMonthsNote": "春季 3–4 月栽植根茎",
-      "sowMonthsSource": "水生蔬菜栽培常识（未逐品种校核）",
-      "sowMonthsPrecision": "derived"
+      "sowMonthsNote": "3–4 月分株移栽（水温回升后），也可延至 10 月",
+      "sowMonthsSource": "河南省《城市河流湿地水生植物建植技术规程》（莼菜 3–10 月分株移栽）",
+      "sowMonthsSouth": [
+        3,
+        4,
+        5
+      ]
     },
     {
       "cropId": "C198",
@@ -5827,12 +5869,15 @@
       "tempRequirement": "蔬菜类，生育期短，需水肥充足",
       "source": "category-rule",
       "sowMonths": [
-        3,
-        4
+        4,
+        5
       ],
-      "sowMonthsNote": "春季 3–4 月栽植根茎",
-      "sowMonthsSource": "水生蔬菜栽培常识（未逐品种校核）",
-      "sowMonthsPrecision": "derived"
+      "sowMonthsNote": "菰（蒲菜）4–10 月分株移栽，以 4–5 月为主",
+      "sowMonthsSource": "河南省《城市河流湿地水生植物建植技术规程》（菰 4–10 月分株移栽）",
+      "sowMonthsSouth": [
+        4,
+        5
+      ]
     },
     {
       "cropId": "C199",
@@ -5849,12 +5894,15 @@
       "tempRequirement": "蔬菜类，生育期短，需水肥充足",
       "source": "category-rule",
       "sowMonths": [
-        4,
-        5
+        3,
+        4
       ],
-      "sowMonthsNote": "4–5 月水温回升后直播",
-      "sowMonthsSource": "水生蔬菜栽培常识（未逐品种校核）",
-      "sowMonthsPrecision": "derived"
+      "sowMonthsNote": "直播 3 月中旬–4 月上旬；育苗的 2 月下旬育苗、4 月下旬定植",
+      "sowMonthsSource": "植物59《水生蔬菜栽培》（菱角直播 3 月中–4 上、育苗 2 月下）",
+      "sowMonthsSouth": [
+        3,
+        4
+      ]
     },
     {
       "cropId": "C200",
@@ -5871,12 +5919,15 @@
       "tempRequirement": "蔬菜类，生育期短，需水肥充足",
       "source": "category-rule",
       "sowMonths": [
-        4,
-        5
+        3,
+        4
       ],
-      "sowMonthsNote": "4–5 月播种，水深 30–50cm",
-      "sowMonthsSource": "水生蔬菜栽培常识（未逐品种校核）",
-      "sowMonthsPrecision": "derived"
+      "sowMonthsNote": "3 月下旬–4 月上旬直播/育苗，5–6 月定植，8–10 月收",
+      "sowMonthsSource": "植物59《水生蔬菜栽培》（芡实 3 下–4 上育苗、5–6 月定植）",
+      "sowMonthsSouth": [
+        3,
+        4
+      ]
     },
     {
       "cropId": "C201",
@@ -7539,16 +7590,18 @@
       "tempRequirement": "蔬菜类，生育期短，需水肥充足",
       "source": "category-rule",
       "sowMonths": [
+        7,
         8,
-        9
-      ],
-      "sowMonthsSouth": [
         9,
         10
       ],
-      "sowMonthsNote": "秋播 8–9 月（南方 9–10 月），冬春收苔",
-      "sowMonthsSource": "菜苔类栽培常识（未逐品种校核）",
-      "sowMonthsPrecision": "derived"
+      "sowMonthsSouth": [
+        8,
+        9,
+        10
+      ],
+      "sowMonthsNote": "早熟种 7–8 月播、晚熟种 9–10 月播",
+      "sowMonthsSource": "科普中国《小白菜》（红菜苔/紫菜苔同类，早熟 7–8、晚熟 9–10 月）"
     },
     {
       "cropId": "C262",
@@ -7565,16 +7618,18 @@
       "tempRequirement": "蔬菜类，生育期短，需水肥充足",
       "source": "category-rule",
       "sowMonths": [
+        7,
         8,
-        9
-      ],
-      "sowMonthsSouth": [
         9,
         10
       ],
-      "sowMonthsNote": "秋播 8–9 月，冬春收苔",
-      "sowMonthsSource": "菜苔类栽培常识（未逐品种校核）",
-      "sowMonthsPrecision": "derived"
+      "sowMonthsSouth": [
+        8,
+        9,
+        10
+      ],
+      "sowMonthsNote": "早熟种 7–8 月播，晚熟种 9–10 月播，冬春收苔",
+      "sowMonthsSource": "科普中国《小白菜》（红菜苔早熟种 7–8 月播、晚熟种 9–10 月播）"
     },
     {
       "cropId": "C263",
@@ -7598,9 +7653,8 @@
         9,
         10
       ],
-      "sowMonthsNote": "秋播 8–9 月，冬春收苔",
-      "sowMonthsSource": "菜苔类栽培常识（未逐品种校核）",
-      "sowMonthsPrecision": "derived"
+      "sowMonthsNote": "8 月下旬–9 月上旬播种育苗，冬春收苔",
+      "sowMonthsSource": "科普中国《小白菜》（菜苔类晚熟种 9–10 月播；洪山菜苔按 8 下–9 上）"
     },
     {
       "cropId": "C264",

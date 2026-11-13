@@ -2399,9 +2399,9 @@ test('V5.4/V5.5 播期校核：100 种作物有精确月份，且区分南北窗
   const derived = checked.filter((c) => c.sowMonthsPrecision === 'derived');
   const inherited = checked.filter((c) => c.sowMonthsPrecision === 'inherited');
   const researched = checked.filter((c) => !c.sowMonthsPrecision || c.sowMonthsPrecision === 'researched');
-  assert.ok(researched.length >= 170, '逐条查证应不少于 170 种，实际 ' + researched.length);
+  assert.ok(researched.length >= 195, '逐条查证应不少于 195 种，实际 ' + researched.length);
   assert.ok(inherited.length >= 95, '继承母本应不少于 95 种，实际 ' + inherited.length);
-  assert.ok(derived.length >= 110, '按类别推定应不少于 110 种，实际 ' + derived.length);
+  assert.ok(derived.length >= 95, '按类别推定应不少于 95 种，实际 ' + derived.length);
   // 推定不是"没来源"的借口：必须写清依据，且注明未逐品种校核
   for (const c of derived) {
     assert.ok(c.sowMonthsSource && c.sowMonthsSource.trim(),
@@ -2428,6 +2428,23 @@ test('V5.4/V5.5 播期校核：100 种作物有精确月份，且区分南北窗
   for (const c of researched) {
     assert.ok(c.sowMonthsSource && c.sowMonthsSource.trim(),
       c.displayName + ' 已校核却没写来源');
+  }
+
+  // 本轮查证过的窗口（防回归：别再被"按季节推导"覆盖）
+  const expect = {
+    '羽衣甘蓝': [2, 3, 6, 7],
+    '乌塌菜': [10, 11],
+    '红菜苔': [7, 8, 9, 10],
+    '芝麻菜': [4, 5, 8, 9],
+    '水芹': [8, 9],
+    '菱角': [3, 4],
+  };
+  const idx = Object.fromEntries(props.crops.map((x) => [x.displayName, x]));
+  for (const [name, months] of Object.entries(expect)) {
+    const c = idx[name];
+    assert.ok(c, '库里应有 ' + name);
+    assert.deepStrictEqual(c.sowMonths, months, name + ' 的播期应为本轮查证值');
+    assert.notStrictEqual(c.sowMonthsPrecision, 'derived', name + ' 已查证，不应再标推定');
   }
 
   // 西南窗口：至少 40 种
