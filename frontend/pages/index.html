@@ -863,6 +863,8 @@
         } else {
           bits.push(regionLabel ? regionLabel + '·已校核' : '播期已校核');
         }
+        // 霜期内的育苗说明必须让用户看见：否则"建议 1 月 1 日播种"会被当成能露地撒种
+        if (info.note && info.note.indexOf('育苗') >= 0) bits.push(info.note);
         sub.textContent = bits.join(' · ');
         if (box) {
           box.classList.add('is-ready');
