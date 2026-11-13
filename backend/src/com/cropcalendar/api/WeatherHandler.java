@@ -49,8 +49,9 @@ public class WeatherHandler implements HttpHandler {
                 return;
             }
             Map<String, String> q = HttpSupport.query(ex.getRequestURI().getRawQuery());
-            String lat = q.get("lat");
-            String lon = q.get("lon");
+            // 前端沿用的是 Open-Meteo 的参数名（latitude/longitude），两个都收
+            String lat = q.containsKey("lat") ? q.get("lat") : q.get("latitude");
+            String lon = q.containsKey("lon") ? q.get("lon") : q.get("longitude");
             if (lat == null || lon == null) {
                 HttpSupport.write(ex, 400, "{\"code\":\"400\",\"message\":\"缺少 lat / lon\"}");
                 return;

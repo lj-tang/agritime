@@ -232,6 +232,41 @@ public final class GeoFactors {
         }
     }
 
+    /**
+     * 坐标是不是落在城镇建成区。
+     *
+     * 为什么用行政区划距离而不是 OSM landuse：这台服务器访问 overpass-api.de 与
+     * nominatim 全部超时（实测 25s 无响应）、高德又没配 key，靠外部数据只会得到
+     * "一直 unknown"，等于没做。改成用本地区划库：
+     *   · 落在「市辖区」且距区政府驻地 ≤ 3 公里 → 城区
+     *   · 距地级市中心 ≤ 5 公里 → 城区
+     * 这两条覆盖的是"人民广场/天安门"这类真正的建成区核心；
+     * 城郊的农场（离市中心 10 公里以上、离镇区几公里）不会被误伤。
+     */
+    public record Urban(boolean urban, String label, double cityKm, double districtKm) {
+    }
+
+    public static Urban urbanCheck(double lat, double lon) {
+        CnGazetteer.Nearest n = CnGazetteer.nearest(lat, lon);
+        if (n == null) return null;
+        String city = n.city() == null ? "" : n.city();
+        String dist = n.district() == null ? "" : n.district();
+        if (n.urbanDistrict() && n.districtKm() >= 0 && n.districtKm() <= 3) {
+            return new Urban(true, dist + "驻地 " + fmtKm(n.districtKm()) + " 公里内（城区）",
+                    n.cityKm(), n.districtKm());
+        }
+        if (n.cityKm() <= 5) {
+            return new Urban(true, city + "市中心 " + fmtKm(n.cityKm()) + " 公里内（城区）",
+                    n.cityKm(), n.districtKm());
+        }
+        return new Urban(false, "", n.cityKm(), n.districtKm());
+    }
+
+    private static String fmtKm(double km) {
+        return km < 10 ? String.format(java.util.Locale.ROOT, "%.1f", km)
+                : String.valueOf(Math.round(km));
+    }
+
     /** 土地利用代码 → 中文（两处接口共用，避免各写一套）。 */
     public static String landUseLabel(String kind) {
         if (kind == null || kind.isBlank()) return "";

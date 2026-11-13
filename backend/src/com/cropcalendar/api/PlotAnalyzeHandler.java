@@ -165,6 +165,14 @@ public class PlotAnalyzeHandler implements HttpHandler {
         boolean pond = "pond".equalsIgnoreCase(type)
                 || "fishpond".equalsIgnoreCase(type) || "aquaculture".equalsIgnoreCase(type);
 
+        // 城区判定用本地区划库，毫秒级、不依赖外部服务；
+        // 上面 extended 分支里的 OSM landuse 只作为补充证据。
+        GeoFactors.Urban urban = GeoFactors.urbanCheck(g.centroidLat, g.centroidLon);
+        if (urban != null && urban.urban()) {
+            urbanPlot = true;
+            if (urbanKind.isBlank()) urbanKind = "城镇建成区";
+        }
+
         addTerrainFactor(factors, t, limits, pond);
         addSoilFactor(factors, w, limits, pond);
         addClimateFactor(factors, w, limits);
@@ -191,9 +199,6 @@ public class PlotAnalyzeHandler implements HttpHandler {
             if (access != null && access.urban()) {
                 urbanPlot = true;
                 urbanKind = GeoFactors.landUseLabel(access.landUse());
-                limits.add(new Limit("urban-land", "落在城镇建成区",
-                        "该坐标位于「" + urbanKind + "」范围内（OSM 土地利用数据），不是农用地，"
-                                + "不能作为耕地或塘口使用；请改到村外的实际地块", 3));
             }
         } else {
             factorNotes.add("未启用深度因子（土壤质地/水源/交通），打开地块详情会自动补充");
@@ -204,7 +209,12 @@ public class PlotAnalyzeHandler implements HttpHandler {
         double score = wsum > 0 ? total / wsum : 0;
 
         String level;
-        if (urbanPlot) level = "不适宜";
+        if (urbanPlot) {
+            level = "不适宜";
+            limits.add(new Limit("urban-land", "落在城镇建成区",
+                    "该坐标位于" + (urbanKind.isBlank() ? "城镇建成区" : urbanKind)
+                            + "，不是农用地，不能作为耕地或塘口使用；请改到村外的实际地块", 3));
+        }
         else if (score >= 85) level = "适宜";
         else if (score >= 70) level = "较适宜";
         else if (score >= 55) level = "一般";

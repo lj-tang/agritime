@@ -2710,14 +2710,16 @@ test('V6.8 天气走代理、渔业可定位选地块、城区该拦', () => {
 
   // 3) 城区拦截
   const gf = read(path.join(root, 'backend', 'src', 'com', 'cropcalendar', 'service', 'geo', 'GeoFactors.java'));
-  assert.ok(gf.includes('landuse~'), 'Overpass 应取土地利用');
-  assert.ok(gf.includes('pointInRing'), '应做点面判定');
-  assert.ok(gf.includes('isUrbanLandUse'), '应区分建成区与农用地');
+  // 城区判定走本地区划库（外部 landuse 源在这台机器上全部超时）
+  assert.ok(gf.includes('public static Urban urbanCheck'), '应能按区划距离判城区');
+  assert.ok(gf.includes('CnGazetteer.nearest'), '城区判定应查本地库，不依赖外部服务');
+  assert.ok(gf.includes('cityKm() <= 5'), '市中心 5 公里内应判城区');
+  assert.ok(gf.includes('districtKm() <= 3'), '市辖区驻地 3 公里内应判城区');
   const geo = read(path.join(root, 'backend', 'src', 'com', 'cropcalendar', 'api', 'GeoHandler.java'));
   assert.ok(geo.includes('handleLandUse'), '应提供 /api/geo/landuse');
   const pa = read(path.join(root, 'backend', 'src', 'com', 'cropcalendar', 'api', 'PlotAnalyzeHandler.java'));
   assert.ok(pa.includes('urban-land'), '地块分析应给出城区限制');
-  assert.ok(pa.includes('if (urbanPlot) level = "不适宜"'), '城区地块不能给"适宜"');
+  assert.ok(/if \(urbanPlot\) \{[\s\S]{0,80}level = "不适宜"/.test(pa), '城区地块不能给"适宜"');
   assert.ok(html.includes('function showUrbanBlock'), '首页应拦截城区坐标');
   assert.ok(html.includes('这里不是农用地'), '拦截文案要直说');
 });

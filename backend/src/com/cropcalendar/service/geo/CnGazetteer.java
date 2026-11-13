@@ -118,6 +118,41 @@ public final class CnGazetteer {
     }
 
     /**
+     * 离最近城市/区县驻地的距离，供"是不是城区"判断用。
+     * 只查本地库，不发网络请求 —— 城区判断必须在毫秒级给出，不能依赖 Overpass（这台机器连不上）。
+     */
+    public record Nearest(String city, double cityKm, String district, double districtKm, boolean urbanDistrict) {
+    }
+
+    public static Nearest nearest(double lat, double lon) {
+        if (!ensureLoaded()) return null;
+        City[] cs = cities;
+        int ci = -1;
+        double cd = Double.MAX_VALUE;
+        for (int i = 0; i < cs.length; i++) {
+            double d = distKm(lat, lon, cs[i].lat(), cs[i].lon());
+            if (d < cd) { cd = d; ci = i; }
+        }
+        if (ci < 0 || cd > OUT_OF_COVERAGE_KM) return null;
+        City city = cs[ci];
+        County[] ks = counties;
+        String dname = "";
+        double kd = Double.MAX_VALUE;
+        boolean urbanDistrict = false;
+        for (County k : ks) {
+            if (k.city() != ci) continue;
+            double d = distKm(lat, lon, k.lat(), k.lon());
+            if (d < kd) {
+                kd = d;
+                dname = k.name();
+                // 「市辖区」的店名以「区」结尾；县/旗/县级市不是
+                urbanDistrict = k.name().endsWith("区");
+            }
+        }
+        return new Nearest(city.name(), cd, dname, kd == Double.MAX_VALUE ? -1 : kd, urbanDistrict);
+    }
+
+    /**
      * 关键字搜地点。上游（腾讯/高德）没配 key、Photon 又慢到超时时，
      * 至少能按省/市/区县名字搜到——用户输的多半就是自己所在的县市。
      */

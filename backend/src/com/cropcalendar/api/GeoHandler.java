@@ -62,21 +62,28 @@ public class GeoHandler implements HttpHandler {
                     "message", Json.str("缺少 lat / lon"), "data", "null"));
             return;
         }
-        GeoFactors.Access a = GeoFactors.accessibility(lat, lon);
-        boolean known = a != null;
-        boolean urban = a != null && a.urban();
-        String kind = a == null || a.landUse() == null ? "" : a.landUse();
+        // 用本地区划库判断，毫秒级返回：外部 landuse 源（Overpass/Nominatim）在这台机器上
+        // 全部超时、高德无 key，押在它们身上只会得到永久 unknown。
+        GeoFactors.Urban u = GeoFactors.urbanCheck(lat, lon);
+        boolean known = u != null;
+        boolean urban = u != null && u.urban();
         HttpSupport.write(ex, 200, Json.obj(
                 "code", Json.str("0"),
                 "message", Json.str("ok"),
                 "data", Json.obj(
                         "known", String.valueOf(known),
                         "urban", String.valueOf(urban),
-                        "farmland", String.valueOf(a != null && a.farmland()),
-                        "landUse", Json.str(kind),
-                        "landUseLabel", Json.str(GeoFactors.landUseLabel(kind)))));
+                        "label", Json.str(u == null ? "" : u.label()),
+                        "cityKm", Json.str(u == null ? "" : fmtKm(u.cityKm())),
+                        "districtKm", Json.str(u == null ? "" : fmtKm(u.districtKm())),
+                        "source", Json.str("local-gazetteer"))));
     }
 
+    private static String fmtKm(double km) {
+        if (km < 0) return "";
+        return km < 10 ? String.format(java.util.Locale.ROOT, "%.1f", km)
+                : String.valueOf(Math.round(km));
+    }
 
     /**
      * GET /api/geo/ip —— 城市级粗定位（经纬度 + 城市名）。
