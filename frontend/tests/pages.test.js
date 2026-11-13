@@ -2543,6 +2543,24 @@ test('V6.0 作物库完整：400 种全部可浏览，且带类别/窗口/精度
   assert.ok(css.includes('.suggestions.is-browse'), '浏览模式需要更大的下拉高度');
 });
 
+test('V6.1 作物分类：芽苗独立成类，且不被"麦/芝麻/红薯"带偏', () => {
+  const tpl = read(path.resolve(__dirname, '..', '..', 'backend', 'src', 'com', 'cropcalendar',
+    'service', 'crop', 'CropTemplates.java'));
+  assert.ok(tpl.includes('SPROUT("芽苗类"'), '芽苗应独立成类，不能混进禾谷/豆类');
+  assert.ok(tpl.includes('"黄豆芽"') && tpl.includes('"荞麦芽"'), '芽苗名表应覆盖常见芽苗');
+  // 芽苗必须在禾谷之前判定，否则"荞麦芽"会被当成荞麦排一整季
+  const sproutAt = tpl.indexOf('containsAny(name, SPROUT_NAMES)');
+  const cerealAt = tpl.indexOf('containsAny(name, CEREAL_NAMES)');
+  assert.ok(sproutAt > 0 && cerealAt > 0 && sproutAt < cerealAt, '芽苗判定必须早于禾谷');
+  // 几个被关键字带偏的必须钉死
+  assert.ok(tpl.includes('name.contains("油麦菜")'), '油麦菜含"麦"但不是禾谷');
+  assert.ok(tpl.includes('name.contains("芝麻菜")'), '芝麻菜含"芝麻"但属叶菜');
+  assert.ok(tpl.includes('name.contains("红薯叶")'), '红薯叶含"红薯"但属叶菜');
+  assert.ok(tpl.includes('name.contains("红花菜豆")'), '红花菜豆属豆类');
+  assert.ok(tpl.includes('name.contains("桑葚")'), '桑葚属果树，不是经济作物');
+  assert.ok(tpl.includes('case SPROUT ->'), '芽苗需要自己的规程模板（一茬只有 7–15 天）');
+});
+
 // ---------------- V5.3：只给作物 + 地点，播期由系统推算 ----------------
 
 test('V5.3 首页：播种日期不再是必填，改为自动推算并展示适宜播期', () => {

@@ -41,6 +41,7 @@ public final class CropTemplates {
         FLOWER("花卉", "播种或定植"),
         FORAGE("饲草", "播种"),
         AQUATIC("水生作物", "定植"),
+        SPROUT("芽苗类", "浸种"),
         SPICE("香料", "定植"),
         GENERIC("通用", "播种");
 
@@ -152,6 +153,16 @@ public final class CropTemplates {
             "鹅莓", "金桔", "橘", "柑", "金枣", "酸枣", "油奈", "布朗", "西梅"
     };
 
+    /**
+     * 芽苗类：室内无土/遮光栽培，7–15 天一茬。
+     * 必须排在禾谷/油料/根茎/葱蒜/豆类之前 —— 否则「荞麦芽」按荞麦算、「黄豆芽」按大豆算，
+     * 会在日历里排出一整季的田间管理，而它其实十天就收。
+     */
+    private static final String[] SPROUT_NAMES = {
+            "黄豆芽", "绿豆芽", "黑豆芽", "萝卜苗", "萝卜芽", "荞麦芽", "苜蓿芽",
+            "豌豆苗", "香椿芽", "蒜黄", "韭黄苗", "姜芽", "葱芽"
+    };
+
     /** 判断作物类别。先按明确的名字表，再按属性里的类别文案，最后按生育期兜底。 */
     public static Group groupOf(CropProperties.Props p) {
         if (p == null) return Group.GENERIC;
@@ -159,7 +170,14 @@ public final class CropTemplates {
         String temp = p.tempRequirement() == null ? "" : p.tempRequirement();
         boolean perennial = "perennial".equals(p.lifespan());
 
+        if (containsAny(name, SPROUT_NAMES)) return Group.SPROUT;
         if (containsAny(name, MUSHROOM_NAMES) || temp.contains("喜湿避光")) return Group.MUSHROOM;
+        // 被关键字带偏的几个：油麦菜含"麦"、芝麻菜/芝麻叶含"芝麻"、红薯叶含"红薯"、
+        // 红花菜豆含"红花"、桑葚含"桑" —— 都在各自的表之前钉死
+        if (name.contains("油麦菜") || name.contains("芝麻菜") || name.contains("芝麻叶")
+                || name.contains("红薯叶")) return Group.LEAFY;
+        if (name.contains("红花菜豆")) return Group.LEGUME;
+        if (name.contains("桑葚")) return Group.PERENNIAL_FRUIT;
         if (containsAny(name, FORAGE_NAMES)) return Group.FORAGE;
         // 西兰花/花椰菜含"兰花"二字，会被花卉表误判成观赏花，先钉死为菜
         if (name.contains("西兰花") || name.contains("花椰菜") || name.contains("菜花")) return Group.LEAFY;
@@ -309,6 +327,10 @@ public final class CropTemplates {
                 add(p, 0.00, 1); add(p, 0.15, 12); add(p, 0.35, 13); add(p, 0.70, 8);
                 add(p, 0.90, 15);
             }
+            // 芽苗：一茬只有 7–15 天，不要按大田那套排 8 个节点
+            case SPROUT -> {
+                add(p, 0.00, 1); add(p, 0.20, 3); add(p, 0.55, 3); add(p, 0.90, 8);
+            }
             default -> {
                 add(p, 0.00, 1); add(p, 0.15, 2); add(p, 0.35, 4); add(p, 0.60, 5);
                 add(p, 0.90, 9);
@@ -345,9 +367,9 @@ public final class CropTemplates {
     /** 动作码 → 节点标题。带类别语境的文案，避免"苹果：播种"这类荒谬表达。 */
     private static String title(double code, Group g, boolean perennial) {
         return switch ((int) code) {
-            case 1 -> perennial ? "定植" : "播种";
+            case 1 -> g == Group.SPROUT ? "浸种 / 装盘" : (perennial ? "定植" : "播种");
             case 2 -> "出苗 / 齐苗";
-            case 3 -> "灌溉 / 排涝";
+            case 3 -> g == Group.SPROUT ? "淋水 / 控温" : "灌溉 / 排涝";
             case 4 -> "追肥";
             case 5 -> "病虫害防治";
             case 6 -> "间苗 / 定苗";
