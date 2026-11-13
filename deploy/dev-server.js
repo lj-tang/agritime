@@ -116,6 +116,13 @@ function proxy(req, res) {
 
 const server = http.createServer((req, res) => {
   const url = req.url || '/';
+  // file:// 直开页面（assets/js/file-guard.js）用它探测整站是否在跑：
+  // 在跑就跳过来（Cookie 登录只有这边能用）。必须带 CORS 头，file:// 是跨源。
+  if (url.split('?')[0] === '/__ping') {
+    res.writeHead(200, { 'Access-Control-Allow-Origin': '*', 'Content-Type': 'text/plain' });
+    res.end('pong');
+    return;
+  }
   if (url.startsWith('/api/') || url === '/health' || url.startsWith('/api?')) {
     proxy(req, res);
     return;

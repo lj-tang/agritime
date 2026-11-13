@@ -3133,3 +3133,35 @@ test('V5.7 外观主题：九块地，各长各的庄稼', () => {
   assert.ok(decorJs.includes("bloom: BLOOM") && decorJs.includes("terrace: TERRACE"),
     '油菜花与梯田要有各自的场景');
 });
+
+test('V6.10 file:// 直开兜底：双击 index.html 不能是「哑巴页面」', () => {
+  const FE = path.resolve(PAGES, '..');
+  const fg = read(path.join(FE, 'assets', 'js', 'file-guard.js'));
+  // 只在 file:// 协议生效，http/https 下必须零打扰
+  assert.ok(fg.includes("location.protocol !== 'file:'"), '非 file:// 应直接退出');
+  // fetch 与 XHR 都要把 /api 请求改写到本地后端
+  assert.ok(fg.includes('window.fetch = function'), 'fetch 应被改写');
+  assert.ok(fg.includes("input.indexOf('/api') === 0"), 'fetch 应改写 /api 开头的请求');
+  assert.ok(fg.includes('XMLHttpRequest.prototype.open'), 'XHR 也要改写（industry.js 在用）');
+  assert.ok(fg.includes("u.indexOf('/api') === 0"), 'XHR 应改写 /api 开头的请求');
+  // 服务没起时要有引导，而不是静默失败
+  assert.ok(fg.includes('file-guard-overlay'), '服务未启动时应显示引导层');
+  assert.ok(fg.includes('start-local.bat'), '引导层要告诉用户去运行 start-local.bat');
+  assert.ok(fg.includes('setInterval'), '应自动重试，服务起来后自动恢复');
+  // 整站在跑时跳过去（Cookie 登录只有那边能用）
+  assert.ok(fg.includes('/__ping'), '应探测本地整站');
+
+  // 所有页面都要挂上守卫，且放在 head 最前（早于业务脚本执行）
+  for (const page of ['index.html', 'timeline.html', 'auth.html', 'account.html',
+    'admin.html', 'admin-tickets.html', '404.html']) {
+    const html = read(path.join(PAGES, page));
+    assert.ok(html.includes('file-guard.js'), page + ' 应引入 file-guard');
+    assert.ok(html.indexOf('file-guard.js') < html.indexOf('</head>'), page + ' 的守卫应在 head 内');
+  }
+
+  // dev-server 要给 file:// 的探测端点开 CORS
+  const ds = read(path.join(FE, '..', 'deploy', 'dev-server.js'));
+  assert.ok(ds.includes('/__ping'), 'dev-server 应提供 __ping 探活');
+  assert.ok(/__ping[\s\S]{0,200}Access-Control-Allow-Origin/.test(ds),
+    '__ping 必须带 CORS 头，file:// 是跨源请求');
+});
