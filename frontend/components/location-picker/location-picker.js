@@ -443,7 +443,10 @@
           || place.level === 'building' || place.level === 'community';
         setInfo(place.displayName, coordText(lat, lon) + (precise ? ' · 可拖动标记微调' : ' · 可拖动标记或搜索更精确的地点'));
       } else {
-        setInfo('未识别到中文地名', coordText(lat, lon) + ' · 可直接确认，或搜索附近地点');
+        // 逆地理失败最常见的原因是本地后端没启动（线上则是网络问题）——
+        // 只说"未识别"用户会以为选点白选了，要把"坐标已保留、确认有效"讲明白
+        setInfo('未识别到中文地名', coordText(lat, lon)
+          + ' · 坐标已保留，点「确认」同样生效；若搜索也不可用，多半是本地服务没启动（先运行 start-local.bat）');
       }
       setConfirmBusy(false);
     });
@@ -808,9 +811,13 @@
     close();
   }
 
-  /** 回填到地点输入框的文本：优先用识别到的地名，识别不出来时才用占位文案 */
+  /** 回填到地点输入框的文本：优先用识别到的地名；识别不出来时把坐标带上，
+   *  不能只给"地图选点"四个字——用户会觉得选的点没被保留 */
   function selectionName() {
     if (currentPlace && currentPlace.displayName) return currentPlace.displayName;
+    if (currentPoint && validateLatLon(currentPoint.lat, currentPoint.lon)) {
+      return '地图选点（' + currentPoint.lat.toFixed(5) + ', ' + currentPoint.lon.toFixed(5) + '）';
+    }
     return '地图选点';
   }
 
@@ -856,7 +863,7 @@
     showSearchState('<div class="map-searching">正在搜索「' + escapeHtml(kw) + '」…</div>');
     searchGeocode(kw, function (items) {
       if (items === null) {
-        showSearchState('<div class="map-no-result">搜索服务暂不可用，请直接在地图上点击选择位置</div>');
+        showSearchState('<div class="map-no-result">搜索服务暂不可用（多半是本地服务没启动：关掉本窗口，先运行 start-local.bat），可直接在地图上点击选择位置</div>');
         return;
       }
       if (!items.length) {
