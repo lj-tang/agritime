@@ -1374,12 +1374,19 @@
       "sowMonths": [
         3,
         4,
-        8,
         9
       ],
-      "sowMonthsNote": "春播 3–4 月、秋播 8–9 月（小葱）",
-      "sowMonthsSource": "葱类栽培常识｜按小葱春秋两季推定（未逐品种校核）",
-      "sowMonthsPrecision": "derived"
+      "sowMonthsNote": "小葱/青葱与普通大葱同种，播期一致 —— 母本「大葱」：华北秋播 9 月上中旬育苗、翌年 5–6 月定植；春播 3 月下旬–4 月上旬",
+      "sowMonthsSource": "继承母本「大葱」的已校核播期（小葱/青葱与普通大葱同种，播期一致）",
+      "sowMonthsPrecision": "inherited",
+      "sowMonthsSouth": [
+        10,
+        11
+      ],
+      "sowMonthsSouthwest": [
+        9,
+        10
+      ]
     },
     {
       "cropId": "C046",
@@ -2663,14 +2670,12 @@
       "tempRequirement": "喜阴湿，忌强光",
       "source": "manual",
       "sowMonths": [
+        11,
         12,
-        1,
-        2,
-        3
+        1
       ],
-      "sowMonthsNote": "12–3 月播种/移栽（休眠期），需遮阴",
-      "sowMonthsSource": "三七栽培常识（未逐品种校核）",
-      "sowMonthsPrecision": "derived"
+      "sowMonthsNote": "11–12 月随采随播（种子不耐贮藏，忌晒干），播后 1 年 11–12 月定植，最迟翌年 1 月中旬；需荫棚、忌连作",
+      "sowMonthsSource": "文山福万家《三七如何种植》／云南省农科院《文山三七种植技巧》／意之联《三七标准化种植技术要点》"
     },
     {
       "cropId": "C088",
@@ -2741,12 +2746,10 @@
       "sowMonths": [
         3,
         4,
-        9,
         10
       ],
-      "sowMonthsNote": "春植 3–4 月或秋植 9–10 月（多年生）",
-      "sowMonthsSource": "薰衣草栽培常识（未逐品种校核）",
-      "sowMonthsPrecision": "derived"
+      "sowMonthsNote": "定植春 3 月下旬–4 月上旬或秋 10 月中下旬（大面积以秋植为宜）；播种 4 月中下旬，扦插 3 上–4 中、8 下–9 上",
+      "sowMonthsSource": "百度百科《薰衣草》／北京市农林科学院数据所答复（播种 4 月中下旬、定植 3 下–4 上或 10 月中下旬）"
     },
     {
       "cropId": "C091",
@@ -3056,14 +3059,13 @@
       "tempRequirement": "蔬菜类，生育期短，需水肥充足",
       "source": "category-rule",
       "sowMonths": [
-        3,
         4,
-        8,
-        9
+        5,
+        9,
+        10
       ],
-      "sowMonthsNote": "分株繁殖，春 3–4 月、秋 8–9 月",
-      "sowMonthsSource": "葱类栽培常识｜分葱分株期推定（未逐品种校核）",
-      "sowMonthsPrecision": "derived"
+      "sowMonthsNote": "分株繁殖，气温 20℃ 左右进行，长江流域 4–5 月、9–10 月；行距 23cm、穴距 20cm，每穴 2–3 株",
+      "sowMonthsSource": "CN 蔬菜网《小葱、分葱、细香葱的栽培》／安徽《香葱生产技术规程》（分葱移栽行距 10cm）"
     },
     {
       "cropId": "C103",
@@ -3082,12 +3084,12 @@
       "sowMonths": [
         3,
         4,
-        8,
-        9
+        5,
+        9,
+        10
       ],
-      "sowMonthsNote": "春播 3–4 月、秋播 8–9 月",
-      "sowMonthsSource": "葱类栽培常识（未逐品种校核）",
-      "sowMonthsPrecision": "derived"
+      "sowMonthsNote": "播种 3–5 月、9–10 月；移栽四茬：1 月／4 下–6 初／8–9 下／10–11 月，定植株行距 10×20cm",
+      "sowMonthsSource": "芦山县《小香葱种植技术》／金溪县农业农村局《小香葱的种植时间和种植方法》／安徽《香葱生产技术规程》"
     },
     {
       "cropId": "C104",
@@ -3105,13 +3107,15 @@
       "source": "category-rule",
       "sowMonths": [
         3,
-        4,
-        9,
-        10
+        4
       ],
-      "sowMonthsNote": "春植 3–4 月或秋植 9–10 月，软化栽培出韭黄",
-      "sowMonthsSource": "韭菜栽培常识｜软化栽培遮光期推定（未逐品种校核）",
-      "sowMonthsPrecision": "derived"
+      "sowMonthsNote": "韭黄是韭菜遮光软化栽培的产物，播期与韭菜相同 —— 母本「韭菜」：育苗为主，翌年 3–4 月定植；也可 4–5 月直播",
+      "sowMonthsSource": "继承母本「韭菜」的已校核播期（韭黄是韭菜遮光软化栽培的产物，播期与韭菜相同）",
+      "sowMonthsPrecision": "inherited",
+      "sowMonthsSouth": [
+        3,
+        4
+      ]
     },
     {
       "cropId": "C105",
@@ -3850,11 +3854,11 @@
       "displayName": "蕨菜",
       "growthCycle": "short",
       "growthCycleLabel": "短周期",
-      "lifespan": "annual",
-      "lifespanLabel": "一年生",
+      "lifespan": "perennial",
+      "lifespanLabel": "多年生",
       "croppingSystem": "single",
       "croppingSystemLabel": "一年一熟",
-      "totalDays": 90,
+      "totalDays": 1825,
       "suitableSeason": "春播/秋播",
       "suitableRegion": "全国",
       "tempRequirement": "蔬菜类，生育期短，需水肥充足",
@@ -3865,9 +3869,9 @@
         9,
         10
       ],
-      "sowMonthsNote": "根茎春秋两季栽植（3–4 月、9–10 月）",
-      "sowMonthsSource": "野菜栽培常识（未逐品种校核）",
-      "sowMonthsPrecision": "derived"
+      "sowMonthsNote": "根茎春 4 月下旬–5 月上旬、秋 10 月下旬移栽；孢子繁殖 7–8 月采孢，苗高 10cm 霜降前后移栽",
+      "sowMonthsSource": "北京农业信息网《林海山珍——蕨菜的人工栽培技术》／安徽农网／惠农网《蕨菜的种植时间及方法》",
+      "propertiesSource": "公开栽培资料校正（V6.3：宿根/多年生，一次种植连续采收多年）"
     },
     {
       "cropId": "C133",
@@ -3971,11 +3975,11 @@
       "source": "category-rule",
       "sowMonths": [
         3,
-        4
+        4,
+        10
       ],
-      "sowMonthsNote": "春播 3–4 月",
-      "sowMonthsSource": "药材栽培常识（未逐品种校核）",
-      "sowMonthsPrecision": "derived"
+      "sowMonthsNote": "春播 3 月底–4 月中旬、秋播 10 月下旬；育苗移栽 8–9 月上旬，适温 15–25℃",
+      "sowMonthsSource": "宁夏三农信息服务平台《车前草的种植时间和方法》／长景园林《车前草种植时间和方法》"
     },
     {
       "cropId": "C138",
@@ -5016,9 +5020,9 @@
         4,
         9
       ],
-      "sowMonthsNote": "春植 3–4 月或秋植 9–10 月",
-      "sowMonthsSource": "热带果树栽培常识（未逐品种校核）",
-      "sowMonthsPrecision": "derived"
+      "sowMonthsNote": "芭乐即番石榴的别称，同一作物 —— 母本「番石榴」：春植 3–4 月或秋植 9–10 月",
+      "sowMonthsSource": "继承母本「番石榴」的已校核播期（芭乐即番石榴的别称，同一作物）",
+      "sowMonthsPrecision": "inherited"
     },
     {
       "cropId": "C174",
@@ -7694,24 +7698,24 @@
       "displayName": "黄花菜",
       "growthCycle": "short",
       "growthCycleLabel": "短周期",
-      "lifespan": "annual",
-      "lifespanLabel": "一年生",
+      "lifespan": "perennial",
+      "lifespanLabel": "多年生",
       "croppingSystem": "single",
       "croppingSystemLabel": "一年一熟",
-      "totalDays": 120,
+      "totalDays": 1825,
       "suitableSeason": "春播",
       "suitableRegion": "全国",
       "tempRequirement": "观赏/药用，喜光",
       "source": "category-rule",
       "sowMonths": [
-        3,
         4,
+        5,
         9,
         10
       ],
-      "sowMonthsNote": "分株 3–4 月或秋植 9–10 月（多年生）",
-      "sowMonthsSource": "黄花菜栽培常识（未逐品种校核）",
-      "sowMonthsPrecision": "derived"
+      "sowMonthsNote": "春播 4 月中下旬–5 月初、秋播 9 月下旬–10 月中旬；分株在春季花薹抽出前或 10 月采蕾后",
+      "sowMonthsSource": "惠农网《黄花菜种植时间是几月份》／《掌握黄花菜种植的最佳时间与有效方法》",
+      "propertiesSource": "公开栽培资料校正（V6.3：宿根/多年生，一次种植连续采收多年）"
     },
     {
       "cropId": "C268",
@@ -7823,11 +7827,11 @@
       "displayName": "马兰头",
       "growthCycle": "short",
       "growthCycleLabel": "短周期",
-      "lifespan": "annual",
-      "lifespanLabel": "一年生",
+      "lifespan": "perennial",
+      "lifespanLabel": "多年生",
       "croppingSystem": "single",
       "croppingSystemLabel": "一年一熟",
-      "totalDays": 120,
+      "totalDays": 1825,
       "suitableSeason": "春播",
       "suitableRegion": "全国",
       "tempRequirement": "属性按作物类别推定",
@@ -7835,11 +7839,12 @@
       "sowMonths": [
         3,
         4,
+        8,
         9
       ],
-      "sowMonthsNote": "春秋两季分株（3–4 月、9 月）",
-      "sowMonthsSource": "野菜栽培常识（未逐品种校核）",
-      "sowMonthsPrecision": "derived"
+      "sowMonthsNote": "分株春 4–5 月采收结束后、秋 8–9 月；种子直播 2 月下旬–3 月上旬；根茎冬前或早春",
+      "sowMonthsSource": "安徽农网《马兰营养成分利用和栽培技术要点》／百度百科《马兰头》／一亩田《马兰头露地栽培》",
+      "propertiesSource": "公开栽培资料校正（V6.3：宿根/多年生，一次种植连续采收多年）"
     },
     {
       "cropId": "C273",
@@ -7925,13 +7930,17 @@
       "tempRequirement": "蔬菜类，生育期短，需水肥充足",
       "source": "category-rule",
       "sowMonths": [
-        9,
-        10,
-        3
+        3,
+        4,
+        10
       ],
-      "sowMonthsNote": "秋播 9–10 月收嫩梢，或早春 3 月播",
-      "sowMonthsSource": "豌豆栽培常识（未逐品种校核）",
-      "sowMonthsPrecision": "derived"
+      "sowMonthsNote": "豌豆尖是豌豆的嫩梢采收，播期与豌豆相同 —— 母本「豌豆」：华北春播 3 月中–4 上；越冬栽培 10 月下旬",
+      "sowMonthsSource": "继承母本「豌豆」的已校核播期（豌豆尖是豌豆的嫩梢采收，播期与豌豆相同）",
+      "sowMonthsPrecision": "inherited",
+      "sowMonthsSouth": [
+        10,
+        11
+      ]
     },
     {
       "cropId": "C277",
@@ -7951,9 +7960,17 @@
         4,
         5
       ],
-      "sowMonthsNote": "栽插 4–5 月（地温 15℃ 以上）",
-      "sowMonthsSource": "甘薯栽培常识（未逐品种校核）",
-      "sowMonthsPrecision": "derived"
+      "sowMonthsNote": "红薯叶是红薯的嫩梢采收，栽插期与红薯相同 —— 母本「红薯」：华北 3 月育苗、4 月下旬–5 月上旬栽插；夏薯 6 月上中旬",
+      "sowMonthsSource": "继承母本「红薯」的已校核播期（红薯叶是红薯的嫩梢采收，栽插期与红薯相同）",
+      "sowMonthsPrecision": "inherited",
+      "sowMonthsSouth": [
+        3,
+        4
+      ],
+      "sowMonthsSouthwest": [
+        3,
+        4
+      ]
     },
     {
       "cropId": "C278",
@@ -7973,9 +7990,13 @@
         4,
         5
       ],
-      "sowMonthsNote": "春播 4–5 月，采嫩梢",
-      "sowMonthsSource": "瓜类栽培常识（未逐品种校核）",
-      "sowMonthsPrecision": "derived"
+      "sowMonthsNote": "南瓜藤是南瓜的嫩梢采收，播期与南瓜相同 —— 母本「南瓜」：华北 4 月直播，7–9 月收；南方可提前到 3 月",
+      "sowMonthsSource": "继承母本「南瓜」的已校核播期（南瓜藤是南瓜的嫩梢采收，播期与南瓜相同）",
+      "sowMonthsPrecision": "inherited",
+      "sowMonthsSouth": [
+        2,
+        3
+      ]
     },
     {
       "cropId": "C279",
@@ -7995,9 +8016,15 @@
         4,
         5
       ],
-      "sowMonthsNote": "春播 4–5 月，采嫩梢",
-      "sowMonthsSource": "瓜类栽培常识（未逐品种校核）",
-      "sowMonthsPrecision": "derived"
+      "sowMonthsNote": "丝瓜尖是丝瓜的嫩梢采收，播期与丝瓜相同 —— 母本「丝瓜」：华北露地 4 月直播；南方 2–3 月",
+      "sowMonthsSource": "继承母本「丝瓜」的已校核播期（丝瓜尖是丝瓜的嫩梢采收，播期与丝瓜相同）",
+      "sowMonthsPrecision": "inherited",
+      "sowMonthsSouth": [
+        2,
+        3,
+        7,
+        8
+      ]
     },
     {
       "cropId": "C280",
@@ -8015,11 +8042,22 @@
       "source": "category-rule",
       "sowMonths": [
         3,
-        4
+        4,
+        5
       ],
-      "sowMonthsNote": "春播 3–4 月（保护地育苗），采嫩叶",
-      "sowMonthsSource": "辣椒栽培常识（未逐品种校核）",
-      "sowMonthsPrecision": "derived"
+      "sowMonthsNote": "辣椒叶是辣椒的嫩叶采收，播期与辣椒相同 —— 母本「辣椒」：春茬 3 月育苗、5 月定植；南方 2–3 月可播",
+      "sowMonthsSource": "继承母本「辣椒」的已校核播期（辣椒叶是辣椒的嫩叶采收，播期与辣椒相同）",
+      "sowMonthsPrecision": "inherited",
+      "sowMonthsSouth": [
+        2,
+        3,
+        8
+      ],
+      "sowMonthsSouthwest": [
+        2,
+        3,
+        7
+      ]
     },
     {
       "cropId": "C281",
@@ -8039,9 +8077,13 @@
         5,
         6
       ],
-      "sowMonthsNote": "夏播 5–6 月，采嫩叶",
-      "sowMonthsSource": "芝麻栽培常识（未逐品种校核）",
-      "sowMonthsPrecision": "derived"
+      "sowMonthsNote": "芝麻叶是芝麻的嫩叶采收，播期与芝麻相同 —— 母本「芝麻」：夏芝麻 5 下–6 上、秋芝麻 7 月 10 日前",
+      "sowMonthsSource": "继承母本「芝麻」的已校核播期（芝麻叶是芝麻的嫩叶采收，播期与芝麻相同）",
+      "sowMonthsPrecision": "inherited",
+      "sowMonthsSouth": [
+        6,
+        7
+      ]
     },
     {
       "cropId": "C282",
@@ -8059,11 +8101,18 @@
       "source": "category-rule",
       "sowMonths": [
         3,
-        4
+        4,
+        10
       ],
-      "sowMonthsNote": "春季 3–4 月采芽（多年生）",
-      "sowMonthsSource": "花椒栽培常识（未逐品种校核）",
-      "sowMonthsPrecision": "derived"
+      "sowMonthsNote": "花椒芽是花椒的嫩芽采收，栽植期与花椒相同 —— 母本「花椒」：春植 3–4 月、秋植 10 月；4–5 月开花",
+      "sowMonthsSource": "继承母本「花椒」的已校核播期（花椒芽是花椒的嫩芽采收，栽植期与花椒相同）",
+      "sowMonthsPrecision": "inherited",
+      "sowMonthsSouth": [
+        2,
+        3,
+        9,
+        10
+      ]
     },
     {
       "cropId": "C283",
@@ -8083,9 +8132,9 @@
         3,
         4
       ],
-      "sowMonthsNote": "春季 3–4 月播种育苗",
-      "sowMonthsSource": "香椿栽培常识（未逐品种校核）",
-      "sowMonthsPrecision": "derived"
+      "sowMonthsNote": "香椿苗是香椿的嫩芽/苗，播期与香椿相同 —— 母本「香椿」：露地 3–4 月播种育苗（温室 2 月育苗、4 月下旬移栽），多年生采芽",
+      "sowMonthsSource": "继承母本「香椿」的已校核播期（香椿苗是香椿的嫩芽/苗，播期与香椿相同）",
+      "sowMonthsPrecision": "inherited"
     },
     {
       "cropId": "C284",
@@ -10061,14 +10110,11 @@
       "tempRequirement": "多年生，需按年管理",
       "source": "category-rule",
       "sowMonths": [
-        3,
-        4,
-        10,
-        11
+        2,
+        3
       ],
-      "sowMonthsNote": "春植 3–4 月或秋植 10–11 月",
-      "sowMonthsSource": "浆果类栽培常识（未逐品种校核）",
-      "sowMonthsPrecision": "derived"
+      "sowMonthsNote": "扦插苗 2 月上旬–3 月上旬定植，当年即可挂果；北方宜春季晚霜后",
+      "sowMonthsSource": "《莓类果实植物的栽培与利用》（表 1：黑莓扦插苗 2 月上旬至 3 月上旬）"
     },
     {
       "cropId": "C342",
@@ -10090,9 +10136,8 @@
         10,
         11
       ],
-      "sowMonthsNote": "春植 3–4 月或秋植 10–11 月",
-      "sowMonthsSource": "浆果类栽培常识（未逐品种校核）",
-      "sowMonthsPrecision": "derived"
+      "sowMonthsNote": "春植土壤解冻后芽眼萌动前 3–4 月（以晚栽为好，组培苗 5 月上中旬），秋植枝条木质化后至封冻前 10–11 月",
+      "sowMonthsSource": "科普中国《树莓园的建立》（春 4 下–5 上、秋 10 中）／宁夏三农信息服务平台《树莓庭院栽培管理技术》（根蘖苗 3–4 月、10–11 月）"
     },
     {
       "cropId": "C343",
@@ -10109,12 +10154,10 @@
       "tempRequirement": "多年生，需按年管理",
       "source": "category-rule",
       "sowMonths": [
-        4,
-        5
+        4
       ],
-      "sowMonthsNote": "春季 4–5 月定植，需酸性湿地",
-      "sowMonthsSource": "浆果类栽培常识（未逐品种校核）",
-      "sowMonthsPrecision": "derived"
+      "sowMonthsNote": "4 月藤茎扦插定植，需酸性（pH 4.0–5.5）湿地，北方可延到 5 月",
+      "sowMonthsSource": "《莓类果实植物的栽培与利用》（表 1：蔓越莓藤茎扦插 4 月）"
     },
     {
       "cropId": "C344",
@@ -10899,9 +10942,8 @@
         10,
         11
       ],
-      "sowMonthsNote": "春植 2–3 月或秋植 10–11 月",
-      "sowMonthsSource": "常绿果树栽培常识（未逐品种校核）",
-      "sowMonthsPrecision": "derived"
+      "sowMonthsNote": "春植 2 月下旬–3 月中旬萌芽前（以春植为宜），冷冬地区也可 10 月下旬–11 月中旬秋植",
+      "sowMonthsSource": "《青田杨梅绿色食品生产技术规程》《绿色食品 文成杨梅生产技术规程》T/ZLX 002-2020（春植 2 下–3 中、秋植 10 上–11 上）"
     },
     {
       "cropId": "C367",
@@ -10945,9 +10987,9 @@
         1,
         2
       ],
-      "sowMonthsNote": "落叶果树休眠期定植 12–2 月",
-      "sowMonthsSource": "核果类栽培常识（未逐品种校核）",
-      "sowMonthsPrecision": "derived"
+      "sowMonthsNote": "乌梅是青梅的熏制加工品，栽植期同青梅 —— 母本「青梅」：落叶果树休眠期定植 12–2 月",
+      "sowMonthsSource": "继承母本「青梅」的已校核播期（乌梅是青梅的熏制加工品，栽植期同青梅）",
+      "sowMonthsPrecision": "inherited"
     },
     {
       "cropId": "C369",
@@ -10968,9 +11010,9 @@
         1,
         2
       ],
-      "sowMonthsNote": "落叶果树休眠期定植 12–2 月",
-      "sowMonthsSource": "核果类栽培常识（未逐品种校核）",
-      "sowMonthsPrecision": "derived"
+      "sowMonthsNote": "黄梅是青梅的黄熟果，栽植期同青梅 —— 母本「青梅」：落叶果树休眠期定植 12–2 月",
+      "sowMonthsSource": "继承母本「青梅」的已校核播期（黄梅是青梅的黄熟果，栽植期同青梅）",
+      "sowMonthsPrecision": "inherited"
     },
     {
       "cropId": "C370",

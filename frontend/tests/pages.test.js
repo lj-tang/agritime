@@ -2399,9 +2399,9 @@ test('V5.4/V5.5 播期校核：100 种作物有精确月份，且区分南北窗
   const derived = checked.filter((c) => c.sowMonthsPrecision === 'derived');
   const inherited = checked.filter((c) => c.sowMonthsPrecision === 'inherited');
   const researched = checked.filter((c) => !c.sowMonthsPrecision || c.sowMonthsPrecision === 'researched');
-  assert.ok(researched.length >= 225, '逐条查证应不少于 225 种，实际 ' + researched.length);
-  assert.ok(inherited.length >= 100, '继承母本应不少于 100 种，实际 ' + inherited.length);
-  assert.ok(derived.length >= 65, '按类别推定应不少于 65 种，实际 ' + derived.length);
+  assert.ok(researched.length >= 235, '逐条查证应不少于 235 种，实际 ' + researched.length);
+  assert.ok(inherited.length >= 110, '继承母本应不少于 110 种，实际 ' + inherited.length);
+  assert.ok(derived.length >= 40, '按类别推定应不少于 40 种，实际 ' + derived.length);
   // 野生/共生菌单独一档：不能拿"播期"糊弄
   const wild = checked.filter((c) => c.sowMonthsPrecision === 'wild');
   assert.ok(wild.length >= 2, '松茸/鸡枞这类应有野生标记，实际 ' + wild.length);
@@ -2453,6 +2453,18 @@ test('V5.4/V5.5 播期校核：100 种作物有精确月份，且区分南北窗
     '蒜苗': [2, 7, 8, 9, 10],
     '板蓝根': [3, 4, 5, 6],
     '穿心莲': [3, 4],
+    '树莓': [3, 4, 10, 11],
+    '黑莓': [2, 3],
+    '蔓越莓': [4],
+    '杨梅': [2, 3, 10, 11],
+    '三七': [11, 12, 1],
+    '薰衣草': [3, 4, 10],
+    '黄花菜': [4, 5, 9, 10],
+    '马兰头': [3, 4, 8, 9],
+    '蕨菜': [3, 4, 9, 10],
+    '香葱': [3, 4, 5, 9, 10],
+    '分葱': [4, 5, 9, 10],
+    '车前草': [3, 4, 10],
   };
   const idx = Object.fromEntries(props.crops.map((x) => [x.displayName, x]));
   for (const [name, months] of Object.entries(expect)) {
