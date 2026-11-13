@@ -411,6 +411,12 @@ public final class PlantingWindow {
             if (recommended.isBefore(lf) && !lf.isAfter(end)) {
                 recommended = lf;
                 note = join(note, "已避开终霜，按终霜后 " + lf + " 起算");
+            } else if (recommended.isBefore(lf)) {
+                // 整个窗口都在霜期内（如乌鲁木齐番茄 1–3 月、终霜在 4 月底）：
+                // 日期本身不能改，但必须说清这只是保护地育苗起点，
+                // 否则用户会以为 1 月就能往地里撒种。
+                note = join(note, "该日期仍在本地霜期内（终霜约 " + lf
+                        + "），只能作保护地育苗起点，露地定植需等终霜后");
             }
         }
         if (perennial) {
