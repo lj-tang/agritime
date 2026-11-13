@@ -19,7 +19,7 @@
   var DEFAULT_LON = 116.31;
   var DEFAULT_NAME = '山东济宁（默认）';
 
-  var form, monthSel, locInput, latInput, lonInput, locBtn, resolveBtn;
+  var form, monthSel, locInput, latInput, lonInput, locBtn, resolveBtn, mapBtn;
   var locStatus, resultBox, plotSel;
 
   /** 当前地点是否已解析成坐标；source=default 表示会用默认地点。 */
@@ -33,6 +33,7 @@
     lonInput = document.getElementById('recommend-lon');
     locBtn = document.getElementById('recommend-loc-btn');
     resolveBtn = document.getElementById('recommend-resolve-btn');
+    mapBtn = document.getElementById('recommend-map-btn');
     locStatus = document.getElementById('recommend-loc-status');
     resultBox = document.getElementById('recommend-result');
     plotSel = document.getElementById('recommend-plot');
@@ -42,6 +43,7 @@
     fillPlots();
     form.addEventListener('submit', onSubmit);
     if (locBtn) locBtn.addEventListener('click', autoLocate);
+    if (mapBtn) mapBtn.addEventListener('click', pickOnMap);
     if (resolveBtn) resolveBtn.addEventListener('click', function () { resolveLocation(true); });
     // 输入框失焦就尝试解析：用户填完地点去看别的字段时，坐标已经准备好了
     if (locInput) {
@@ -113,7 +115,9 @@
     setStatus('定位中…');
     window.LocationPicker.getCurrentLocation(function (loc) {
       if (loc && window.LocationPicker.validateLatLon && window.LocationPicker.validateLatLon(loc.lat, loc.lon)) {
-        locState = { lat: loc.lat, lon: loc.lon, name: loc.name || '当前位置', source: 'map' };
+        // source 用 locate 而不是 map：设备/网络定位只到小区，不能当成"亲手标的点"，
+        // 否则用户在家点一下定位就会被判成"在城镇建成区里"
+        locState = { lat: loc.lat, lon: loc.lon, name: loc.name || '当前位置', source: 'locate' };
         latInput.value = loc.lat.toFixed(4);
         lonInput.value = loc.lon.toFixed(4);
         locInput.value = locState.name;
@@ -122,6 +126,25 @@
         setStatus('定位失败，请手动填写地点后点「解析地点」', 'error');
       }
     });
+  }
+
+  /**
+   * 地图标点：和首页同一个组件，选完把坐标写进 locState 与隐藏域。
+   * 只填市县的推荐只能按城市气候算，标到地块才谈得上"这块地适不适合"。
+   */
+  function pickOnMap() {
+    if (!window.LocationPicker || !window.LocationPicker.open) {
+      setStatus('地图组件未加载，请刷新页面重试', 'warn');
+      return;
+    }
+    window.LocationPicker.open(function (res) {
+      if (!res || res.lat == null) return;
+      locState = { lat: res.lat, lon: res.lon, name: res.name || '地图选点', source: 'map' };
+      latInput.value = res.lat.toFixed(4);
+      lonInput.value = res.lon.toFixed(4);
+      locInput.value = locState.name;
+      setStatus('已在地图上标点（' + res.lat.toFixed(4) + ', ' + res.lon.toFixed(4) + '）', 'ok');
+    }, { target: 'recommend-location' });
   }
 
   var PROVINCES = ['河北', '山西', '辽宁', '吉林', '黑龙江', '江苏', '浙江', '安徽', '福建', '江西',
@@ -546,8 +569,8 @@
   /** 进日历时把地点和地块都带上，用户不用再填一遍 */
   function goCalendar(r) {
     var resolved = locState.lat != null && locState.lon != null;
-    // src=locate：推荐页给的是"地区"，不是地块，别拿它去判建成区
-    if (resolved) window.__markerLatLon = { lat: locState.lat, lon: locState.lon, src: 'locate' };
+    // src 决定日历那边要不要做"建成区"判定：只有亲手在地图上标的点才算精确位置
+    if (resolved) window.__markerLatLon = { lat: locState.lat, lon: locState.lon, src: locState.source === 'map' ? 'map' : 'locate' };
     var plot = plotContext();
 
     if (window.Sidebar && window.Sidebar.switchModule) window.Sidebar.switchModule('calendar');

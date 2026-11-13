@@ -37,6 +37,11 @@
   var currentMarker = null;
   var currentPoint = null;   // 当前标点（WGS84）
   var pendingCallback = null;
+  /**
+   * 确认后回填到哪个输入框。默认是首页的 #location；
+   * 种植推荐、渔业养殖等子模块各自传自己的输入框 id，免得选个塘口把首页的"所在地"改掉。
+   */
+  var openTarget = 'location';
   var displayMap = null;
   var currentPlace = null;   // 当前标点解析出的中文地名，确认时回填
   var resolving = false;     // 反向地理编码进行中
@@ -324,6 +329,7 @@
 
   function open(onConfirm, opts) {
     pendingCallback = onConfirm;
+    openTarget = (opts && opts.target) || 'location';
     drawEnabled = !!(opts && opts.draw);
     mode = drawEnabled ? (opts.mode === 'point' ? 'point' : 'draw') : 'point';
 
@@ -769,19 +775,9 @@
     if (resolving) return;   // 按钮此时是禁用的，这里再兜一层
 
     var name = selectionName();
-
-    // 经纬度保留 6 位小数（约 0.1 米），只交给后端参与计算，界面不展示
-    // src=map：这是用户亲手标的点，够精确，可以参与"是不是建成区"的判断
-    window.__markerLatLon = { lat: round6(currentPoint.lat), lon: round6(currentPoint.lon), src: 'map' };
-    // 同步成"地名 → 坐标"的解析结果：否则提交时会对同一个地名再解析一次，
-    // 把用户标的那块地换成市政府坐标（城区判定、霜期全都跟着错）
-    window.__resolvedLL = {
-      lat: window.__markerLatLon.lat,
-      lon: window.__markerLatLon.lon,
-      title: name,
-      text: name
-    };
-    window.__markerPlace = currentPlace ? {
+    var lat = round6(currentPoint.lat);
+    var lon = round6(currentPoint.lon);
+    var place = currentPlace ? {
       displayName: currentPlace.displayName,
       name: currentPlace.name,
       district: currentPlace.district,
@@ -789,18 +785,25 @@
       level: currentPlace.level
     } : null;
 
-    var loc = document.getElementById('location');
+    // 只有首页的"所在地"才代表全站坐标。子模块（推荐/渔业）自己接管输入框与坐标，
+    // 不能顺手把首页状态改掉 —— 否则在渔业选个塘口，回日历发现所在地变成塘口名了。
+    if (openTarget === 'location') {
+      // 经纬度保留 6 位小数（约 0.1 米），只交给后端参与计算，界面不展示
+      // src=map：这是用户亲手标的点，够精确，可以参与"是不是建成区"的判断
+      window.__markerLatLon = { lat: lat, lon: lon, src: 'map' };
+      // 同步成"地名 → 坐标"的解析结果：否则提交时会对同一个地名再解析一次，
+      // 把用户标的那块地换成市政府坐标（城区判定、霜期全都跟着错）
+      window.__resolvedLL = { lat: lat, lon: lon, title: name, text: name };
+      window.__markerPlace = place;
+    }
+
+    var loc = document.getElementById(openTarget);
     if (loc) loc.value = name;
 
     var cb = pendingCallback;
     pendingCallback = null;
     if (cb) {
-      cb({
-        lat: window.__markerLatLon.lat,
-        lon: window.__markerLatLon.lon,
-        name: name,
-        place: window.__markerPlace
-      });
+      cb({ lat: lat, lon: lon, name: name, place: place });
     }
     close();
   }
@@ -909,7 +912,9 @@
   }
 
   function degrade() {
-    var loc = document.getElementById('location');
+    // 地图没加载起来时退回手输：焦点要给到发起这次选择的那一格，
+    // 不能一律聚焦首页的「所在地」（从渔业/推荐点进来会跑到看不见的地方）
+    var loc = document.getElementById(openTarget);
     if (loc) loc.focus();
     if (pendingCallback) { pendingCallback(null); pendingCallback = null; }
   }

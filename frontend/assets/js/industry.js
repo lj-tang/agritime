@@ -18,6 +18,7 @@
   var dateInput = document.getElementById('industry-date');
   var locInput = document.getElementById('industry-location');
   var locateBtn = document.getElementById('industry-locate');
+  var mapBtn = document.getElementById('industry-map-btn');
   var plotSel = document.getElementById('industry-plot');
   var locHint = document.getElementById('industry-loc-hint');
   var result = document.getElementById('industry-result');
@@ -129,6 +130,23 @@
         fixedLL = [p.lat, p.lon];
         locInput.value = p.name || (p.lat.toFixed(3) + ', ' + p.lon.toFixed(3));
         showLocHint('已使用地块坐标（' + p.lat.toFixed(4) + ', ' + p.lon.toFixed(4) + '）');
+      });
+    }
+    if (mapBtn) {
+      mapBtn.addEventListener('click', function () {
+        if (!window.LocationPicker || !window.LocationPicker.open) {
+          showLocHint('地图组件未加载，请刷新页面重试');
+          return;
+        }
+        // 和首页同一个地图标点组件；target 指到塘口这个输入框，
+        // 不传的话组件会去改首页的「所在地」
+        window.LocationPicker.open(function (res) {
+          if (!res || res.lat == null) return;
+          fixedLL = [res.lat, res.lon];
+          if (plotSel) plotSel.value = '';
+          locInput.value = res.name || (res.lat.toFixed(4) + ', ' + res.lon.toFixed(4));
+          showLocHint('已在地图上标点（' + res.lat.toFixed(4) + ', ' + res.lon.toFixed(4) + '）');
+        }, { target: 'industry-location' });
       });
     }
     if (locateBtn) {

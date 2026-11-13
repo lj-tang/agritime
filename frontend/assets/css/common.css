@@ -1592,24 +1592,38 @@ body.split-active .home-pane-back { display: inline-flex; align-items: center; }
 .my-plots-card:hover,
 .my-crops-card:hover { box-shadow: var(--shadow) !important; }
 
-/* 地图选点按钮同样被 append 到 .field 末尾，与语音按钮一起悬浮在输入框右侧。
+/* 地图选点按钮通用外观：图标小按钮，无边框、悬停才显底色。
+   位置交给各自容器（首页/推荐在 .field 里、渔业在 .industry-loc-input 里），
+   否则同一套外观要复制三遍。 */
+.map-picker-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  font-size: calc(14px * var(--fs, 1));
+  color: var(--muted);
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: color 0.15s ease, background 0.15s ease;
+}
+
+.map-picker-btn:hover {
+  background: var(--surface-2);
+  border-color: transparent;
+  color: var(--brand);
+}
+
+/* 首页与种植推荐：按钮被 append 到 .field 末尾，和语音按钮一起悬浮在输入框右侧。
    有地图按钮时，语音按钮往左让一格，避免两个图标叠在一起。 */
 .field > .map-picker-btn {
   position: absolute;
   right: 5px;
   top: 29px;
   margin-left: 0;
-  width: 28px;
-  height: 28px;
-  border-color: transparent;
-  background: transparent;
-  color: var(--muted);
-  font-size: calc(14px * var(--fs, 1));
-}
-
-.field > .map-picker-btn:hover {
-  background: var(--surface-2);
-  border-color: transparent;
 }
 
 .field:has(> .map-picker-btn) input { padding-right: 40px; }

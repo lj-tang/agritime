@@ -127,6 +127,26 @@
   border-radius: 10px;
 }
 
+/* 塘口所在地：输入框占满一行，右侧内嵌地图标点，「定位」按钮并排在同一行。
+   以前 .industry-loc-row 没有样式，input 撑满 100%，「定位」被挤到下一行，
+   看起来像两个不相干的控件。 */
+.industry-loc-row { display: flex; align-items: center; gap: 8px; }
+.industry-loc-input { position: relative; flex: 1 1 auto; min-width: 0; }
+.industry-loc-input input { padding-right: 42px; }
+.industry-loc-input > .map-picker-btn {
+  position: absolute;
+  right: 6px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+.industry-loc-row > .btn { flex: 0 0 auto; margin: 0; white-space: nowrap; }
+
+/* 触控热区同首页：手机上别让人戳 28px 的小图标 */
+@media (max-width: 767px) {
+  .industry-loc-input > .map-picker-btn { width: 40px; height: 40px; font-size: calc(17px * var(--fs, 1)); right: 3px; }
+  .industry-loc-input input { padding-right: 48px; }
+}
+
 @media (max-width: 900px) {
   .industry-body { grid-template-columns: 1fr; gap: 16px; }
   .industry-form { position: static; }

@@ -240,6 +240,8 @@
         <div class="field">
           <label for="recommend-location">地点 <span class="hint">填了就会参与计算</span></label>
           <input type="text" id="recommend-location" placeholder="如：山东济宁" autocomplete="off" />
+          <!-- 和首页「所在地」同一个地图标点：精确到地块比只填市县准得多 -->
+          <button type="button" class="map-picker-btn" id="recommend-map-btn" aria-label="地图标点" title="在地图上标点"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg></button>
           <div class="recommend-loc-row">
             <button type="button" class="btn btn-ghost" id="recommend-loc-btn"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.5"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg> 用当前位置</button>
             <button type="button" class="btn btn-ghost" id="recommend-resolve-btn"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1"/></svg> 解析地点</button>
@@ -473,7 +475,10 @@
           <div class="industry-field">
             <label for="industry-location">塘口所在地</label>
             <div class="industry-loc-row">
-              <input type="text" id="industry-location" name="location" placeholder="湖北省荆州市" value="湖北省荆州市" />
+              <div class="industry-loc-input">
+                <input type="text" id="industry-location" name="location" placeholder="湖北省荆州市" value="湖北省荆州市" />
+                <button type="button" class="map-picker-btn" id="industry-map-btn" aria-label="地图标点" title="在地图上标点"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg></button>
+              </div>
               <button type="button" class="btn btn-ghost" id="industry-locate">定位</button>
             </div>
             <p class="industry-hint" id="industry-loc-hint" hidden></p>
