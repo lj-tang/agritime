@@ -27,6 +27,8 @@
   var DEFAULT_LL = [30.33, 112.24];   // 荆州：仅在地名解析失败时兜底
 
   // 当前下拉里的品种（接口优先，兜底表其次），换品种时用它刷新介绍
+  var currentSpecies = [];
+
   bindLocationControls();
   populatePlots();
 

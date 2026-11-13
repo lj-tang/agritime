@@ -2707,6 +2707,8 @@ test('V6.8 天气走代理、渔业可定位选地块、城区该拦', () => {
   assert.ok(ind.includes('function geocode('), '任意地名应走地理接口，别再靠硬编码城市表');
   assert.ok(!/return CITY_COORDS\[location\] \|\| \[30\.33/.test(ind),
     '不能把没命中的地名一律当荆州');
+  // 曾经把 currentSpecies 的声明误删，导致换品种时报 undefined
+  assert.ok(ind.includes('var currentSpecies = []'), 'currentSpecies 必须声明');
 
   // 3) 城区拦截
   const gf = read(path.join(root, 'backend', 'src', 'com', 'cropcalendar', 'service', 'geo', 'GeoFactors.java'));
