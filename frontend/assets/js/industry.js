@@ -26,6 +26,13 @@
   var fixedLL = null;
   var DEFAULT_LL = [30.33, 112.24];   // 荆州：仅在地名解析失败时兜底
 
+  // 必须放在 bindLocationControls()/populatePlots() 调用之前：
+  // var 只提升声明不提升赋值，放后面会导致 populatePlots 读到 undefined
+  var PLOT_LABEL = {
+    farmland: '耕田', economic: '经济作物田', greenhouse: '大棚',
+    fishpond: '鱼塘', orchard: '果园', paddy: '水稻田'
+  };
+
   // 当前下拉里的品种（接口优先，兜底表其次），换品种时用它刷新介绍
   var currentSpecies = [];
 
@@ -107,11 +114,6 @@
     if (keep) plotSel.value = keep;
     if (!plots.length) showLocHint('还没有地块，可在「我的」→「我的地块」里画一个鱼塘');
   }
-
-  var PLOT_LABEL = {
-    farmland: '耕田', economic: '经济作物田', greenhouse: '大棚',
-    fishpond: '鱼塘', orchard: '果园', paddy: '水稻田'
-  };
 
   function bindLocationControls() {
     if (plotSel) {
