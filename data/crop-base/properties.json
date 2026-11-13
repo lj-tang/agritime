@@ -567,11 +567,11 @@
       "displayName": "苎麻",
       "growthCycle": "long",
       "growthCycleLabel": "长周期",
-      "lifespan": "annual",
-      "lifespanLabel": "一年生",
+      "lifespan": "perennial",
+      "lifespanLabel": "多年生",
       "croppingSystem": "single",
       "croppingSystemLabel": "一年一熟",
-      "totalDays": 150,
+      "totalDays": 1825,
       "suitableSeason": "春播",
       "suitableRegion": "适生区",
       "tempRequirement": "经济作物",
@@ -579,11 +579,11 @@
       "sowMonths": [
         3,
         4,
-        11
+        8
       ],
-      "sowMonthsNote": "分蔸/种子 3–4 月，或秋末 11 月",
-      "sowMonthsSource": "纤维作物栽培常识（未逐品种校核）",
-      "sowMonthsPrecision": "derived"
+      "sowMonthsNote": "种子育苗 3 月上旬–4 月上旬（也可秋播 8 月上中旬），10–12 片真叶移栽；分蔸繁殖 2 月下旬–3 月上旬，移栽在秋末冬初或早春",
+      "sowMonthsSource": "安徽农网《苎麻的种植技术》（播种 3 上–4 上、分蔸 2 下–3 上）／中国医药信息查询平台《苎麻》（春 3 上中、秋 8 上中播种）",
+      "propertiesSource": "公开栽培资料校正（V6.4：宿根/多年生，一次种植连续收割多年）"
     },
     {
       "cropId": "C020",
@@ -594,18 +594,18 @@
       "lifespanLabel": "一年生",
       "croppingSystem": "single",
       "croppingSystemLabel": "一年一熟",
-      "totalDays": 150,
+      "totalDays": 90,
       "suitableSeason": "春播",
       "suitableRegion": "适生区",
       "tempRequirement": "经济作物",
       "source": "category-rule",
       "sowMonths": [
-        3,
-        4
+        4,
+        5
       ],
-      "sowMonthsNote": "春播 3–4 月（纤维用）",
-      "sowMonthsSource": "纤维作物栽培常识（未逐品种校核）",
-      "sowMonthsPrecision": "derived"
+      "sowMonthsNote": "纤维用亚麻 4 月下旬–5 月上旬（黑龙江南部 4/25–5/10、中北部 5/1–5/15），气温稳定 6–7℃ 即可播；甘肃/内蒙油用亚麻同窗口，8 月中–9 月中收",
+      "sowMonthsSource": "黑龙江省农业农村厅《亚麻备春耕生产建议》／《亚麻生产技术规程》（南部 4/25–5/10、中北部 5/1–5/15）／轻纺原料网《亚麻》",
+      "propertiesSource": "公开栽培资料校正（V6.4）"
     },
     {
       "cropId": "C021",
@@ -3006,11 +3006,11 @@
       "source": "category-rule",
       "sowMonths": [
         3,
-        4
+        4,
+        5
       ],
-      "sowMonthsNote": "高海拔春播 3–4 月",
-      "sowMonthsSource": "杂粮栽培常识（未逐品种校核）",
-      "sowMonthsPrecision": "derived"
+      "sowMonthsNote": "春青稞 3 月下旬–5 月上旬（海拔越高越晚：河谷 3 下–4 上、拉萨河谷 4 中下–5 上、3800m 以上 5 月上中旬）；冬青稞 9 月中–10 月下旬（藏东-川西-滇西北另有 10 中–11 上）",
+      "sowMonthsSource": "农业行业标准 NY/T 4176-2022《青稞栽培技术规程》（表 1 各生态区播种时间）／科普中国《2019 年青稞生产技术指导意见》"
     },
     {
       "cropId": "C101",
@@ -7896,11 +7896,11 @@
       "displayName": "苜蓿",
       "growthCycle": "short",
       "growthCycleLabel": "短周期",
-      "lifespan": "annual",
-      "lifespanLabel": "一年生",
+      "lifespan": "perennial",
+      "lifespanLabel": "多年生",
       "croppingSystem": "single",
       "croppingSystemLabel": "一年一熟",
-      "totalDays": 120,
+      "totalDays": 1825,
       "suitableSeason": "春播",
       "suitableRegion": "全国",
       "tempRequirement": "属性按作物类别推定",
@@ -7913,7 +7913,8 @@
       ],
       "sowMonthsNote": "春播 3–4 月或秋播 8–9 月（多年生饲草）",
       "sowMonthsSource": "按栽培常识推定（未逐品种校核）",
-      "sowMonthsPrecision": "derived"
+      "sowMonthsPrecision": "derived",
+      "propertiesSource": "公开栽培资料校正（V6.4：宿根/多年生，一次种植连续收割多年）"
     },
     {
       "cropId": "C276",
@@ -8893,18 +8894,18 @@
       "lifespanLabel": "一年生",
       "croppingSystem": "single",
       "croppingSystemLabel": "一年一熟",
-      "totalDays": 90,
+      "totalDays": 110,
       "suitableSeason": "春播/秋播",
       "suitableRegion": "全国",
       "tempRequirement": "蔬菜类，生育期短，需水肥充足",
       "source": "category-rule",
       "sowMonths": [
-        4,
-        5
+        5,
+        6
       ],
-      "sowMonthsNote": "春播 4–5 月",
-      "sowMonthsSource": "杂粮栽培常识（未逐品种校核）",
-      "sowMonthsPrecision": "derived"
+      "sowMonthsNote": "地温稳定 15℃ 以上播种，5 月播后 50 天可首刈，之后每 25 天刈一茬，可利用到 9–10 月",
+      "sowMonthsSource": "安徽农网《青饲料牧草高效轮作套种模式》（黑麦草收后 5 月播种籽粒苋，50 天首刈、25 天一茬）",
+      "propertiesSource": "公开栽培资料校正（V6.4）"
     },
     {
       "cropId": "C303",
@@ -8936,7 +8937,7 @@
       "lifespanLabel": "一年生",
       "croppingSystem": "single",
       "croppingSystemLabel": "一年一熟",
-      "totalDays": 130,
+      "totalDays": 250,
       "suitableSeason": "春播/夏播",
       "suitableRegion": "全国",
       "tempRequirement": "禾谷类，需氮肥充足",
@@ -8945,9 +8946,9 @@
         9,
         10
       ],
-      "sowMonthsNote": "秋播 9–10 月（冬黑麦）或春播 3 月",
-      "sowMonthsSource": "杂粮栽培常识（未逐品种校核）",
-      "sowMonthsPrecision": "derived"
+      "sowMonthsNote": "冬黑麦 9 月上旬–10 月上旬条播（行距 20cm、播深 3–4cm）；高寒山区春黑麦 3–4 月",
+      "sowMonthsSource": "百度百科／搜狗百科《黑麦》栽培技术（播种时间 9 月上旬至 10 月上旬）",
+      "propertiesSource": "公开栽培资料校正（V6.4）"
     },
     {
       "cropId": "C305",

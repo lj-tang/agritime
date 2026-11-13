@@ -2399,9 +2399,9 @@ test('V5.4/V5.5 播期校核：100 种作物有精确月份，且区分南北窗
   const derived = checked.filter((c) => c.sowMonthsPrecision === 'derived');
   const inherited = checked.filter((c) => c.sowMonthsPrecision === 'inherited');
   const researched = checked.filter((c) => !c.sowMonthsPrecision || c.sowMonthsPrecision === 'researched');
-  assert.ok(researched.length >= 235, '逐条查证应不少于 235 种，实际 ' + researched.length);
+  assert.ok(researched.length >= 240, '逐条查证应不少于 240 种，实际 ' + researched.length);
   assert.ok(inherited.length >= 110, '继承母本应不少于 110 种，实际 ' + inherited.length);
-  assert.ok(derived.length >= 40, '按类别推定应不少于 40 种，实际 ' + derived.length);
+  assert.ok(derived.length >= 35, '按类别推定应不少于 35 种，实际 ' + derived.length);
   // 野生/共生菌单独一档：不能拿"播期"糊弄
   const wild = checked.filter((c) => c.sowMonthsPrecision === 'wild');
   assert.ok(wild.length >= 2, '松茸/鸡枞这类应有野生标记，实际 ' + wild.length);
@@ -2465,6 +2465,11 @@ test('V5.4/V5.5 播期校核：100 种作物有精确月份，且区分南北窗
     '香葱': [3, 4, 5, 9, 10],
     '分葱': [4, 5, 9, 10],
     '车前草': [3, 4, 10],
+    '青稞': [3, 4, 5],
+    '黑麦': [9, 10],
+    '籽粒苋': [5, 6],
+    '亚麻': [4, 5],
+    '苎麻': [3, 4, 8],
   };
   const idx = Object.fromEntries(props.crops.map((x) => [x.displayName, x]));
   for (const [name, months] of Object.entries(expect)) {
