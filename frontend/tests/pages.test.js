@@ -2742,6 +2742,36 @@ test('V6.8 天气走代理、渔业可定位选地块、城区该拦', () => {
     '不能再用布尔 urban 一刀切');
 });
 
+test('V6.9 子模块的地图标点：与首页同一组件，但不能改首页的「所在地」', () => {
+  const base = path.resolve(__dirname, '..');
+  const lp = read(path.resolve(base, 'components', 'location-picker', 'location-picker.js'));
+  // 打开时可指定回填目标，默认仍是首页
+  assert.ok(lp.includes("openTarget = (opts && opts.target) || 'location'"), 'open 应支持 opts.target');
+  assert.ok(/if \(openTarget === 'location'\)/.test(lp), '只有首页那次才写全站坐标');
+  assert.ok(lp.includes('document.getElementById(openTarget)'), '回填到目标输入框，别写死 #location');
+  assert.ok(/function degrade\(\)[\s\S]{0,220}getElementById\(openTarget\)/.test(lp),
+    '地图加载失败时焦点也要给发起选择的那一格');
+
+  // 推荐：输入框右侧内嵌地图标点，选完写 locState 与隐藏域
+  const html = read(path.join(base, 'pages', 'index.html'));
+  assert.ok(html.includes('id="recommend-map-btn"'), '种植推荐要有地图标点');
+  assert.ok(html.includes('id="industry-map-btn"'), '渔业养殖要有地图标点');
+  const rec = read(path.join(base, 'assets', 'js', 'recommend.js'));
+  assert.ok(rec.includes("target: 'recommend-location'"), '推荐标点要回填自己的输入框');
+  assert.ok(rec.includes("source: 'locate' }"), '设备/网络定位标 locate，不能冒充亲手标的点');
+  assert.ok(rec.includes("locState.source === 'map' ? 'map' : 'locate'"), '只有地图标点才标 map');
+  const ind = read(path.join(base, 'assets', 'js', 'industry.js'));
+  assert.ok(ind.includes("target: 'industry-location'"), '渔业标点要回填塘口输入框');
+  assert.ok(ind.includes('fixedLL = [res.lat, res.lon]'), '标点后要用这个坐标，不是地名解析');
+
+  // .btn 默认 width:100%，定位行里不改回 auto 会把输入框挤成 0 宽（实测过）
+  const indCss = read(path.resolve(base, 'assets', 'css', 'industry.css'));
+  assert.ok(/\.industry-loc-row > \.btn \{[^}]*width: auto/.test(indCss), '定位按钮要改回 auto');
+  assert.ok(indCss.includes('.industry-loc-input { position: relative'), '图标相对输入框定位');
+  const commonCss = read(path.resolve(base, 'assets', 'css', 'common.css'));
+  assert.ok(commonCss.includes('.map-picker-btn {'), '地图按钮要有通用外观，三处共用一套');
+});
+
 test('V6.1 作物分类：芽苗独立成类，且不被"麦/芝麻/红薯"带偏', () => {
   const tpl = read(path.resolve(__dirname, '..', '..', 'backend', 'src', 'com', 'cropcalendar',
     'service', 'crop', 'CropTemplates.java'));

@@ -133,11 +133,24 @@
 .industry-loc-row { display: flex; align-items: center; gap: 8px; }
 .industry-loc-input { position: relative; flex: 1 1 auto; min-width: 0; }
 .industry-loc-input input { padding-right: 42px; }
+/* 与首页同一个视觉：输入框内嵌透明小图标，不要框里再套一个描边框 */
 .industry-loc-input > .map-picker-btn {
   position: absolute;
   right: 6px;
   top: 50%;
   transform: translateY(-50%);
+  margin-left: 0;
+  width: 28px;
+  height: 28px;
+  border-color: transparent;
+  background: transparent;
+  color: var(--muted);
+  font-size: calc(14px * var(--fs, 1));
+}
+.industry-loc-input > .map-picker-btn:hover {
+  background: var(--surface-2);
+  border-color: transparent;
+  color: var(--brand);
 }
 /* .btn 默认 width:100%，放在 flex 行里会把输入框挤成 0 宽，必须显式改回 auto */
 .industry-loc-row > .btn { flex: 0 0 auto; width: auto; margin: 0; white-space: nowrap; }
