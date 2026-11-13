@@ -33,7 +33,8 @@ public final class CropProperties {
                         List<Integer> sowMonthsSouthwest, String sowMonthsPrecision,
                         int totalDaysSouthwest,
                         List<Integer> sowMonthsNortheast, List<Integer> sowMonthsNorthwest,
-                        String sowMonthsNortheastNote, String sowMonthsNorthwestNote) {
+                        String sowMonthsNortheastNote, String sowMonthsNorthwestNote,
+                        List<Integer> sowMonthsEast, String sowMonthsEastNote) {
 
         /** 是否配置了精确播期（月份）。未配置时调用方回退到 suitableSeason 的粗粒度季节。 */
         public boolean hasSowMonths() {
@@ -60,6 +61,15 @@ public final class CropProperties {
 
         public String northwestNote() {
             return sowMonthsNorthwestNote == null ? "" : sowMonthsNorthwestNote;
+        }
+
+        /** 是否有单独的华东窗口（长江中下游：沪苏浙皖赣鄂湘）。 */
+        public boolean hasEast() {
+            return sowMonthsEast != null && !sowMonthsEast.isEmpty();
+        }
+
+        public String eastNote() {
+            return sowMonthsEastNote == null ? "" : sowMonthsEastNote;
         }
 
         /** 是否有单独的东北窗口（黑吉辽 + 蒙东）。 */
@@ -158,7 +168,9 @@ public final class CropProperties {
                             intList(c.get("sowMonthsNortheast")),
                             intList(c.get("sowMonthsNorthwest")),
                             strOr(c.get("sowMonthsNortheastNote"), ""),
-                            strOr(c.get("sowMonthsNorthwestNote"), "")));
+                            strOr(c.get("sowMonthsNorthwestNote"), ""),
+                            intList(c.get("sowMonthsEast")),
+                            strOr(c.get("sowMonthsEastNote"), "")));
                 }
                 return map;
             } catch (Exception e) {

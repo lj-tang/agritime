@@ -73,7 +73,8 @@ public final class PlantingWindow {
     /** 窗口地域：华北基准 / 华南 / 西南。 */
     public enum Region {
         NORTH("north"), SOUTH("south"), SOUTHWEST("southwest"),
-        NORTHEAST("northeast"), NORTHWEST("northwest");
+        NORTHEAST("northeast"), NORTHWEST("northwest"),
+        EAST("east"), OVERSEAS("overseas");
 
         private final String json;
 
@@ -93,7 +94,13 @@ public final class PlantingWindow {
      */
     public static Region regionFor(CropProperties.Props p, double lat, double lon) {
         if (p == null) return Region.NORTH;
+        // 境外不套中国大区：不做"按国家分区"，改用半球 + 气候带换算
+        if (AgroZone.isOverseas(lat, lon)) return Region.OVERSEAS;
         String zone = AgroZone.regionOf(lat, lon);
+        // 长江中下游（沪苏浙皖赣鄂湘）自成一区：小麦 10 中–11 上、秋菜比华北晚 15–20 天
+        if ("长江流域".equals(zone)) {
+            return p.hasEast() ? Region.EAST : Region.NORTH;
+        }
         // 西南有专门窗口就用；没有则退回华中基准 —— 不能因为昆明纬度低就套华南的热带窗口
         if ("西南".equals(zone)) {
             return p.hasSouthwest() ? Region.SOUTHWEST : Region.NORTH;
@@ -162,6 +169,30 @@ public final class PlantingWindow {
         return monthsFor(p, lat, 116.31);
     }
 
+    /**
+     * 境外窗口换算：不按国家分区，只按「半球 + 气候带」把中国基准月份平移。
+     *  - 热带/亚热带（|lat|<28）：春季来得早，整体前移 1 个月
+     *  - 冷温带（|lat|>48）：春季推迟，整体后移 1 个月
+     *  - 南半球：季节相反，再平移 6 个月
+     * 这是明确的近似值，接口会标 region=overseas 并在依据里说明，不冒充实测。
+     */
+    public static Set<Integer> overseasMonths(List<Integer> base, double lat) {
+        Set<Integer> out = new LinkedHashSet<>();
+        if (base == null || base.isEmpty()) return out;
+        double abs = Math.abs(lat);
+        int shift = 0;
+        if (abs < 28) shift -= 1;
+        else if (abs > 48) shift += 1;
+        if (lat < 0) shift += 6;
+        TreeSet<Integer> sorted = new TreeSet<>();
+        for (int m : base) {
+            int v = ((m - 1 + shift) % 12 + 12) % 12 + 1;
+            sorted.add(v);
+        }
+        out.addAll(sorted);
+        return out;
+    }
+
     /** 带经纬度的窗口推导：西南判定要用经度，只给纬度会退化成华北基准。 */
     public static Set<Integer> monthsFor(CropProperties.Props p, double lat, double lon) {
         Set<Integer> out = new LinkedHashSet<>();
@@ -174,6 +205,8 @@ public final class PlantingWindow {
                 case SOUTH -> out.addAll(new TreeSet<>(p.sowMonthsSouth()));
                 case NORTHEAST -> out.addAll(new TreeSet<>(p.sowMonthsNortheast()));
                 case NORTHWEST -> out.addAll(new TreeSet<>(p.sowMonthsNorthwest()));
+                case EAST -> out.addAll(new TreeSet<>(p.sowMonthsEast()));
+                case OVERSEAS -> out.addAll(overseasMonths(p.sowMonths(), lat));
                 default -> out.addAll(new TreeSet<>(p.sowMonths()));
             }
             return out;
@@ -283,9 +316,11 @@ public final class PlantingWindow {
         // 野生/共生菌（松茸靠菌根、鸡枞靠白蚁巢）没有"播期"这回事：
         // 给日期等于骗人，直接说清"不可人工按播期栽培"。
         boolean wild = "wild".equals(p.precision());
+        // 境外没有可信的霜期模型（南半球、热带都不适用），不能拿中国的无霜期下"种不熟"的结论
+        boolean overseas = region == Region.OVERSEAS;
         // 全部窗口都赶不上霜前成熟：不要再给"建议日"。给了就等于承诺，用户照着种却收不了。
         // 这里只保留一个参考日（窗口内最早可行日）+ 结论，前端据此显示"本地不宜露地种植"。
-        boolean suitable = chosen.canMature() && !wild;
+        boolean suitable = (overseas || chosen.canMature()) && !wild;
         String note = chosen.note();
         if (wild) {
             note = join(p.sowNote().isBlank() ? "野生/共生菌，无法按播期人工栽培" : p.sowNote(),
@@ -296,6 +331,10 @@ public final class PlantingWindow {
             // 结论放最前：用户第一眼要看到"为什么不能种"，日期细节退到后面
             note = join(reason, note);
         }
+        if (overseas) {
+            note = join("境外地区：无本地校核数据，日期按" + (lat < 0 ? "南" : "北")
+                    + "半球与纬度气候带换算，仅作参考；实际请以当地农技资料为准", note);
+        }
 
         String precision = p.hasSowMonths() ? p.precision() : "season-rule";
         String basis;
@@ -305,6 +344,8 @@ public final class PlantingWindow {
                 case SOUTH -> "南方（华南）播期（";
                 case NORTHEAST -> "东北（黑吉辽）播期（";
                 case NORTHWEST -> "西北（甘宁新）播期（";
+                case EAST -> "华东（长江中下游）播期（";
+                case OVERSEAS -> "境外地区（按半球+气候带换算，非本地数据）（";
                 case NORTH -> switch (p.precision()) {
                     case "derived" -> "按近缘作物推定的播期（";
                     case "inherited" -> "按母本品种继承的已校核播期（";
@@ -314,6 +355,7 @@ public final class PlantingWindow {
             String regionalNote = switch (region) {
                 case NORTHEAST -> p.northeastNote();
                 case NORTHWEST -> p.northwestNote();
+                case EAST -> p.eastNote();
                 default -> p.sowNote();
             };
             basis = head + monthsText(months) + "）"
@@ -332,6 +374,9 @@ public final class PlantingWindow {
                         + "当地春播通常比华北晚 3~4 周，请以终霜后地温为准";
             } else if ("西北".equals(zone) || "青藏高原".equals(zone)) {
                 basis += "；该地区暂无专门窗口，按华北基准给出，请结合海拔与灌溉条件调整";
+            } else if ("长江流域".equals(zone)) {
+                basis += "；华东暂无该作物的专门窗口，按华北基准给出，"
+                        + "当地秋播通常比华北晚 15~20 天、春季提前，请按本地终霜调整";
             }
         }
 

@@ -850,10 +850,11 @@
         if (date) bits.push('建议 ' + fmtMD(date) + ' 播种');
         if (h.perennial) bits.push('定植后按年管理');
         if (h.canMatureBeforeFrost === false) bits.push('本季霜前难以成熟');
-        var regionLabel = w.region === 'south' ? '南方窗口'
-          : (w.region === 'southwest' ? '西南窗口'
-            : (w.region === 'northeast' ? '东北窗口'
-              : (w.region === 'northwest' ? '西北窗口' : '')));
+        var REGION_LABEL = {
+          south: '南方窗口', southwest: '西南窗口', northeast: '东北窗口',
+          northwest: '西北窗口', east: '华东窗口', overseas: '境外·气候带推算'
+        };
+        var regionLabel = REGION_LABEL[w.region] || '';
         if (w.precision === 'season-rule') {
           bits.push('窗口按季节推导，未逐品种校核');
         } else if (w.precision === 'derived') {

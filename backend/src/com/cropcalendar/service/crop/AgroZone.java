@@ -19,6 +19,15 @@ public final class AgroZone {
     }
 
     /** 粗略农业区划。分界是经验值，够用来做"热带作物别种到东北"这种量级的判断。 */
+    /**
+     * 是否在中国境外（含领海外的任意坐标）。
+     * 用中国大致范围判定：纬度 18–54、经度 73–135。境外不套中国大区，
+     * 因为"华东/东北"这类分区对巴黎、曼谷没有意义。
+     */
+    public static boolean isOverseas(double lat, double lon) {
+        return lat < 18 || lat > 54 || lon < 73 || lon > 135;
+    }
+
     public static String regionOf(double lat, double lon) {
         if (lat >= 27 && lat <= 37 && lon >= 78 && lon <= 103) return "青藏高原";
         if (lon < 103 && lat >= 34) return "西北";

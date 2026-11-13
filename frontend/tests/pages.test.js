@@ -2597,7 +2597,8 @@ test('V6.2 野生/共生菌不提供播种建议', () => {
   const win = read(path.resolve(base, '..', 'backend', 'src', 'com', 'cropcalendar',
     'service', 'crop', 'PlantingWindow.java'));
   assert.ok(win.includes('"wild".equals(p.precision())'), '窗口应识别野生菌');
-  assert.ok(win.includes('chosen.canMature() && !wild'), '野生菌必须判为不可播');
+  // 境外不走中国霜期判定，但野生菌任何情况下都必须判为不可播
+  assert.ok(win.includes('(overseas || chosen.canMature()) && !wild'), '野生菌必须判为不可播（境外也不例外）');
   assert.ok(win.includes('本条目仅作采收季参考'), '应说明只作采收参考');
 
   const handler = read(path.resolve(base, '..', 'backend', 'src', 'com', 'cropcalendar', 'api', 'CropsHandler.java'));
@@ -2642,6 +2643,38 @@ test('V6.5 区域窗口扩到五套：东北/西北不再套华北基准', () =>
 
   const indexHtml = read(path.join(base, 'pages', 'index.html'));
   assert.ok(indexHtml.includes("'东北窗口'") && indexHtml.includes("'西北窗口'"), '界面应标出区域窗口');
+});
+
+test('V6.6 华东窗口 + 境外按半球气候带换算（不按国家分区）', () => {
+  const base = path.resolve(__dirname, '..');
+  const win = read(path.resolve(base, '..', 'backend', 'src', 'com', 'cropcalendar', 'service', 'crop', 'PlantingWindow.java'));
+  // 华东
+  assert.ok(win.includes('EAST("east")'), '应有华东窗口');
+  assert.ok(win.includes('"长江流域".equals(zone)'), '长江中下游应自成一区');
+  assert.ok(win.includes('华东（长江中下游）播期'), '依据里应标出华东');
+  // 境外：不套中国大区，按半球+气候带
+  assert.ok(win.includes('OVERSEAS("overseas")'), '应有境外分支');
+  assert.ok(win.includes('public static Set<Integer> overseasMonths'), '境外应按月份换算');
+  assert.ok(win.includes('if (lat < 0) shift += 6'), '南半球应整体平移 6 个月');
+  const zone = read(path.resolve(base, '..', 'backend', 'src', 'com', 'cropcalendar', 'service', 'crop', 'AgroZone.java'));
+  assert.ok(zone.includes('isOverseas'), '应能判定境外坐标');
+  assert.ok(zone.includes('lat < 18 || lat > 54 || lon < 73 || lon > 135'), '境外判定用中国大致范围');
+
+  // 数据：华东 19 种，且与华北不同
+  const props = JSON.parse(read(path.resolve(base, '..', 'data', 'crop-base', 'properties.json')));
+  const idx = Object.fromEntries(props.crops.map((c) => [c.displayName, c]));
+  const east = props.crops.filter((c) => Array.isArray(c.sowMonthsEast) && c.sowMonthsEast.length);
+  assert.ok(east.length >= 19, '华东窗口应不少于 19 种，实际 ' + east.length);
+  assert.deepStrictEqual(idx['小麦'].sowMonthsEast, [10, 11], '华东小麦应 10–11 月（华北是 9–10 月）');
+  assert.deepStrictEqual(idx['大白菜'].sowMonthsEast, [8, 9], '华东大白菜应 8–9 月（比华北晚）');
+  assert.deepStrictEqual(idx['番茄'].sowMonthsEast, [7, 8], '华东番茄以秋茬 7–8 月为主');
+  assert.ok(idx['大白菜'].sowMonthsEastNote.includes('晚'), '要说明比华北晚');
+
+  // 前端标签
+  const indexHtml = read(path.join(base, 'pages', 'index.html'));
+  assert.ok(indexHtml.includes("east: '华东窗口'"), '界面应标华东窗口');
+  assert.ok(indexHtml.includes("overseas: '境外·气候带推算'"), '界面应标境外推算');
+  assert.ok(indexHtml.includes('REGION_LABEL[w.region]'), '区域标签应查表而不是嵌套三元');
 });
 
 test('V6.1 作物分类：芽苗独立成类，且不被"麦/芝麻/红薯"带偏', () => {

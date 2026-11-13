@@ -39,7 +39,12 @@
       "sowMonthsNortheast": [
         4
       ],
-      "sowMonthsNortheastNote": "4 月中下旬播种育秧（辽宁/吉林 4 中、黑龙江 4 下），5 月中下–6 初插秧（同上）"
+      "sowMonthsNortheastNote": "4 月中下旬播种育秧（辽宁/吉林 4 中、黑龙江 4 下），5 月中下–6 初插秧（同上）",
+      "sowMonthsEast": [
+        4,
+        5
+      ],
+      "sowMonthsEastNote": "早稻 3 下–4 上播、单季稻 5 月播（9 中–10 上收）、晚稻 6 月播（长江中下游一季稻收获期资料）"
     },
     {
       "cropId": "C002",
@@ -80,7 +85,12 @@
       "sowMonthsNorthwest": [
         3
       ],
-      "sowMonthsNorthwestNote": "春麦：甘肃/宁夏 3 月中–4 月上旬，新疆 3 下–4 中（大庄绿宝《春种时间概览》西北区／中国农科院春播通报）"
+      "sowMonthsNorthwestNote": "春麦：甘肃/宁夏 3 月中–4 月上旬，新疆 3 下–4 中（大庄绿宝《春种时间概览》西北区／中国农科院春播通报）",
+      "sowMonthsEast": [
+        10,
+        11
+      ],
+      "sowMonthsEastNote": "长江中游北部 10/20–10/30、南部 10/25–11/5；下游 10 月下旬–11 月上旬（农业农村部《小麦水肥一体化单产提升技术方案》）"
     },
     {
       "cropId": "C003",
@@ -239,7 +249,12 @@
         3,
         4
       ],
-      "sowMonthsNorthwestNote": "春油菜 3 月下旬–4 月上旬（甘肃种植时间表）"
+      "sowMonthsNorthwestNote": "春油菜 3 月下旬–4 月上旬（甘肃种植时间表）",
+      "sowMonthsEast": [
+        9,
+        10
+      ],
+      "sowMonthsEastNote": "育苗 9 月中–10 月上旬、11 月上旬移栽；直播 9 下–10 下（江淮江汉），江南 11 月（农业农村部秋播口径）"
     },
     {
       "cropId": "C007",
@@ -462,7 +477,12 @@
         4,
         5
       ],
-      "sowMonthsNorthwestNote": "早熟品种 4 月上旬、中晚熟 5 月上旬（甘肃种植时间表）"
+      "sowMonthsNorthwestNote": "早熟品种 4 月上旬、中晚熟 5 月上旬（甘肃种植时间表）",
+      "sowMonthsEast": [
+        8,
+        9
+      ],
+      "sowMonthsEastNote": "秋马铃薯 8 月上中旬催芽、8 下–9 上播种；春薯 1–2 月（《长江蔬菜》8 月农事）"
     },
     {
       "cropId": "C014",
@@ -692,7 +712,12 @@
         3,
         4
       ],
-      "sowMonthsNorthwestNote": "露地春白菜 3 下–4 上；秋白菜 7 下–8 初（甘肃种植时间表）"
+      "sowMonthsNorthwestNote": "露地春白菜 3 下–4 上；秋白菜 7 下–8 初（甘肃种植时间表）",
+      "sowMonthsEast": [
+        8,
+        9
+      ],
+      "sowMonthsEastNote": "秋大白菜 8 月中下旬–9 月上旬直播，比华北晚 15~20 天，早播易烂心（《长江蔬菜》8 月农事／南通秋菜时间表）"
     },
     {
       "cropId": "C022",
@@ -769,7 +794,12 @@
       "sowMonthsNortheast": [
         4
       ],
-      "sowMonthsNortheastNote": "4 月上旬土壤化冻 20cm 直播；也可 8 月下旬秋播越冬（同上）"
+      "sowMonthsNortheastNote": "4 月上旬土壤化冻 20cm 直播；也可 8 月下旬秋播越冬（同上）",
+      "sowMonthsEast": [
+        8,
+        9
+      ],
+      "sowMonthsEastNote": "8 月可直播，高温期需低温催芽；8 月底–9 月更稳（同上）"
     },
     {
       "cropId": "C024",
@@ -803,7 +833,12 @@
       "sowMonthsSouthwest": [
         8,
         9
-      ]
+      ],
+      "sowMonthsEast": [
+        6,
+        7
+      ],
+      "sowMonthsEastNote": "6 月中旬露地育苗（苗龄 55–60 天）、7 月上中旬荫障育苗（同上）"
     },
     {
       "cropId": "C025",
@@ -921,7 +956,11 @@
         10
       ],
       "sowMonthsNote": "秋蒜苗 7 下–8 上、秋冬 8 下–9 下、春蒜苗 9 上–10 下、夏蒜苗 2 月；华北主播 9 月中下旬",
-      "sowMonthsSource": "安徽农网《青蒜的栽培技术》/ 国际大蒜贸易网 / 一亩田蒜苗指南"
+      "sowMonthsSource": "安徽农网《青蒜的栽培技术》/ 国际大蒜贸易网 / 一亩田蒜苗指南",
+      "sowMonthsEast": [
+        8
+      ],
+      "sowMonthsEastNote": "青蒜 8 月下旬开沟条播，亩用种 150–200kg（同上）"
     },
     {
       "cropId": "C029",
@@ -954,7 +993,11 @@
       "sowMonthsSouthwest": [
         8,
         9
-      ]
+      ],
+      "sowMonthsEast": [
+        8
+      ],
+      "sowMonthsEastNote": "秋花菜按品种 8 月上中旬–9 月上旬栽植（同上）"
     },
     {
       "cropId": "C030",
@@ -987,7 +1030,11 @@
       "sowMonthsSouthwest": [
         8,
         9
-      ]
+      ],
+      "sowMonthsEast": [
+        8
+      ],
+      "sowMonthsEastNote": "8 月底育苗或移栽（建湖农技／南通秋菜时间表）"
     },
     {
       "cropId": "C031",
@@ -1027,7 +1074,12 @@
       "sowMonthsNortheast": [
         3
       ],
-      "sowMonthsNortheastNote": "3 月上中旬室内育苗，5 月中下旬终霜后定植（哈尔滨本地栽培经验：无霜期 130–140 天，5 月上旬仍有晚霜）"
+      "sowMonthsNortheastNote": "3 月上中旬室内育苗，5 月中下旬终霜后定植（哈尔滨本地栽培经验：无霜期 130–140 天，5 月上旬仍有晚霜）",
+      "sowMonthsEast": [
+        7,
+        8
+      ],
+      "sowMonthsEastNote": "秋番茄 7 月 15 日前后播种、8 月中下移栽；春茬 12–1 月保护地育苗（建湖农技 2020-23／《长江蔬菜》8 月农事）"
     },
     {
       "cropId": "C032",
@@ -1064,7 +1116,11 @@
       "sowMonthsNortheast": [
         3
       ],
-      "sowMonthsNortheastNote": "3 月育苗，5 月中下旬终霜后定植（同上）"
+      "sowMonthsNortheastNote": "3 月育苗，5 月中下旬终霜后定植（同上）",
+      "sowMonthsEast": [
+        7
+      ],
+      "sowMonthsEastNote": "秋茄子 7 月 10 日前后播种、8 月上中旬移栽（同上）"
     },
     {
       "cropId": "C033",
@@ -1101,7 +1157,11 @@
       "sowMonthsNortheast": [
         3
       ],
-      "sowMonthsNortheastNote": "3 月育苗，5 月中下旬终霜后定植（同上）"
+      "sowMonthsNortheastNote": "3 月育苗，5 月中下旬终霜后定植（同上）",
+      "sowMonthsEast": [
+        7
+      ],
+      "sowMonthsEastNote": "秋辣椒 7 月下旬播种、8 月中下移栽，苗龄 35 天（建湖农技 2020-23）"
     },
     {
       "cropId": "C034",
@@ -1143,7 +1203,12 @@
       "sowMonthsNortheast": [
         5
       ],
-      "sowMonthsNortheastNote": "5 月上旬地温 12℃ 以上直播，或 4 下–5 初小拱棚定植（同上）"
+      "sowMonthsNortheastNote": "5 月上旬地温 12℃ 以上直播，或 4 下–5 初小拱棚定植（同上）",
+      "sowMonthsEast": [
+        7,
+        8
+      ],
+      "sowMonthsEastNote": "秋延黄瓜 7 月中下–8 月初播种于大棚，10 月中下扣棚（同上）"
     },
     {
       "cropId": "C035",
@@ -1548,7 +1613,12 @@
       "sowMonthsNortheast": [
         4
       ],
-      "sowMonthsNortheastNote": "东北以春播为主，4 月上旬化冻后尽早播（原属性表注明）"
+      "sowMonthsNortheastNote": "东北以春播为主，4 月上旬化冻后尽早播（原属性表注明）",
+      "sowMonthsEast": [
+        9,
+        10
+      ],
+      "sowMonthsEastNote": "8 月育苗、9 月移栽；秋播 9 下–10 月（同上）"
     },
     {
       "cropId": "C048",
@@ -1581,7 +1651,11 @@
       "sowMonthsSouthwest": [
         8,
         9
-      ]
+      ],
+      "sowMonthsEast": [
+        8
+      ],
+      "sowMonthsEastNote": "秋甘蓝 8 月上旬栽植、早秋甘蓝 8 月中下（同上）"
     },
     {
       "cropId": "C049",
@@ -1672,7 +1746,12 @@
       "sowMonthsNortheast": [
         7
       ],
-      "sowMonthsNortheastNote": "7 月中旬，比白菜早一周，选 60–70 天早熟种（同上）"
+      "sowMonthsNortheastNote": "7 月中旬，比白菜早一周，选 60–70 天早熟种（同上）",
+      "sowMonthsEast": [
+        8,
+        9
+      ],
+      "sowMonthsEastNote": "秋冬萝卜 8 月播，南通建议 8 下–9 上；早播高温易抽薹空心（同上）"
     },
     {
       "cropId": "C052",
@@ -1885,7 +1964,11 @@
       "sowMonthsSouthwest": [
         8,
         9
-      ]
+      ],
+      "sowMonthsEast": [
+        8
+      ],
+      "sowMonthsEastNote": "秋莴笋 8 月上中旬播种，需荫障育苗、低温催芽（《长江蔬菜》8 月农事）"
     },
     {
       "cropId": "C059",
@@ -3168,7 +3251,11 @@
       "sowMonthsSouthwest": [
         9,
         10
-      ]
+      ],
+      "sowMonthsEast": [
+        8
+      ],
+      "sowMonthsEastNote": "8 月底播种育苗，播前浸种 24 小时（同上）"
     },
     {
       "cropId": "C102",
