@@ -2399,9 +2399,9 @@ test('V5.4/V5.5 播期校核：100 种作物有精确月份，且区分南北窗
   const derived = checked.filter((c) => c.sowMonthsPrecision === 'derived');
   const inherited = checked.filter((c) => c.sowMonthsPrecision === 'inherited');
   const researched = checked.filter((c) => !c.sowMonthsPrecision || c.sowMonthsPrecision === 'researched');
-  assert.ok(researched.length >= 195, '逐条查证应不少于 195 种，实际 ' + researched.length);
-  assert.ok(inherited.length >= 95, '继承母本应不少于 95 种，实际 ' + inherited.length);
-  assert.ok(derived.length >= 95, '按类别推定应不少于 95 种，实际 ' + derived.length);
+  assert.ok(researched.length >= 215, '逐条查证应不少于 215 种，实际 ' + researched.length);
+  assert.ok(inherited.length >= 100, '继承母本应不少于 100 种，实际 ' + inherited.length);
+  assert.ok(derived.length >= 75, '按类别推定应不少于 75 种，实际 ' + derived.length);
   // 推定不是"没来源"的借口：必须写清依据，且注明未逐品种校核
   for (const c of derived) {
     assert.ok(c.sowMonthsSource && c.sowMonthsSource.trim(),
@@ -2438,6 +2438,10 @@ test('V5.4/V5.5 播期校核：100 种作物有精确月份，且区分南北窗
     '芝麻菜': [4, 5, 8, 9],
     '水芹': [8, 9],
     '菱角': [3, 4],
+    '香菇': [8, 9, 10],
+    '羊肚菌': [10, 11],
+    '莜麦': [4, 5],
+    '抱子甘蓝': [2, 6, 7],
   };
   const idx = Object.fromEntries(props.crops.map((x) => [x.displayName, x]));
   for (const [name, months] of Object.entries(expect)) {

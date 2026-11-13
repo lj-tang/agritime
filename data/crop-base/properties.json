@@ -2842,12 +2842,21 @@
       "tempRequirement": "蔬菜类，生育期短，需水肥充足",
       "source": "category-rule",
       "sowMonths": [
-        5,
-        6
+        6,
+        7
       ],
-      "sowMonthsNote": "夏播 5–6 月（麦后）",
-      "sowMonthsSource": "豆类栽培常识（未逐品种校核）",
-      "sowMonthsPrecision": "derived"
+      "sowMonthsNote": "大豆类型：播期同大豆 —— 夏大豆 6 月中–7 上；春大豆 4 下–5 中",
+      "sowMonthsSource": "按母本「大豆」的已校核播期继承（黑豆为大豆变种）",
+      "sowMonthsPrecision": "inherited",
+      "sowMonthsSouth": [
+        3,
+        4,
+        7
+      ],
+      "sowMonthsSouthwest": [
+        4,
+        5
+      ]
     },
     {
       "cropId": "C095",
@@ -2917,12 +2926,15 @@
       "tempRequirement": "禾谷类，需氮肥充足",
       "source": "category-rule",
       "sowMonths": [
-        5,
-        6
+        4,
+        5
       ],
-      "sowMonthsNote": "喜温，5–6 月播种",
-      "sowMonthsSource": "杂粮栽培常识（未逐品种校核）",
-      "sowMonthsPrecision": "derived"
+      "sowMonthsNote": "北方 3 月末–4 月初播种，晚熟品种可到 5 月上旬；南方 2 下–3 上",
+      "sowMonthsSource": "长景园林《什么时候种植薏米》",
+      "sowMonthsSouth": [
+        3,
+        4
+      ]
     },
     {
       "cropId": "C098",
@@ -2942,9 +2954,12 @@
         5,
         6
       ],
-      "sowMonthsNote": "春末夏初 5–6 月播种",
-      "sowMonthsSource": "杂粮栽培常识（未逐品种校核）",
-      "sowMonthsPrecision": "derived"
+      "sowMonthsNote": "北方春糜子 5 月下旬–6 月上旬；黄土高原夏播 6 中–7 上",
+      "sowMonthsSource": "百度百科《黍谷(糜)》（东北 4 下–5 下、北方 5 下–6 上、黄土高原 6 中–7 上）",
+      "sowMonthsSouth": [
+        6,
+        7
+      ]
     },
     {
       "cropId": "C099",
@@ -2964,9 +2979,12 @@
         5,
         6
       ],
-      "sowMonthsNote": "春末夏初 5–6 月播种",
-      "sowMonthsSource": "杂粮栽培常识（未逐品种校核）",
-      "sowMonthsPrecision": "derived"
+      "sowMonthsNote": "同上：春播 5 月下旬–6 月上旬，夏播 6 月中旬–7 月上旬",
+      "sowMonthsSource": "百度百科《黍谷(糜)》",
+      "sowMonthsSouth": [
+        6,
+        7
+      ]
     },
     {
       "cropId": "C100",
@@ -3268,16 +3286,16 @@
       "tempRequirement": "蔬菜类，生育期短，需水肥充足",
       "source": "category-rule",
       "sowMonths": [
+        2,
         6,
         7
       ],
       "sowMonthsSouth": [
-        8,
-        9
+        9,
+        10
       ],
-      "sowMonthsNote": "北方 6–7 月播、秋末收；南方 8–9 月播",
-      "sowMonthsSource": "甘蓝类栽培常识（生育期 100–120 天）（未逐品种校核）",
-      "sowMonthsPrecision": "derived"
+      "sowMonthsNote": "华北秋露地 6 月底育苗、7 下–8 初定植；春茬 2 月上旬保护地育苗；南方 9–10 月播",
+      "sowMonthsSource": "科普中国《甘蓝类蔬菜栽培技术(二)》/ 百度百科《球子甘蓝》"
     },
     {
       "cropId": "C112",
@@ -3321,14 +3339,16 @@
       "tempRequirement": "蔬菜类，生育期短，需水肥充足",
       "source": "category-rule",
       "sowMonths": [
-        3,
-        4,
-        7,
-        8
+        1,
+        6,
+        7
       ],
-      "sowMonthsNote": "春播 3–4 月、秋播 7–8 月",
-      "sowMonthsSource": "甘蓝类栽培常识（未逐品种校核）",
-      "sowMonthsPrecision": "derived"
+      "sowMonthsNote": "山东秋露地 6 下–7 上播种；春露地 1 月温室育苗、3 月中下定植；南方秋播 8–9 月",
+      "sowMonthsSource": "百度百科《紫甘蓝》/ 安徽农网《温室稀特菜栽培》",
+      "sowMonthsSouth": [
+        8,
+        9
+      ]
     },
     {
       "cropId": "C114",
@@ -3822,9 +3842,8 @@
         3,
         4
       ],
-      "sowMonthsNote": "春季 3–4 月栽植/播种，多年生采芽",
-      "sowMonthsSource": "香椿栽培常识（未逐品种校核）",
-      "sowMonthsPrecision": "derived"
+      "sowMonthsNote": "露地 3–4 月播种育苗（温室 2 月育苗、4 月下旬移栽），多年生采芽",
+      "sowMonthsSource": "安徽农网《温室稀特菜栽培》（香椿 2 月温室播种、4 月下旬移栽）"
     },
     {
       "cropId": "C132",
@@ -5217,30 +5236,22 @@
       "tempRequirement": "喜湿避光，需控温控湿",
       "source": "category-rule",
       "sowMonths": [
-        2,
-        3,
-        4,
         8,
-        9
-      ],
-      "sowMonthsSouth": [
-        2,
-        3,
-        4,
-        9,
-        10,
-        11
-      ],
-      "sowMonthsSouthwest": [
-        3,
-        4,
-        5,
         9,
         10
       ],
-      "sowMonthsNote": "春秋两季接种/摆袋（2–4 月、8–9 月）；工厂化菇房可全年出菇",
-      "sowMonthsSource": "食用菌通用栽培季节（各地稳定通过 15℃ 前后接种）",
-      "sowMonthsPrecision": "derived"
+      "sowMonthsSouth": [
+        8,
+        9,
+        10
+      ],
+      "sowMonthsSouthwest": [
+        8,
+        9,
+        10
+      ],
+      "sowMonthsNote": "秋栽制棒 7 月底–9 月初，9 月转色入棚，10 月中下旬—翌春出菇；低海拔可延到 10 月中旬",
+      "sowMonthsSource": "河南省农业农村厅《当前秋季食用菌生产技术要点》"
     },
     {
       "cropId": "C182",
@@ -5257,16 +5268,13 @@
       "tempRequirement": "喜湿避光，需控温控湿",
       "source": "category-rule",
       "sowMonths": [
-        2,
         3,
         4,
-        8,
-        9
+        9,
+        10,
+        11
       ],
       "sowMonthsSouth": [
-        2,
-        3,
-        4,
         9,
         10,
         11
@@ -5278,9 +5286,8 @@
         9,
         10
       ],
-      "sowMonthsNote": "春秋两季接种/摆袋（2–4 月、8–9 月）；工厂化菇房可全年出菇",
-      "sowMonthsSource": "食用菌通用栽培季节（各地稳定通过 15℃ 前后接种）",
-      "sowMonthsPrecision": "derived"
+      "sowMonthsNote": "春栽 3–4 月、秋栽 9–11 月；9 月制棒 10 月出菇，熟料/发酵料均可",
+      "sowMonthsSource": "河南省农业农村厅（9–11 月发酵料种植）/《食用菌市场》秋季指南"
     },
     {
       "cropId": "C183",
@@ -5297,16 +5304,11 @@
       "tempRequirement": "喜湿避光，需控温控湿",
       "source": "category-rule",
       "sowMonths": [
-        2,
-        3,
-        4,
         8,
-        9
+        9,
+        10
       ],
       "sowMonthsSouth": [
-        2,
-        3,
-        4,
         9,
         10,
         11
@@ -5318,9 +5320,8 @@
         9,
         10
       ],
-      "sowMonthsNote": "春秋两季接种/摆袋（2–4 月、8–9 月）；工厂化菇房可全年出菇",
-      "sowMonthsSource": "食用菌通用栽培季节（各地稳定通过 15℃ 前后接种）",
-      "sowMonthsPrecision": "derived"
+      "sowMonthsNote": "低温型：8–10 月接种，冬春出菇；工厂化可周年",
+      "sowMonthsSource": "百度爱采购《食用菌种植时间》（低温型 9–10 月接种）"
     },
     {
       "cropId": "C184",
@@ -5337,16 +5338,12 @@
       "tempRequirement": "多年生，需按年管理",
       "source": "category-rule",
       "sowMonths": [
-        2,
         3,
         4,
-        8,
-        9
+        9,
+        10
       ],
       "sowMonthsSouth": [
-        2,
-        3,
-        4,
         9,
         10,
         11
@@ -5358,9 +5355,8 @@
         9,
         10
       ],
-      "sowMonthsNote": "春秋两季接种/摆袋（2–4 月、8–9 月）；工厂化菇房可全年出菇",
-      "sowMonthsSource": "食用菌通用栽培季节（各地稳定通过 15℃ 前后接种）",
-      "sowMonthsPrecision": "derived"
+      "sowMonthsNote": "中温偏低型：春 3–4 月、秋 9–10 月接种",
+      "sowMonthsSource": "百度爱采购《食用菌种植时间》（中温型春秋两季）"
     },
     {
       "cropId": "C185",
@@ -5377,19 +5373,13 @@
       "tempRequirement": "喜湿避光，需控温控湿",
       "source": "category-rule",
       "sowMonths": [
-        2,
-        3,
-        4,
         8,
         9
       ],
       "sowMonthsSouth": [
-        2,
-        3,
-        4,
+        8,
         9,
-        10,
-        11
+        10
       ],
       "sowMonthsSouthwest": [
         3,
@@ -5398,9 +5388,8 @@
         9,
         10
       ],
-      "sowMonthsNote": "春秋两季接种/摆袋（2–4 月、8–9 月）；工厂化菇房可全年出菇",
-      "sowMonthsSource": "食用菌通用栽培季节（各地稳定通过 15℃ 前后接种）",
-      "sowMonthsPrecision": "derived"
+      "sowMonthsNote": "低温型：8–9 月接种，冬春出菇",
+      "sowMonthsSource": "百度爱采购《食用菌种植时间》（低温型秋冬接种）"
     },
     {
       "cropId": "C186",
@@ -5417,19 +5406,15 @@
       "tempRequirement": "多年生，需按年管理",
       "source": "category-rule",
       "sowMonths": [
-        2,
         3,
         4,
         8,
         9
       ],
       "sowMonthsSouth": [
-        2,
         3,
         4,
-        9,
-        10,
-        11
+        9
       ],
       "sowMonthsSouthwest": [
         3,
@@ -5438,9 +5423,8 @@
         9,
         10
       ],
-      "sowMonthsNote": "春秋两季接种/摆袋（2–4 月、8–9 月）；工厂化菇房可全年出菇",
-      "sowMonthsSource": "食用菌通用栽培季节（各地稳定通过 15℃ 前后接种）",
-      "sowMonthsPrecision": "derived"
+      "sowMonthsNote": "中温型：春 3–4 月、秋 8–9 月接种",
+      "sowMonthsSource": "百度爱采购《食用菌种植时间》（中温型）"
     },
     {
       "cropId": "C187",
@@ -5457,19 +5441,16 @@
       "tempRequirement": "喜湿避光，需控温控湿",
       "source": "category-rule",
       "sowMonths": [
-        2,
-        3,
-        4,
-        8,
-        9
-      ],
-      "sowMonthsSouth": [
-        2,
         3,
         4,
         9,
-        10,
-        11
+        10
+      ],
+      "sowMonthsSouth": [
+        3,
+        4,
+        9,
+        10
       ],
       "sowMonthsSouthwest": [
         3,
@@ -5478,9 +5459,8 @@
         9,
         10
       ],
-      "sowMonthsNote": "春秋两季接种/摆袋（2–4 月、8–9 月）；工厂化菇房可全年出菇",
-      "sowMonthsSource": "食用菌通用栽培季节（各地稳定通过 15℃ 前后接种）",
-      "sowMonthsPrecision": "derived"
+      "sowMonthsNote": "低温型：春 3–4 月、秋 9–10 月接种",
+      "sowMonthsSource": "百度爱采购《食用菌种植时间》（低温型 9–10 月）"
     },
     {
       "cropId": "C188",
@@ -5497,19 +5477,16 @@
       "tempRequirement": "多年生，需按年管理",
       "source": "category-rule",
       "sowMonths": [
-        2,
         3,
         4,
         8,
         9
       ],
       "sowMonthsSouth": [
-        2,
         3,
         4,
-        9,
-        10,
-        11
+        8,
+        9
       ],
       "sowMonthsSouthwest": [
         3,
@@ -5518,9 +5495,8 @@
         9,
         10
       ],
-      "sowMonthsNote": "春秋两季接种/摆袋（2–4 月、8–9 月）；工厂化菇房可全年出菇",
-      "sowMonthsSource": "食用菌通用栽培季节（各地稳定通过 15℃ 前后接种）",
-      "sowMonthsPrecision": "derived"
+      "sowMonthsNote": "中温型：春播 3–4 月、秋播 8–9 月，播后 40–60 天出菇",
+      "sowMonthsSource": "《食用菌市场》秋季指南（红托竹荪中温型）/ 食用菌栽培资料"
     },
     {
       "cropId": "C189",
@@ -5539,17 +5515,14 @@
       "sowMonths": [
         2,
         3,
-        4,
         8,
         9
       ],
       "sowMonthsSouth": [
         2,
         3,
-        4,
-        9,
-        10,
-        11
+        8,
+        9
       ],
       "sowMonthsSouthwest": [
         3,
@@ -5558,9 +5531,8 @@
         9,
         10
       ],
-      "sowMonthsNote": "春秋两季接种/摆袋（2–4 月、8–9 月）；工厂化菇房可全年出菇",
-      "sowMonthsSource": "食用菌通用栽培季节（各地稳定通过 15℃ 前后接种）",
-      "sowMonthsPrecision": "derived"
+      "sowMonthsNote": "春秋两季接种：春 2–3 月、秋 8–9 月；秋栽 9 月排场催耳",
+      "sowMonthsSource": "开放百科全书《食用菌栽培》（木耳一年可种两次）/《食用菌市场》"
     },
     {
       "cropId": "C190",
@@ -5577,19 +5549,16 @@
       "tempRequirement": "喜湿避光，需控温控湿",
       "source": "category-rule",
       "sowMonths": [
-        2,
-        3,
-        4,
-        8,
-        9
-      ],
-      "sowMonthsSouth": [
-        2,
         3,
         4,
         9,
-        10,
-        11
+        10
+      ],
+      "sowMonthsSouth": [
+        3,
+        4,
+        9,
+        10
       ],
       "sowMonthsSouthwest": [
         3,
@@ -5598,9 +5567,8 @@
         9,
         10
       ],
-      "sowMonthsNote": "春秋两季接种/摆袋（2–4 月、8–9 月）；工厂化菇房可全年出菇",
-      "sowMonthsSource": "食用菌通用栽培季节（各地稳定通过 15℃ 前后接种）",
-      "sowMonthsPrecision": "derived"
+      "sowMonthsNote": "春秋两季接种（3–4 月、9–10 月），当季收完",
+      "sowMonthsSource": "开放百科全书《食用菌栽培》（银耳一年两季）"
     },
     {
       "cropId": "C191",
@@ -5657,30 +5625,19 @@
       "tempRequirement": "喜湿避光，需控温控湿",
       "source": "category-rule",
       "sowMonths": [
-        2,
-        3,
-        4,
-        8,
-        9
+        10,
+        11
       ],
       "sowMonthsSouth": [
-        2,
-        3,
-        4,
-        9,
         10,
         11
       ],
       "sowMonthsSouthwest": [
-        3,
-        4,
-        5,
-        9,
-        10
+        10,
+        11
       ],
-      "sowMonthsNote": "春秋两季接种/摆袋（2–4 月、8–9 月）；工厂化菇房可全年出菇",
-      "sowMonthsSource": "食用菌通用栽培季节（各地稳定通过 15℃ 前后接种）",
-      "sowMonthsPrecision": "derived"
+      "sowMonthsNote": "10 月制作栽培种，11 月初气温降到 20℃ 以下播种，翌春出菇",
+      "sowMonthsSource": "河南省农业农村厅（羊肚菌 10–11 月种植）/《食用菌市场》"
     },
     {
       "cropId": "C193",
@@ -5737,19 +5694,16 @@
       "tempRequirement": "多年生，需按年管理",
       "source": "category-rule",
       "sowMonths": [
-        2,
-        3,
-        4,
-        8,
-        9
-      ],
-      "sowMonthsSouth": [
-        2,
         3,
         4,
         9,
-        10,
-        11
+        10
+      ],
+      "sowMonthsSouth": [
+        3,
+        4,
+        9,
+        10
       ],
       "sowMonthsSouthwest": [
         3,
@@ -5758,9 +5712,8 @@
         9,
         10
       ],
-      "sowMonthsNote": "春秋两季接种/摆袋（2–4 月、8–9 月）；工厂化菇房可全年出菇",
-      "sowMonthsSource": "食用菌通用栽培季节（各地稳定通过 15℃ 前后接种）",
-      "sowMonthsPrecision": "derived"
+      "sowMonthsNote": "中温型：春 3–4 月、秋 9–10 月接种",
+      "sowMonthsSource": "百度爱采购《食用菌种植时间》（中温型春秋两季）"
     },
     {
       "cropId": "C195",
@@ -5777,30 +5730,21 @@
       "tempRequirement": "喜湿避光，需控温控湿",
       "source": "category-rule",
       "sowMonths": [
-        2,
-        3,
-        4,
-        8,
-        9
+        9,
+        10,
+        11
       ],
       "sowMonthsSouth": [
-        2,
-        3,
-        4,
         9,
         10,
         11
       ],
       "sowMonthsSouthwest": [
-        3,
-        4,
-        5,
         9,
         10
       ],
-      "sowMonthsNote": "春秋两季接种/摆袋（2–4 月、8–9 月）；工厂化菇房可全年出菇",
-      "sowMonthsSource": "食用菌通用栽培季节（各地稳定通过 15℃ 前后接种）",
-      "sowMonthsPrecision": "derived"
+      "sowMonthsNote": "8–9 月培养料发酵，9 月后上架播种，10 月中–11 月初为适宜播期",
+      "sowMonthsSource": "河南省农业农村厅（8–9 月培养料制备，9 月以后种植）/《食用菌市场》"
     },
     {
       "cropId": "C196",
@@ -6328,15 +6272,15 @@
       "tempRequirement": "禾谷类，需氮肥充足",
       "source": "category-rule",
       "sowMonths": [
-        5,
-        6
-      ],
-      "sowMonthsSouth": [
         4,
         5
       ],
-      "sowMonthsNote": "喜温，地温 18℃ 以上播种",
-      "sowMonthsSource": "中药材种植时间资料"
+      "sowMonthsSouth": [
+        3,
+        4
+      ],
+      "sowMonthsNote": "同薏米：北方 3 月末–4 月初，晚熟可到 5 月上旬",
+      "sowMonthsSource": "长景园林《什么时候种植薏米》（薏苡仁即薏米）"
     },
     {
       "cropId": "C216",
@@ -8886,12 +8830,15 @@
       "tempRequirement": "禾谷类，需氮肥充足",
       "source": "category-rule",
       "sowMonths": [
-        4,
-        5
+        3,
+        4
       ],
-      "sowMonthsNote": "春播 4–5 月，地温 10℃ 以上",
-      "sowMonthsSource": "杂粮栽培常识（未逐品种校核）",
-      "sowMonthsPrecision": "derived"
+      "sowMonthsNote": "华北 2 月底–3 月上旬、日均温 5℃ 以上即可播，生育期 90–150 天",
+      "sowMonthsSource": "惠农网《在华北应该什么时间种植藜麦》",
+      "sowMonthsSouthwest": [
+        3,
+        4
+      ]
     },
     {
       "cropId": "C302",
@@ -8930,12 +8877,11 @@
       "tempRequirement": "禾谷类，需氮肥充足",
       "source": "category-rule",
       "sowMonths": [
-        3,
-        4
+        4,
+        5
       ],
-      "sowMonthsNote": "春播 3–4 月（燕麦）",
-      "sowMonthsSource": "杂粮栽培常识（未逐品种校核）",
-      "sowMonthsPrecision": "derived"
+      "sowMonthsNote": "华北 4 月中旬–5 月初播种，土壤 5cm 地温稳定 8–10℃",
+      "sowMonthsSource": "中国农科院《莜麦高产栽培措施》/ 百度爱采购《北方莜麦种植时间》"
     },
     {
       "cropId": "C304",
