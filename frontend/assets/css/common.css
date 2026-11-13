@@ -811,6 +811,9 @@ body[data-layout="app"] .content-pane > * {
   border-radius: 50%;
   background: var(--muted);
 }
+/* display:flex 会盖掉 [hidden] 的 display:none（类选择器优先于 UA 样式），
+   不写这条，隐藏后还会留下一个孤零零的圆点 */
+.sow-auto-urban[hidden] { display: none; }
 
 /* 播期三标签：适宜播期 / 最晚播期 / 预计收获。
    没填作物之前也显示这三个标签和「待推算」，让用户先知道点了会得到什么。 */
