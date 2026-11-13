@@ -127,7 +127,7 @@ public final class CropTemplates {
 
     private static final String[] ALLIUM_NAMES = {
             "大蒜", "大葱", "洋葱", "香葱", "分葱", "韭菜", "蒜苗", "蒜薹", "蒜黄", "韭黄",
-            "姜芽", "葱芽"
+            "姜芽", "葱芽", "葱"
     };
 
     private static final String[] FRUIT_VEG_NAMES = {
@@ -256,6 +256,13 @@ public final class CropTemplates {
         if (perennial && g == Group.FLOWER) {
             add(p, 0.00, 1); add(p, 0.15, 12); add(p, 0.35, 13); add(p, 0.55, 15);
             add(p, 0.72, 4); add(p, 0.90, 14);
+            return p;
+        }
+        // 多年生宿根菜/野菜（黄花菜、马兰头、蕨菜）：定植后不再"间苗"，
+        // 一年内多次采收 + 越冬，不能套一年生叶菜那套"播种→间苗→末茬"。
+        if (perennial && g == Group.LEAFY) {
+            add(p, 0.00, 1); add(p, 0.20, 4); add(p, 0.35, 3); add(p, 0.50, 5);
+            add(p, 0.62, 8); add(p, 0.78, 4); add(p, 0.92, 14);
             return p;
         }
         // 多年生药材（枸杞/黄芪/白芍等）：定植后不再"间苗"，用除草与田间管理代替修剪

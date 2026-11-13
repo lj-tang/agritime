@@ -389,11 +389,16 @@ public final class PlantingWindow {
             }
         }
         if (perennial) {
-            int years = Math.max(1, (int) Math.round(total / 365.0));
+            // totalDays 对多年生只是"寿命占位值"（果树 3650、宿根 1825），
+            // 拿它换算"几年进入盛产期"会把黄花菜说成 5 年、薰衣草说成 5 年，都是假的。
+            // 木本才谈得上盛产期，草本宿根只说实话：连续采收多年。
+            String perNote = total >= 3650
+                    ? "多年生木本，定植后约 3–5 年进入盛产期"
+                    : "多年生，定植成活后按年管理，可连续采收多年";
             return new Candidate(start, end, recommended, end,
                     "定植窗口末（" + monthsText(monthsOf(start, end)) + "）",
                     null, true,
-                    join(note, "多年生，定植后约 " + years + " 年进入盛产期"));
+                    join(note, perNote));
         }
         if (autumnSown) {
             return new Candidate(start, end, recommended, end,
