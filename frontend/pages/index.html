@@ -1640,6 +1640,14 @@
        * 只填了"北京"却拿默认济宁的坐标去算，播期和霜期全是错的 —— 这是"只填地点"流程的前提。
        */
       function currentLL(cropName) {
+        // 关联了地块就以地块中心为准：地块才是"这块地"，地点输入只说到县市一级。
+        // 顺带修掉一个老问题：以前选了地块，霜期/播期仍按地名解析出来的城市中心算。
+        if (window.__timelinePlotId && window.MyPlotsStore) {
+          var plot = window.MyPlotsStore.getById(window.__timelinePlotId);
+          if (plot && plot.lat != null && plot.lon != null) {
+            return { lat: plot.lat, lon: plot.lon };
+          }
+        }
         if (window.__resolvedLL && window.__resolvedLL.lat != null) {
           return { lat: window.__resolvedLL.lat, lon: window.__resolvedLL.lon };
         }
