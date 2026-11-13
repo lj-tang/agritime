@@ -247,7 +247,12 @@
     var temp = document.getElementById('weather-temp');
     var desc = document.getElementById('weather-desc');
     var extra = document.getElementById('weather-extra');
-    if (loc) loc.textContent = locationName || '--';
+    // 这张卡用的是设备/网络定位，跟下面「所在地」不是一回事，必须写清楚，
+    // 否则用户填了哈尔滨、卡上却是上海，会以为播期算错了地方。
+    if (loc) {
+      loc.textContent = locationName ? '当前 ' + locationName : '--';
+      loc.title = '按设备或网络定位显示，与下方填写的「所在地」无关';
+    }
     if (temp) temp.textContent = (info.temp != null ? Math.round(info.temp) + '°' : '--°');
     if (desc) desc.textContent = (WEATHER_ICON[info.weather] || '') + ' ' + info.label;
     if (extra) extra.textContent = (info.humidity != null ? '湿度' + info.humidity + '%' : '') +

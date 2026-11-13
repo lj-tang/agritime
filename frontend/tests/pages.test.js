@@ -2677,6 +2677,13 @@ test('V6.6 华东窗口 + 境外按半球气候带换算（不按国家分区）
   assert.ok(indexHtml.includes('REGION_LABEL[w.region]'), '区域标签应查表而不是嵌套三元');
 });
 
+test('V6.7 天气卡要说清定位来源（设备/网络），避免与「所在地」混淆', () => {
+  const base = path.resolve(__dirname, '..');
+  const wv = read(path.join(base, 'assets', 'js', 'weather-visual.js'));
+  assert.ok(wv.includes("'当前 ' + locationName"), '城市名前应加「当前」');
+  assert.ok(wv.includes('与下方填写的「所在地」无关'), '应说明与所在地无关');
+});
+
 test('V6.1 作物分类：芽苗独立成类，且不被"麦/芝麻/红薯"带偏', () => {
   const tpl = read(path.resolve(__dirname, '..', '..', 'backend', 'src', 'com', 'cropcalendar',
     'service', 'crop', 'CropTemplates.java'));
