@@ -1,36 +1,36 @@
 /* 深色主题兜底（T21）。
  *
- * 主要背景/文字已经靠 common.css 的变量在 :root[data-theme="dark"] 下自动换值，
+ * 主要背景/文字已经靠 common.css 的变量在 :root[data-theme="dark"], :root[data-theme="amoled"] 下自动换值，
  * 本文件只处理那些还写着硬编码白底的输入框（模块 CSS 里 #fff），
  * 避免"深色页面 + 白底输入框 + 浅色文字"的反白问题。
  *
  * 必须在 index.html 里最后加载，确保盖过模块 CSS 里的浅色规则。
  */
 
-:root[data-theme="dark"] input[type="text"],
-:root[data-theme="dark"] input[type="search"],
-:root[data-theme="dark"] input[type="number"],
-:root[data-theme="dark"] input[type="date"],
-:root[data-theme="dark"] input[type="password"],
-:root[data-theme="dark"] input[type="email"],
-:root[data-theme="dark"] input[type="tel"],
-:root[data-theme="dark"] input[type="url"],
-:root[data-theme="dark"] input:not([type]),
-:root[data-theme="dark"] select,
-:root[data-theme="dark"] textarea {
+:root[data-theme="dark"], :root[data-theme="amoled"] input[type="text"],
+:root[data-theme="dark"], :root[data-theme="amoled"] input[type="search"],
+:root[data-theme="dark"], :root[data-theme="amoled"] input[type="number"],
+:root[data-theme="dark"], :root[data-theme="amoled"] input[type="date"],
+:root[data-theme="dark"], :root[data-theme="amoled"] input[type="password"],
+:root[data-theme="dark"], :root[data-theme="amoled"] input[type="email"],
+:root[data-theme="dark"], :root[data-theme="amoled"] input[type="tel"],
+:root[data-theme="dark"], :root[data-theme="amoled"] input[type="url"],
+:root[data-theme="dark"], :root[data-theme="amoled"] input:not([type]),
+:root[data-theme="dark"], :root[data-theme="amoled"] select,
+:root[data-theme="dark"], :root[data-theme="amoled"] textarea {
   background: var(--surface-2) !important;
   color: var(--ink) !important;
   border-color: var(--line) !important;
 }
 
 /* 这些是"亮色强调条"，深色下把底色压暗、文字调亮，保持可读 */
-:root[data-theme="dark"] .reschedule-bar {
+:root[data-theme="dark"], :root[data-theme="amoled"] .reschedule-bar {
   color: var(--warn-text);
   background: rgba(223, 166, 63, 0.10);
   border-color: rgba(223, 166, 63, 0.30);
 }
 
-:root[data-theme="dark"] .reschedule-reset {
+:root[data-theme="dark"], :root[data-theme="amoled"] .reschedule-reset {
   color: var(--warn-text);
   background: var(--surface-2);
   border-color: #b58a2b;

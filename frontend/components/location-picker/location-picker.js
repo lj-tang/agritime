@@ -1,11 +1,16 @@
 /**
- * 地图标点 / 框地组件（V4 T06）
- * Leaflet + OpenStreetMap，动态加载，无 API Key。
+ * 地图标点 / 框地组件
+ * Leaflet + 高德瓦片，动态加载，无 API Key。
  * 功能：
- *   · 标点模式：地图选点 + 反向地理编码 + 文字搜索 + 降级
+ *   · 标点模式：地图选点 + 逆地理识别到「省市区 + 道路」+ 地点搜索
  *   · 画地块模式：在地图上自行框地（多边形），实时面积，确认时做可种植性校验
  *     —— 城市建成区/核心区（商务区、商业区、住宅区等）会被拦截；
  *        城市绿地（公园/花园等）会提示需确认权限；农田/水体直接放行。
+ *
+ * 坐标系约定（很容易出错的点）：
+ *   · 组件对外一律用 WGS84（浏览器定位、IP 定位、后端接口、存库都是这套）；
+ *   · 高德瓦片是 GCJ02，所以「画到地图上」要 +偏，「从地图上取点」要 -偏。
+ *   不换算的话，中国境内标点会整体偏 300~600 米，逆地理自然识别到隔壁那条街。
  */
 (function () {
   var LEAFLET_CSS = '../assets/leaflet/leaflet.css';
@@ -17,17 +22,20 @@
   var LOAD_TIMEOUT = 5000;
   var DEFAULT_CENTER = [39.9042, 116.4074];
   var DEFAULT_ZOOM = 13;
+  var LOCATE_ZOOM = 15;
+  var SEARCH_ZOOM = 16;
   var M_PER_MU = 666.6667;          // 1 亩 ≈ 666.67 平方米
 
   var leafletReady = null;
   var mapInstance = null;
 
-  /** 图标走 SVG 库（icons.js 先加载），失败时回退到 emoji */
+  /** 图标走 SVG 库（icons.js 先加载），失败时回退到空串 */
   function ic(name) {
     return (window.Icons && window.Icons.svg) ? window.Icons.svg(name) : '';
   }
 
   var currentMarker = null;
+  var currentPoint = null;   // 当前标点（WGS84）
   var pendingCallback = null;
   var displayMap = null;
   var currentPlace = null;   // 当前标点解析出的中文地名，确认时回填
@@ -37,7 +45,7 @@
   // ---- 画地块状态 ----
   var mode = 'point';        // 'point' | 'draw'
   var drawEnabled = false;   // 本次打开是否允许画地块（我的地块传入 opts.draw=true）
-  var vertices = [];         // [{lat,lng}]
+  var vertices = [];         // [{lat,lng}] 均为 WGS84
   var drawGroup = null;      // 多边形 + 顶点图层
   var drawPolygonLayer = null;
   var drawPolylineLayer = null;
@@ -46,12 +54,60 @@
   var drawSuitability = null;
   var confirmBusy = false;
 
+  // ---------------- 坐标系换算（WGS84 ⇄ GCJ02） ----------------
+
+  var GCJ_A = 6378245.0;
+  var GCJ_EE = 0.00669342162296594323;
+
+  function outOfChina(lat, lon) {
+    return lon < 72.004 || lon > 137.8347 || lat < 0.8293 || lat > 55.8271;
+  }
+
+  function transformLat(x, y) {
+    var r = -100.0 + 2.0 * x + 3.0 * y + 0.2 * y * y + 0.1 * x * y + 0.2 * Math.sqrt(Math.abs(x));
+    r += (20.0 * Math.sin(6.0 * x * Math.PI) + 20.0 * Math.sin(2.0 * x * Math.PI)) * 2.0 / 3.0;
+    r += (20.0 * Math.sin(y * Math.PI) + 40.0 * Math.sin(y / 3.0 * Math.PI)) * 2.0 / 3.0;
+    r += (160.0 * Math.sin(y / 12.0 * Math.PI) + 320 * Math.sin(y * Math.PI / 30.0)) * 2.0 / 3.0;
+    return r;
+  }
+
+  function transformLng(x, y) {
+    var r = 300.0 + x + 2.0 * y + 0.1 * x * x + 0.1 * x * y + 0.1 * Math.sqrt(Math.abs(x));
+    r += (20.0 * Math.sin(6.0 * x * Math.PI) + 20.0 * Math.sin(2.0 * x * Math.PI)) * 2.0 / 3.0;
+    r += (20.0 * Math.sin(x * Math.PI) + 40.0 * Math.sin(x / 3.0 * Math.PI)) * 2.0 / 3.0;
+    r += (150.0 * Math.sin(x / 12.0 * Math.PI) + 300.0 * Math.sin(x / 30.0 * Math.PI)) * 2.0 / 3.0;
+    return r;
+  }
+
+  function wgs84ToGcj02(lat, lon) {
+    if (outOfChina(lat, lon)) return { lat: lat, lon: lon };
+    var dLat = transformLat(lon - 105.0, lat - 35.0);
+    var dLon = transformLng(lon - 105.0, lat - 35.0);
+    var radLat = lat / 180.0 * Math.PI;
+    var magic = Math.sin(radLat);
+    magic = 1 - GCJ_EE * magic * magic;
+    var sqrtMagic = Math.sqrt(magic);
+    dLat = (dLat * 180.0) / ((GCJ_A * (1 - GCJ_EE)) / (magic * sqrtMagic) * Math.PI);
+    dLon = (dLon * 180.0) / (GCJ_A / sqrtMagic * Math.cos(radLat) * Math.PI);
+    return { lat: lat + dLat, lon: lon + dLon };
+  }
+
+  /** 逆变换没有闭式解，迭代两次误差 < 1 米 */
+  function gcj02ToWgs84(lat, lon) {
+    if (outOfChina(lat, lon)) return { lat: lat, lon: lon };
+    var wlat = lat, wlon = lon;
+    for (var i = 0; i < 2; i++) {
+      var g = wgs84ToGcj02(wlat, wlon);
+      wlon += lon - g.lon;
+      wlat += lat - g.lat;
+    }
+    return { lat: wlat, lon: wlon };
+  }
+
   /**
    * 标记图标不走 L.Icon.Default：它依赖 leaflet/images/*.png，而仓库只随包了
    * leaflet.css / leaflet.js，那几张图不存在，每个标记都会 404 且地图上没有图标。
-   * 这里用 L.divIcon + 内联 SVG —— html 直接渲染，不经过 imagePath 拼接，
-   * 因此既不会 404，也不会像 data-URI 方案那样被拼成
-   * /assets/leaflet/images/data:image/svg+xml... 的畸形地址。
+   * 这里用 L.divIcon + 内联 SVG —— html 直接渲染，不经过 imagePath 拼接。
    */
   var MARKER_SVG = "<svg xmlns='http://www.w3.org/2000/svg' width='28' height='40' viewBox='0 0 28 40'>" +
     "<path d='M14 1C7.4 1 2 6.3 2 12.9 2 21.6 14 39 14 39s12-17.4 12-26.1C26 6.3 20.6 1 14 1z' " +
@@ -111,7 +167,8 @@
   /**
    * 逆地理编码走后端 /api/geo/reverse，不再直连 Nominatim：
    * 国内访问 nominatim.openstreetmap.org 基本是超时，用户只能看到一串经纬度；
-   * 后端接的是国内服务商，能返回到小区/村级的中文地名，key 也不会落到浏览器里。
+   * 后端接的是国内服务商（免 key 的高德网页版 + 离线省市县库），
+   * 能返回到「省市区 + 最近道路」的中文地名，key 也不会落到浏览器里。
    */
   function reverseGeocode(lat, lon, cb) {
     var controller = typeof AbortController !== 'undefined' ? new AbortController() : null;
@@ -131,8 +188,10 @@
     var controller = typeof AbortController !== 'undefined' ? new AbortController() : null;
     var timer = setTimeout(function () { if (controller) controller.abort(); }, 8000);
     var center = mapInstance ? mapInstance.getCenter() : null;
+    // 地图中心是 GCJ02，换回 WGS84 再传，让后端按「离我最近」排序
+    var w = center ? gcj02ToWgs84(center.lat, center.lng) : null;
     var url = GEO_SEARCH + '?q=' + encodeURIComponent(query)
-      + (center ? '&lat=' + center.lat.toFixed(6) + '&lon=' + center.lng.toFixed(6) : '');
+      + (w ? '&lat=' + w.lat.toFixed(6) + '&lon=' + w.lon.toFixed(6) : '');
     fetch(url, { signal: controller ? controller.signal : undefined })
       .then(function (r) { clearTimeout(timer); if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
       .then(function (res) {
@@ -145,14 +204,16 @@
   function getCurrentLocation() {
     return new Promise(function (resolve) {
       if (window.__lastLocation && validateLatLon(window.__lastLocation.lat, window.__lastLocation.lon)) {
-        resolve({ lat: window.__lastLocation.lat, lon: window.__lastLocation.lon });
+        resolve({ lat: window.__lastLocation.lat, lon: window.__lastLocation.lon, source: 'cache' });
         return;
       }
       if (navigator.geolocation && !(window.Prefs && window.Prefs.get('location') === false)) {
         navigator.geolocation.getCurrentPosition(
-          function (pos) { resolve({ lat: pos.coords.latitude, lon: pos.coords.longitude }); },
+          function (pos) {
+            resolve({ lat: pos.coords.latitude, lon: pos.coords.longitude, source: 'gps' });
+          },
           function () { getLocationByIP().then(resolve); },
-          { timeout: 5000, maximumAge: 600000 }
+          { enableHighAccuracy: true, timeout: 6000, maximumAge: 300000 }
         );
       } else {
         getLocationByIP().then(resolve);
@@ -161,15 +222,18 @@
   }
 
   function getLocationByIP() {
-    // 站点是 http://，浏览器没有 geolocation，IP 粗定位是唯一出路；
-    // 而浏览器直连 ipinfo.io 在国内时通时断，所以先走后端代查，失败再直连兜底。
+    // 站点是 http://，浏览器不给 navigator.geolocation（非安全上下文），
+    // IP 粗定位是唯一出路；浏览器直连 ipinfo.io 在国内时通时断，先走后端代查。
     return fetchIpApi('/api/geo/ip', 4000).then(function (r) {
-      if (r) return r;
-      return fetchIpApi('https://ipinfo.io/json', 5000);
+      if (r) { r.source = 'ip'; return r; }
+      return fetchIpApi('https://ipinfo.io/json', 5000).then(function (x) {
+        if (x) x.source = 'ip';
+        return x;
+      });
     });
   }
 
-  /** 同时兼容两种返回：/api/geo/ip 的 {lat, lon} 与 ipinfo.io 的 {loc: "lat,lon"} */
+  /** 同时兼容 /api/geo/ip 的 {lat, lon} 与 ipinfo.io 的 {loc: "lat,lon"} */
   function fetchIpApi(url, timeoutMs) {
     return new Promise(function (resolve) {
       var controller = new AbortController();
@@ -205,8 +269,12 @@
       '<button type="button" class="map-mode-btn active" id="map-mode-point">' + ic('pin') + ' 标点</button>' +
       '<button type="button" class="map-mode-btn" id="map-mode-draw">' + ic('pencil') + ' 画地块</button>' +
       '</div>' +
-      '<div class="map-search-area"><input type="text" id="map-search-input" placeholder="搜索地点…" /><button type="button" id="map-search-btn">搜索</button><button type="button" id="map-locate-btn" title="定位到当前位置">' + ic('locate') + '</button></div>' +
-      '<div class="map-search-results" id="map-search-results"></div>' +
+      '<div class="map-search-area">' +
+      '<input type="text" id="map-search-input" autocomplete="off" placeholder="搜索地点，如「武汉大学」「金乡县」" />' +
+      '<button type="button" id="map-search-btn">搜索</button>' +
+      '<button type="button" id="map-locate-btn" title="定位到当前位置">' + ic('locate') + '</button>' +
+      '</div>' +
+      '<div class="map-search-results" id="map-search-results" hidden></div>' +
       '<div class="map-draw-tools" id="map-draw-tools" hidden>' +
       '<div class="map-draw-hint" id="map-draw-hint">点击地图添加顶点，至少 3 个点；双击或点「完成绘制」闭合</div>' +
       '<div class="map-draw-row">' +
@@ -217,7 +285,10 @@
       '<button type="button" id="map-draw-finish">完成绘制</button>' +
       '</span></div></div>' +
       '<div class="map-canvas" id="map-canvas"></div>' +
-      '<div class="map-info" id="map-info">点击地图选择位置</div>' +
+      '<div class="map-info" id="map-info">' +
+      '<div class="map-info-main" id="map-info-main">点击地图选择位置</div>' +
+      '<div class="map-info-sub" id="map-info-sub">也可以在上方搜索地名或详细地址</div>' +
+      '</div>' +
       '<div class="map-verdict" id="map-verdict" hidden></div>' +
       '<div class="map-actions"><button type="button" class="btn btn-primary" id="map-confirm">确认</button><button type="button" class="btn btn-ghost" id="map-cancel">取消</button></div>' +
       '</div>';
@@ -237,6 +308,20 @@
     return overlay;
   }
 
+  function initMap(center) {
+    var canvas = document.getElementById('map-canvas');
+    if (!canvas || canvas.offsetWidth <= 0) return false;
+    mapInstance = L.map('map-canvas', { zoomControl: false, attributionControl: true })
+      .setView(center, DEFAULT_ZOOM);
+    L.tileLayer(OSM_TILE, { subdomains: ['1', '2', '3', '4'], attribution: '© 高德地图', maxZoom: 18 }).addTo(mapInstance);
+    // 缩放控件放右下，避免和左上角的搜索结果叠在一起
+    L.control.zoom({ position: 'bottomright' }).addTo(mapInstance);
+    L.control.scale({ position: 'bottomleft', imperial: false, maxWidth: 110 }).addTo(mapInstance);
+    mapInstance.on('click', onMapClick);
+    mapInstance.on('dblclick', onMapDblClick);
+    return true;
+  }
+
   function open(onConfirm, opts) {
     pendingCallback = onConfirm;
     drawEnabled = !!(opts && opts.draw);
@@ -249,6 +334,7 @@
 
       geoToken++;            // 作废上一次打开时还没回来的识别结果
       currentPlace = null;
+      currentPoint = null;
       resolving = false;
       confirmBusy = false;
       drawSuitability = null;
@@ -256,47 +342,51 @@
       resetDrawState();
       updateModeUI();
       resetVerdict();
+      hideSearchResults();
 
       getCurrentLocation().then(function (loc) {
-        var center = (loc && validateLatLon(loc.lat, loc.lon)) ? [loc.lat, loc.lon] : DEFAULT_CENTER;
+        var hasLoc = loc && validateLatLon(loc.lat, loc.lon);
+        var center = hasLoc ? toGcj(loc.lat, loc.lon) : { lat: DEFAULT_CENTER[0], lon: DEFAULT_CENTER[1] };
         setTimeout(function () {
           if (!mapInstance) {
-            var canvas = document.getElementById('map-canvas');
-            if (canvas && canvas.offsetWidth > 0) {
-              mapInstance = L.map('map-canvas').setView(center, DEFAULT_ZOOM);
-              L.tileLayer(OSM_TILE, { subdomains: ['1','2','3','4'], attribution: '© 高德地图', maxZoom: 18 }).addTo(mapInstance);
-              mapInstance.on('click', onMapClick);
-              mapInstance.on('dblclick', onMapDblClick);
-            }
+            if (!initMap([center.lat, center.lon])) return;
           } else {
-            mapInstance.setView(center, DEFAULT_ZOOM);
+            mapInstance.setView([center.lat, center.lon], DEFAULT_ZOOM);
             if (currentMarker) { mapInstance.removeLayer(currentMarker); currentMarker = null; }
           }
-          if (mapInstance) {
-            mapInstance.doubleClickZoom.enable();
-            if (mode === 'draw') {
-              enterDrawMode();
-            } else if (loc && validateLatLon(loc.lat, loc.lon)) {
-              placeMarker(loc.lat, loc.lon);
+          mapInstance.doubleClickZoom.enable();
+          if (mode === 'draw') {
+            enterDrawMode();
+          } else if (hasLoc) {
+            placeMarker(loc.lat, loc.lon);
+            if (loc.source === 'ip') {
+              setSub('已按网络位置定位到城市，可拖动标记或搜索更精确的地点');
             }
-            mapInstance.invalidateSize();
           }
+          mapInstance.invalidateSize();
         }, 200);
       });
     });
   }
 
+  function toGcj(lat, lon) {
+    var g = wgs84ToGcj02(lat, lon);
+    return { lat: g.lat, lon: g.lon };
+  }
+
   function onMapClick(e) {
     if (!mapInstance) return;
-    if (mode !== 'draw') { placeMarker(e.latlng.lat, e.latlng.lng); return; }
+    // 地图上的点属于 GCJ02，换回 WGS84 才能和定位/存库对齐
+    var w = gcj02ToWgs84(e.latlng.lat, e.latlng.lng);
+    if (mode !== 'draw') { placeMarker(w.lat, w.lon); return; }
     if (drawClosed) return;
     // 点回第一个顶点视为闭合
     if (vertices.length >= 3) {
-      var first = mapInstance.latLngToContainerPoint([vertices[0].lat, vertices[0].lng]);
+      var first = mapInstance.latLngToContainerPoint(toGcj(vertices[0].lat, vertices[0].lng));
       var here = mapInstance.latLngToContainerPoint(e.latlng);
       if (first.distanceTo(here) < 14) { finishDraw(); return; }
     }
-    vertices.push({ lat: e.latlng.lat, lng: e.latlng.lng });
+    vertices.push({ lat: w.lat, lng: w.lon });
     drawOverride = false;
     redrawDraw();
   }
@@ -308,34 +398,46 @@
 
   // ---------------- 标点模式 ----------------
 
+  /** lat/lon 是 WGS84；只有画到地图上时才换成 GCJ02 */
   function placeMarker(lat, lon) {
     if (!mapInstance || !validateLatLon(lat, lon)) return;
+    currentPoint = { lat: Number(lat), lon: Number(lon) };
+    var g = toGcj(lat, lon);
     if (currentMarker) mapInstance.removeLayer(currentMarker);
-    currentMarker = L.marker([lat, lon], { icon: getMarkerIcon(), draggable: true }).addTo(mapInstance);
+    currentMarker = L.marker([g.lat, g.lon], {
+      icon: getMarkerIcon(), draggable: true, zIndexOffset: 900, keyboard: false
+    }).addTo(mapInstance);
     currentMarker.on('dragend', function (e) {
       var pos = e.target.getLatLng();
-      updateInfo(pos.lat, pos.lng);
+      var w = gcj02ToWgs84(pos.lat, pos.lng);
+      updateInfo(w.lat, w.lon);
     });
     updateInfo(lat, lon);
   }
 
+  function coordText(lat, lon) {
+    return '经度 ' + Number(lon).toFixed(5) + '，纬度 ' + Number(lat).toFixed(5);
+  }
+
   function updateInfo(lat, lon) {
-    var info = document.getElementById('map-info');
+    currentPoint = { lat: Number(lat), lon: Number(lon) };
     currentPlace = null;
     resolving = true;
-    setConfirmBusy(true);
-    if (info) info.textContent = '正在识别位置…';
+    setConfirmBusy(true, '识别位置…');
+    setInfo('正在识别位置…', coordText(lat, lon));
 
     var token = ++geoToken;
     reverseGeocode(lat, lon, function (place) {
       if (token !== geoToken) return;   // 拖拽过快时丢弃过期结果
       resolving = false;
       currentPlace = place;
-      var el = document.getElementById('map-info');
+
       if (place) {
-        if (el) el.textContent = place.displayName;
-      } else if (el) {
-        el.textContent = '该位置不在已收录范围内（境外或海域），可直接确认后手动填写地点';
+        var precise = place.level === 'street' || place.level === 'poi'
+          || place.level === 'building' || place.level === 'community';
+        setInfo(place.displayName, coordText(lat, lon) + (precise ? ' · 可拖动标记微调' : ' · 可拖动标记或搜索更精确的地点'));
+      } else {
+        setInfo('未识别到中文地名', coordText(lat, lon) + ' · 可直接确认，或搜索附近地点');
       }
       setConfirmBusy(false);
     });
@@ -348,6 +450,14 @@
     if (!btn) return;
     btn.disabled = !!busy;
     btn.textContent = busy ? (label || '识别位置…') : '确认';
+  }
+
+  /** 把地图移到某个 WGS84 点；点选搜索结果的「定位到这一点」也走这里 */
+  function focusTo(lat, lon, zoom) {
+    if (!mapInstance || !validateLatLon(lat, lon)) return;
+    var g = toGcj(lat, lon);
+    mapInstance.setView([g.lat, g.lon], zoom || SEARCH_ZOOM);
+    if (mode !== 'draw') placeMarker(lat, lon);
   }
 
   // ---------------- 画地块模式 ----------------
@@ -385,7 +495,8 @@
     setConfirmBusy(false);
     if (mapInstance) {
       var c = mapInstance.getCenter();
-      placeMarker(c.lat, c.lng);
+      var w = gcj02ToWgs84(c.lat, c.lng);
+      placeMarker(w.lat, w.lon);
     }
   }
 
@@ -445,7 +556,10 @@
     drawPolygonLayer = null;
     drawPolylineLayer = null;
 
-    var latlngs = vertices.map(function (v) { return [v.lat, v.lng]; });
+    var latlngs = vertices.map(function (v) {
+      var g = toGcj(v.lat, v.lng);
+      return [g.lat, g.lon];
+    });
     if (latlngs.length >= 3) {
       drawPolygonLayer = L.polygon(latlngs, {
         color: '#3f8f56', weight: 2, fillColor: '#3f8f56', fillOpacity: 0.18
@@ -457,18 +571,21 @@
     }
 
     vertices.forEach(function (v, i) {
-      var m = L.marker([v.lat, v.lng], {
+      var g = toGcj(v.lat, v.lng);
+      var m = L.marker([g.lat, g.lon], {
         draggable: true, icon: getVertexIcon(i === 0), zIndexOffset: 1000
       }).addTo(drawGroup);
       m.on('drag', function (e) {
         var p = e.target.getLatLng();
-        vertices[i] = { lat: p.lat, lng: p.lng };
+        var w = gcj02ToWgs84(p.lat, p.lng);
+        vertices[i] = { lat: w.lat, lng: w.lon };
         updateDrawGeometry();
         updateDrawInfo();
       });
       m.on('dragend', function (e) {
         var p = e.target.getLatLng();
-        vertices[i] = { lat: p.lat, lng: p.lng };
+        var w = gcj02ToWgs84(p.lat, p.lng);
+        vertices[i] = { lat: w.lat, lng: w.lon };
         drawOverride = false;
         redrawDraw();
       });
@@ -479,7 +596,10 @@
 
   /** 拖拽顶点时只更新几何，不重建标记（重建会中断拖拽） */
   function updateDrawGeometry() {
-    var latlngs = vertices.map(function (v) { return [v.lat, v.lng]; });
+    var latlngs = vertices.map(function (v) {
+      var g = toGcj(v.lat, v.lng);
+      return [g.lat, g.lon];
+    });
     if (drawPolygonLayer && latlngs.length >= 3) drawPolygonLayer.setLatLngs(latlngs);
     if (drawPolylineLayer && latlngs.length === 2) drawPolylineLayer.setLatLngs(latlngs);
   }
@@ -527,9 +647,15 @@
     return { lat: la / latlngs.length, lon: lo / latlngs.length };
   }
 
-  function setInfo(text) {
-    var el = document.getElementById('map-info');
-    if (el) el.textContent = text;
+  function setInfo(text, sub) {
+    var main = document.getElementById('map-info-main');
+    if (main) main.textContent = text;
+    if (arguments.length > 1) setSub(sub);
+  }
+
+  function setSub(text) {
+    var sub = document.getElementById('map-info-sub');
+    if (sub) sub.textContent = text || '';
   }
 
   function resetVerdict() {
@@ -639,14 +765,13 @@
 
   function confirmSelect() {
     if (mode === 'draw') { confirmDraw(); return; }
-    if (!currentMarker) { close(); return; }
+    if (!currentMarker || !currentPoint) { close(); return; }
     if (resolving) return;   // 按钮此时是禁用的，这里再兜一层
 
-    var pos = currentMarker.getLatLng();
     var name = selectionName();
 
     // 经纬度保留 6 位小数（约 0.1 米），只交给后端参与计算，界面不展示
-    window.__markerLatLon = { lat: round6(pos.lat), lon: round6(pos.lng) };
+    window.__markerLatLon = { lat: round6(currentPoint.lat), lon: round6(currentPoint.lon) };
     window.__markerPlace = currentPlace ? {
       displayName: currentPlace.displayName,
       name: currentPlace.name,
@@ -671,7 +796,7 @@
     close();
   }
 
-  /** 回填到地点输入框的文本：优先用小区级地名，识别不出来时才用占位文案 */
+  /** 回填到地点输入框的文本：优先用识别到的地名，识别不出来时才用占位文案 */
   function selectionName() {
     if (currentPlace && currentPlace.displayName) return currentPlace.displayName;
     return '地图选点';
@@ -682,59 +807,95 @@
   }
 
   function locateToCurrent() {
-    var info = document.getElementById('map-info');
-    if (info) info.textContent = '正在定位…';
+    setInfo('正在定位…', '优先使用设备定位，失败时回退到网络位置');
     getCurrentLocation().then(function (loc) {
       if (loc && validateLatLon(loc.lat, loc.lon) && mapInstance) {
-        mapInstance.setView([loc.lat, loc.lon], DEFAULT_ZOOM);
-        if (mode !== 'draw') placeMarker(loc.lat, loc.lon);
-      } else if (info) {
-        info.textContent = '定位失败，请手动点击地图选择位置';
+        focusTo(loc.lat, loc.lon, LOCATE_ZOOM);
+        if (loc.source === 'ip') {
+          setSub('已按网络位置定位到城市，可拖动标记或搜索更精确的地点');
+        }
+      } else {
+        setInfo('定位失败', '请在地图上点击选择，或在上方搜索地点');
       }
     });
   }
 
+  // ---------------- 地点搜索 ----------------
+
+  function hideSearchResults() {
+    var box = document.getElementById('map-search-results');
+    if (box) { box.hidden = true; box.innerHTML = ''; }
+  }
+
+  function showSearchState(html) {
+    var box = document.getElementById('map-search-results');
+    if (!box) return null;
+    box.hidden = false;
+    box.innerHTML = html;
+    return box;
+  }
+
   function doSearch() {
     var input = document.getElementById('map-search-input');
-    if (!input || !input.value.trim()) return;
-    var results = document.getElementById('map-search-results');
-    if (results) results.innerHTML = '<div class="map-searching">搜索中…</div>';
-    searchGeocode(input.value.trim(), function (items) {
-      if (!results) return;
+    if (!input) return;
+    var kw = input.value.trim();
+    if (!kw) { input.focus(); return; }
+
+    showSearchState('<div class="map-searching">正在搜索「' + escapeHtml(kw) + '」…</div>');
+    searchGeocode(kw, function (items) {
       if (items === null) {
-        results.innerHTML = '<div class="map-no-result">搜索服务暂不可用，请直接在地图上点击选择位置</div>';
+        showSearchState('<div class="map-no-result">搜索服务暂不可用，请直接在地图上点击选择位置</div>');
         return;
       }
-      results.innerHTML = '';
-      if (!items.length) { results.innerHTML = '<div class="map-no-result">无结果</div>'; return; }
-      items.forEach(function (item) {
-        var div = document.createElement('div');
-        div.className = 'map-search-item';
-        var title = document.createElement('div');
-        title.className = 'map-search-title';
-        title.textContent = item.title || '未知';
-        div.appendChild(title);
-        if (item.address) {
-          var addr = document.createElement('div');
-          addr.className = 'map-search-addr';
-          addr.textContent = item.address;
-          div.appendChild(addr);
-        }
-        div.addEventListener('click', function () {
-          if (mapInstance && item.lat && item.lon) {
-            mapInstance.setView([Number(item.lat), Number(item.lon)], DEFAULT_ZOOM);
-            if (mode !== 'draw') placeMarker(Number(item.lat), Number(item.lon));
-          }
-          results.innerHTML = '';
-        });
-        results.appendChild(div);
+      if (!items.length) {
+        showSearchState('<div class="map-no-result">没有找到「' + escapeHtml(kw) + '」，换个说法试试</div>');
+        return;
+      }
+      renderSearchResults(items);
+    });
+  }
+
+  function renderSearchResults(items) {
+    var box = showSearchState('<div class="map-search-head">找到 ' + items.length + ' 个地点</div>');
+    if (!box) return;
+
+    items.forEach(function (item) {
+      var row = document.createElement('div');
+      row.className = 'map-search-item';
+
+      var title = document.createElement('div');
+      title.className = 'map-search-title';
+      title.textContent = item.title || '未知地点';
+      row.appendChild(title);
+
+      if (item.address) {
+        var addr = document.createElement('div');
+        addr.className = 'map-search-addr';
+        addr.textContent = item.address;
+        row.appendChild(addr);
+      }
+
+      row.addEventListener('click', function () {
+        var lat = Number(item.lat);
+        var lon = Number(item.lon);
+        if (!validateLatLon(lat, lon)) return;
+        hideSearchResults();
+        focusTo(lat, lon, SEARCH_ZOOM);
       });
+      box.appendChild(row);
+    });
+  }
+
+  function escapeHtml(s) {
+    return String(s).replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
     });
   }
 
   function close() {
     var overlay = document.getElementById('map-overlay');
     if (overlay) overlay.style.display = 'none';
+    hideSearchResults();
     pendingCallback = null;
   }
 
@@ -767,19 +928,25 @@
       if (!ok) return;
       var el = document.getElementById(containerId);
       if (!el) return;
-      var pts = normalizePolygon(polygon);
+      var pts = normalizePolygon(polygon).map(function (p) {
+        var g = toGcj(p[0], p[1]);
+        return [g.lat, g.lon];
+      });
       var center;
       if (pts.length >= 3) {
         var la = 0, lo = 0;
         pts.forEach(function (p) { la += p[0]; lo += p[1]; });
         center = [la / pts.length, lo / pts.length];
+      } else if (validateLatLon(lat, lon)) {
+        var g = toGcj(lat, lon);
+        center = [g.lat, g.lon];
       } else {
-        center = validateLatLon(lat, lon) ? [lat, lon] : DEFAULT_CENTER;
+        center = DEFAULT_CENTER;
       }
 
       if (displayMap) { try { displayMap.remove(); } catch (e) {} displayMap = null; }
-      displayMap = L.map(containerId).setView(center, DEFAULT_ZOOM);
-      L.tileLayer(OSM_TILE, { subdomains: ['1','2','3','4'], attribution: '© 高德地图', maxZoom: 18 }).addTo(displayMap);
+      displayMap = L.map(containerId, { zoomControl: true, scrollWheelZoom: false }).setView(center, DEFAULT_ZOOM);
+      L.tileLayer(OSM_TILE, { subdomains: ['1', '2', '3', '4'], attribution: '© 高德地图', maxZoom: 18 }).addTo(displayMap);
 
       if (pts.length >= 3) {
         var poly = L.polygon(pts, {
@@ -787,7 +954,7 @@
         }).addTo(displayMap);
         try { displayMap.fitBounds(poly.getBounds(), { padding: [18, 18] }); } catch (e) {}
       } else if (validateLatLon(lat, lon)) {
-        L.marker([lat, lon], { icon: getMarkerIcon() }).addTo(displayMap);
+        L.marker(center, { icon: getMarkerIcon() }).addTo(displayMap);
       }
       setTimeout(function () { displayMap.invalidateSize(); }, 100);
     });
@@ -801,7 +968,9 @@
     isReady: isReady,
     validateLatLon: validateLatLon,
     getCurrentLocation: getCurrentLocation,
-    polygonAreaSqm: polygonAreaSqm
+    polygonAreaSqm: polygonAreaSqm,
+    wgs84ToGcj02: wgs84ToGcj02,
+    gcj02ToWgs84: gcj02ToWgs84
   };
 
   if (typeof window !== 'undefined') {
@@ -810,6 +979,11 @@
     else { document.addEventListener('DOMContentLoaded', init); }
   }
   if (typeof module !== 'undefined' && module.exports) {
-    module.exports = { validateLatLon: validateLatLon, polygonAreaSqm: polygonAreaSqm };
+    module.exports = {
+      validateLatLon: validateLatLon,
+      polygonAreaSqm: polygonAreaSqm,
+      wgs84ToGcj02: wgs84ToGcj02,
+      gcj02ToWgs84: gcj02ToWgs84
+    };
   }
 })();

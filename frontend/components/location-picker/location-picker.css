@@ -56,15 +56,35 @@
 .map-search-area button { padding: 8px 16px; border: none; border-radius: var(--radius-sm); background: var(--leaf); color: var(--paper); cursor: pointer; font-size: calc(14px * var(--fs, 1)); }
 .map-search-area #map-locate-btn { padding: 8px 10px; font-size: calc(16px * var(--fs, 1)); }
 
-.map-search-results { max-height: 150px; overflow-y: auto; border-bottom: 1px solid var(--line); }
-.map-search-item { padding: 8px 16px; cursor: pointer; font-size: calc(13px * var(--fs, 1)); color: var(--ink-soft); border-bottom: 1px solid var(--line); }
-.map-search-item:hover { background: var(--leaf-soft); }
-.map-search-title { font-size: calc(13px * var(--fs, 1)); color: var(--ink); }
-.map-search-addr { font-size: calc(12px * var(--fs, 1)); color: var(--muted); margin-top: 2px; }
+.map-search-results { max-height: 190px; overflow-y: auto; border-bottom: 1px solid var(--line); background: var(--card); }
+.map-search-head {
+  position: sticky; top: 0; z-index: 1;
+  padding: 6px 16px; font-size: calc(12px * var(--fs, 1)); color: var(--muted);
+  background: var(--paper-2); border-bottom: 1px solid var(--line);
+}
+.map-search-item { padding: 9px 16px; cursor: pointer; border-bottom: 1px solid var(--line); }
+.map-search-item:last-child { border-bottom: none; }
+.map-search-item:hover, .map-search-item:focus { background: var(--leaf-soft); }
+.map-search-title { font-size: calc(13.5px * var(--fs, 1)); color: var(--ink); line-height: 1.4; }
+.map-search-addr { font-size: calc(12px * var(--fs, 1)); color: var(--muted); margin-top: 2px; line-height: 1.4; }
 .map-searching, .map-no-result { padding: 12px 16px; color: var(--muted); font-size: calc(13px * var(--fs, 1)); text-align: center; }
 
 /* flex-basis:0 让地图吃掉剩余空间；min-height 不能太大，否则会把底部按钮挤出面板 */
-.map-canvas { flex: 1 1 0; min-height: 220px; }
+.map-canvas { flex: 1 1 0; min-height: 220px; cursor: crosshair; background: var(--paper-2); }
+
+/* Leaflet 自带控件默认是白底圆角，跟站点主题不搭，这里统一到卡片色 */
+.map-canvas .leaflet-control-zoom a {
+  background: var(--card); color: var(--ink); border-color: var(--line);
+}
+.map-canvas .leaflet-control-zoom a:hover { background: var(--leaf-soft); color: var(--leaf); }
+.map-canvas .leaflet-control-scale-line {
+  background: rgba(255,255,255,.78); border-color: var(--line); color: var(--ink-soft);
+  font-size: 11px; padding: 1px 5px;
+}
+.map-canvas .leaflet-control-attribution {
+  background: rgba(255,255,255,.78); color: var(--muted); font-size: 10.5px;
+}
+.map-canvas .leaflet-control-attribution a { color: var(--leaf); }
 
 /* 标点 / 画地块 模式切换 */
 .map-mode-switch { display: flex; gap: 8px; padding: 10px 16px; border-bottom: 1px solid var(--line); }
@@ -96,7 +116,15 @@
 /* hidden 属性必须能盖住 flex 布局 */
 .map-panel [hidden] { display: none !important; }
 
-.map-info { padding: 8px 16px; font-size: calc(13px * var(--fs, 1)); color: var(--ink-soft); border-top: 1px solid var(--line); }
+.map-info { padding: 10px 16px; border-top: 1px solid var(--line); background: var(--card); }
+.map-info-main {
+  font-size: calc(13.5px * var(--fs, 1)); font-weight: 600; color: var(--ink);
+  line-height: 1.45; word-break: break-all;
+}
+.map-info-sub {
+  margin-top: 3px; font-size: calc(12px * var(--fs, 1)); color: var(--muted);
+  line-height: 1.45; word-break: break-all;
+}
 
 .map-actions { display: flex; gap: 8px; padding: 12px 16px; border-top: 1px solid var(--line); }
 .map-actions .btn { flex: 1; }

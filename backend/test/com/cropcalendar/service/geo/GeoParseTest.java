@@ -9,6 +9,7 @@ public class GeoParseTest {
 
     static int fail = 0;
 
+    @SuppressWarnings("unchecked")
     public static void main(String[] args) {
         // 1. 高德：neighborhood 命中（商务住宅）
         check("amap-neighborhood",
@@ -75,7 +76,53 @@ public class GeoParseTest {
                         "\"geometry\":{\"coordinates\":[116.2800,35.0500]}}]}", 35.0500, 116.2800),
                 "金城路（金乡县 · 济宁市 · 山东省）", "street", "金城路");
 
-        // 8. 上游报错时返回 null，由调用方降级
+        // 8. 高德网页版（免 key）：最近道路拼在行政区后面
+        checkWeb("amap-web-road",
+                "{\"status\":\"1\",\"data\":{\"province\":\"湖北省\",\"city\":\"武汉市\",\"district\":\"江岸区\"," +
+                        "\"road_list\":[{\"name\":\"沿江大道\",\"distance\":\"16\"},{\"name\":\"一元路\",\"distance\":\"87\"}]," +
+                        "\"cross_list\":[{\"name\":\"一元路--沿江大道\",\"distance\":\"91\"}]}}",
+                "湖北省武汉市江岸区沿江大道", "street", "沿江大道");
+
+        // 9. 高德网页版：附近没有可用道路时退到路口名
+        checkWeb("amap-web-cross",
+                "{\"status\":\"1\",\"data\":{\"province\":\"湖北省\",\"city\":\"武汉市\",\"district\":\"江岸区\"," +
+                        "\"road_list\":[],\"cross_list\":[{\"name\":\"一元路--沿江大道\",\"distance\":\"91\"}]}}",
+                "湖北省武汉市江岸区一元路与沿江大道交叉口", "street", "一元路与沿江大道交叉口");
+
+        // 10. 高德网页版：直辖市省市同名只写一次
+        checkWeb("amap-web-municipality",
+                "{\"status\":\"1\",\"data\":{\"province\":\"北京市\",\"city\":\"北京市\",\"district\":\"东城区\"," +
+                        "\"road_list\":[{\"name\":\"长安街\",\"distance\":\"30\"}],\"cross_list\":[]}}",
+                "北京市东城区长安街", "street", "长安街");
+
+        // 11. 高德网页版：道路太远时不硬报路名，只给行政区
+        checkWeb("amap-web-far-road",
+                "{\"status\":\"1\",\"data\":{\"province\":\"新疆维吾尔自治区\",\"city\":\"乌鲁木齐市\"," +
+                        "\"district\":\"乌鲁木齐县\",\"road_list\":[{\"name\":\"无名路\",\"distance\":\"900\"}]," +
+                        "\"cross_list\":[]}}",
+                "新疆维吾尔自治区乌鲁木齐市", "district", "乌鲁木齐市");
+
+        // 12. 百度网页版：BD09MC 坐标必须换算回 WGS84（武大文理学部）
+        java.util.List<GeoResolver.Suggestion> bd = GeoResolver.parseBaidu(
+                (Map<String, Object>) JsonParser.parse("{\"content\":[{\"name\":\"武汉大学(文理学部)\"," +
+                        "\"addr\":\"湖北省武汉市武昌区八一路299号\",\"x\":1273204698,\"y\":355160735}]}"), 5);
+        boolean okBd = bd.size() == 1
+                && "武汉大学(文理学部)".equals(bd.get(0).title())
+                && near(bd.get(0).lat(), 30.5449) && near(bd.get(0).lon(), 114.3672);
+        if (!okBd) fail++;
+        System.out.println((okBd ? "ok   " : "FAIL ") + "baidu-web-coord -> "
+                + (bd.isEmpty() ? "empty" : bd.get(0).lon() + "," + bd.get(0).lat()));
+
+        // 13. 坐标系换算：天安门 WGS84 ⇄ GCJ02 往返一致
+        double[] gcj = CoordTransform.wgs84ToGcj02(116.391230, 39.907020);
+        double[] back = CoordTransform.gcj02ToWgs84(gcj[0], gcj[1]);
+        boolean okCoord = near(gcj[0], 116.39746) && near(gcj[1], 39.90854)
+                && Math.abs(back[0] - 116.391230) < 1e-4 && Math.abs(back[1] - 39.907020) < 1e-4;
+        if (!okCoord) fail++;
+        System.out.println((okCoord ? "ok   " : "FAIL ") + "coord-wgs-gcj -> "
+                + String.format("%.6f,%.6f", gcj[0], gcj[1]));
+
+        // 14. 上游报错时返回 null，由调用方降级
         expectNull("amap-error", parseAmap("{\"status\":\"0\",\"info\":\"INVALID_USER_KEY\"}"));
         expectNull("tencent-error", parseTencent("{\"status\":311,\"message\":\"key格式错误\"}"));
         expectNull("amap-null", GeoResolver.parseAmap(null));
@@ -110,6 +157,25 @@ public class GeoParseTest {
         if (!ok) fail++;
         System.out.println((ok ? "ok   " : "FAIL ") + name + " -> " + p.displayName()
                 + " | level=" + p.level() + " | name=" + p.name());
+    }
+
+    /** 高德网页版解析结果的断言 */
+    private static void checkWeb(String name, String json, String display, String level, String poi) {
+        GeoResolver.Place p = GeoResolver.parseAmapWeb((Map<String, Object>) JsonParser.parse(json));
+        if (p == null) {
+            fail++;
+            System.out.println("FAIL " + name + " -> null");
+            return;
+        }
+        boolean ok = display.equals(p.displayName()) && level.equals(p.level()) && poi.equals(p.name());
+        if (!ok) fail++;
+        System.out.println((ok ? "ok   " : "FAIL ") + name + " -> " + p.displayName()
+                + " | level=" + p.level() + " | name=" + p.name());
+    }
+
+    /** 坐标容差 0.01 度（约 1 公里），只用于验证换算方向没反、量级没错 */
+    private static boolean near(double actual, double expected) {
+        return Math.abs(actual - expected) < 0.01;
     }
 
     private static void expectNull(String name, GeoResolver.Place p) {

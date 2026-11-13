@@ -29,6 +29,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * 服务商按「快且准」排序，前一个拿不到才问下一个：
  *   · 腾讯位置服务（formatted_addresses.recommend 直接就是小区级地址）
  *   · 高德 Web 服务（neighborhood / aois / pois 能拿到小区与楼宇）
+ *   · 高德网页版逆地理（免 key，能拿到最近的road / 路口，街道级，约 100~200ms）
  *   · 离线地名库（CnGazetteer，省/市/区县，毫秒级，不需要 key，也从不超时）
  *   · Photon（境外兜底，免 key 但国内要 5~7 秒，只在离线库覆盖不到时才等它）
  *
@@ -77,13 +78,15 @@ public final class GeoResolver {
     private static final int UPSTREAM_TIMEOUT_MS = 2_500;
 
     /**
-     * 逆地理只有两条路，都要快：
+     * 逆地理主链路，入参是 WGS84（浏览器 / IP / 离线库用的都是这套坐标）。
+     *
      *   1) 配了腾讯/高德 key → 用服务商结果（能到门牌/POI，最准）；
-     *   2) 没 key → 查项目内的离线省市县库（毫秒级、不联网）。
+     *   2) 高德网页版免 key 接口 → 省市区 + 最近道路/路口，街道级；
+     *   3) 离线省市县库 → 毫秒级兜底，保证任何点都有中文地名。
      *
      * 曾经在这里挂过 Photon 兜底：它虽然免 key 也能到村/小区，但从国内访问
      * 首字节要 5~7 秒、且经常直接超时，用户标个点要干等十几秒才看到地名，
-     * 体验比「只有省市区」差得多，所以主链路不再调用它，任何点都是百毫秒内返回。
+     * 体验比「只有省市区」差得多，所以主链路不再调用它。
      */
     public static Place resolve(double lat, double lon) {
         String key = String.format(Locale.ROOT, "%.6f,%.6f", lat, lon);
@@ -92,16 +95,25 @@ public final class GeoResolver {
             return hit.place();
         }
 
+        // 服务商与瓦片都用 GCJ02，传 WGS84 过去会整体偏 300~600 米
+        double[] gcj = CoordTransform.wgs84ToGcj02(lon, lat);
+
         Place place = null;
         String qqKey = AppConfig.geoQqKey();
         if (!qqKey.isBlank()) {
-            place = tencent(lat, lon, qqKey);
+            place = tencent(gcj[1], gcj[0], qqKey);
         }
         if ((place == null || !place.known()) && !AppConfig.geoAmapKey().isBlank()) {
-            Place amap = amap(lat, lon, AppConfig.geoAmapKey());
+            Place amap = amap(gcj[1], gcj[0], AppConfig.geoAmapKey());
             if (amap != null && amap.known()) place = amap;
         }
-        // 没有 key 也必须有地名：离线库覆盖全国省市县，毫秒级、不联网、不会超时
+        // 没 key 时这一步就是主力：高德网页版逆地理能给出最近道路/路口，
+        // 比「湖北省武汉市江岸区」具体得多，而且不需要任何密钥
+        if (place == null || !place.known() || coarse(place)) {
+            Place web = amapWeb(lat, lon);
+            if (web != null && web.known()) place = web;
+        }
+        // 还没有地名就查离线库：覆盖全国省市县，毫秒级、不联网、不会超时
         if (place == null || !place.known()) {
             Place local = CnGazetteer.resolve(lat, lon);
             if (local != null && local.known()) place = local;
@@ -111,6 +123,11 @@ public final class GeoResolver {
         int ttl = place.known() ? TTL_SECONDS : NEGATIVE_TTL_SECONDS;
         CACHE.put(key, new Entry(place, System.currentTimeMillis() + ttl * 1000L));
         return place;
+    }
+
+    /** 只到区县/城市的结果算「粗」，还值得再问一次能到街道的接口 */
+    private static boolean coarse(Place p) {
+        return "district".equals(p.level()) || "city".equals(p.level());
     }
 
     /** 清空缓存（调试用） */
@@ -186,8 +203,13 @@ public final class GeoResolver {
     // ---------------- 关键字搜索 ----------------
 
     /**
-     * 地点搜索。同样走国内服务商 —— 前端原来直连 Nominatim，
-     * 在国内就是「搜索服务暂不可用」，等于搜索框是坏的。
+     * 地点搜索。前端原来直连 Nominatim，在国内就是「搜索服务暂不可用」，等于搜索框是坏的。
+     *
+     * 现在按这个顺序：
+     *   1) 配了腾讯/高德 key → 用它们的 POI 检索；
+     *   2) 用户输的正好是省市县名 → 离线库秒回，不必联网；
+     *   3) 百度网页版免 key 检索 → 小区、学校、路口都能搜到（坐标换算回 WGS84）；
+     *   4) 都不可用才退到离线库 / Photon。
      */
     public static java.util.List<Suggestion> search(String keyword, double lat, double lon, int limit) {
         String kw = keyword == null ? "" : keyword.trim();
@@ -204,11 +226,41 @@ public final class GeoResolver {
             java.util.List<Suggestion> r = dedupe(amapSearch(kw, n, amapKey));
             if (!r.isEmpty()) return r;
         }
-        // 没有 key 时先查离线库：省市县名是搜得最多的，秒回；
-        // 查不到（多半是想搜商场/路口这类 POI）再退到 Photon
+
+        // 离线库先跑一遍：命中「武汉市」这类行政区名时毫秒级返回，不用等网络
         java.util.List<Suggestion> local = CnGazetteer.search(kw, n);
+        if (!local.isEmpty() && sameName(local.get(0).title(), kw)) return local;
+
+        // 百度网页版免 key：搜索结果带 name/addr/墨卡托坐标，能到小区与路口
+        java.util.List<Suggestion> web = dedupe(baiduWebSearch(kw, n));
+        if (!web.isEmpty()) {
+            java.util.List<Suggestion> out = new java.util.ArrayList<>(local);
+            for (Suggestion s : web) {
+                boolean dup = false;
+                for (Suggestion o : out) {
+                    if (o.title().equals(s.title())) { dup = true; break; }
+                }
+                if (!dup) out.add(s);
+            }
+            return out.size() > n ? out.subList(0, n) : out;
+        }
         if (!local.isEmpty()) return local;
         return dedupe(photonSearch(kw, lat, lon, n));
+    }
+
+    /** 「武汉市」与「武汉」视为同名，用于判断离线库是否已经精确命中 */
+    private static boolean sameName(String a, String b) {
+        return stripAdmin(a).equals(stripAdmin(b));
+    }
+
+    private static String stripAdmin(String name) {
+        String s = name == null ? "" : name.trim();
+        for (String suf : new String[]{"特别行政区", "自治州", "自治县", "自治旗", "地区", "省", "市", "县", "区", "盟", "旗"}) {
+            if (s.endsWith(suf) && s.length() > suf.length() + 1) {
+                return s.substring(0, s.length() - suf.length());
+            }
+        }
+        return s;
     }
 
     /** 同名同址的结果只留第一条：OSM 里一个「望京」能挂着五六个地铁站，不合并会刷屏 */
@@ -412,6 +464,171 @@ public final class GeoResolver {
         String display = compose(name, township, district, city, province);
         if (display.isBlank()) return null;
         return new Place(display, name, township, district, city, province, level, "amap");
+    }
+
+    // ---------------- 高德网页版（免 key，街道级） ----------------
+
+    private static final int AMAP_WEB_TIMEOUT_MS = 1_800;
+    private static final String AMAP_WEB_REFERER = "https://ditu.amap.com/";
+    /** 连续失败 3 次就熔断 60 秒，避免上游挂掉时每个标点都干等 1.8 秒 */
+    private static final java.util.concurrent.atomic.AtomicInteger AMAP_WEB_FAILS = new AtomicInteger();
+    private static volatile long amapWebBlockedUntil = 0;
+
+    /**
+     * 高德地图网页自己在用的逆地理接口，不需要 key。
+     * 返回 province/city/district 之外还有最近的 road_list / cross_list，
+     * 足以把「湖北省武汉市江岸区」补具体到「湖北省武汉市江岸区沿江大道」。
+     */
+    private static Place amapWeb(double lat, double lon) {
+        if (System.currentTimeMillis() < amapWebBlockedUntil) return null;
+        double[] gcj = CoordTransform.wgs84ToGcj02(lon, lat);
+        String url = "https://ditu.amap.com/service/regeo?longitude=" + fmt6(gcj[0])
+                + "&latitude=" + fmt6(gcj[1]);
+        Map<String, Object> root = getJson(url, AMAP_WEB_TIMEOUT_MS, UA_DESKTOP, AMAP_WEB_REFERER);
+        if (root == null) {
+            if (AMAP_WEB_FAILS.incrementAndGet() >= 3) {
+                amapWebBlockedUntil = System.currentTimeMillis() + 60_000L;
+                AMAP_WEB_FAILS.set(0);
+            }
+            return null;
+        }
+        AMAP_WEB_FAILS.set(0);
+        return parseAmapWeb(root);
+    }
+
+    /** 解析高德网页版逆地理。抽成包内静态方法，便于用固定报文做回归 */
+    static Place parseAmapWeb(Map<String, Object> root) {
+        if (root == null || !codeIs(root, "status", "1")) return null;
+        Map<String, Object> d = map(root, "data");
+        if (d == null) return null;
+
+        String province = str(d, "province");
+        String city = str(d, "city");
+        String district = str(d, "district");
+        if (province.isBlank() && city.isBlank() && district.isBlank()) return null;
+
+        // 贴着小路时道路名比路口好读；远一点加「附近」，再远（>500 米）
+        // 说明点在野外/水面上，宁可只报行政区也不指鹿为马
+        Map<String, Object> road = nearest(d, "road_list", 500);
+        Map<String, Object> cross = road == null ? nearest(d, "cross_list", 400) : null;
+
+        String street = "";
+        String detail = "";
+        String level = district.isBlank() ? "city" : "district";
+        if (road != null) {
+            street = str(road, "name");
+            double dist = dbl(road, "distance");
+            if (!street.isBlank()) {
+                detail = dist > 60 ? street + "附近" : street;
+                level = "street";
+            }
+        } else if (cross != null) {
+            street = str(cross, "name").replace("--", "与");
+            if (!street.isBlank()) {
+                detail = street + "交叉口";
+                level = "street";
+            }
+        }
+
+        String admin = adminName(province, city, district);
+        String display = detail.isBlank() ? admin : admin + detail;
+        if (display.isBlank()) return null;
+
+        // 行政区重名被去重时（乌鲁木齐市 / 乌鲁木齐县），name 也别再报那个被藏起来的区县
+        boolean districtShown = !district.isBlank() && !stripAdmin(district).equals(stripAdmin(city));
+        String name = !detail.isBlank() ? detail
+                : (districtShown ? district : (city.isBlank() ? province : city));
+        return new Place(display, name, street, district, city, province, level, "amap-web");
+    }
+
+    /** 取 list 中距离最近、且不超过 maxMeters 的一条 */
+    private static Map<String, Object> nearest(Map<String, Object> d, String key, double maxMeters) {
+        List<?> l = list(d, key);
+        if (l == null) return null;
+        Map<String, Object> best = null;
+        double bestD = Double.MAX_VALUE;
+        for (Object o : l) {
+            if (!(o instanceof Map<?, ?> m)) continue;
+            Map<String, Object> mm = cast(m);
+            double dist = dbl(mm, "distance");
+            if (Double.isNaN(dist)) continue;
+            if (dist < bestD) {
+                bestD = dist;
+                best = mm;
+            }
+        }
+        return (best != null && bestD <= maxMeters) ? best : null;
+    }
+
+    /** 省 + 市 + 区县，去掉「北京市北京市」「乌鲁木齐市乌鲁木齐县」这类重复 */
+    private static String adminName(String province, String city, String district) {
+        LinkedHashSet<String> set = new LinkedHashSet<>();
+        addTail(set, province);
+        if (!city.isBlank() && !stripAdmin(city).equals(stripAdmin(province))) addTail(set, city);
+        if (!district.isBlank() && !stripAdmin(district).equals(stripAdmin(city))) addTail(set, district);
+        return String.join("", set);
+    }
+
+    // ---------------- 百度网页版（免 key，POI 级检索） ----------------
+
+    private static final int BAIDU_WEB_TIMEOUT_MS = 4_000;
+    private static final String BAIDU_WEB_REFERER = "https://map.baidu.com/";
+
+    /**
+     * 百度地图网页版的检索接口，不需要 key。
+     * 高德/腾讯的 POI 检索都要 key，而配 key 之前搜索框等于不可用；
+     * 这个接口能搜到学校、小区、路口，足够支撑「搜索地点」。
+     */
+    private static java.util.List<Suggestion> baiduWebSearch(String kw, int n) {
+        String url = "https://map.baidu.com/?qt=s&wd=" + enc(kw)
+                + "&c=1&ie=utf-8&oue=1&fromproduct=jsapi&res=api";
+        Map<String, Object> root = getJson(url, BAIDU_WEB_TIMEOUT_MS, UA_DESKTOP, BAIDU_WEB_REFERER);
+        return parseBaidu(root, n);
+    }
+
+    /** 解析百度检索结果：x/y 是 BD09MC×100，必须换算回 WGS84 才能落到我们的地图上 */
+    static java.util.List<Suggestion> parseBaidu(Map<String, Object> root, int n) {
+        java.util.List<Suggestion> out = new java.util.ArrayList<>();
+        List<?> content = list(root, "content");
+        if (content == null) return out;
+        for (Object o : content) {
+            if (out.size() >= n) break;
+            if (!(o instanceof Map<?, ?> m)) continue;
+            Map<String, Object> item = cast(m);
+
+            String title = str(item, "name");
+            if (title.isBlank()) continue;
+
+            double mx = dbl(item, "x") / 100.0;
+            double my = dbl(item, "y") / 100.0;
+            if (Double.isNaN(mx) || Double.isNaN(my) || mx == 0 || my == 0) {
+                double[] p = parseGeo(str(item, "geo"));
+                mx = p[0];
+                my = p[1];
+            }
+            if (mx == 0 || my == 0) continue;
+
+            double[] wgs = CoordTransform.bd09mcToWgs84(mx, my);
+            if (!valid(wgs[1], wgs[0])) continue;
+            out.add(new Suggestion(title, str(item, "addr"), wgs[1], wgs[0], "baidu-web"));
+        }
+        return out;
+    }
+
+    /** geo 形如 "1|12732046.98,3551607.35;...|..."，取第一组墨卡托坐标 */
+    private static double[] parseGeo(String geo) {
+        if (geo == null || geo.isBlank()) return new double[]{0, 0};
+        int bar = geo.indexOf('|');
+        String body = bar >= 0 ? geo.substring(bar + 1) : geo;
+        int semi = body.indexOf(';');
+        if (semi >= 0) body = body.substring(0, semi);
+        String[] xy = body.split(",");
+        if (xy.length != 2) return new double[]{0, 0};
+        try {
+            return new double[]{Double.parseDouble(xy[0].trim()), Double.parseDouble(xy[1].trim())};
+        } catch (NumberFormatException e) {
+            return new double[]{0, 0};
+        }
     }
 
     // ---------------- Photon（免 key，OpenStreetMap 数据） ----------------
@@ -888,14 +1105,24 @@ public final class GeoResolver {
         return getJson(url, UPSTREAM_TIMEOUT_MS);
     }
 
+    /** 网页版接口要浏览器的 UA，服务端默认 UA 会被直接挡回 403/HTML 页面 */
+    private static final String UA_DESKTOP =
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) "
+                    + "Chrome/126.0.0.0 Safari/537.36";
+
     private static Map<String, Object> getJson(String url, int timeoutMs) {
+        return getJson(url, timeoutMs, null, null);
+    }
+
+    private static Map<String, Object> getJson(String url, int timeoutMs, String ua, String referer) {
         try {
-            HttpRequest req = HttpRequest.newBuilder(URI.create(url))
+            HttpRequest.Builder builder = HttpRequest.newBuilder(URI.create(url))
                     .timeout(Duration.ofMillis(timeoutMs))
-                    .header("User-Agent", "agritime/1.0")
-                    .GET()
-                    .build();
-            HttpResponse<String> resp = HTTP.send(req, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
+                    .header("User-Agent", ua == null ? "agritime/1.0" : ua)
+                    .GET();
+            if (referer != null) builder.header("Referer", referer);
+            HttpResponse<String> resp = HTTP.send(builder.build(),
+                    HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
             if (resp.statusCode() != 200) return null;
             Object root = JsonParser.parse(resp.body());
             return root instanceof Map<?, ?> m ? cast(m) : null;
