@@ -160,6 +160,8 @@ public class PlotAnalyzeHandler implements HttpHandler {
 
         List<Factor> factors = new ArrayList<>();
         List<Limit> limits = new ArrayList<>();
+        boolean urbanPlot = false;
+        String urbanKind = "";
         boolean pond = "pond".equalsIgnoreCase(type)
                 || "fishpond".equalsIgnoreCase(type) || "aquaculture".equalsIgnoreCase(type);
 
@@ -184,6 +186,15 @@ public class PlotAnalyzeHandler implements HttpHandler {
             addTextureFactor(factors, factorNotes, soil);
             addWaterFactor(factors, factorNotes, access);
             addRoadFactor(factors, factorNotes, access);
+            // 土地利用：落在居民区/商业区/工业区的坐标不是农用地，必须明确挡回去，
+            // 否则用户会在小区里画一块地，系统照样给一套"适宜度 82 分"的结论。
+            if (access != null && access.urban()) {
+                urbanPlot = true;
+                urbanKind = GeoFactors.landUseLabel(access.landUse());
+                limits.add(new Limit("urban-land", "落在城镇建成区",
+                        "该坐标位于「" + urbanKind + "」范围内（OSM 土地利用数据），不是农用地，"
+                                + "不能作为耕地或塘口使用；请改到村外的实际地块", 3));
+            }
         } else {
             factorNotes.add("未启用深度因子（土壤质地/水源/交通），打开地块详情会自动补充");
         }
@@ -193,7 +204,8 @@ public class PlotAnalyzeHandler implements HttpHandler {
         double score = wsum > 0 ? total / wsum : 0;
 
         String level;
-        if (score >= 85) level = "适宜";
+        if (urbanPlot) level = "不适宜";
+        else if (score >= 85) level = "适宜";
         else if (score >= 70) level = "较适宜";
         else if (score >= 55) level = "一般";
         else level = "需注意";

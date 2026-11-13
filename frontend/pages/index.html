@@ -467,8 +467,19 @@
             <input type="date" id="industry-date" name="stockDate" />
           </div>
           <div class="industry-field">
-            <label for="industry-location">地区</label>
-            <input type="text" id="industry-location" name="location" placeholder="湖北省荆州市" value="湖北省荆州市" />
+            <label for="industry-location">塘口所在地</label>
+            <div class="industry-loc-row">
+              <input type="text" id="industry-location" name="location" placeholder="湖北省荆州市" value="湖北省荆州市" />
+              <button type="button" class="btn btn-ghost" id="industry-locate">定位</button>
+            </div>
+            <p class="industry-hint" id="industry-loc-hint" hidden></p>
+          </div>
+          <div class="industry-field">
+            <label for="industry-plot">用我的地块</label>
+            <select id="industry-plot" name="plot">
+              <option value="">不选，按上面的地区估算</option>
+            </select>
+            <p class="industry-hint">选鱼塘后会直接用塘口坐标，不必再填地区</p>
           </div>
           <div class="industry-actions">
             <button type="submit" class="btn btn-primary">生成生产日历</button>
@@ -1852,7 +1863,59 @@
        * 这个月份是不是它的播季、生育期会不会撞霜冻。
        * 明显不成立的直接拦住 —— 排一份排得整整齐齐的假计划，比不排更糟。
        */
+      /**
+       * 精确坐标（地图标点 / 我的地块）先确认不是城镇建成区。
+       * 在小区里排一份"适宜播种"的日历，比直接说"这儿不能种"更误导。
+       * 只有 OSM 明确判定"点落在居民区/商业区/工业区多边形内"才拦；
+       * 上游超时或没数据一律放行 —— 不能因为第三方挂了就把人挡在门外。
+       */
       function checkSowThenGo(cropName, location, sowDate, termInfo) {
+        var precise = !!(window.__markerLatLon || window.__timelinePlotId);
+        if (!precise) { runSowCheck(cropName, location, sowDate, termInfo); return; }
+        var ll = currentLL(cropName);
+        var controller = new AbortController();
+        var timer = setTimeout(function () { controller.abort(); }, 6000);
+        fetch('/api/geo/landuse?lat=' + ll.lat + '&lon=' + ll.lon, { signal: controller.signal })
+          .then(function (r) { clearTimeout(timer); return r.ok ? r.json() : null; })
+          .then(function (b) {
+            var d = (b && b.data) || {};
+            if (d.known && d.urban) { showUrbanBlock(d.landUseLabel || '城镇建成区'); return; }
+            runSowCheck(cropName, location, sowDate, termInfo);
+          })
+          .catch(function () { clearTimeout(timer); runSowCheck(cropName, location, sowDate, termInfo); });
+      }
+
+      /** 城区拦截：这块地不是农用地，不给播期也不给日历。 */
+      function showUrbanBlock(kind) {
+        var main = document.getElementById('sow-auto-main');
+        var sub = document.getElementById('sow-auto-sub');
+        var box = document.getElementById('sow-auto');
+        var btn = document.getElementById('generate-btn');
+        if (btn) { btn.disabled = false; delete btn.dataset.busy; }
+        setMetric('window', '适宜播期', '不适用', true);
+        setMetric('latest', null, '—', true);
+        setMetric('harvest', null, '—', true);
+        if (main) {
+          main.hidden = false;
+          main.textContent = '这里不是农用地（' + kind + '）';
+        }
+        if (sub) {
+          sub.textContent = '系统按地图标点/地块坐标判断，该位置落在「' + kind
+            + '」范围内（OSM 土地利用数据），不能作为耕地或塘口。请改用村外的实际地块，或回「我的地块」重新框选。';
+        }
+        if (box) {
+          box.classList.add('is-ready');
+          box.classList.add('is-unsuitable');
+          box.classList.remove('is-estimated');
+        }
+        var forceBtn = document.getElementById('sow-auto-force');
+        if (forceBtn) { forceBtn.hidden = true; delete forceBtn.dataset.date; }
+        var check = document.getElementById('sow-check');
+        if (check) check.hidden = true;
+        renderRisk();
+      }
+
+      function runSowCheck(cropName, location, sowDate, termInfo) {
         // 交给用户一句正在拿哪儿的数据核什么，比只把按钮置灰更让人安心
         showGenLoading('正在核对「' + cropName + '」在' + shortPlace(location) + '能不能种、会不会撞霜…');
         var box = document.getElementById('sow-check');

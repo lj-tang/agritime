@@ -17,10 +17,18 @@
   var speciesSel = document.getElementById('industry-species');
   var dateInput = document.getElementById('industry-date');
   var locInput = document.getElementById('industry-location');
+  var locateBtn = document.getElementById('industry-locate');
+  var plotSel = document.getElementById('industry-plot');
+  var locHint = document.getElementById('industry-loc-hint');
   var result = document.getElementById('industry-result');
 
+  // 显式坐标：定位到的点或选中的地块，优先于地区文本
+  var fixedLL = null;
+  var DEFAULT_LL = [30.33, 112.24];   // 荆州：仅在地名解析失败时兜底
+
   // 当前下拉里的品种（接口优先，兜底表其次），换品种时用它刷新介绍
-  var currentSpecies = [];
+  bindLocationControls();
+  populatePlots();
 
   var CITY_COORDS = {
     '湖北省荆州市': [30.33, 112.24],
@@ -34,9 +42,128 @@
     return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
   }
 
+  /**
+   * 坐标优先级：选中的地块 > 定位到的点 > 已知城市表 > 地名解析 > 荆州兜底。
+   * 注意不再偷用种植模块的 __markerLatLon —— 那会让渔业莫名其妙跟着别处的点走。
+   */
   function coordsOf(location) {
-    if (window.__markerLatLon) return [window.__markerLatLon.lat, window.__markerLatLon.lon];
-    return CITY_COORDS[location] || [30.33, 112.24];
+    if (fixedLL) return Promise.resolve(fixedLL);
+    if (CITY_COORDS[location]) return Promise.resolve(CITY_COORDS[location]);
+    if (!location) return Promise.resolve(DEFAULT_LL);
+    return geocode(location).then(function (ll) {
+      if (ll) return ll;
+      showLocHint('没能解析「' + location + '」，暂按湖北荆州估算；建议换成「市/县」全称或直接选地块');
+      return DEFAULT_LL;
+    });
+  }
+
+  function showLocHint(text) {
+    if (!locHint) return;
+    if (!text) { locHint.hidden = true; locHint.textContent = ''; return; }
+    locHint.hidden = false;
+    locHint.textContent = text;
+  }
+
+  /** 地名 → 坐标：与首页同一个地理接口，别在渔业里再维护一套城市表。 */
+  function geocode(text) {
+    var url = '/api/geo/search?q=' + encodeURIComponent(text);
+    var controller = new AbortController();
+    var timer = setTimeout(function () { controller.abort(); }, 6000);
+    return fetch(url, { signal: controller.signal })
+      .then(function (r) { clearTimeout(timer); return r.ok ? r.json() : null; })
+      .then(function (body) {
+        var items = (body && body.data && body.data.items) || [];
+        if (!items.length) return null;
+        var lat = parseFloat(items[0].lat), lon = parseFloat(items[0].lon);
+        if (!(lat >= -90 && lat <= 90) || !(lon >= -180 && lon <= 180)) return null;
+        return [lat, lon];
+      })
+      .catch(function () { clearTimeout(timer); return null; });
+  }
+
+  /** 我的地块 → 下拉：鱼塘排前面，水稻田次之，其余也能选（有的塘口登记成了耕地）。 */
+  function populatePlots() {
+    if (!plotSel) return;
+    var plots = (window.MyPlotsStore && window.MyPlotsStore.list) ? window.MyPlotsStore.list() : [];
+    var order = { fishpond: 0, paddy: 1 };
+    var sorted = plots.slice().sort(function (a, b) {
+      var oa = order[a.type] == null ? 9 : order[a.type];
+      var ob = order[b.type] == null ? 9 : order[b.type];
+      return oa - ob;
+    });
+    var keep = plotSel.value;
+    plotSel.innerHTML = '<option value="">不选，按上面的地区估算</option>';
+    sorted.forEach(function (p) {
+      if (p.lat == null || p.lon == null) return;
+      var opt = document.createElement('option');
+      opt.value = p.plotId;
+      var label = (p.name || '未命名') + '（' + (PLOT_LABEL[p.type] || '地块') + '）';
+      if (p.areaMu) label += ' · ' + p.areaMu + ' 亩';
+      opt.textContent = label;
+      plotSel.appendChild(opt);
+    });
+    if (keep) plotSel.value = keep;
+    if (!plots.length) showLocHint('还没有地块，可在「我的」→「我的地块」里画一个鱼塘');
+  }
+
+  var PLOT_LABEL = {
+    farmland: '耕田', economic: '经济作物田', greenhouse: '大棚',
+    fishpond: '鱼塘', orchard: '果园', paddy: '水稻田'
+  };
+
+  function bindLocationControls() {
+    if (plotSel) {
+      plotSel.addEventListener('change', function () {
+        var id = plotSel.value;
+        if (!id) {
+          fixedLL = null;
+          showLocHint('');
+          return;
+        }
+        var p = window.MyPlotsStore && window.MyPlotsStore.getById ? window.MyPlotsStore.getById(id) : null;
+        if (!p || p.lat == null) { fixedLL = null; showLocHint('这个地块没有坐标，请回「我的地块」重新框选'); return; }
+        fixedLL = [p.lat, p.lon];
+        locInput.value = p.name || (p.lat.toFixed(3) + ', ' + p.lon.toFixed(3));
+        showLocHint('已使用地块坐标（' + p.lat.toFixed(4) + ', ' + p.lon.toFixed(4) + '）');
+      });
+    }
+    if (locateBtn) {
+      locateBtn.addEventListener('click', function () {
+        if (!window.LocationPicker || !window.LocationPicker.getCurrentLocation) {
+          showLocHint('定位组件未加载，请刷新页面重试');
+          return;
+        }
+        var old = locateBtn.textContent;
+        locateBtn.textContent = '定位中…';
+        Promise.resolve(window.LocationPicker.getCurrentLocation()).then(function (loc) {
+          locateBtn.textContent = old;
+          if (!loc || loc.lat == null) { showLocHint('定位失败，请检查权限，或直接选地块'); return; }
+          fixedLL = [loc.lat, loc.lon];
+          if (plotSel) plotSel.value = '';
+          locInput.value = loc.lat.toFixed(4) + ', ' + loc.lon.toFixed(4);
+          showLocHint('已定位到当前坐标');
+          // 反查地名只是让输入框好看一点，失败了不影响用坐标计算
+          fetch('/api/geo/reverse?lat=' + loc.lat + '&lon=' + loc.lon)
+            .then(function (r) { return r.ok ? r.json() : null; })
+            .then(function (b) {
+              var d = (b && b.data) || {};
+              var name = d.title || d.name || '';
+              if (name) { locInput.value = name; showLocHint('已定位：' + name); }
+            })
+            .catch(function () {});
+        }).catch(function () {
+          locateBtn.textContent = old;
+          showLocHint('定位失败，请检查权限，或直接选地块');
+        });
+      });
+    }
+    if (locInput) {
+      locInput.addEventListener('input', function () {
+        // 手动改地区就放弃之前的坐标，避免"文字写着A、实际按B算"
+        if (fixedLL) { fixedLL = null; showLocHint(''); }
+      });
+    }
+    window.addEventListener('agritime:data-synced', populatePlots);
   }
 
   var SPECIES_50 = [
@@ -386,7 +513,13 @@
     if (!id) return;
     var stock = dateInput.value || todayISO();
     var loc = locInput.value.trim();
-    var c = coordsOf(loc);
+    result.innerHTML = '<div class="industry-empty">正在确定塘口位置…</div>';
+    coordsOf(loc).then(function (c) {
+      requestTimeline(id, stock, c);
+    });
+  }
+
+  function requestTimeline(id, stock, c) {
     result.innerHTML = '<div class="industry-empty">正在生成生产日历…</div>';
 
     var xhr = new XMLHttpRequest();

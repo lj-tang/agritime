@@ -1,5 +1,6 @@
 package com.cropcalendar.api;
 
+import com.cropcalendar.service.geo.GeoFactors;
 import com.cropcalendar.service.geo.GeoResolver;
 import com.cropcalendar.util.Json;
 import com.sun.net.httpserver.HttpExchange;
@@ -39,10 +40,43 @@ public class GeoHandler implements HttpHandler {
             handleSuitability(ex);
         } else if (path.endsWith("/ip")) {
             handleIp(ex);
+        } else if (path.endsWith("/landuse")) {
+            handleLandUse(ex);
         } else {
             handleReverse(ex);
         }
     }
+
+    /**
+     * GET /api/geo/landuse?lat=&lon= —— 这个坐标是不是城镇建成区。
+     *
+     * 用 OSM 的 landuse 多边形做点面判定，只有"点确实落在居民区/商业区/工业区里"才判城区；
+     * 取不到数据时返回 known=false，前端据此**不拦截**（宁可放过，不能因为上游超时把人挡在门外）。
+     */
+    private void handleLandUse(HttpExchange ex) throws IOException {
+        Map<String, String> q = HttpSupport.query(ex.getRequestURI().getRawQuery());
+        double lat = HttpSupport.parseDouble(q.get("lat"), Double.NaN);
+        double lon = HttpSupport.parseDouble(q.get("lon"), Double.NaN);
+        if (Double.isNaN(lat) || Double.isNaN(lon)) {
+            HttpSupport.write(ex, 400, Json.obj("code", Json.str("400"),
+                    "message", Json.str("缺少 lat / lon"), "data", "null"));
+            return;
+        }
+        GeoFactors.Access a = GeoFactors.accessibility(lat, lon);
+        boolean known = a != null;
+        boolean urban = a != null && a.urban();
+        String kind = a == null || a.landUse() == null ? "" : a.landUse();
+        HttpSupport.write(ex, 200, Json.obj(
+                "code", Json.str("0"),
+                "message", Json.str("ok"),
+                "data", Json.obj(
+                        "known", String.valueOf(known),
+                        "urban", String.valueOf(urban),
+                        "farmland", String.valueOf(a != null && a.farmland()),
+                        "landUse", Json.str(kind),
+                        "landUseLabel", Json.str(GeoFactors.landUseLabel(kind)))));
+    }
+
 
     /**
      * GET /api/geo/ip —— 城市级粗定位（经纬度 + 城市名）。

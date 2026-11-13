@@ -2684,6 +2684,44 @@ test('V6.7 天气卡要说清定位来源（设备/网络），避免与「所�
   assert.ok(wv.includes('与下方填写的「所在地」无关'), '应说明与所在地无关');
 });
 
+test('V6.8 天气走代理、渔业可定位选地块、城区该拦', () => {
+  const base = path.resolve(__dirname, '..');
+  const root = path.resolve(base, '..');
+
+  // 1) 天气：后端代理优先，直连兜底
+  const wh = read(path.join(root, 'backend', 'src', 'com', 'cropcalendar', 'api', 'WeatherHandler.java'));
+  assert.ok(wh.includes('api.open-meteo.com'), '代理应转发到 Open-Meteo');
+  assert.ok(wh.includes('CACHE_TTL_MS'), '应有短缓存，别每次都跨境');
+  const server = read(path.join(root, 'backend', 'src', 'com', 'cropcalendar', 'Server.java'));
+  assert.ok(server.includes('/api/weather'), '应注册天气路由');
+  const wv = read(path.join(base, 'assets', 'js', 'weather-visual.js'));
+  assert.ok(wv.includes("'/api/weather/now'"), '前端应优先走代理');
+  assert.ok(wv.includes('OPEN_METEO_URL + qs'), '代理失败时才直连');
+
+  // 2) 渔业：定位按钮 + 我的地块
+  const html = read(path.join(base, 'pages', 'index.html'));
+  assert.ok(html.includes('id="industry-locate"'), '渔业应有定位按钮');
+  assert.ok(html.includes('id="industry-plot"'), '渔业应有地块选择');
+  const ind = read(path.join(base, 'assets', 'js', 'industry.js'));
+  assert.ok(ind.includes('MyPlotsStore'), '应从我的地块里取');
+  assert.ok(ind.includes('function geocode('), '任意地名应走地理接口，别再靠硬编码城市表');
+  assert.ok(!/return CITY_COORDS\[location\] \|\| \[30\.33/.test(ind),
+    '不能把没命中的地名一律当荆州');
+
+  // 3) 城区拦截
+  const gf = read(path.join(root, 'backend', 'src', 'com', 'cropcalendar', 'service', 'geo', 'GeoFactors.java'));
+  assert.ok(gf.includes('landuse~'), 'Overpass 应取土地利用');
+  assert.ok(gf.includes('pointInRing'), '应做点面判定');
+  assert.ok(gf.includes('isUrbanLandUse'), '应区分建成区与农用地');
+  const geo = read(path.join(root, 'backend', 'src', 'com', 'cropcalendar', 'api', 'GeoHandler.java'));
+  assert.ok(geo.includes('handleLandUse'), '应提供 /api/geo/landuse');
+  const pa = read(path.join(root, 'backend', 'src', 'com', 'cropcalendar', 'api', 'PlotAnalyzeHandler.java'));
+  assert.ok(pa.includes('urban-land'), '地块分析应给出城区限制');
+  assert.ok(pa.includes('if (urbanPlot) level = "不适宜"'), '城区地块不能给"适宜"');
+  assert.ok(html.includes('function showUrbanBlock'), '首页应拦截城区坐标');
+  assert.ok(html.includes('这里不是农用地'), '拦截文案要直说');
+});
+
 test('V6.1 作物分类：芽苗独立成类，且不被"麦/芝麻/红薯"带偏', () => {
   const tpl = read(path.resolve(__dirname, '..', '..', 'backend', 'src', 'com', 'cropcalendar',
     'service', 'crop', 'CropTemplates.java'));

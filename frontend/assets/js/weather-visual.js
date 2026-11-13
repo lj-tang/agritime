@@ -174,26 +174,37 @@
     });
   }
 
-  function fetchWeather(lat, lon) {
-    var url = OPEN_METEO_URL + '?latitude=' + lat + '&longitude=' + lon +
-      '&current=temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m' +
-      '&daily=sunrise,sunset&timezone=auto';
+  function requestJson(url, timeoutMs) {
     var controller = new AbortController();
-    var timer = setTimeout(function () { controller.abort(); }, REQUEST_TIMEOUT_MS);
+    var timer = setTimeout(function () { controller.abort(); }, timeoutMs);
     return fetch(url, { signal: controller.signal })
       .then(function (r) {
         clearTimeout(timer);
         if (!r.ok) return null;
         return r.json();
       })
-      .then(function (data) {
-        clearTimeout(timer);
-        return data;
-      })
       .catch(function () {
         clearTimeout(timer);
         return null;
       });
+  }
+
+  /**
+   * 天气取数：先走后端代理，失败再直连。
+   * 浏览器直连 api.open-meteo.com 在国内时通时断，断了整张卡就只剩"天气数据暂不可用"；
+   * 后端在境外、链路稳定（实测 200 / 1.5s），所以代理是主路径、直连是兜底。
+   */
+  function fetchWeather(lat, lon) {
+    var qs = '?latitude=' + lat + '&longitude=' + lon +
+      '&current=temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m' +
+      '&daily=sunrise,sunset&timezone=auto';
+    return requestJson('/api/weather/now' + qs, REQUEST_TIMEOUT_MS).then(function (d) {
+      if (d && d.current) { window.__weatherSource = 'proxy'; return d; }
+      return requestJson(OPEN_METEO_URL + qs, REQUEST_TIMEOUT_MS).then(function (d2) {
+        window.__weatherSource = d2 && d2.current ? 'direct' : 'none';
+        return d2;
+      });
+    });
   }
 
   function buildWeatherInfo(data) {

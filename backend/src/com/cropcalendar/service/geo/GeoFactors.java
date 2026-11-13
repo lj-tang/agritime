@@ -61,7 +61,8 @@ public final class GeoFactors {
      * @param roadKm    到最近可通车道路的距离（公里）
      * @param roadClass 最近道路等级（primary/secondary/tertiary…）
      */
-    public record Access(double waterKm, double roadKm, String roadClass) {
+    public record Access(double waterKm, double roadKm, String roadClass,
+                         boolean urban, boolean farmland, String landUse) {
     }
 
     /** 取不到返回 null —— 调用方据此让因子退出，不要编默认值。 */
@@ -167,8 +168,12 @@ public final class GeoFactors {
                 + "way(around:1500," + fmt(lat) + "," + fmt(lon) + ")[waterway~\"river|canal|stream|ditch\"];"
                 + "way(around:1500," + fmt(lat) + "," + fmt(lon)
                 + ")[highway~\"^(motorway|trunk|primary|secondary|tertiary|unclassified|residential)$\"];"
+                // 土地利用：判断这个点是不是落在城镇建成区里（城区不该给种地建议）
+                + "way(around:1500," + fmt(lat) + "," + fmt(lon)
+                + ")[landuse~\"^(residential|commercial|industrial|retail|railway|construction"
+                + "|farmland|orchard|vineyard|allotments|meadow|farmyard|plant_nursery)$\"];"
                 + ");"
-                + "out geom 80;";
+                + "out geom 120;";
         String url = "https://overpass-api.de/api/interpreter?data="
                 + URLEncoder.encode(q, StandardCharsets.UTF_8);
         String body = get(url, AppConfig.overpassTimeoutMs());
@@ -181,11 +186,26 @@ public final class GeoFactors {
             double road = Double.MAX_VALUE;
             String roadClass = null;
             boolean any = false;
+            boolean urban = false;
+            boolean farmland = false;
+            String landUse = null;
 
             for (Object o : elements) {
                 if (!(o instanceof Map<?, ?> el)) continue;
                 if (!(el.get("geometry") instanceof List<?> geom)) continue;
                 Map<?, ?> tags = el.get("tags") instanceof Map<?, ?> t ? t : Map.of();
+                // 土地利用优先判：点落在多边形内才算，不做"附近有小区就算城区"的推测
+                Object lu = tags.get("landuse");
+                if (lu != null && pointInRing(lat, lon, geom)) {
+                    String kind = String.valueOf(lu);
+                    if (isUrbanLandUse(kind)) {
+                        urban = true;
+                        landUse = kind;
+                    } else if (isFarmLandUse(kind)) {
+                        farmland = true;
+                        landUse = kind;
+                    }
+                }
                 boolean isWater = tags.get("natural") != null || tags.get("waterway") != null;
                 String highway = tags.get("highway") == null ? null : String.valueOf(tags.get("highway"));
                 if (!isWater && highway == null) continue;
@@ -199,15 +219,76 @@ public final class GeoFactors {
                     roadClass = highway;
                 }
             }
-            if (!any) return null;
+            // 只有水体和道路都被 Overpass 漏掉时才认为整体失败；
+            // 单独拿到 landuse 也算有结果（城区判定不依赖道路）
+            if (!any && !urban && !farmland) return null;
             return new Access(
                     water == Double.MAX_VALUE ? -1 : round2(water),
                     road == Double.MAX_VALUE ? -1 : round2(road),
-                    roadClass);
+                    roadClass, urban, farmland, landUse);
         } catch (Exception e) {
             System.err.println("[geo] 可达性解析失败：" + e.getMessage());
             return null;
         }
+    }
+
+    /** 土地利用代码 → 中文（两处接口共用，避免各写一套）。 */
+    public static String landUseLabel(String kind) {
+        if (kind == null || kind.isBlank()) return "";
+        return switch (kind) {
+            case "residential" -> "居民区";
+            case "commercial" -> "商业区";
+            case "industrial" -> "工业区";
+            case "retail" -> "商业零售区";
+            case "railway" -> "铁路用地";
+            case "construction" -> "在建工地";
+            case "farmland" -> "农田";
+            case "orchard" -> "果园";
+            case "vineyard" -> "葡萄园";
+            case "allotments" -> "小块菜地";
+            case "meadow" -> "草地";
+            case "farmyard" -> "农家场院";
+            case "plant_nursery" -> "苗圃";
+            default -> kind;
+        };
+    }
+
+    /** 建成区类土地利用：这些地块上不该排农事。 */
+    private static boolean isUrbanLandUse(String k) {
+        return switch (k) {
+            case "residential", "commercial", "industrial", "retail",
+                 "railway", "construction" -> true;
+            default -> false;
+        };
+    }
+
+    /** 农业类土地利用：命中说明这里确实是农用地。 */
+    private static boolean isFarmLandUse(String k) {
+        return switch (k) {
+            case "farmland", "orchard", "vineyard", "allotments",
+                 "meadow", "farmyard", "plant_nursery" -> true;
+            default -> false;
+        };
+    }
+
+    /**
+     * 射线法判断点是否落在多边形内（经纬度平面，1.5 公里尺度误差可忽略）。
+     * 只判 way 的首尾闭合，Overpass 的 out geom 已按顺序给出节点。
+     */
+    static boolean pointInRing(double lat, double lon, List<?> geometry) {
+        int n = geometry.size();
+        if (n < 4) return false;
+        boolean inside = false;
+        for (int i = 0, j = n - 1; i < n; j = i++) {
+            if (!(geometry.get(i) instanceof Map<?, ?> pi) || !(geometry.get(j) instanceof Map<?, ?> pj)) continue;
+            Double yi = num(pi.get("lat")), xi = num(pi.get("lon"));
+            Double yj = num(pj.get("lat")), xj = num(pj.get("lon"));
+            if (yi == null || xi == null || yj == null || xj == null) continue;
+            boolean cross = (yi > lat) != (yj > lat)
+                    && lon < (xj - xi) * (lat - yi) / (yj - yi) + xi;
+            if (cross) inside = !inside;
+        }
+        return inside;
     }
 
     /** 点到折线的最短距离（公里），用等距圆柱近似，1.5 公里尺度足够。 */

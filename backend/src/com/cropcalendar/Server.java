@@ -6,6 +6,7 @@ import com.cropcalendar.api.ChartHandler;
 import com.cropcalendar.api.CropsHandler;
 import com.cropcalendar.api.DiseaseHandler;
 import com.cropcalendar.api.GeoHandler;
+import com.cropcalendar.api.WeatherHandler;
 import com.cropcalendar.api.HealthHandler;
 import com.cropcalendar.api.IndustryHandler;
 import com.cropcalendar.api.MeHandler;
@@ -65,6 +66,8 @@ public class Server {
         server.createContext("/api/plots/history", new PlotHistoryHandler());
         server.createContext("/api/disease", new DiseaseHandler());
         server.createContext("/api/geo", new GeoHandler());
+
+        server.createContext("/api/weather", new WeatherHandler());
         server.createContext("/api/auth", new AuthHandler());
         server.createContext("/api/admin", new AdminHandler());
         server.createContext("/api/me", new MeHandler());
