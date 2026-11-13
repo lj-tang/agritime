@@ -2608,6 +2608,42 @@ test('V6.2 野生/共生菌不提供播种建议', () => {
   assert.ok(indexHtml.includes("p === 'wild'"), '下拉里应标"野生/共生"');
 });
 
+test('V6.5 区域窗口扩到五套：东北/西北不再套华北基准', () => {
+  const base = path.resolve(__dirname, '..');
+  const win = read(path.resolve(base, '..', 'backend', 'src', 'com', 'cropcalendar', 'service', 'crop', 'PlantingWindow.java'));
+  assert.ok(win.includes('NORTHEAST("northeast")'), '应有东北窗口');
+  assert.ok(win.includes('NORTHWEST("northwest")'), '应有西北窗口');
+  assert.ok(win.includes('"东北".equals(zone)'), '应按 AgroZone 分区分流东北');
+  assert.ok(win.includes('p.hasNortheast()'), '东北有专门窗口时应用专门窗口');
+  assert.ok(win.includes('东北暂无该作物的专门窗口'), '没有专门窗口时必须说明按华北基准');
+
+  // 数据：东北、西北各有一批真实窗口，且与华北不同
+  const props = JSON.parse(read(path.resolve(base, '..', 'data', 'crop-base', 'properties.json')));
+  const idx = Object.fromEntries(props.crops.map((c) => [c.displayName, c]));
+  const ne = props.crops.filter((c) => Array.isArray(c.sowMonthsNortheast) && c.sowMonthsNortheast.length);
+  const nw = props.crops.filter((c) => Array.isArray(c.sowMonthsNorthwest) && c.sowMonthsNorthwest.length);
+  assert.ok(ne.length >= 16, '东北窗口应不少于 16 种，实际 ' + ne.length);
+  assert.ok(nw.length >= 13, '西北窗口应不少于 13 种，实际 ' + nw.length);
+
+  // 东北必须比华北晚：番茄华北 1–3 月，东北只有 3 月
+  assert.deepStrictEqual(idx['番茄'].sowMonthsNortheast, [3], '东北番茄应 3 月育苗');
+  assert.deepStrictEqual(idx['玉米'].sowMonthsNortheast, [5], '东北玉米应 5 月播');
+  assert.deepStrictEqual(idx['大白菜'].sowMonthsNortheast, [7], '东北大白菜应 7 月中下播');
+  assert.deepStrictEqual(idx['棉花'].sowMonthsNorthwest, [4], '西北棉花应 4 月播');
+  assert.ok(idx['番茄'].sowMonthsNortheastNote.includes('终霜'), '东北番茄要说明终霜后定植');
+
+  for (const c of ne.concat(nw)) {
+    const m = c.sowMonthsNortheast || c.sowMonthsNorthwest;
+    assert.ok(m.every((x) => Number.isInteger(x) && x >= 1 && x <= 12), c.displayName + ' 区域窗口月份非法');
+  }
+  // 高纬一年一熟：不能再排第二季
+  const props2 = read(path.resolve(base, '..', 'backend', 'src', 'com', 'cropcalendar', 'service', 'crop', 'CropProperties.java'));
+  assert.ok(props2.includes('lat >= 42'), '北纬 42° 以北应抑制第二季');
+
+  const indexHtml = read(path.join(base, 'pages', 'index.html'));
+  assert.ok(indexHtml.includes("'东北窗口'") && indexHtml.includes("'西北窗口'"), '界面应标出区域窗口');
+});
+
 test('V6.1 作物分类：芽苗独立成类，且不被"麦/芝麻/红薯"带偏', () => {
   const tpl = read(path.resolve(__dirname, '..', '..', 'backend', 'src', 'com', 'cropcalendar',
     'service', 'crop', 'CropTemplates.java'));

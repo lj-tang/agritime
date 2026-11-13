@@ -31,7 +31,9 @@ public final class CropProperties {
                         List<Integer> sowMonths, String sowMonthsNote,
                         List<Integer> sowMonthsSouth, String sowMonthsSouthNote, int totalDaysSouth,
                         List<Integer> sowMonthsSouthwest, String sowMonthsPrecision,
-                        int totalDaysSouthwest) {
+                        int totalDaysSouthwest,
+                        List<Integer> sowMonthsNortheast, List<Integer> sowMonthsNorthwest,
+                        String sowMonthsNortheastNote, String sowMonthsNorthwestNote) {
 
         /** 是否配置了精确播期（月份）。未配置时调用方回退到 suitableSeason 的粗粒度季节。 */
         public boolean hasSowMonths() {
@@ -50,6 +52,24 @@ public final class CropProperties {
         /** 是否有单独的西南窗口（四川/重庆/贵州/云南）。 */
         public boolean hasSouthwest() {
             return sowMonthsSouthwest != null && !sowMonthsSouthwest.isEmpty();
+        }
+
+        public String northeastNote() {
+            return sowMonthsNortheastNote == null ? "" : sowMonthsNortheastNote;
+        }
+
+        public String northwestNote() {
+            return sowMonthsNorthwestNote == null ? "" : sowMonthsNorthwestNote;
+        }
+
+        /** 是否有单独的东北窗口（黑吉辽 + 蒙东）。 */
+        public boolean hasNortheast() {
+            return sowMonthsNortheast != null && !sowMonthsNortheast.isEmpty();
+        }
+
+        /** 是否有单独的西北窗口（甘肃/宁夏/新疆/内蒙西部）。 */
+        public boolean hasNorthwest() {
+            return sowMonthsNorthwest != null && !sowMonthsNorthwest.isEmpty();
         }
 
         /**
@@ -134,7 +154,11 @@ public final class CropProperties {
                             intOr(c.get("totalDaysSouth"), 0),
                             intList(c.get("sowMonthsSouthwest")),
                             strOr(c.get("sowMonthsPrecision"), ""),
-                            intOr(c.get("totalDaysSouthwest"), 0)));
+                            intOr(c.get("totalDaysSouthwest"), 0),
+                            intList(c.get("sowMonthsNortheast")),
+                            intList(c.get("sowMonthsNorthwest")),
+                            strOr(c.get("sowMonthsNortheastNote"), ""),
+                            strOr(c.get("sowMonthsNorthwestNote"), "")));
                 }
                 return map;
             } catch (Exception e) {
@@ -173,6 +197,11 @@ public final class CropProperties {
         }
         // 水稻一年多熟只在华南/长江以南成立，北方双季稻不现实
         if (secondCycle && "水稻".equals(p.displayName()) && !(lat > 0 && lat < 32)) {
+            secondCycle = false;
+        }
+        // 北纬 42° 以北（东北、内蒙东部、新疆北部）是一年一熟区：
+        // 生育期本就不够两季，排出"第二季"只会自相矛盾
+        if (secondCycle && lat >= 42) {
             secondCycle = false;
         }
         if (secondCycle) {

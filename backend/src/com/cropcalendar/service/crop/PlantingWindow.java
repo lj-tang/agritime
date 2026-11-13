@@ -72,7 +72,8 @@ public final class PlantingWindow {
 
     /** 窗口地域：华北基准 / 华南 / 西南。 */
     public enum Region {
-        NORTH("north"), SOUTH("south"), SOUTHWEST("southwest");
+        NORTH("north"), SOUTH("south"), SOUTHWEST("southwest"),
+        NORTHEAST("northeast"), NORTHWEST("northwest");
 
         private final String json;
 
@@ -92,9 +93,18 @@ public final class PlantingWindow {
      */
     public static Region regionFor(CropProperties.Props p, double lat, double lon) {
         if (p == null) return Region.NORTH;
-        if ("西南".equals(AgroZone.regionOf(lat, lon))) {
-            // 西南有专门窗口就用；没有则退回华中基准 —— 不能因为昆明纬度低就套华南的热带窗口
+        String zone = AgroZone.regionOf(lat, lon);
+        // 西南有专门窗口就用；没有则退回华中基准 —— 不能因为昆明纬度低就套华南的热带窗口
+        if ("西南".equals(zone)) {
             return p.hasSouthwest() ? Region.SOUTHWEST : Region.NORTH;
+        }
+        // 东北是一年一熟、春季比华北晚 3~4 周，套华北窗口会让番茄 1 月下种
+        if ("东北".equals(zone)) {
+            return p.hasNortheast() ? Region.NORTHEAST : Region.NORTH;
+        }
+        // 西北（甘肃/宁夏/新疆）春播略晚于华北，棉花、加工番茄等另有窗口
+        if ("西北".equals(zone) || "青藏高原".equals(zone)) {
+            return p.hasNorthwest() ? Region.NORTHWEST : Region.NORTH;
         }
         if (p.hasSouthMonths() && lat < SOUTH_LAT) {
             return Region.SOUTH;
@@ -159,12 +169,12 @@ public final class PlantingWindow {
         if (p.hasSowMonths()) {
             // 西南优先西南窗口，其次华南窗口，最后华北基准
             Region region = regionFor(p, lat, lon);
-            if (region == Region.SOUTHWEST) {
-                out.addAll(new TreeSet<>(p.sowMonthsSouthwest()));
-            } else if (region == Region.SOUTH) {
-                out.addAll(new TreeSet<>(p.sowMonthsSouth()));
-            } else {
-                out.addAll(new TreeSet<>(p.sowMonths()));
+            switch (region) {
+                case SOUTHWEST -> out.addAll(new TreeSet<>(p.sowMonthsSouthwest()));
+                case SOUTH -> out.addAll(new TreeSet<>(p.sowMonthsSouth()));
+                case NORTHEAST -> out.addAll(new TreeSet<>(p.sowMonthsNortheast()));
+                case NORTHWEST -> out.addAll(new TreeSet<>(p.sowMonthsNorthwest()));
+                default -> out.addAll(new TreeSet<>(p.sowMonths()));
             }
             return out;
         }
@@ -293,21 +303,36 @@ public final class PlantingWindow {
             String head = switch (region) {
                 case SOUTHWEST -> "西南（川渝黔滇）播期（";
                 case SOUTH -> "南方（华南）播期（";
+                case NORTHEAST -> "东北（黑吉辽）播期（";
+                case NORTHWEST -> "西北（甘宁新）播期（";
                 case NORTH -> switch (p.precision()) {
                     case "derived" -> "按近缘作物推定的播期（";
                     case "inherited" -> "按母本品种继承的已校核播期（";
                     default -> "作物属性库中已校核的播期（";
                 };
             };
+            String regionalNote = switch (region) {
+                case NORTHEAST -> p.northeastNote();
+                case NORTHWEST -> p.northwestNote();
+                default -> p.sowNote();
+            };
             basis = head + monthsText(months) + "）"
-                    + (p.sowNote().isBlank() ? "" : "；" + p.sowNote());
+                    + (regionalNote.isBlank() ? "" : "；" + regionalNote);
         } else {
             basis = "按适宜季节「" + safe(p.suitableSeason()) + "」并按本地纬度粗调（" + monthsText(months)
                     + "），未逐品种校核，仅作参考";
         }
-        // 西南没有专门窗口时，明确告知是按华中基准给的
-        if (region == Region.NORTH && "西南".equals(AgroZone.regionOf(lat, lon))) {
-            basis += "；西南地区暂无专门窗口，按华中基准给出，请结合海拔调整";
+        // 该区没有专门窗口时，明确告知是按华北基准给的 —— 不能让用户以为是本地校核值
+        if (region == Region.NORTH) {
+            String zone = AgroZone.regionOf(lat, lon);
+            if ("西南".equals(zone)) {
+                basis += "；西南地区暂无专门窗口，按华中基准给出，请结合海拔调整";
+            } else if ("东北".equals(zone)) {
+                basis += "；东北暂无该作物的专门窗口，按华北基准给出，"
+                        + "当地春播通常比华北晚 3~4 周，请以终霜后地温为准";
+            } else if ("西北".equals(zone) || "青藏高原".equals(zone)) {
+                basis += "；该地区暂无专门窗口，按华北基准给出，请结合海拔与灌溉条件调整";
+            }
         }
 
         CropTemplates.Group group = CropTemplates.groupOf(p);

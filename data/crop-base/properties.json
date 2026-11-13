@@ -35,7 +35,11 @@
         3,
         4
       ],
-      "totalDaysSouthwest": 140
+      "totalDaysSouthwest": 140,
+      "sowMonthsNortheast": [
+        4
+      ],
+      "sowMonthsNortheastNote": "4 月中下旬播种育秧（辽宁/吉林 4 中、黑龙江 4 下），5 月中下–6 初插秧（同上）"
     },
     {
       "cropId": "C002",
@@ -67,7 +71,16 @@
         10,
         11
       ],
-      "totalDaysSouthwest": 200
+      "totalDaysSouthwest": 200,
+      "sowMonthsNortheast": [
+        4,
+        5
+      ],
+      "sowMonthsNortheastNote": "春麦：黑龙江 4 月上旬，东北北部 4 下–5 上（黑龙江种植时间资料）",
+      "sowMonthsNorthwest": [
+        3
+      ],
+      "sowMonthsNorthwestNote": "春麦：甘肃/宁夏 3 月中–4 月上旬，新疆 3 下–4 中（大庄绿宝《春种时间概览》西北区／中国农科院春播通报）"
     },
     {
       "cropId": "C003",
@@ -104,7 +117,15 @@
         4,
         7
       ],
-      "totalDaysSouthwest": 105
+      "totalDaysSouthwest": 105,
+      "sowMonthsNortheast": [
+        5
+      ],
+      "sowMonthsNortheastNote": "黑龙江南部 5 月上旬、中北部 5 月中旬开始；吉林/辽宁 4 下–5 上。地温稳定 10℃ 以上（中国农科院《北方春播情况》）",
+      "sowMonthsNorthwest": [
+        4
+      ],
+      "sowMonthsNorthwestNote": "春玉米 4 月中下旬（甘肃），新疆北疆 4 月中下大面积播种（同上）"
     },
     {
       "cropId": "C004",
@@ -137,7 +158,16 @@
         4,
         5
       ],
-      "totalDaysSouthwest": 110
+      "totalDaysSouthwest": 110,
+      "sowMonthsNortheast": [
+        5
+      ],
+      "sowMonthsNortheastNote": "吉林、黑龙江 5 月上旬开始，辽宁 4 月下旬末；地温 10℃ 以上（同上）",
+      "sowMonthsNorthwest": [
+        4,
+        5
+      ],
+      "sowMonthsNorthwestNote": "春大豆 4 月下旬–5 月上旬（同上）"
     },
     {
       "cropId": "C005",
@@ -168,7 +198,11 @@
       "sowMonthsSouthwest": [
         4
       ],
-      "totalDaysSouthwest": 150
+      "totalDaysSouthwest": 150,
+      "sowMonthsNorthwest": [
+        4
+      ],
+      "sowMonthsNorthwestNote": "地膜棉 4 月中下旬、露地棉 5 月上旬；新疆南疆 4 上中、北疆 4 中下大面积播种（同上／新疆兴农网）"
     },
     {
       "cropId": "C006",
@@ -200,7 +234,12 @@
         9,
         10
       ],
-      "totalDaysSouthwest": 210
+      "totalDaysSouthwest": 210,
+      "sowMonthsNorthwest": [
+        3,
+        4
+      ],
+      "sowMonthsNorthwestNote": "春油菜 3 月下旬–4 月上旬（甘肃种植时间表）"
     },
     {
       "cropId": "C007",
@@ -413,7 +452,17 @@
         3,
         8
       ],
-      "totalDaysSouthwest": 100
+      "totalDaysSouthwest": 100,
+      "sowMonthsNortheast": [
+        4,
+        5
+      ],
+      "sowMonthsNortheastNote": "4 月下旬–5 月中旬，视土壤化冻深度定（大庄绿宝《春种时间概览》东北区）",
+      "sowMonthsNorthwest": [
+        4,
+        5
+      ],
+      "sowMonthsNorthwestNote": "早熟品种 4 月上旬、中晚熟 5 月上旬（甘肃种植时间表）"
     },
     {
       "cropId": "C014",
@@ -634,7 +683,16 @@
         8,
         9
       ],
-      "sowMonthsSource": "科普中国《青蒜、马铃薯、青玉米、大白菜套种》与晋中太谷大白菜轻简化栽培（立秋前后 8 月上旬播种，霜前收获）"
+      "sowMonthsSource": "科普中国《青蒜、马铃薯、青玉米、大白菜套种》与晋中太谷大白菜轻简化栽培（立秋前后 8 月上旬播种，霜前收获）",
+      "sowMonthsNortheast": [
+        7
+      ],
+      "sowMonthsNortheastNote": "7 月中下旬直播（头伏前后），10 月上旬霜前收（同上）",
+      "sowMonthsNorthwest": [
+        3,
+        4
+      ],
+      "sowMonthsNorthwestNote": "露地春白菜 3 下–4 上；秋白菜 7 下–8 初（甘肃种植时间表）"
     },
     {
       "cropId": "C022",
@@ -670,7 +728,11 @@
         8,
         9,
         10
-      ]
+      ],
+      "sowMonthsNortheast": [
+        4
+      ],
+      "sowMonthsNortheastNote": "4 月上旬直播，30 天可收（同上）"
     },
     {
       "cropId": "C023",
@@ -703,7 +765,11 @@
       "sowMonthsSouthwest": [
         9,
         10
-      ]
+      ],
+      "sowMonthsNortheast": [
+        4
+      ],
+      "sowMonthsNortheastNote": "4 月上旬土壤化冻 20cm 直播；也可 8 月下旬秋播越冬（同上）"
     },
     {
       "cropId": "C024",
@@ -771,7 +837,11 @@
       "sowMonthsSouthwest": [
         8,
         9
-      ]
+      ],
+      "sowMonthsNortheast": [
+        4
+      ],
+      "sowMonthsNortheastNote": "4 月上旬直播，或 3 月育苗 4 月中下移栽（同上）"
     },
     {
       "cropId": "C026",
@@ -953,7 +1023,11 @@
         3,
         7,
         8
-      ]
+      ],
+      "sowMonthsNortheast": [
+        3
+      ],
+      "sowMonthsNortheastNote": "3 月上中旬室内育苗，5 月中下旬终霜后定植（哈尔滨本地栽培经验：无霜期 130–140 天，5 月上旬仍有晚霜）"
     },
     {
       "cropId": "C032",
@@ -986,7 +1060,11 @@
         2,
         3,
         7
-      ]
+      ],
+      "sowMonthsNortheast": [
+        3
+      ],
+      "sowMonthsNortheastNote": "3 月育苗，5 月中下旬终霜后定植（同上）"
     },
     {
       "cropId": "C033",
@@ -1019,7 +1097,11 @@
         2,
         3,
         7
-      ]
+      ],
+      "sowMonthsNortheast": [
+        3
+      ],
+      "sowMonthsNortheastNote": "3 月育苗，5 月中下旬终霜后定植（同上）"
     },
     {
       "cropId": "C034",
@@ -1057,7 +1139,11 @@
         3,
         7,
         8
-      ]
+      ],
+      "sowMonthsNortheast": [
+        5
+      ],
+      "sowMonthsNortheastNote": "5 月上旬地温 12℃ 以上直播，或 4 下–5 初小拱棚定植（同上）"
     },
     {
       "cropId": "C035",
@@ -1227,7 +1313,12 @@
       "sowMonthsSouthwest": [
         3,
         4
-      ]
+      ],
+      "sowMonthsNorthwest": [
+        4,
+        5
+      ],
+      "sowMonthsNorthwestNote": "瓜果类 4 月中下旬–5 月初，地膜覆盖（大庄绿宝《春种时间概览》西北区）"
     },
     {
       "cropId": "C041",
@@ -1262,7 +1353,11 @@
         3,
         4,
         7
-      ]
+      ],
+      "sowMonthsNortheast": [
+        5
+      ],
+      "sowMonthsNortheastNote": "5 月上旬地温 12℃ 以上直播，选矮生早熟种（同上）"
     },
     {
       "cropId": "C042",
@@ -1449,7 +1544,11 @@
         9,
         10
       ],
-      "totalDaysSouthwest": 230
+      "totalDaysSouthwest": 230,
+      "sowMonthsNortheast": [
+        4
+      ],
+      "sowMonthsNortheastNote": "东北以春播为主，4 月上旬化冻后尽早播（原属性表注明）"
     },
     {
       "cropId": "C048",
@@ -1569,7 +1668,11 @@
       "sowMonthsSouthwest": [
         8,
         9
-      ]
+      ],
+      "sowMonthsNortheast": [
+        7
+      ],
+      "sowMonthsNortheastNote": "7 月中旬，比白菜早一周，选 60–70 天早熟种（同上）"
     },
     {
       "cropId": "C052",
@@ -1603,7 +1706,12 @@
       "sowMonthsSouthwest": [
         7,
         8
-      ]
+      ],
+      "sowMonthsNorthwest": [
+        3,
+        4
+      ],
+      "sowMonthsNorthwestNote": "露地 3 月下旬–4 月上旬（同上）"
     },
     {
       "cropId": "C053",
@@ -1811,7 +1919,12 @@
         2,
         3,
         11
-      ]
+      ],
+      "sowMonthsNorthwest": [
+        3,
+        4
+      ],
+      "sowMonthsNorthwestNote": "春植 3–4 月，秋植 9–10 月（甘肃种植时间表）"
     },
     {
       "cropId": "C060",
@@ -1846,7 +1959,12 @@
         2,
         3,
         11
-      ]
+      ],
+      "sowMonthsNorthwest": [
+        3,
+        4
+      ],
+      "sowMonthsNorthwestNote": "春植 3–4 月，秋植 9–10 月（同上）"
     },
     {
       "cropId": "C061",
@@ -2596,7 +2714,11 @@
         10
       ],
       "sowMonthsNote": "春播 3 下–4 上、秋播 9 下–10 上",
-      "sowMonthsSource": "中药材种植时间资料"
+      "sowMonthsSource": "中药材种植时间资料",
+      "sowMonthsNorthwest": [
+        4
+      ],
+      "sowMonthsNorthwestNote": "4 月上旬（同上）"
     },
     {
       "cropId": "C085",
@@ -2653,7 +2775,11 @@
       ],
       "sowMonthsNote": "春播 4 月、秋播 8 月底–9 月初",
       "sowMonthsSource": "中药材种植时间资料",
-      "propertiesSource": "公开栽培资料校正（V5.5）"
+      "propertiesSource": "公开栽培资料校正（V5.5）",
+      "sowMonthsNorthwest": [
+        4
+      ],
+      "sowMonthsNorthwestNote": "4 月上旬（甘肃种植时间表·中药材）"
     },
     {
       "cropId": "C087",
