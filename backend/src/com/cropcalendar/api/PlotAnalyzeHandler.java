@@ -173,7 +173,11 @@ public class PlotAnalyzeHandler implements HttpHandler {
         String urbanEdgeNote = "";
         if (urban != null && urban.urban()) {
             urbanPlot = true;
-            if (urbanKind.isBlank()) urbanKind = "城镇建成区";
+            // 说清"据什么判的"：距哪个驻地多少公里，比一句"城镇建成区"有用
+            if (urbanKind.isBlank()) {
+                urbanKind = (urban.label() == null || urban.label().isBlank())
+                        ? "城镇建成区" : urban.label();
+            }
         } else if (urban != null && "edge".equals(urban.level())) {
             urbanEdge = true;
             urbanEdgeNote = urban.label();
