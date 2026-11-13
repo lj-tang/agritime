@@ -270,11 +270,17 @@ public final class PlantingWindow {
         }
         if (chosen == null) chosen = first;
 
+        // 野生/共生菌（松茸靠菌根、鸡枞靠白蚁巢）没有"播期"这回事：
+        // 给日期等于骗人，直接说清"不可人工按播期栽培"。
+        boolean wild = "wild".equals(p.precision());
         // 全部窗口都赶不上霜前成熟：不要再给"建议日"。给了就等于承诺，用户照着种却收不了。
         // 这里只保留一个参考日（窗口内最早可行日）+ 结论，前端据此显示"本地不宜露地种植"。
-        boolean suitable = chosen.canMature();
+        boolean suitable = chosen.canMature() && !wild;
         String note = chosen.note();
-        if (!suitable) {
+        if (wild) {
+            note = join(p.sowNote().isBlank() ? "野生/共生菌，无法按播期人工栽培" : p.sowNote(),
+                    "本条目仅作采收季参考，不提供播种建议");
+        } else if (!suitable) {
             String reason = "本地无霜期约 " + AgroZone.frostFreeDays(lat) + " 天，短于该作物 "
                     + totalDays + " 天的生育期，露地种不熟；建议改保护地栽培、换早熟品种，或改种其他作物";
             // 结论放最前：用户第一眼要看到"为什么不能种"，日期细节退到后面

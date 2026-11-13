@@ -2399,9 +2399,16 @@ test('V5.4/V5.5 播期校核：100 种作物有精确月份，且区分南北窗
   const derived = checked.filter((c) => c.sowMonthsPrecision === 'derived');
   const inherited = checked.filter((c) => c.sowMonthsPrecision === 'inherited');
   const researched = checked.filter((c) => !c.sowMonthsPrecision || c.sowMonthsPrecision === 'researched');
-  assert.ok(researched.length >= 215, '逐条查证应不少于 215 种，实际 ' + researched.length);
+  assert.ok(researched.length >= 225, '逐条查证应不少于 225 种，实际 ' + researched.length);
   assert.ok(inherited.length >= 100, '继承母本应不少于 100 种，实际 ' + inherited.length);
-  assert.ok(derived.length >= 75, '按类别推定应不少于 75 种，实际 ' + derived.length);
+  assert.ok(derived.length >= 65, '按类别推定应不少于 65 种，实际 ' + derived.length);
+  // 野生/共生菌单独一档：不能拿"播期"糊弄
+  const wild = checked.filter((c) => c.sowMonthsPrecision === 'wild');
+  assert.ok(wild.length >= 2, '松茸/鸡枞这类应有野生标记，实际 ' + wild.length);
+  for (const c of wild) {
+    assert.ok(c.sowMonthsNote.includes('共生') || c.sowMonthsNote.includes('野生'),
+      c.displayName + ' 标为野生却没写原因');
+  }
   // 推定不是"没来源"的借口：必须写清依据，且注明未逐品种校核
   for (const c of derived) {
     assert.ok(c.sowMonthsSource && c.sowMonthsSource.trim(),
@@ -2442,6 +2449,10 @@ test('V5.4/V5.5 播期校核：100 种作物有精确月份，且区分南北窗
     '羊肚菌': [10, 11],
     '莜麦': [4, 5],
     '抱子甘蓝': [2, 6, 7],
+    '荠菜': [3, 4, 7, 8, 9],
+    '蒜苗': [2, 7, 8, 9, 10],
+    '板蓝根': [3, 4, 5, 6],
+    '穿心莲': [3, 4],
   };
   const idx = Object.fromEntries(props.crops.map((x) => [x.displayName, x]));
   for (const [name, months] of Object.entries(expect)) {
@@ -2562,6 +2573,22 @@ test('V6.0 作物库完整：400 种全部可浏览，且带类别/窗口/精度
   const css = read(path.join(base, 'assets', 'css', 'common.css'));
   assert.ok(css.includes('.suggest-group'), '类别分组标题需要样式');
   assert.ok(css.includes('.suggestions.is-browse'), '浏览模式需要更大的下拉高度');
+});
+
+test('V6.2 野生/共生菌不提供播种建议', () => {
+  const base = path.resolve(__dirname, '..');
+  const win = read(path.resolve(base, '..', 'backend', 'src', 'com', 'cropcalendar',
+    'service', 'crop', 'PlantingWindow.java'));
+  assert.ok(win.includes('"wild".equals(p.precision())'), '窗口应识别野生菌');
+  assert.ok(win.includes('chosen.canMature() && !wild'), '野生菌必须判为不可播');
+  assert.ok(win.includes('本条目仅作采收季参考'), '应说明只作采收参考');
+
+  const handler = read(path.resolve(base, '..', 'backend', 'src', 'com', 'cropcalendar', 'api', 'CropsHandler.java'));
+  assert.ok(handler.includes('不适用（野生/共生）'), '作物库里不应给它显示播种月份');
+
+  const indexHtml = read(path.join(base, 'pages', 'index.html'));
+  assert.ok(indexHtml.includes('不适用播期：野生 / 共生菌'), '前端应直说无法人工栽培');
+  assert.ok(indexHtml.includes("p === 'wild'"), '下拉里应标"野生/共生"');
 });
 
 test('V6.1 作物分类：芽苗独立成类，且不被"麦/芝麻/红薯"带偏', () => {

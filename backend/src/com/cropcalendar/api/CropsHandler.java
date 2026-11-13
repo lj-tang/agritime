@@ -185,6 +185,8 @@ public class CropsHandler implements HttpHandler {
      */
     private static String windowText(CropProperties.Props p) {
         if (p == null) return "未限定";
+        // 野生/共生菌没有播期，别在库里显示"7–9 月"，那会被当成能种
+        if ("wild".equals(p.precision())) return "不适用（野生/共生）";
         Set<Integer> months = PlantingWindow.monthsFor(p, 35.07, 116.31);
         return AgroZone.monthsText(months);
     }

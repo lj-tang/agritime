@@ -792,6 +792,18 @@
         var date = (info.sowDate || '');
         var forceBtn = document.getElementById('sow-auto-force');
 
+        // 野生/共生菌：没有"播期"这回事，直接说清不能人工栽培，别给日期
+        if (w.precision === 'wild') {
+          main.textContent = '不适用播期：野生 / 共生菌，无法人工栽培';
+          sub.textContent = info.note || '松茸靠松树菌根、鸡枞靠白蚁巢，只能按采收季安排';
+          box.classList.add('is-ready');
+          box.classList.add('is-unsuitable');
+          box.classList.remove('is-estimated');
+          box.title = w.basis || '';
+          if (forceBtn) { forceBtn.hidden = true; delete forceBtn.dataset.date; }
+          return;
+        }
+
         // 本地露地种不熟：不给推荐日，直接给结论。给了日期就等于承诺，用户照着种却收不了。
         if (w.suitable === false) {
           setMetric('window', label, '不宜露地', false);
@@ -1168,9 +1180,11 @@
       /** 下拉右侧的一行说明：播期窗口 + 数据精度，让用户选之前就知道能不能直接排日历 */
       function metaOf(c) {
         var bits = [];
-        if (c.window) bits.push((c.action || '播期') + ' ' + c.window);
+        // 野生菌的"窗口"是采收季，不能当成播种期展示
+        if (c.window && c.window.indexOf('不适用') < 0) bits.push((c.action || '播期') + ' ' + c.window);
         var p = c.precision;
-        if (p === 'researched') bits.push('已校核');
+        if (p === 'wild') bits.push('野生/共生');
+        else if (p === 'researched') bits.push('已校核');
         else if (p === 'inherited') bits.push('同母本');
         else if (p === 'derived') bits.push('推定');
         else if (p === 'season-rule') bits.push('按季节');

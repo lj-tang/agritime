@@ -844,13 +844,14 @@
       "tempRequirement": "蔬菜类，生育期短，需水肥充足",
       "source": "category-rule",
       "sowMonths": [
+        2,
+        7,
         8,
         9,
         10
       ],
-      "sowMonthsNote": "秋播 8–10 月（收青蒜），也可春播 3–4 月",
-      "sowMonthsSource": "葱蒜类栽培常识｜按蒜苗青蒜生产期推定（未逐品种校核）",
-      "sowMonthsPrecision": "derived"
+      "sowMonthsNote": "秋蒜苗 7 下–8 上、秋冬 8 下–9 下、春蒜苗 9 上–10 下、夏蒜苗 2 月；华北主播 9 月中下旬",
+      "sowMonthsSource": "安徽农网《青蒜的栽培技术》/ 国际大蒜贸易网 / 一亩田蒜苗指南"
     },
     {
       "cropId": "C029",
@@ -2686,13 +2687,13 @@
       "tempRequirement": "蔬菜类，生育期短，需水肥充足",
       "source": "category-rule",
       "sowMonths": [
+        3,
         4,
         5,
         6
       ],
-      "sowMonthsNote": "春播 4 月、夏播 5 月下旬–6 月上旬",
-      "sowMonthsSource": "板蓝根栽培常识（未逐品种校核）",
-      "sowMonthsPrecision": "derived"
+      "sowMonthsNote": "种子直播，春夏秋三季均可；华北以 4–6 月为主，6–7 个月采挖",
+      "sowMonthsSource": "科普湖南《11 种中药材种植前景》（板蓝根春夏秋三季播种）"
     },
     {
       "cropId": "C089",
@@ -3764,17 +3765,16 @@
       "tempRequirement": "观赏/药用，喜光",
       "source": "category-rule",
       "sowMonths": [
-        4,
-        5
+        3,
+        4
       ],
       "sowMonthsSouth": [
+        3,
         4,
-        5,
-        6
+        7
       ],
-      "sowMonthsNote": "春播 4–5 月（南方 4–6 月）",
-      "sowMonthsSource": "药材栽培常识（未逐品种校核）",
-      "sowMonthsPrecision": "derived"
+      "sowMonthsNote": "华北温室 3 月上中旬、大棚 4 月 15–20 日播种；江浙 3 月中下；华南 2 下–3 上、秋 7 月",
+      "sowMonthsSource": "百度百科《穿心莲》/ 搜狗百科（各地播种期）"
     },
     {
       "cropId": "C129",
@@ -3884,12 +3884,11 @@
       "tempRequirement": "蔬菜类，生育期短，需水肥充足",
       "source": "category-rule",
       "sowMonths": [
-        5,
-        6
+        4,
+        5
       ],
-      "sowMonthsNote": "喜温，5–6 月播种",
-      "sowMonthsSource": "野菜栽培常识（未逐品种校核）",
-      "sowMonthsPrecision": "derived"
+      "sowMonthsNote": "喜温，4–5 月地温稳定 12℃ 以上播种，50 天可收",
+      "sowMonthsSource": "百度爱采购《养生菜种植黄金期》/ 今日头条（马齿苋 4 月地温 10℃ 播种）"
     },
     {
       "cropId": "C134",
@@ -3907,12 +3906,10 @@
       "source": "category-rule",
       "sowMonths": [
         3,
-        4,
-        9
+        4
       ],
-      "sowMonthsNote": "春播 3–4 月或秋播 9 月",
-      "sowMonthsSource": "野菜栽培常识（未逐品种校核）",
-      "sowMonthsPrecision": "derived"
+      "sowMonthsNote": "3 月初即可直播，4 月育苗；30 天可采嫩叶",
+      "sowMonthsSource": "百度爱采购《养生菜种植黄金期》（蒲公英 3 月初直播）/ 今日头条"
     },
     {
       "cropId": "C135",
@@ -3930,11 +3927,11 @@
       "source": "category-rule",
       "sowMonths": [
         3,
-        4
+        4,
+        8
       ],
-      "sowMonthsNote": "根茎 3–4 月栽植",
-      "sowMonthsSource": "野菜栽培常识（未逐品种校核）",
-      "sowMonthsPrecision": "derived"
+      "sowMonthsNote": "根茎 3–4 月栽植；雨季 8 月扦插易生根",
+      "sowMonthsSource": "百度爱采购《养生菜种植黄金期》（鱼腥草 8 月雨季扦插）"
     },
     {
       "cropId": "C136",
@@ -3995,13 +3992,12 @@
       "tempRequirement": "观赏/药用，喜光",
       "source": "category-rule",
       "sowMonths": [
-        3,
         4,
+        5,
         9
       ],
-      "sowMonthsNote": "春秋两季扦插/分株",
-      "sowMonthsSource": "特菜栽培常识（未逐品种校核）",
-      "sowMonthsPrecision": "derived"
+      "sowMonthsNote": "5 月扦插繁殖为主，也可 4 月、9 月",
+      "sowMonthsSource": "百度爱采购《养生菜种植黄金期》（紫背天葵 5 月扦插）"
     },
     {
       "cropId": "C139",
@@ -5585,9 +5581,7 @@
       "tempRequirement": "喜湿避光，需控温控湿",
       "source": "category-rule",
       "sowMonths": [
-        2,
-        3,
-        4,
+        7,
         8,
         9
       ],
@@ -5606,9 +5600,9 @@
         9,
         10
       ],
-      "sowMonthsNote": "春秋两季接种/摆袋（2–4 月、8–9 月）；工厂化菇房可全年出菇",
-      "sowMonthsSource": "食用菌通用栽培季节（各地稳定通过 15℃ 前后接种）",
-      "sowMonthsPrecision": "derived"
+      "sowMonthsNote": "松茸与松栎类树木形成菌根共生，人工栽培尚未产业化，无法按播期安排；只能按 7–9 月采收季上山采拾",
+      "sowMonthsSource": "野生/共生菌生态习性（不可人工按播期栽培）",
+      "sowMonthsPrecision": "wild"
     },
     {
       "cropId": "C192",
@@ -5654,9 +5648,8 @@
       "tempRequirement": "喜湿避光，需控温控湿",
       "source": "category-rule",
       "sowMonths": [
-        2,
-        3,
-        4,
+        6,
+        7,
         8,
         9
       ],
@@ -5675,9 +5668,9 @@
         9,
         10
       ],
-      "sowMonthsNote": "春秋两季接种/摆袋（2–4 月、8–9 月）；工厂化菇房可全年出菇",
-      "sowMonthsSource": "食用菌通用栽培季节（各地稳定通过 15℃ 前后接种）",
-      "sowMonthsPrecision": "derived"
+      "sowMonthsNote": "鸡枞菌与白蚁巢共生，人工栽培难度极大，无法按播期安排；按 6–9 月雨季出菇采收",
+      "sowMonthsSource": "野生/共生菌生态习性（不可人工按播期栽培）",
+      "sowMonthsPrecision": "wild"
     },
     {
       "cropId": "C194",
@@ -7809,13 +7802,21 @@
       "tempRequirement": "蔬菜类，生育期短，需水肥充足",
       "source": "category-rule",
       "sowMonths": [
+        3,
+        4,
+        7,
         8,
-        9,
-        3
+        9
       ],
-      "sowMonthsNote": "秋播 8–9 月为主，也可早春 3 月播",
-      "sowMonthsSource": "野菜栽培常识（未逐品种校核）",
-      "sowMonthsPrecision": "derived"
+      "sowMonthsNote": "华北春播 3 上–4 下、秋播 7 上–9 中；长江流域春 2 下–4 下、秋 9 上–10 上",
+      "sowMonthsSource": "中国农网《荠菜高效益规模化种植技术》（华北春 3 上–4 下、秋 7 上–9 中）",
+      "sowMonthsSouth": [
+        2,
+        3,
+        4,
+        9,
+        10
+      ]
     },
     {
       "cropId": "C272",
@@ -7856,11 +7857,12 @@
       "source": "category-rule",
       "sowMonths": [
         3,
-        4
+        4,
+        9,
+        10
       ],
-      "sowMonthsNote": "根茎/分株 3–4 月栽植",
-      "sowMonthsSource": "药材栽培常识（未逐品种校核）",
-      "sowMonthsPrecision": "derived"
+      "sowMonthsNote": "春分–谷雨（3–4 月）播种，秋季 9–10 月分株；南方 2–3 月",
+      "sowMonthsSource": "长景园林《什么时候可以种植艾草》/ 绿宝园林《艾草种植时间和方法》"
     },
     {
       "cropId": "C274",
@@ -8514,18 +8516,12 @@
       "tempRequirement": "蔬菜类，生育期短，需水肥充足",
       "source": "category-rule",
       "sowMonths": [
-        1,
-        2,
-        3,
-        4,
-        5,
-        6,
-        7,
-        8,
-        9,
         10,
         11,
-        12
+        12,
+        1,
+        2,
+        3
       ],
       "sowMonthsSouth": [
         1,
@@ -8541,9 +8537,8 @@
         11,
         12
       ],
-      "sowMonthsNote": "室内无土/遮光栽培，全年可生产，7–15 天一茬",
-      "sowMonthsSource": "芽苗菜通用栽培方式（室内控温控湿，不受霜期限制）",
-      "sowMonthsPrecision": "derived"
+      "sowMonthsNote": "10 月上旬–翌年 3 月下旬可连续播种，软化遮光栽培 20–25 天收一茬",
+      "sowMonthsSource": "国际大蒜贸易网《蒜黄播种技术和田间管理》"
     },
     {
       "cropId": "C294",
