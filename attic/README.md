@@ -15,4 +15,5 @@
 | 目录 | 内容 | 状态 |
 | --- | --- | --- |
 | `2026-11-sensor-sync/` | 传感器拉取与多端同步的早期稿 | 传感器部分已于 2026-11-04 按安全口径重做并上线（见 `backend/src/com/cropcalendar/service/sensor/`）；`SyncStore`/`SyncHandler` 仍留档，未采用 |
-| `2026-11-06-teammate/` | 队友 2026-11-06 未提交改动：渔业独立页（50 品种前端兜底）+ 播期放宽到一年 + 远期常年气候兜底 | 未合并。渔业独立页与「品种从接口读」测试红线冲突，且主线已把养殖日历嵌入鱼塘详情；日期放宽属产品口径变更；常年气候兜底可复用但需先统一降级口径 |
+
+> 历史：`2026-11-06-teammate/`（队友未提交的渔业独立页 + 播期放宽 + 常年气候兜底）已于 2026-11-14 删除——三块功能主线均已用自己的实现替代（渔业 50 品种走 `/api/industry` 接口、`HARD_FUTURE_DAYS=400`、`TimelineOrchestrator` 的 `climateNormal`/`outlook`）。当时归档的补丁原文仍存于部署机 `/root/agritime-teammate-archive/20261106/`。
