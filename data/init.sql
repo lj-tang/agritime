@@ -3,8 +3,8 @@
 -- 数据库: MySQL 8.x  字符集: utf8mb4
 -- ============================================================
 
-CREATE DATABASE IF NOT EXISTS zhinongshi DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-USE zhinongshi;
+CREATE DATABASE IF NOT EXISTS agritime DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+USE agritime;
 
 -- 表1: crop_procedure 作物农事规程表
 DROP TABLE IF EXISTS crop_procedure;

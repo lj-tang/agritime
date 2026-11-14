@@ -51,12 +51,12 @@ if "!NEED_BUILD!"=="1" (
 )
 
 echo [2/3] 启动后端 http://127.0.0.1:8080 ...
-start "zhinongshi-backend" cmd /k ""%JAVA%" -Dfile.encoding=UTF-8 -cp build\classes-local com.cropcalendar.Server"
+start "知农时-后端" cmd /k ""%JAVA%" -Dfile.encoding=UTF-8 -cp build\classes-local com.cropcalendar.Server"
 cd ..
 ping -n 4 127.0.0.1 >nul
 
 echo [3/3] 启动前端 http://127.0.0.1:3000 ...
-start "zhinongshi-frontend" cmd /k ""%NODE%" deploy\dev-server.js"
+start "知农时-前端" cmd /k ""%NODE%" deploy\dev-server.js"
 ping -n 3 127.0.0.1 >nul
 
 start "" http://127.0.0.1:3000/
