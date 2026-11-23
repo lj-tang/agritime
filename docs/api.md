@@ -238,14 +238,66 @@ POST 请求体：
 
 | 方法 | 路径 | 说明 |
 | --- | --- | --- |
+| GET | `/api/admin/stats` | 概况：账号、规程复核进度、工单概况 |
 | GET | `/api/admin/users` | 账号列表（注册时间倒序） |
-| GET | `/api/admin/stats` | 概况：total / newToday / active7d / adminCount |
+| POST | `/api/admin/users/ban` | 封号 / 解封 `{id, banned}`（管理员不可封） |
+| POST | `/api/admin/users/role` | 升 / 降管理员 `{id, role}`（不能改自己） |
+| POST | `/api/admin/users/password` | 重置密码 `{id, password}`（≥6 位，不记录明文） |
+| DELETE | `/api/admin/users?id=` | 删号（不能删自己或管理员） |
+| GET | `/api/admin/protocols` | 规程复核列表，见下 |
+| POST | `/api/admin/protocols/review` | 记录复核结论，见下 |
+| GET | `/api/admin/audit?limit=` | 操作审计（默认 100 行） |
+| GET / PUT | `/api/admin/settings` | 全站开关：`searchEnabled` / `llmEnabled` |
+| GET / POST | `/api/admin/files` | 列目录 / 新建文件或目录 |
+| GET / PUT / DELETE | `/api/admin/file?path=` | 读 / 写 / 删单个文件 |
+
+### 8.1 GET /api/admin/stats
 
 ```json
 { "code": 0, "message": "ok", "data": {
-  "total": 2, "newToday": 2, "active7d": 2, "adminCount": 1
+  "total": 2, "newToday": 2, "active7d": 2, "adminCount": 1, "bannedCount": 0,
+  "protocolTotal": 400, "protocolReviewed": 1, "protocolPending": 399, "protocolRejected": 0,
+  "ticketTotal": 3, "ticketOpen": 1, "ticketUnread": 1
 } }
 ```
+
+`protocolTotal` 是已接入的作物规程套数（400），`protocolPending` 是待人工复核数；
+生成规程（`data/init.sql` 与产区日程合并而来）默认全是 `pending_review`。
+
+### 8.2 GET /api/admin/protocols
+
+| 参数 | 必填 | 说明 |
+| --- | --- | --- |
+| status | 否 | `pending`（默认）/ `all` / `reviewed` / `rejected` |
+| q | 否 | 关键字，匹配作物名、编号、标准名、来源、产区（不区分大小写） |
+| limit | 否 | 1~500，默认 200 |
+
+```json
+{ "code": 0, "message": "ok", "data": {
+  "items": [{
+    "cropId": "C366", "name": "杨梅", "standardName": "杨梅",
+    "source": "data/crop-base/crop-schedule.json 产区示范规程（浙江仙居杨梅）",
+    "nodeCount": 12, "regions": ["浙江仙居杨梅"],
+    "defaultStatus": "pending_review", "reviewStatus": "reviewed",
+    "reviewer": "super_admin", "reviewedAt": "2026-11-23 21:25:30", "note": "人工核对通过"
+  }],
+  "total": 1, "countAll": 400, "countPending": 399, "countReviewed": 1, "countRejected": 0, "limit": 200
+} }
+```
+
+`reviewStatus` 是合并后的有效状态：人工复核记录（`backend/var/protocol-reviews.json`）
+优先，没有记录时按数据文件里的 `defaultStatus` 归类。
+
+### 8.3 POST /api/admin/protocols/review
+
+```json
+{ "cropId": "C366", "status": "reviewed", "note": "人工核对通过" }
+```
+
+`status` 只能是 `reviewed` / `rejected` / `pending`（`pending` 表示撤回复核、回到待复核）。
+作物不存在返回 400「没有该作物的规程」；写入成功会记一条审计「规程复核」。
+复核结论存 `backend/var/protocol-reviews.json`，不修改 `backend/crop-protocols.json`（生成产物，
+重新生成会覆盖）。
 
 ### 账号库与超管
 

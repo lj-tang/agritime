@@ -1,11 +1,13 @@
 package com.cropcalendar.api;
 
 import com.cropcalendar.util.AppTime;
+import com.cropcalendar.compute.ComputeStub;
 import com.cropcalendar.middleware.Auth;
 import com.cropcalendar.model.User;
 import com.cropcalendar.service.AdminAudit;
 import com.cropcalendar.service.AdminFiles;
 import com.cropcalendar.service.SettingsStore;
+import com.cropcalendar.service.crop.ProtocolReviewStore;
 import com.cropcalendar.service.user.UserStore;
 import com.cropcalendar.util.Json;
 import com.sun.net.httpserver.HttpExchange;
@@ -16,6 +18,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -74,6 +77,10 @@ public class AdminHandler implements HttpHandler {
             users(ex, method);
         } else if (path.endsWith("/audit")) {
             audit(ex);
+        } else if (path.endsWith("/protocols/review")) {
+            reviewProtocol(ex);
+        } else if (path.endsWith("/protocols")) {
+            protocols(ex);
         } else if (path.endsWith("/settings")) {
             settings(ex, method);
         } else if (path.endsWith("/files")) {
@@ -235,12 +242,155 @@ public class AdminHandler implements HttpHandler {
             if (u.banned()) bannedCount++;
         }
 
+        // 规程复核覆盖进度 + 全站工单概况，给后台首页两个新卡片用
+        int protocolReviewed = 0;
+        int protocolRejected = 0;
+        int protocolPending = 0;
+        for (ComputeStub.ProtocolMeta meta : ComputeStub.protocolMetas()) {
+            switch (effectiveStatus(meta)) {
+                case "reviewed" -> protocolReviewed++;
+                case "rejected" -> protocolRejected++;
+                default -> protocolPending++;
+            }
+        }
+        Map<String, Integer> tickets = SupportHandler.adminStatusCounts();
+
         HttpSupport.write(ex, 200, HttpSupport.ok(Json.obj(
                 "total", String.valueOf(UserStore.count()),
                 "newToday", String.valueOf(UserStore.countCreatedSince(today)),
                 "active7d", String.valueOf(UserStore.countActiveSince(weekAgo)),
                 "adminCount", String.valueOf(adminCount),
-                "bannedCount", String.valueOf(bannedCount))));
+                "bannedCount", String.valueOf(bannedCount),
+                "protocolTotal", String.valueOf(ComputeStub.protocolMetas().size()),
+                "protocolReviewed", String.valueOf(protocolReviewed),
+                "protocolPending", String.valueOf(protocolPending),
+                "protocolRejected", String.valueOf(protocolRejected),
+                "ticketTotal", String.valueOf(tickets.getOrDefault("all", 0)),
+                "ticketOpen", String.valueOf(tickets.getOrDefault("open", 0)),
+                "ticketUnread", String.valueOf(tickets.getOrDefault("unread", 0)))));
+    }
+
+    // ---------------- 作物规程复核 ----------------
+
+    /**
+     * 规程列表。默认 reviewStatus 来自数据文件（387 套生成规程统一是 pending_review），
+     * 后台复核过的作物在 var/protocol-reviews.json 里有覆盖记录，这里合并成有效状态。
+     */
+    private void protocols(HttpExchange ex) throws IOException {
+        Map<String, String> q = HttpSupport.query(ex.getRequestURI().getRawQuery());
+        String filter = q.get("status") == null ? "all" : q.get("status").trim().toLowerCase();
+        if (!"all".equals(filter) && !"pending".equals(filter)
+                && !"reviewed".equals(filter) && !"rejected".equals(filter)) {
+            HttpSupport.write(ex, 400, HttpSupport.error(400, "status 只能是 all / pending / reviewed / rejected"));
+            return;
+        }
+        String keyword = q.get("q") == null ? "" : q.get("q").trim().toLowerCase();
+        int limit = 200;
+        try {
+            if (q.get("limit") != null) limit = Math.max(1, Math.min(500, Integer.parseInt(q.get("limit").trim())));
+        } catch (NumberFormatException ignored) {
+            // 参数不合法就用默认条数
+        }
+
+        List<ComputeStub.ProtocolMeta> metas = new ArrayList<>(ComputeStub.protocolMetas());
+        metas.sort(Comparator.comparing(ComputeStub.ProtocolMeta::cropId));
+        int[] counts = new int[4]; // all / pending / reviewed / rejected
+        List<String> items = new ArrayList<>();
+        for (ComputeStub.ProtocolMeta meta : metas) {
+            String status = effectiveStatus(meta);
+            counts[0]++;
+            switch (status) {
+                case "reviewed" -> counts[2]++;
+                case "rejected" -> counts[3]++;
+                default -> counts[1]++;
+            }
+            if (!"all".equals(filter) && !status.equals(filter)) continue;
+            if (!keyword.isEmpty() && !matchesProtocol(meta, keyword)) continue;
+            if (items.size() >= limit) continue;
+
+            ProtocolReviewStore.Review review = ProtocolReviewStore.get(meta.cropId());
+            List<String> regions = new ArrayList<>();
+            for (String region : meta.regions()) regions.add(Json.str(region));
+            items.add(Json.obj(
+                    "cropId", Json.str(meta.cropId()),
+                    "name", Json.str(meta.name()),
+                    "standardName", Json.str(meta.standardName()),
+                    "source", Json.str(meta.source()),
+                    "nodeCount", String.valueOf(meta.nodeCount()),
+                    "regions", Json.arr(regions),
+                    "defaultStatus", Json.str(meta.reviewStatus()),
+                    "reviewStatus", Json.str(status),
+                    "reviewer", Json.str(review == null ? "" : review.reviewer()),
+                    "reviewedAt", Json.str(review == null ? "" : review.at()),
+                    "note", Json.str(review == null ? "" : review.note())));
+        }
+        HttpSupport.write(ex, 200, HttpSupport.ok(Json.obj(
+                "items", Json.arr(items),
+                "total", String.valueOf(items.size()),
+                "countAll", String.valueOf(counts[0]),
+                "countPending", String.valueOf(counts[1]),
+                "countReviewed", String.valueOf(counts[2]),
+                "countRejected", String.valueOf(counts[3]),
+                "limit", String.valueOf(limit))));
+    }
+
+    /** 记录一条人工复核结论：通过 / 驳回 / 撤回（回到待复核）。 */
+    private void reviewProtocol(HttpExchange ex) throws IOException {
+        if (!"POST".equalsIgnoreCase(ex.getRequestMethod())) {
+            HttpSupport.write(ex, 405, HttpSupport.error(405, "只支持 POST"));
+            return;
+        }
+        Map<String, Object> body = HttpSupport.jsonBody(ex);
+        String cropId = HttpSupport.field(body, "cropId");
+        String status = HttpSupport.field(body, "status");
+        String note = HttpSupport.field(body, "note");
+        if (cropId.isEmpty()) {
+            HttpSupport.write(ex, 400, HttpSupport.error(400, "缺少 cropId"));
+            return;
+        }
+        if (status.isEmpty() || (!"reviewed".equals(status) && !"rejected".equals(status) && !"pending".equals(status))) {
+            HttpSupport.write(ex, 400, HttpSupport.error(400, "status 只能是 reviewed / rejected / pending"));
+            return;
+        }
+        if (ComputeStub.protocolMeta(cropId) == null) {
+            HttpSupport.write(ex, 400, HttpSupport.error(400, "没有该作物的规程：" + cropId));
+            return;
+        }
+        try {
+            ProtocolReviewStore.Review review = ProtocolReviewStore.apply(cropId, status, meName(ex), note);
+            String effective = review == null ? "pending" : review.status();
+            AdminAudit.log(meName(ex), "规程复核", cropId,
+                    effective + (note.isEmpty() ? "" : ("：" + note)));
+            HttpSupport.write(ex, 200, HttpSupport.ok(Json.obj(
+                    "cropId", Json.str(cropId),
+                    "reviewStatus", Json.str(effective))));
+        } catch (IllegalArgumentException e) {
+            HttpSupport.write(ex, 400, HttpSupport.error(400, e.getMessage()));
+        } catch (IOException e) {
+            HttpSupport.write(ex, 500, HttpSupport.error(500, "保存复核记录失败：" + e.getMessage()));
+        }
+    }
+
+    /** 覆盖记录优先；没有覆盖则按数据文件的默认 reviewStatus 归类。 */
+    private static String effectiveStatus(ComputeStub.ProtocolMeta meta) {
+        ProtocolReviewStore.Review review = ProtocolReviewStore.get(meta.cropId());
+        if (review != null) return review.status();
+        String raw = meta.reviewStatus() == null ? "" : meta.reviewStatus().trim().toLowerCase();
+        if (raw.startsWith("reject")) return "rejected";
+        if (raw.contains("pending")) return "pending";
+        if (raw.contains("review") || "approved".equals(raw) || "reviewed".equals(raw)) return "reviewed";
+        return "pending";
+    }
+
+    private static boolean matchesProtocol(ComputeStub.ProtocolMeta meta, String keyword) {
+        String[] fields = {meta.cropId(), meta.name(), meta.standardName(), meta.source()};
+        for (String f : fields) {
+            if (f != null && f.toLowerCase().contains(keyword)) return true;
+        }
+        for (String region : meta.regions()) {
+            if (region != null && region.toLowerCase().contains(keyword)) return true;
+        }
+        return false;
     }
 
     // ---------------- 站点开关 ----------------

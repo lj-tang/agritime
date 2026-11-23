@@ -163,6 +163,7 @@ git config http.lowSpeedTime 999
 | 遗留清理 | 删除每分钟空跑的 `/etc/cron.d/agritime-frontend`；`certbot.timer` 临时停用、ufw 443 收回（`enable-https.sh` 会自动恢复） |
 | 注册防刷 | 同一 IP 每小时最多 30 次注册尝试（识别 nginx 注入的 `X-Real-IP`）；本地直连 8080 不受限 |
 | 作物规程 | `data/init.sql`（400 作物 × 8 节点）经 `deploy/tools/gen-protocols-from-initsql.py` 导入 `backend/crop-protocols.json`，规程总数 13 → 400；init.sql 的 `job_type` 与 `job_name` 大面积错位（705 行），`fix-initsql-jobtype.py` 按名称语义修源数据、生成器仍保留推断；`data/crop-base/crop-schedule.json` 的 18 个产区示范规程（31 个产区名映射、党参除外）替换对应作物的 SQL 节点并记录 `regions`，新增 `other` 操作类型（出苗/培土/搭架/清园等）；手工 13 个规程以 `deploy/data/manual-protocols.json` 为稳定输入，重复生成不会被覆盖 |
+| 规程复核 | 后台新增「规程」页签（`GET /api/admin/protocols`、`POST /api/admin/protocols/review`）：400 套规程默认「待复核」，可逐条通过 / 驳回 / 撤回并留备注；结论写 `backend/var/protocol-reviews.json`（不动生成的 `crop-protocols.json`，重新生成不会丢），审计记录「规程复核」 |
 | nginx 站点配置 | `/etc/nginx/sites-enabled/agritime` 由普通文件改为指向仓库 `deploy/nginx/agritime.conf` 的软链；`deploy.sh` 自动校正软链，`nginx -t` 通过后热加载，校验失败保持旧配置运行 |
 | 今日结论 | 时间线只把**当天命中**的节点作为「今日结论」；当天无节点时提示下一个节点倒计时，全部节点过去时提示调整播期 |
 | 播期校验 | `sowDate` 仅接受近两年 ~ 未来 30 天，越界返回 400 |

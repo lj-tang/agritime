@@ -320,6 +320,28 @@ public final class ComputeStub {
         return LLM_PROC_CACHE.size();
     }
 
+    /** 全部规程的作物级元信息（后台复核列表用）。 */
+    public static List<ProtocolMeta> protocolMetas() {
+        loadProtocols();
+        Map<String, ProtocolMeta> metas = PROTOCOL_META;
+        return metas == null ? List.of() : new ArrayList<>(metas.values());
+    }
+
+    /** 单个作物的规程元信息；没有该作物时返回 null。 */
+    public static ProtocolMeta protocolMeta(String cropId) {
+        loadProtocols();
+        Map<String, ProtocolMeta> metas = PROTOCOL_META;
+        return metas == null || cropId == null ? null : metas.get(cropId);
+    }
+
+    /** 规程文件被外部改写后（例如运维重新生成），让本进程下次请求重读。 */
+    public static void reloadProtocols() {
+        synchronized (ComputeStub.class) {
+            PROTOCOLS = null;
+            PROTOCOL_META = null;
+        }
+    }
+
     /**
      * ② 天气适配器：节点前后 N 天窗口聚合
      * 【全队唯一有网络 IO 的函数】 —— Open-Meteo
@@ -683,6 +705,12 @@ public final class ComputeStub {
 
     private static volatile Map<String, List<RawNode>> PROTOCOLS;
 
+    /** 规程的作物级元信息（复核状态、来源、产区等），与 PROTOCOLS 同源同生命周期。 */
+    public record ProtocolMeta(String cropId, String name, String standardName, String source,
+                               String reviewStatus, int nodeCount, List<String> regions) {}
+
+    private static volatile Map<String, ProtocolMeta> PROTOCOL_META;
+
     private static final ConcurrentHashMap<String, List<RawNode>> LLM_PROC_CACHE = new ConcurrentHashMap<>();
 
     /**
@@ -796,11 +824,13 @@ public final class ComputeStub {
 
     private static Map<String, List<RawNode>> readProtocols(String path) {
         Map<String, List<RawNode>> out = new LinkedHashMap<>();
+        Map<String, ProtocolMeta> metas = new LinkedHashMap<>();
         try {
             String text = Files.readString(Path.of(path), StandardCharsets.UTF_8);
             Object root = JsonParser.parse(text);
             if (!(root instanceof Map<?, ?> rootMap) || !(rootMap.get("crops") instanceof List<?> crops)) {
                 System.err.println("[compute] 规程表 " + path + " 结构不对（根节点应为对象且含 crops 数组），按空规程处理");
+                PROTOCOL_META = metas;
                 return out;
             }
             for (Object c : crops) {
@@ -832,12 +862,35 @@ public final class ComputeStub {
                 }
                 nodes.sort(Comparator.comparingInt(RawNode::dayOffset));
                 out.put(id, List.copyOf(nodes));
+                metas.put(id, new ProtocolMeta(
+                        id,
+                        textOf(crop.get("name")),
+                        textOf(crop.get("standardName")),
+                        textOf(crop.get("source")),
+                        textOf(crop.get("reviewStatus")),
+                        nodes.size(),
+                        stringList(crop.get("regions"))));
             }
         } catch (Exception e) {
             System.err.println("[compute] 读取规程表 " + path + " 失败，按空规程处理（不抛异常）：" + e.getMessage());
+            PROTOCOL_META = null;
             return new LinkedHashMap<>();
         }
+        PROTOCOL_META = metas;
         return out;
+    }
+
+    private static String textOf(Object v) {
+        return v instanceof String s ? s : "";
+    }
+
+    private static List<String> stringList(Object v) {
+        if (!(v instanceof List<?> list)) return List.of();
+        List<String> out = new ArrayList<>();
+        for (Object item : list) {
+            if (item instanceof String s && !s.isBlank()) out.add(s);
+        }
+        return List.copyOf(out);
     }
 
     private static String nonBlank(Object v) {

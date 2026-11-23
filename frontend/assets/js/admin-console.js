@@ -1,7 +1,7 @@
 /**
  * 超管后台（T10）
  *
- * 四个页签：概览 / 账号 / 文件 / 开关。
+ * 五个页签：概览 / 账号 / 规程 / 文件 / 开关。
  * 所有请求都打到 /api/admin/*，权限由服务端判定：
  * 401 提示去登录，403 提示不是管理员 —— 前端不自己判断角色，藏入口只是为了少点误点。
  */
@@ -10,6 +10,7 @@
 
   var gateEl, gateTextEl, contentEl, whoEl;
   var statsEl, usersBody, usersCount, usersEmpty;
+  var protocolBody, protocolEmpty, protocolCount, protocolStatus, protocolQ;
   var fsBody, fsEmpty, fsRootEl, crumbsEl;
   var editorEl, editorTitle, editorText, editorMsg;
   var swSearch, swLlm, swMsg;
@@ -93,6 +94,11 @@
     usersEmpty = document.getElementById('admin-empty');
     fsBody = document.getElementById('admin-fs-body');
     fsEmpty = document.getElementById('admin-fs-empty');
+    protocolBody = document.getElementById('protocol-body');
+    protocolEmpty = document.getElementById('protocol-empty');
+    protocolCount = document.getElementById('protocol-count');
+    protocolStatus = document.getElementById('protocol-status');
+    protocolQ = document.getElementById('protocol-q');
     fsRootEl = document.getElementById('admin-fs-root');
     crumbsEl = document.getElementById('admin-crumbs');
     editorEl = document.getElementById('admin-editor');
@@ -119,6 +125,11 @@
     document.getElementById('fs-refresh').addEventListener('click', loadFiles);
     document.getElementById('sw-save').addEventListener('click', saveSettings);
     document.getElementById('audit-refresh').addEventListener('click', loadAudit);
+    document.getElementById('protocol-refresh').addEventListener('click', loadProtocols);
+    protocolStatus.addEventListener('change', loadProtocols);
+    protocolQ.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter') loadProtocols();
+    });
 
     document.getElementById('editor-close').addEventListener('click', closeEditor);
     document.getElementById('editor-cancel').addEventListener('click', closeEditor);
@@ -171,6 +182,7 @@
       p.hidden = p.getAttribute('data-panel') !== name;
     });
     if (name === 'audit') loadAudit();
+    if (name === 'protocols') loadProtocols();
   }
 
   // ---------------- 概览 ----------------
@@ -181,7 +193,10 @@
       { num: s.newToday, label: '今日新增' },
       { num: s.active7d, label: '近 7 天登录' },
       { num: s.adminCount, label: '管理员' },
-      { num: s.bannedCount, label: '已封禁' }
+      { num: s.bannedCount, label: '已封禁' },
+      { num: coveredProtocols(s), label: '规程已复核' },
+      { num: s.protocolPending, label: '规程待复核' },
+      { num: s.ticketOpen, label: '工单待处理' }
     ];
     statsEl.innerHTML = '';
     cards.forEach(function (c) {
@@ -324,6 +339,112 @@
     get(API + '/stats').then(function (r) {
       if (!r.gate) renderStats(r.data);
     }).catch(function () { /* 忽略 */ });
+  }
+
+  // ---------------- 规程复核 ----------------
+
+  var PROTOCOL_LABEL = { pending: '待复核', reviewed: '已通过', rejected: '已驳回' };
+
+  /** 概览卡片上的「已复核 / 总数」；老版本后端没有该字段时显示 -- */
+  function coveredProtocols(s) {
+    if (s.protocolReviewed == null) return null;
+    return s.protocolReviewed + '/' + (s.protocolTotal == null ? '?' : s.protocolTotal);
+  }
+
+  function loadProtocols() {
+    if (!protocolBody) return;
+    var status = protocolStatus ? protocolStatus.value : 'pending';
+    var q = protocolQ ? protocolQ.value.trim() : '';
+    var url = API + '/protocols?status=' + encodeURIComponent(status) + '&limit=300'
+      + (q ? '&q=' + encodeURIComponent(q) : '');
+    get(url)
+      .then(function (d) {
+        var data = d.data || {};
+        var items = data.items || [];
+        protocolCount.textContent = '待复核 ' + (data.countPending || 0)
+          + ' · 已通过 ' + (data.countReviewed || 0)
+          + ' · 已驳回 ' + (data.countRejected || 0)
+          + ' · 共 ' + (data.countAll || 0) + ' 套';
+        protocolBody.innerHTML = '';
+        if (!items.length) {
+          showEmpty(protocolEmpty, q ? '没有匹配「' + q + '」的规程' : '这个状态下没有规程');
+          return;
+        }
+        protocolEmpty.hidden = true;
+        items.forEach(function (p) { protocolBody.appendChild(protocolRow(p)); });
+      })
+      .catch(function () {
+        protocolCount.textContent = '';
+        protocolBody.innerHTML = '';
+        showError(protocolEmpty, '规程列表加载失败', loadProtocols);
+      });
+  }
+
+  function protocolRow(p) {
+    var tr = el('tr');
+
+    var nameTd = el('td');
+    nameTd.appendChild(el('strong', null, p.name || p.cropId));
+    nameTd.appendChild(el('span', 'admin-muted', ' ' + p.cropId));
+    tr.appendChild(nameTd);
+
+    tr.appendChild(el('td', null, p.standardName || '—'));
+
+    var srcTd = el('td', null, shorten(p.source, 34));
+    srcTd.title = p.source || '';
+    tr.appendChild(srcTd);
+
+    tr.appendChild(el('td', null, String(p.nodeCount || 0)));
+
+    var stTd = el('td');
+    stTd.appendChild(el('span',
+      'admin-role' + (p.reviewStatus === 'reviewed' ? ' is-admin' : (p.reviewStatus === 'rejected' ? ' is-banned' : '')),
+      PROTOCOL_LABEL[p.reviewStatus] || p.reviewStatus));
+    tr.appendChild(stTd);
+
+    tr.appendChild(el('td', null, p.reviewer || '—'));
+    tr.appendChild(el('td', null, p.reviewedAt || '—'));
+
+    var opTd = el('td', 'admin-ops');
+    if (p.reviewStatus !== 'reviewed') {
+      opTd.appendChild(miniBtn('通过', '', function () { reviewProtocol(p, 'reviewed'); }));
+    }
+    if (p.reviewStatus !== 'rejected') {
+      opTd.appendChild(miniBtn('驳回', 'is-danger', function () { reviewProtocol(p, 'rejected'); }));
+    }
+    if (p.reviewStatus === 'reviewed' || p.reviewStatus === 'rejected') {
+      opTd.appendChild(miniBtn('撤回', '', function () { reviewProtocol(p, 'pending'); }));
+    }
+    tr.appendChild(opTd);
+    return tr;
+  }
+
+  function shorten(text, max) {
+    if (!text) return '—';
+    return text.length > max ? text.slice(0, max - 1) + '…' : text;
+  }
+
+  function reviewProtocol(p, status) {
+    if (busy) return;
+    var note = '';
+    if (status === 'reviewed') {
+      if (!confirm('确认「' + p.name + '」的 ' + p.nodeCount + ' 个节点已人工核对通过？')) return;
+    } else if (status === 'rejected') {
+      var answer = prompt('驳回「' + p.name + '」的原因（可留空，便于下次重做）：');
+      if (answer === null) return;
+      note = answer;
+    } else if (!confirm('把「' + p.name + '」退回待复核？')) {
+      return;
+    }
+    busy = true;
+    send(API + '/protocols/review', 'POST', { cropId: p.cropId, status: status, note: note })
+      .then(function () {
+        toast(status === 'reviewed' ? '已标记通过' : (status === 'rejected' ? '已驳回' : '已退回待复核'), 'info');
+        loadProtocols();
+        loadStats();
+      })
+      .catch(function (e) { toast('操作失败：' + e.message, 'error'); })
+      .then(function () { busy = false; });
   }
 
   // ---------------- 文件 ----------------

@@ -39,6 +39,7 @@
       <nav class="admin-tabs" role="tablist">
         <button type="button" class="admin-tab is-active" data-tab="overview">概览</button>
         <button type="button" class="admin-tab" data-tab="users">账号</button>
+        <button type="button" class="admin-tab" data-tab="protocols">规程</button>
         <button type="button" class="admin-tab" data-tab="files">文件</button>
         <button type="button" class="admin-tab" data-tab="switches">开关</button>
         <button type="button" class="admin-tab" data-tab="audit">日志</button>
@@ -80,6 +81,45 @@
             </table>
           </div>
           <div class="admin-empty" id="admin-empty" hidden></div>
+        </div>
+      </div>
+
+      <!-- 规程复核 -->
+      <div class="admin-panel-wrap" data-panel="protocols" hidden>
+        <div class="admin-panel">
+          <div class="admin-panel-head">
+            <h2>作物规程复核</h2>
+            <span class="admin-panel-sub" id="protocol-count"></span>
+          </div>
+          <p class="admin-tip">AI/规则生成的规程默认是「待复核」。通过表示已人工核对农事节点合理；驳回后仍会继续使用，但会在列表里标红，方便下次重做。</p>
+          <div class="admin-toolbar">
+            <select id="protocol-status">
+              <option value="pending">待复核</option>
+              <option value="all">全部</option>
+              <option value="reviewed">已通过</option>
+              <option value="rejected">已驳回</option>
+            </select>
+            <input id="protocol-q" type="search" placeholder="搜索作物名 / 编号 / 产区" />
+            <button type="button" class="admin-mini" id="protocol-refresh">刷新</button>
+          </div>
+          <div class="admin-table-wrap">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>作物</th>
+                  <th>标准名</th>
+                  <th>来源</th>
+                  <th>节点</th>
+                  <th>状态</th>
+                  <th>复核人</th>
+                  <th>复核时间</th>
+                  <th>操作</th>
+                </tr>
+              </thead>
+              <tbody id="protocol-body"></tbody>
+            </table>
+          </div>
+          <div class="admin-empty" id="protocol-empty" hidden></div>
         </div>
       </div>
 

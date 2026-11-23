@@ -631,6 +631,51 @@ public class SupportHandler implements HttpHandler {
         return o == null ? "" : String.valueOf(o);
     }
 
+    // ---------- 后台概览用：全站工单计数（不区分用户身份） ----------
+
+    /** Server 启动时创建 handler，这里留一份引用给后台统计用。 */
+    private static volatile SupportHandler instance;
+
+    public SupportHandler() {
+        instance = this;
+    }
+
+    /**
+     * 全站工单状态计数，供 /api/admin/stats 用。
+     * 只读，不加写锁；handler 还没创建时返回全 0，不影响后台首页。
+     */
+    @SuppressWarnings("unchecked")
+    public static Map<String, Integer> adminStatusCounts() {
+        Map<String, Integer> counts = new LinkedHashMap<>();
+        counts.put("all", 0);
+        counts.put("open", 0);
+        counts.put("processing", 0);
+        counts.put("resolved", 0);
+        counts.put("unread", 0);
+        SupportHandler h = instance;
+        if (h == null) return counts;
+        h.lock.readLock().lock();
+        try {
+            List<Map<String, Object>> all;
+            try {
+                all = new ArrayList<>((List<Map<String, Object>>) h.store().getOrDefault("tickets", new ArrayList<>()));
+            } catch (IOException e) {
+                System.err.println("[support] 读取工单失败，后台统计按 0 处理：" + e.getMessage());
+                return counts;
+            }
+            counts.put("all", all.size());
+            int unread = 0;
+            for (Map<String, Object> t : all) {
+                counts.merge(normalizeStatus(str(t.get("status"))), 1, Integer::sum);
+                if (isUnread(t, true)) unread++;
+            }
+            counts.put("unread", unread);
+        } finally {
+            h.lock.readLock().unlock();
+        }
+        return counts;
+    }
+
     private static String shortUuid() {
         return UUID.randomUUID().toString().replace("-", "").substring(0, 8);
     }

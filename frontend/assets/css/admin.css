@@ -21,10 +21,14 @@
 .admin-login-box input:focus { outline: none; border-color: var(--leaf-2); }
 .admin-login-box .btn { margin-top: 0; width: 100%; }
 
-.admin-toolbar { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+.admin-toolbar { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 14px; }
 .admin-toolbar select {
   font-family: inherit; font-size: calc(14px * var(--fs, 1)); padding: 8px 12px; color: var(--ink);
   background: var(--surface); border: 1.5px solid var(--line); border-radius: 8px;
+}
+.admin-toolbar input[type="search"] {
+  font-family: inherit; font-size: calc(14px * var(--fs, 1)); padding: 8px 12px; color: var(--ink);
+  background: var(--surface); border: 1.5px solid var(--line); border-radius: 8px; min-width: 200px;
 }
 .admin-count { font-size: calc(13px * var(--fs, 1)); color: var(--muted); }
 .admin-toolbar .btn { margin-top: 0; }
