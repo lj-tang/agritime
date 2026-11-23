@@ -39,6 +39,17 @@ public final class AppConfig {
         return intOf("server.port", 8080);
     }
 
+    /**
+     * HTTP 监听地址：默认只绑本机回环 127.0.0.1。
+     * 外部流量必须经过 nginx（限流、安全响应头都在那一层），
+     * 这样即使防火墙配置出错，8080 也不会直接暴露到公网。
+     * 需要局域网直连调试时用环境变量 SERVER_BIND_ADDRESS=0.0.0.0 临时放开。
+     */
+    public static String bindAddress() {
+        String v = raw("server.bind.address");
+        return (v != null && !v.isBlank()) ? v.trim() : "127.0.0.1";
+    }
+
     /** 上游（天气/识别）超时阈值：超过这个时间就降级返回缓存 */
     public static int upstreamTimeoutMs() {
         return intOf("upstream.timeout.ms", 800);

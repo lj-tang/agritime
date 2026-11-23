@@ -7,7 +7,11 @@ Type=simple
 WorkingDirectory=/agritime/backend
 # 密钥等敏感配置放 /etc/agritime.env（chmod 600，不入库），前缀 - 表示文件缺失也不报错
 EnvironmentFile=-/etc/agritime.env
-ExecStart=/usr/bin/java -Dfile.encoding=UTF-8 -cp build/classes com.cropcalendar.Server
+# 2026-11-23 起以专用账号运行（不再用 root）；端口只绑 127.0.0.1（server.bind.address），
+# 公网流量统一走 nginx。首次启用前需：useradd --system --no-create-home --shell /usr/sbin/nologin agritime
+User=agritime
+Group=agritime
+ExecStart=/usr/bin/java -Dfile.encoding=UTF-8 -cp build/classes:/agritime/lib/mariadb-java-client-3.3.3.jar com.cropcalendar.Server
 Restart=always
 RestartSec=5
 StandardOutput=append:/var/log/crop-calendar/app.log

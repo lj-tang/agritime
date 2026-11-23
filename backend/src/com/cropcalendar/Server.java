@@ -51,8 +51,10 @@ public class Server {
         // 业务代码统一走 AppTime，这一行是兜底（第三方库、兜底路径也会受影响）。
         TimeZone.setDefault(TimeZone.getTimeZone(AppTime.ZONE));
         int port = AppConfig.port();
+        // 默认只绑回环：公网流量统一走 nginx，8080 不直接暴露
+        String bind = AppConfig.bindAddress();
 
-        HttpServer server = HttpServer.create(new InetSocketAddress(port), 0);
+        HttpServer server = HttpServer.create(new InetSocketAddress(bind, port), 0);
         server.createContext("/health", new HealthHandler());
         server.createContext("/api/health/detail", new HealthHandler());
         server.createContext("/api/crops", new CropsHandler());
