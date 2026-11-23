@@ -53,6 +53,10 @@ certbot certonly --webroot -w "$WEBROOT" -d "$DOMAIN" "${AGREEMENT[@]}" --non-in
 CERT_DIR="/etc/letsencrypt/live/$DOMAIN"
 [ -f "$CERT_DIR/fullchain.pem" ] || die "证书文件不存在：$CERT_DIR"
 
+# 续期定时器：本机曾因「无证书」临时停用 certbot.timer（见 README 运维加固记录），
+# 这里重新启用，保证证书到期前能自动续期
+systemctl enable --now certbot.timer >/dev/null 2>&1 || true
+
 # ---------- 3. 在同一个 server 块上追加 443 ----------
 if grep -q "listen 443 ssl" "$CONF"; then
   log "配置里已有 443 监听，跳过改写"

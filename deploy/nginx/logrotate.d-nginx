@@ -1,0 +1,26 @@
+# /etc/logrotate.d/nginx 的版本库副本（2026-11-23 修正）
+#
+# 线上原文件有两个致命问题，导致 logrotate 每天解析失败、静默跳过：
+#   1) Windows 换行（CRLF）—— logrotate 解析到 \r 直接报错；
+#   2) postrotate 的结尾拼成了 endpostrotate —— 正确写法是 endscript。
+# 两个问题叠加：nginx 的访问/错误日志从 10 月底起没有任何轮转（活动日志被改名成
+# access.log.2 还在写，access.log 一直是 0 字节，压缩归档全是空的）。
+#
+# 修复：改成 LF 换行 + endscript + postrotate 双保险（invoke-rc.d 与 kill -USR1）。
+# 同步到服务器：
+#   cp deploy/nginx/logrotate.d-nginx /etc/logrotate.d/nginx && chmod 644 /etc/logrotate.d/nginx
+#   logrotate -d /etc/logrotate.d/nginx      # 应无 error
+/var/log/nginx/*.log {
+    daily
+    missingok
+    rotate 30
+    compress
+    delaycompress
+    notifempty
+    create 0640 www-data adm
+    sharedscripts
+    postrotate
+        invoke-rc.d nginx rotate >/dev/null 2>&1 || true
+        [ -f /run/nginx.pid ] && kill -USR1 "$(cat /run/nginx.pid)" 2>/dev/null || true
+    endscript
+}

@@ -144,3 +144,17 @@ git config http.lowSpeedTime 999
 
 - `/root/keep-agritime.sh`：早期没有 systemd 时写的保活脚本，现已失效，且逻辑有误（探 80 端口拉起 python 静态服务会与 nginx 抢端口）。
 - `deploy/frontend_server.py`：同一时期的应急静态服务，与 nginx 重复，保留仅作查阅。
+
+## 九、运维加固记录（2026-11-23）
+
+| 项 | 变更 |
+|---|---|
+| 备份 | `backup.sh` 增加 `backend/var/`（账号库、用户数据、审计日志）与 MariaDB `agritime` 全量导出（`*.mysql.gz`）；导出失败或为空会报错退出，不会覆盖旧备份。备份仍只存本机 `/root/backups`，后续建议再同步一份到华为云 OBS |
+| 超管密码 | 已重置（原密码不明，后台曾 3 周无人登录）；`super_admin` 首次登录会强制改密；旧账号库备份为 `backend/var/users.json.bak-20261123-085148` |
+| 敏感配置 | `/etc/agritime.env` 已改为 600 |
+| 服务账号 | Java 服务以专用账号 `agritime` 运行（不再 root）；首次搭建见 `backend/deploy/crop-calendar.service` 头部注释 |
+| 监听地址 | 后端只绑 `127.0.0.1:8080`（`server.bind.address`），公网流量只走 nginx |
+| nginx 日志轮转 | `/etc/logrotate.d/nginx` 原文件是 CRLF 换行 + `endpostrotate` 拼写错误，logrotate 每天静默跳过；已修正并纳入版本库（`deploy/nginx/logrotate.d-nginx`） |
+| 遗留清理 | 删除每分钟空跑的 `/etc/cron.d/agritime-frontend`；`certbot.timer` 临时停用、ufw 443 收回（`enable-https.sh` 会自动恢复） |
+| 注册防刷 | 同一 IP 每小时最多 10 次注册尝试（识别 nginx 注入的 `X-Real-IP`）；本地直连 8080 不受限 |
+| CORS | 默认同源，不再返回 `Access-Control-Allow-Origin: *`；`file://` 救生索（Origin: null）与 localhost 开发端口已内置放行，其他来源不返回 CORS 头 |

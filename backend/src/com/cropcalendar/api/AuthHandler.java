@@ -37,6 +37,12 @@ public class AuthHandler implements HttpHandler {
     /** 「是否仍在用初始密码」的结果缓存，key 带密码哈希指纹 */
     private static final Map<String, Boolean> INIT_PWD = new ConcurrentHashMap<>();
 
+    /** 注册防刷：同一 IP 每小时最多 10 次注册尝试（重名、失败也算）。
+     *  只在请求带 X-Real-IP（nginx 注入、外部不可伪造）时生效，本地开发不受影响。 */
+    private static final int REGISTER_MAX_PER_HOUR = 10;
+    private static final long REGISTER_WINDOW_MS = 3600_000L;
+    private static final Map<String, long[]> REGISTER_HITS = new ConcurrentHashMap<>();
+
     @Override
     public void handle(HttpExchange ex) throws IOException {
         HttpSupport.cors(ex);
@@ -73,6 +79,10 @@ public class AuthHandler implements HttpHandler {
         }
         if (!com.cropcalendar.config.AppConfig.authAllowRegister()) {
             HttpSupport.write(ex, 403, HttpSupport.error(403, "当前未开放注册，请联系管理员"));
+            return;
+        }
+        if (registerOverQuota(ex)) {
+            HttpSupport.write(ex, 429, HttpSupport.error(429, "注册太频繁，请稍后再试（每小时限额）"));
             return;
         }
 
@@ -154,6 +164,31 @@ public class AuthHandler implements HttpHandler {
         HttpSupport.write(ex, 200, HttpSupport.ok(Json.obj(
                 "user", updated.toJson(),
                 "mustChangePassword", String.valueOf(mustChangePassword(updated)))));
+    }
+
+    /**
+     * 注册防刷：同一 IP 每小时 10 次。X-Real-IP 由 nginx 覆盖写入（$remote_addr），
+     * 客户端伪造不了；请求没带该头（本地开发直连 8080）时不限流。
+     * 超过 1 万条追踪记录时清掉过期条目，避免内存被海量来源 IP 撑大。
+     */
+    private static boolean registerOverQuota(HttpExchange ex) {
+        String ip = ex.getRequestHeaders().getFirst("X-Real-IP");
+        if (ip == null || ip.isBlank()) return false;
+        long now = System.currentTimeMillis();
+        if (REGISTER_HITS.size() > 10_000) {
+            long cutoff = now - REGISTER_WINDOW_MS;
+            REGISTER_HITS.entrySet().removeIf(e -> e.getValue()[0] < cutoff);
+        }
+        long[] slot = REGISTER_HITS.computeIfAbsent(ip.trim(), k -> new long[]{now, 0});
+        synchronized (slot) {
+            if (now - slot[0] > REGISTER_WINDOW_MS) {
+                slot[0] = now;
+                slot[1] = 0;
+            }
+            if (slot[1] >= REGISTER_MAX_PER_HOUR) return true;
+            slot[1]++;
+            return false;
+        }
     }
 
     /**

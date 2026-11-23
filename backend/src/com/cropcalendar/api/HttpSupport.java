@@ -16,14 +16,35 @@ import java.util.Map;
 final class HttpSupport {
 
     /**
-     * 允许跨域 —— 成员1 的页面很可能跑在另一个端口（比如 5173），
-     * 不放开的话他连本地都调不通，会白白浪费一天。
+     * CORS：默认同源（不输出 Access-Control-Allow-Origin）。
+     *
+     * 站点自己的页面与 nginx 同源，根本不需要 CORS 头；以前统一放 * 是为了
+     * 早期「成员1 的页面跑在 5173 端口」的场景。现在只有两种合法跨源：
+     *   1. file:// 双击打开的「救生索」（Origin: null）—— 直连本地 8080 读公开数据；
+     *   2. 本地跨端口调试（localhost / 127.0.0.1 的任意端口，如 dev-server 3000）；
+     *   3. 显式配置的 CORS_ALLOW_ORIGIN。
+     * 其余来源一律不返回 CORS 头，浏览器即拒绝跨源读取。
+     * 注意：登录态是 SameSite=Lax 的 Cookie，且从不发 Allow-Credentials，
+     * 跨源请求本来就带不上 Cookie，这里只是不放宽「读公开响应」的口子。
      */
     static void cors(HttpExchange ex) {
-        ex.getResponseHeaders().set("Access-Control-Allow-Origin", "*");
-        ex.getResponseHeaders().set("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
-        ex.getResponseHeaders().set("Access-Control-Allow-Headers", "Content-Type");
+        String origin = ex.getRequestHeaders().getFirst("Origin");
+        if (origin != null && originAllowed(origin)) {
+            ex.getResponseHeaders().set("Access-Control-Allow-Origin", origin);
+            ex.getResponseHeaders().add("Vary", "Origin");
+            ex.getResponseHeaders().set("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+            ex.getResponseHeaders().set("Access-Control-Allow-Headers", "Content-Type");
+        }
         ex.getResponseHeaders().set("Cache-Control", "no-store");
+    }
+
+    private static boolean originAllowed(String origin) {
+        // file:// 页面（双击打开）的 Origin 是字符串 "null"
+        if ("null".equals(origin)) return true;
+        // 本地开发：dev-server / 静态服务跑在 localhost 任意端口
+        if (origin.matches("^https?://(localhost|127\\.0\\.0\\.1)(:\\d+)?$")) return true;
+        String allow = com.cropcalendar.config.AppConfig.corsAllowOrigin();
+        return !allow.isBlank() && allow.equals(origin);
     }
 
     /**

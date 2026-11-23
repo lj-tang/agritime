@@ -222,6 +222,17 @@ public final class AppConfig {
         return (v != null && !v.isBlank()) ? v.trim() : "/agritime";
     }
 
+    /**
+     * CORS 白名单：默认空 = 同源访问。浏览器跨域调用才需要 CORS 头，
+     * 站点自己的页面都是同源，默认不输出任何 Access-Control-Allow-Origin，
+     * 避免任意网站都能读接口响应。本地跨端口调试时设
+     * CORS_ALLOW_ORIGIN=http://127.0.0.1:3000（file:// 救生索走 Origin: null，已内置放行）。
+     */
+    public static String corsAllowOrigin() {
+        String v = raw("cors.allow.origin");
+        return (v != null && !v.isBlank()) ? v.trim() : "";
+    }
+
     /** 是否开放注册。关掉后只有超管能建号，用于正式对外时收口 */
     public static boolean authAllowRegister() {
         return boolOf("auth.allow.register", true);
