@@ -191,7 +191,10 @@ tail -f /var/log/agritime-backup.log
 journalctl -t agritime-backup -n 20
 ```
 
-### 每月至少跑一次恢复演练
+### 每月自动跑一次恢复演练
+
+服务器已安装 `/etc/cron.d/agritime-drill`：每月 1 日 05:00 自动执行一次，结果进
+journald（`journalctl -t agritime-drill`）。手动执行：
 
 ```bash
 bash /agritime/deploy/tools/restore-drill.sh            # 最新一份备份
