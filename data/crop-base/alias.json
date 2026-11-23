@@ -10,11 +10,17 @@
         "水稻",
         "稻",
         "稻谷",
-        "稻子"
+        "稻子",
+        "湖北荆州水稻",
+        "荆州水稻"
       ],
       "pinyin": [
         "shuidao",
-        "dao"
+        "dao",
+        "daogu",
+        "daozi",
+        "hubeijingzhoushuidao",
+        "jingzhoushuidao"
       ]
     },
     {
@@ -25,11 +31,17 @@
         "小麦",
         "麦",
         "麦子",
-        "冬小麦"
+        "冬小麦",
+        "河南新乡小麦",
+        "新乡小麦"
       ],
       "pinyin": [
         "xiaomai",
-        "mai"
+        "mai",
+        "maizi",
+        "dongxiaomai",
+        "henanxinxiangxiaomai",
+        "xinxiangxiaomai"
       ]
     },
     {
@@ -42,11 +54,19 @@
         "苞米",
         "玉蜀黍",
         "棒子",
-        "玉米棒"
+        "玉米棒",
+        "黑龙江绥化玉米",
+        "绥化玉米"
       ],
       "pinyin": [
         "yumi",
-        "baogu"
+        "baogu",
+        "baomi",
+        "yushushu",
+        "bangzi",
+        "yumibang",
+        "heilongjiangsuihuayumi",
+        "suihuayumi"
       ]
     },
     {
@@ -57,11 +77,17 @@
         "大豆",
         "黄豆",
         "毛豆",
-        "大豆粒"
+        "大豆粒",
+        "黑龙江绥化大豆",
+        "绥化大豆"
       ],
       "pinyin": [
         "dadou",
-        "huangdou"
+        "huangdou",
+        "maodou",
+        "dadouli",
+        "heilongjiangsuihuadadou",
+        "suihuadadou"
       ]
     },
     {
@@ -71,11 +97,16 @@
         "C005",
         "棉花",
         "棉",
-        "棉花朵"
+        "棉花朵",
+        "新疆石河子棉花",
+        "石河子棉花"
       ],
       "pinyin": [
         "mianhua",
-        "mian"
+        "mian",
+        "mianhuaduo",
+        "xinjiangshihezimianhua",
+        "shihezimianhua"
       ]
     },
     {
@@ -86,11 +117,17 @@
         "油菜",
         "油菜籽",
         "菜籽",
-        "芸苔"
+        "芸苔",
+        "湖北天门油菜",
+        "天门油菜"
       ],
       "pinyin": [
         "youcai",
-        "caizi"
+        "caizi",
+        "youcaizi",
+        "yuntai",
+        "hubeitianmenyoucai",
+        "tianmenyoucai"
       ]
     },
     {
@@ -101,11 +138,17 @@
         "花生",
         "落花生",
         "长生果",
-        "花生米"
+        "花生米",
+        "河南南阳花生",
+        "南阳花生"
       ],
       "pinyin": [
         "huasheng",
-        "luohuasheng"
+        "luohuasheng",
+        "changshengguo",
+        "huashengmi",
+        "henannanyanghuasheng",
+        "nanyanghuasheng"
       ]
     },
     {
@@ -115,10 +158,15 @@
         "C008",
         "芝麻",
         "胡麻",
-        "脂麻"
+        "脂麻",
+        "河南驻马店芝麻",
+        "驻马店芝麻"
       ],
       "pinyin": [
-        "zhima"
+        "zhima",
+        "huma",
+        "henanzhumadianzhima",
+        "zhumadianzhima"
       ]
     },
     {
@@ -133,7 +181,9 @@
       ],
       "pinyin": [
         "xiangrikui",
-        "kuihua"
+        "kuihua",
+        "kuihuazi",
+        "guazi"
       ]
     },
     {
@@ -147,7 +197,8 @@
       ],
       "pinyin": [
         "gaoliang",
-        "shushu"
+        "shushu",
+        "hongliang"
       ]
     },
     {
@@ -158,12 +209,17 @@
         "谷子",
         "小米",
         "粟",
-        "粟米"
+        "粟米",
+        "河北石家庄谷子",
+        "石家庄谷子"
       ],
       "pinyin": [
         "guzi",
         "xiaomi",
-        "su"
+        "su",
+        "sumi",
+        "hebeishijiazhuangguzi",
+        "shijiazhuangguzi"
       ]
     },
     {
@@ -180,7 +236,9 @@
       "pinyin": [
         "hongshu",
         "digua",
-        "ganshu"
+        "ganshu",
+        "fanshu",
+        "shanyu"
       ]
     },
     {
@@ -191,12 +249,17 @@
         "马铃薯",
         "土豆",
         "洋芋",
-        "山药蛋"
+        "山药蛋",
+        "内蒙古赤峰马铃薯",
+        "赤峰马铃薯"
       ],
       "pinyin": [
         "malingshu",
         "tudou",
-        "yangyu"
+        "yangyu",
+        "shanyaodan",
+        "neimengguchifengmalingshu",
+        "chifengmalingshu"
       ]
     },
     {
@@ -206,11 +269,16 @@
         "C014",
         "甘蔗",
         "蔗",
-        "糖蔗"
+        "糖蔗",
+        "广西崇左甘蔗",
+        "崇左甘蔗"
       ],
       "pinyin": [
         "ganzhe",
-        "zhe"
+        "zhe",
+        "tangzhe",
+        "guangxichongzuoganzhe",
+        "chongzuoganzhe"
       ]
     },
     {
@@ -219,10 +287,15 @@
       "aliases": [
         "C015",
         "甜菜",
-        "糖萝卜"
+        "糖萝卜",
+        "新疆阿勒泰饲用甜菜",
+        "阿勒泰饲用甜菜"
       ],
       "pinyin": [
-        "tiancai"
+        "tiancai",
+        "tangluobo",
+        "xinjiangaleitaisiyongtiancai",
+        "aleitaisiyongtiancai"
       ]
     },
     {
@@ -232,11 +305,16 @@
         "C016",
         "烟草",
         "烟叶",
-        "烤烟"
+        "烤烟",
+        "云南曲靖烤烟",
+        "曲靖烤烟"
       ],
       "pinyin": [
         "yancao",
-        "yanye"
+        "yanye",
+        "kaoyan",
+        "yunnanqujingkaoyan",
+        "qujingkaoyan"
       ]
     },
     {
@@ -246,11 +324,24 @@
         "C017",
         "茶",
         "茶叶",
-        "茶树"
+        "茶树",
+        "福建安溪铁观音",
+        "安溪铁观音",
+        "云南普洱大叶种茶",
+        "普洱大叶种茶",
+        "四川宜宾早春茶",
+        "宜宾早春茶"
       ],
       "pinyin": [
         "cha",
-        "chaye"
+        "chaye",
+        "chashu",
+        "fujiananxitieguanyin",
+        "anxitieguanyin",
+        "yunnanpuerdayezhongcha",
+        "puerdayezhongcha",
+        "sichuanyibinzaochuncha",
+        "yibinzaochuncha"
       ]
     },
     {
@@ -264,7 +355,8 @@
       ],
       "pinyin": [
         "sang",
-        "sangshu"
+        "sangshu",
+        "cansang"
       ]
     },
     {
@@ -276,7 +368,8 @@
         "白麻"
       ],
       "pinyin": [
-        "zhuma"
+        "zhuma",
+        "baima"
       ]
     },
     {
@@ -288,7 +381,8 @@
         "胡麻"
       ],
       "pinyin": [
-        "yama"
+        "yama",
+        "huma"
       ]
     },
     {
@@ -298,11 +392,16 @@
         "C021",
         "大白菜",
         "白菜",
-        "结球白菜"
+        "结球白菜",
+        "河北张家口大白菜",
+        "张家口大白菜"
       ],
       "pinyin": [
         "dabaicai",
-        "baicai"
+        "baicai",
+        "jieqiubaicai",
+        "hebeizhangjiakoudabaicai",
+        "zhangjiakoudabaicai"
       ]
     },
     {
@@ -316,7 +415,8 @@
       ],
       "pinyin": [
         "xiaobaicai",
-        "qingcai"
+        "qingcai",
+        "youcaiyang"
       ]
     },
     {
@@ -329,7 +429,9 @@
         "红根菜"
       ],
       "pinyin": [
-        "bocai"
+        "bocai",
+        "bosicai",
+        "honggencai"
       ]
     },
     {
@@ -342,7 +444,9 @@
         "药芹"
       ],
       "pinyin": [
-        "qincai"
+        "qincai",
+        "hanqin",
+        "yaoqin"
       ]
     },
     {
@@ -355,7 +459,9 @@
         "鹅仔菜"
       ],
       "pinyin": [
-        "shengcai"
+        "shengcai",
+        "yeyongwoju",
+        "ezaicai"
       ]
     },
     {
@@ -370,7 +476,9 @@
       ],
       "pinyin": [
         "kongxincai",
-        "wengcai"
+        "wengcai",
+        "tongcai",
+        "zhuyecai"
       ]
     },
     {
@@ -384,7 +492,8 @@
       ],
       "pinyin": [
         "jiucai",
-        "jiu"
+        "jiu",
+        "jiucaiye"
       ]
     },
     {
@@ -398,7 +507,9 @@
       ],
       "pinyin": [
         "suanmiao",
-        "suanhuang"
+        "suanhuang",
+        "suantai",
+        "qingsuan"
       ]
     },
     {
@@ -412,7 +523,8 @@
       ],
       "pinyin": [
         "huayecai",
-        "caihua"
+        "caihua",
+        "huacai"
       ]
     },
     {
@@ -425,7 +537,9 @@
         "绿花菜"
       ],
       "pinyin": [
-        "xilanhua"
+        "xilanhua",
+        "qinghuacai",
+        "lvhuacai"
       ]
     },
     {
@@ -436,12 +550,18 @@
         "番茄",
         "西红柿",
         "洋柿子",
-        "番茄果"
+        "番茄果",
+        "山东寿光番茄",
+        "寿光番茄"
       ],
       "pinyin": [
         "fanqie",
         "xihongshi",
-        "tomato"
+        "tomato",
+        "yangshizi",
+        "fanqieguo",
+        "shandongshouguangfanqie",
+        "shouguangfanqie"
       ]
     },
     {
@@ -454,7 +574,9 @@
         "落苏"
       ],
       "pinyin": [
-        "qiezi"
+        "qiezi",
+        "aigua",
+        "luosu"
       ]
     },
     {
@@ -466,12 +588,18 @@
         "青椒",
         "尖椒",
         "海椒",
-        "辣子"
+        "辣子",
+        "广东湛江辣椒",
+        "湛江辣椒"
       ],
       "pinyin": [
         "lajiao",
         "qingjiao",
-        "haijiao"
+        "haijiao",
+        "jianjiao",
+        "lazi",
+        "guangdongzhanjianglajiao",
+        "zhanjianglajiao"
       ]
     },
     {
@@ -481,11 +609,16 @@
         "C034",
         "黄瓜",
         "青瓜",
-        "胡瓜"
+        "胡瓜",
+        "山东寿光黄瓜",
+        "寿光黄瓜"
       ],
       "pinyin": [
         "huanggua",
-        "qinggua"
+        "qinggua",
+        "hugua",
+        "shandongshouguanghuanggua",
+        "shouguanghuanggua"
       ]
     },
     {
@@ -498,7 +631,9 @@
         "枕瓜"
       ],
       "pinyin": [
-        "donggua"
+        "donggua",
+        "baigua",
+        "zhengua"
       ]
     },
     {
@@ -513,7 +648,9 @@
       ],
       "pinyin": [
         "nangua",
-        "wogua"
+        "wogua",
+        "fangua",
+        "jingua"
       ]
     },
     {
@@ -526,7 +663,9 @@
         "天罗"
       ],
       "pinyin": [
-        "sigua"
+        "sigua",
+        "shuigua",
+        "tianluo"
       ]
     },
     {
@@ -538,7 +677,8 @@
         "凉瓜"
       ],
       "pinyin": [
-        "kugua"
+        "kugua",
+        "lianggua"
       ]
     },
     {
@@ -551,7 +691,8 @@
         "茭瓜"
       ],
       "pinyin": [
-        "xihulu"
+        "xihulu",
+        "jiaogua"
       ]
     },
     {
@@ -564,7 +705,9 @@
         "寒瓜"
       ],
       "pinyin": [
-        "xigua"
+        "xigua",
+        "xiagua",
+        "hangua"
       ]
     },
     {
@@ -574,7 +717,9 @@
         "C041",
         "豆角"
       ],
-      "pinyin": []
+      "pinyin": [
+        "doujiao"
+      ]
     },
     {
       "canonical": "C042",
@@ -588,7 +733,9 @@
       ],
       "pinyin": [
         "jiangdou",
-        "doujiao"
+        "doujiao",
+        "zhangdoujiao",
+        "daidou"
       ]
     },
     {
@@ -603,7 +750,9 @@
       ],
       "pinyin": [
         "wandou",
-        "helandou"
+        "helandou",
+        "qingdou",
+        "wandouli"
       ]
     },
     {
@@ -616,7 +765,9 @@
         "罗汉豆"
       ],
       "pinyin": [
-        "candou"
+        "candou",
+        "hudou",
+        "luohandou"
       ]
     },
     {
@@ -626,7 +777,9 @@
         "C045",
         "葱"
       ],
-      "pinyin": []
+      "pinyin": [
+        "cong"
+      ]
     },
     {
       "canonical": "C046",
@@ -639,7 +792,8 @@
       ],
       "pinyin": [
         "yangcong",
-        "yuancong"
+        "yuancong",
+        "qiucong"
       ]
     },
     {
@@ -650,11 +804,17 @@
         "大蒜",
         "蒜",
         "蒜头",
-        "大蒜头"
+        "大蒜头",
+        "山东金乡大蒜",
+        "金乡大蒜"
       ],
       "pinyin": [
         "dasuan",
-        "suan"
+        "suan",
+        "suantou",
+        "dasuantou",
+        "shandongjinxiangdasuan",
+        "jinxiangdasuan"
       ]
     },
     {
@@ -670,7 +830,9 @@
       "pinyin": [
         "ganlan",
         "juancai",
-        "baocai"
+        "baocai",
+        "juanxincai",
+        "yuanbaicai"
       ]
     },
     {
@@ -683,7 +845,8 @@
         "苋"
       ],
       "pinyin": [
-        "xiancai"
+        "xiancai",
+        "hancai"
       ]
     },
     {
@@ -696,7 +859,9 @@
         "皇帝菜"
       ],
       "pinyin": [
-        "tonghao"
+        "tonghao",
+        "penghao",
+        "huangdicai"
       ]
     },
     {
@@ -710,7 +875,8 @@
       ],
       "pinyin": [
         "luobo",
-        "laifu"
+        "laifu",
+        "bailuobo"
       ]
     },
     {
@@ -724,7 +890,8 @@
       ],
       "pinyin": [
         "huluobo",
-        "hongluobo"
+        "hongluobo",
+        "dingxiangluobo"
       ]
     },
     {
@@ -738,7 +905,8 @@
       ],
       "pinyin": [
         "lianou",
-        "ou"
+        "ou",
+        "liancai"
       ]
     },
     {
@@ -748,7 +916,9 @@
         "C054",
         "茭白"
       ],
-      "pinyin": []
+      "pinyin": [
+        "jiaobai"
+      ]
     },
     {
       "canonical": "C055",
@@ -761,7 +931,9 @@
       ],
       "pinyin": [
         "yutou",
-        "yuna"
+        "yuna",
+        "yunai",
+        "maoyu"
       ]
     },
     {
@@ -775,7 +947,8 @@
       ],
       "pinyin": [
         "shanyao",
-        "huaishan"
+        "huaishan",
+        "shuyu"
       ]
     },
     {
@@ -789,7 +962,8 @@
       ],
       "pinyin": [
         "shengjiang",
-        "jiang"
+        "jiang",
+        "laojiang"
       ]
     },
     {
@@ -799,11 +973,16 @@
         "C058",
         "莴笋",
         "莴苣",
-        "青笋"
+        "青笋",
+        "四川成都莴笋",
+        "成都莴笋"
       ],
       "pinyin": [
         "wosun",
-        "woju"
+        "woju",
+        "qingsun",
+        "sichuanchengduwosun",
+        "chengduwosun"
       ]
     },
     {
@@ -812,10 +991,14 @@
       "aliases": [
         "C059",
         "苹果",
-        "pingguo"
+        "pingguo",
+        "陕西洛川苹果",
+        "洛川苹果"
       ],
       "pinyin": [
-        "pingguo"
+        "pingguo",
+        "shanxiluochuanpingguo",
+        "luochuanpingguo"
       ]
     },
     {
@@ -829,7 +1012,8 @@
       ],
       "pinyin": [
         "li",
-        "lizi"
+        "lizi",
+        "baili"
       ]
     },
     {
@@ -843,7 +1027,8 @@
       ],
       "pinyin": [
         "tao",
-        "taozi"
+        "taozi",
+        "shuimitao"
       ]
     },
     {
@@ -853,7 +1038,9 @@
         "C062",
         "李子"
       ],
-      "pinyin": []
+      "pinyin": [
+        "lizi"
+      ]
     },
     {
       "canonical": "C063",
@@ -862,7 +1049,9 @@
         "C063",
         "杏"
       ],
-      "pinyin": []
+      "pinyin": [
+        "xing"
+      ]
     },
     {
       "canonical": "C064",
@@ -871,7 +1060,9 @@
         "C064",
         "樱桃"
       ],
-      "pinyin": []
+      "pinyin": [
+        "yingtao"
+      ]
     },
     {
       "canonical": "C065",
@@ -883,7 +1074,9 @@
         "草莓果"
       ],
       "pinyin": [
-        "caomei"
+        "caomei",
+        "shiduopili",
+        "caomeiguo"
       ]
     },
     {
@@ -920,16 +1113,24 @@
         "C068",
         "橙子"
       ],
-      "pinyin": []
+      "pinyin": [
+        "chengzi"
+      ]
     },
     {
       "canonical": "C069",
       "displayName": "柚子",
       "aliases": [
         "C069",
-        "柚子"
+        "柚子",
+        "福建平和蜜柚",
+        "平和蜜柚"
       ],
-      "pinyin": []
+      "pinyin": [
+        "youzi",
+        "fujianpinghemiyou",
+        "pinghemiyou"
+      ]
     },
     {
       "canonical": "C070",
@@ -938,7 +1139,9 @@
         "C070",
         "柠檬"
       ],
-      "pinyin": []
+      "pinyin": [
+        "ningmeng"
+      ]
     },
     {
       "canonical": "C071",
@@ -951,7 +1154,8 @@
       ],
       "pinyin": [
         "tiangua",
-        "xianggua"
+        "xianggua",
+        "hamigua"
       ]
     },
     {
@@ -961,7 +1165,9 @@
         "C072",
         "哈密瓜"
       ],
-      "pinyin": []
+      "pinyin": [
+        "hamigua"
+      ]
     },
     {
       "canonical": "C073",
@@ -970,7 +1176,9 @@
         "C073",
         "猕猴桃"
       ],
-      "pinyin": []
+      "pinyin": [
+        "mihoutao"
+      ]
     },
     {
       "canonical": "C074",
@@ -979,7 +1187,9 @@
         "C074",
         "石榴"
       ],
-      "pinyin": []
+      "pinyin": [
+        "shiliu"
+      ]
     },
     {
       "canonical": "C075",
@@ -988,7 +1198,9 @@
         "C075",
         "柿子"
       ],
-      "pinyin": []
+      "pinyin": [
+        "shizi"
+      ]
     },
     {
       "canonical": "C076",
@@ -1001,7 +1213,8 @@
       ],
       "pinyin": [
         "zao",
-        "hongzao"
+        "hongzao",
+        "dazao"
       ]
     },
     {
@@ -1023,7 +1236,9 @@
         "C078",
         "百香果"
       ],
-      "pinyin": []
+      "pinyin": [
+        "baixiangguo"
+      ]
     },
     {
       "canonical": "C079",
@@ -1032,7 +1247,9 @@
         "C079",
         "橡胶"
       ],
-      "pinyin": []
+      "pinyin": [
+        "xiangjiao"
+      ]
     },
     {
       "canonical": "C080",
@@ -1041,7 +1258,9 @@
         "C080",
         "咖啡"
       ],
-      "pinyin": []
+      "pinyin": [
+        "kafei"
+      ]
     },
     {
       "canonical": "C081",
@@ -1050,7 +1269,9 @@
         "C081",
         "可可"
       ],
-      "pinyin": []
+      "pinyin": [
+        "keke"
+      ]
     },
     {
       "canonical": "C082",
@@ -1061,7 +1282,8 @@
         "枸杞子"
       ],
       "pinyin": [
-        "gouqi"
+        "gouqi",
+        "gouqizi"
       ]
     },
     {
@@ -1071,7 +1293,9 @@
         "C083",
         "金银花"
       ],
-      "pinyin": []
+      "pinyin": [
+        "jinyinhua"
+      ]
     },
     {
       "canonical": "C084",
@@ -1080,25 +1304,39 @@
         "C084",
         "黄芪"
       ],
-      "pinyin": []
+      "pinyin": [
+        "huangqi"
+      ]
     },
     {
       "canonical": "C085",
       "displayName": "人参",
       "aliases": [
         "C085",
-        "人参"
+        "人参",
+        "吉林长白山人参",
+        "长白山人参"
       ],
-      "pinyin": []
+      "pinyin": [
+        "renshen",
+        "jilinchangbaishanrenshen",
+        "changbaishanrenshen"
+      ]
     },
     {
       "canonical": "C086",
       "displayName": "当归",
       "aliases": [
         "C086",
-        "当归"
+        "当归",
+        "甘肃岷县当归",
+        "岷县当归"
       ],
-      "pinyin": []
+      "pinyin": [
+        "danggui",
+        "gansuminxiandanggui",
+        "minxiandanggui"
+      ]
     },
     {
       "canonical": "C087",
@@ -1107,7 +1345,9 @@
         "C087",
         "三七"
       ],
-      "pinyin": []
+      "pinyin": [
+        "sanqi"
+      ]
     },
     {
       "canonical": "C088",
@@ -1116,7 +1356,9 @@
         "C088",
         "板蓝根"
       ],
-      "pinyin": []
+      "pinyin": [
+        "banlangen"
+      ]
     },
     {
       "canonical": "C089",
@@ -1125,7 +1367,9 @@
         "C089",
         "薄荷"
       ],
-      "pinyin": []
+      "pinyin": [
+        "bohe"
+      ]
     },
     {
       "canonical": "C090",
@@ -1134,7 +1378,9 @@
         "C090",
         "薰衣草"
       ],
-      "pinyin": []
+      "pinyin": [
+        "xunyicao"
+      ]
     },
     {
       "canonical": "C091",
@@ -1145,7 +1391,8 @@
         "三角麦"
       ],
       "pinyin": [
-        "qiaomai"
+        "qiaomai",
+        "sanjiaomai"
       ]
     },
     {
@@ -1155,11 +1402,16 @@
         "C092",
         "燕麦",
         "莜麦",
-        "燕麦片"
+        "燕麦片",
+        "黑龙江齐齐哈尔燕麦草",
+        "齐齐哈尔燕麦草"
       ],
       "pinyin": [
         "yanmai",
-        "youmai"
+        "youmai",
+        "yanmaipian",
+        "heilongjiangqiqihaeryanmaicao",
+        "qiqihaeryanmaicao"
       ]
     },
     {
@@ -1171,7 +1423,8 @@
         "麦仁"
       ],
       "pinyin": [
-        "damai"
+        "damai",
+        "mairen"
       ]
     },
     {
@@ -1181,7 +1434,9 @@
         "C094",
         "黑豆"
       ],
-      "pinyin": []
+      "pinyin": [
+        "heidou"
+      ]
     },
     {
       "canonical": "C095",
@@ -1192,7 +1447,8 @@
         "青小豆"
       ],
       "pinyin": [
-        "lvdou"
+        "lvdou",
+        "qingxiaodou"
       ]
     },
     {
@@ -1202,7 +1458,9 @@
         "C096",
         "红小豆"
       ],
-      "pinyin": []
+      "pinyin": [
+        "hongxiaodou"
+      ]
     },
     {
       "canonical": "C097",
@@ -1211,7 +1469,9 @@
         "C097",
         "薏米"
       ],
-      "pinyin": []
+      "pinyin": [
+        "yimi"
+      ]
     },
     {
       "canonical": "C098",
@@ -1220,7 +1480,9 @@
         "C098",
         "黍子"
       ],
-      "pinyin": []
+      "pinyin": [
+        "shuzi"
+      ]
     },
     {
       "canonical": "C099",
@@ -1229,7 +1491,9 @@
         "C099",
         "糜子"
       ],
-      "pinyin": []
+      "pinyin": [
+        "meizi"
+      ]
     },
     {
       "canonical": "C100",
@@ -1238,7 +1502,9 @@
         "C100",
         "青稞"
       ],
-      "pinyin": []
+      "pinyin": [
+        "qingke"
+      ]
     },
     {
       "canonical": "C101",
@@ -1251,7 +1517,8 @@
       ],
       "pinyin": [
         "dacong",
-        "cong"
+        "cong",
+        "congbai"
       ]
     },
     {
@@ -1261,7 +1528,9 @@
         "C102",
         "分葱"
       ],
-      "pinyin": []
+      "pinyin": [
+        "fencong"
+      ]
     },
     {
       "canonical": "C103",
@@ -1270,7 +1539,9 @@
         "C103",
         "香葱"
       ],
-      "pinyin": []
+      "pinyin": [
+        "xiangcong"
+      ]
     },
     {
       "canonical": "C104",
@@ -1279,7 +1550,9 @@
         "C104",
         "韭黄"
       ],
-      "pinyin": []
+      "pinyin": [
+        "jiuhuang"
+      ]
     },
     {
       "canonical": "C105",
@@ -1288,7 +1561,9 @@
         "C105",
         "蒜薹"
       ],
-      "pinyin": []
+      "pinyin": [
+        "suantai"
+      ]
     },
     {
       "canonical": "C106",
@@ -1300,7 +1575,9 @@
         "盖菜"
       ],
       "pinyin": [
-        "jiecai"
+        "jiecai",
+        "xuelihong",
+        "gaicai"
       ]
     },
     {
@@ -1310,7 +1587,9 @@
         "C107",
         "雪里蕻"
       ],
-      "pinyin": []
+      "pinyin": [
+        "xuelihong"
+      ]
     },
     {
       "canonical": "C108",
@@ -1319,7 +1598,9 @@
         "C108",
         "榨菜"
       ],
-      "pinyin": []
+      "pinyin": [
+        "zhacai"
+      ]
     },
     {
       "canonical": "C109",
@@ -1328,7 +1609,9 @@
         "C109",
         "大头菜"
       ],
-      "pinyin": []
+      "pinyin": [
+        "datoucai"
+      ]
     },
     {
       "canonical": "C110",
@@ -1337,7 +1620,9 @@
         "C110",
         "儿菜"
       ],
-      "pinyin": []
+      "pinyin": [
+        "ercai"
+      ]
     },
     {
       "canonical": "C111",
@@ -1346,7 +1631,9 @@
         "C111",
         "抱子甘蓝"
       ],
-      "pinyin": []
+      "pinyin": [
+        "baoziganlan"
+      ]
     },
     {
       "canonical": "C112",
@@ -1355,7 +1642,9 @@
         "C112",
         "羽衣甘蓝"
       ],
-      "pinyin": []
+      "pinyin": [
+        "yuyiganlan"
+      ]
     },
     {
       "canonical": "C113",
@@ -1364,7 +1653,9 @@
         "C113",
         "紫甘蓝"
       ],
-      "pinyin": []
+      "pinyin": [
+        "ziganlan"
+      ]
     },
     {
       "canonical": "C114",
@@ -1373,7 +1664,9 @@
         "C114",
         "芥蓝"
       ],
-      "pinyin": []
+      "pinyin": [
+        "jielan"
+      ]
     },
     {
       "canonical": "C115",
@@ -1382,7 +1675,9 @@
         "C115",
         "菜心"
       ],
-      "pinyin": []
+      "pinyin": [
+        "caixin"
+      ]
     },
     {
       "canonical": "C116",
@@ -1391,7 +1686,9 @@
         "C116",
         "奶白菜"
       ],
-      "pinyin": []
+      "pinyin": [
+        "naibaicai"
+      ]
     },
     {
       "canonical": "C117",
@@ -1400,7 +1697,9 @@
         "C117",
         "乌塌菜"
       ],
-      "pinyin": []
+      "pinyin": [
+        "wutacai"
+      ]
     },
     {
       "canonical": "C118",
@@ -1409,7 +1708,9 @@
         "C118",
         "木耳菜"
       ],
-      "pinyin": []
+      "pinyin": [
+        "muercai"
+      ]
     },
     {
       "canonical": "C119",
@@ -1418,7 +1719,9 @@
         "C119",
         "秋葵"
       ],
-      "pinyin": []
+      "pinyin": [
+        "qiukui"
+      ]
     },
     {
       "canonical": "C120",
@@ -1427,7 +1730,9 @@
         "C120",
         "黄秋葵"
       ],
-      "pinyin": []
+      "pinyin": [
+        "huangqiukui"
+      ]
     },
     {
       "canonical": "C121",
@@ -1436,7 +1741,9 @@
         "C121",
         "红秋葵"
       ],
-      "pinyin": []
+      "pinyin": [
+        "hongqiukui"
+      ]
     },
     {
       "canonical": "C122",
@@ -1445,7 +1752,9 @@
         "C122",
         "娃娃菜"
       ],
-      "pinyin": []
+      "pinyin": [
+        "wawacai"
+      ]
     },
     {
       "canonical": "C123",
@@ -1454,7 +1763,9 @@
         "C123",
         "快菜"
       ],
-      "pinyin": []
+      "pinyin": [
+        "kuaicai"
+      ]
     },
     {
       "canonical": "C124",
@@ -1463,7 +1774,9 @@
         "C124",
         "鸡毛菜"
       ],
-      "pinyin": []
+      "pinyin": [
+        "jimaocai"
+      ]
     },
     {
       "canonical": "C125",
@@ -1472,7 +1785,9 @@
         "C125",
         "油麦菜"
       ],
-      "pinyin": []
+      "pinyin": [
+        "youmaicai"
+      ]
     },
     {
       "canonical": "C126",
@@ -1481,7 +1796,9 @@
         "C126",
         "苦菊"
       ],
-      "pinyin": []
+      "pinyin": [
+        "kuju"
+      ]
     },
     {
       "canonical": "C127",
@@ -1490,7 +1807,9 @@
         "C127",
         "芝麻菜"
       ],
-      "pinyin": []
+      "pinyin": [
+        "zhimacai"
+      ]
     },
     {
       "canonical": "C128",
@@ -1499,7 +1818,9 @@
         "C128",
         "穿心莲"
       ],
-      "pinyin": []
+      "pinyin": [
+        "chuanxinlian"
+      ]
     },
     {
       "canonical": "C129",
@@ -1508,7 +1829,9 @@
         "C129",
         "紫苏"
       ],
-      "pinyin": []
+      "pinyin": [
+        "zisu"
+      ]
     },
     {
       "canonical": "C130",
@@ -1517,7 +1840,9 @@
         "C130",
         "罗勒"
       ],
-      "pinyin": []
+      "pinyin": [
+        "luole"
+      ]
     },
     {
       "canonical": "C131",
@@ -1526,7 +1851,9 @@
         "C131",
         "香椿"
       ],
-      "pinyin": []
+      "pinyin": [
+        "xiangchun"
+      ]
     },
     {
       "canonical": "C132",
@@ -1535,7 +1862,9 @@
         "C132",
         "蕨菜"
       ],
-      "pinyin": []
+      "pinyin": [
+        "juecai"
+      ]
     },
     {
       "canonical": "C133",
@@ -1544,7 +1873,9 @@
         "C133",
         "马齿苋"
       ],
-      "pinyin": []
+      "pinyin": [
+        "machixian"
+      ]
     },
     {
       "canonical": "C134",
@@ -1553,7 +1884,9 @@
         "C134",
         "蒲公英"
       ],
-      "pinyin": []
+      "pinyin": [
+        "pugongying"
+      ]
     },
     {
       "canonical": "C135",
@@ -1562,7 +1895,9 @@
         "C135",
         "鱼腥草"
       ],
-      "pinyin": []
+      "pinyin": [
+        "yuxingcao"
+      ]
     },
     {
       "canonical": "C136",
@@ -1571,7 +1906,9 @@
         "C136",
         "益母草"
       ],
-      "pinyin": []
+      "pinyin": [
+        "yimucao"
+      ]
     },
     {
       "canonical": "C137",
@@ -1580,7 +1917,9 @@
         "C137",
         "车前草"
       ],
-      "pinyin": []
+      "pinyin": [
+        "cheqiancao"
+      ]
     },
     {
       "canonical": "C138",
@@ -1589,7 +1928,9 @@
         "C138",
         "紫背天葵"
       ],
-      "pinyin": []
+      "pinyin": [
+        "zibeitiankui"
+      ]
     },
     {
       "canonical": "C139",
@@ -1598,7 +1939,9 @@
         "C139",
         "雪莲果"
       ],
-      "pinyin": []
+      "pinyin": [
+        "xuelianguo"
+      ]
     },
     {
       "canonical": "C140",
@@ -1607,7 +1950,9 @@
         "C140",
         "佛手瓜"
       ],
-      "pinyin": []
+      "pinyin": [
+        "foshougua"
+      ]
     },
     {
       "canonical": "C141",
@@ -1616,7 +1961,9 @@
         "C141",
         "红富士"
       ],
-      "pinyin": []
+      "pinyin": [
+        "hongfushi"
+      ]
     },
     {
       "canonical": "C142",
@@ -1625,7 +1972,9 @@
         "C142",
         "嘎啦果"
       ],
-      "pinyin": []
+      "pinyin": [
+        "galaguo"
+      ]
     },
     {
       "canonical": "C143",
@@ -1634,7 +1983,9 @@
         "C143",
         "国光苹果"
       ],
-      "pinyin": []
+      "pinyin": [
+        "guoguangpingguo"
+      ]
     },
     {
       "canonical": "C144",
@@ -1643,7 +1994,9 @@
         "C144",
         "鸭梨"
       ],
-      "pinyin": []
+      "pinyin": [
+        "yali"
+      ]
     },
     {
       "canonical": "C145",
@@ -1652,7 +2005,9 @@
         "C145",
         "雪花梨"
       ],
-      "pinyin": []
+      "pinyin": [
+        "xuehuali"
+      ]
     },
     {
       "canonical": "C146",
@@ -1661,7 +2016,9 @@
         "C146",
         "砀山梨"
       ],
-      "pinyin": []
+      "pinyin": [
+        "dangshanli"
+      ]
     },
     {
       "canonical": "C147",
@@ -1670,7 +2027,9 @@
         "C147",
         "库尔勒梨"
       ],
-      "pinyin": []
+      "pinyin": [
+        "kuerleili"
+      ]
     },
     {
       "canonical": "C148",
@@ -1679,7 +2038,9 @@
         "C148",
         "水蜜桃"
       ],
-      "pinyin": []
+      "pinyin": [
+        "shuimitao"
+      ]
     },
     {
       "canonical": "C149",
@@ -1688,7 +2049,9 @@
         "C149",
         "油桃"
       ],
-      "pinyin": []
+      "pinyin": [
+        "youtao"
+      ]
     },
     {
       "canonical": "C150",
@@ -1697,7 +2060,9 @@
         "C150",
         "蟠桃"
       ],
-      "pinyin": []
+      "pinyin": [
+        "pantao"
+      ]
     },
     {
       "canonical": "C151",
@@ -1706,7 +2071,9 @@
         "C151",
         "黄桃"
       ],
-      "pinyin": []
+      "pinyin": [
+        "huangtao"
+      ]
     },
     {
       "canonical": "C152",
@@ -1715,7 +2082,9 @@
         "C152",
         "冬枣"
       ],
-      "pinyin": []
+      "pinyin": [
+        "dongzao"
+      ]
     },
     {
       "canonical": "C153",
@@ -1724,7 +2093,9 @@
         "C153",
         "灰枣"
       ],
-      "pinyin": []
+      "pinyin": [
+        "huizao"
+      ]
     },
     {
       "canonical": "C154",
@@ -1733,7 +2104,9 @@
         "C154",
         "骏枣"
       ],
-      "pinyin": []
+      "pinyin": [
+        "junzao"
+      ]
     },
     {
       "canonical": "C155",
@@ -1760,7 +2133,8 @@
       ],
       "pinyin": [
         "hetao",
-        "hutao"
+        "hutao",
+        "hetaoren"
       ]
     },
     {
@@ -1770,7 +2144,9 @@
         "C157",
         "巴旦木"
       ],
-      "pinyin": []
+      "pinyin": [
+        "badanmu"
+      ]
     },
     {
       "canonical": "C158",
@@ -1779,7 +2155,9 @@
         "C158",
         "开心果"
       ],
-      "pinyin": []
+      "pinyin": [
+        "kaixinguo"
+      ]
     },
     {
       "canonical": "C159",
@@ -1788,7 +2166,9 @@
         "C159",
         "碧根果"
       ],
-      "pinyin": []
+      "pinyin": [
+        "bigenguo"
+      ]
     },
     {
       "canonical": "C160",
@@ -1797,7 +2177,9 @@
         "C160",
         "夏威夷果"
       ],
-      "pinyin": []
+      "pinyin": [
+        "xiaweiyiguo"
+      ]
     },
     {
       "canonical": "C161",
@@ -1806,7 +2188,9 @@
         "C161",
         "腰果"
       ],
-      "pinyin": []
+      "pinyin": [
+        "yaoguo"
+      ]
     },
     {
       "canonical": "C162",
@@ -1815,7 +2199,9 @@
         "C162",
         "榛子"
       ],
-      "pinyin": []
+      "pinyin": [
+        "zhenzi"
+      ]
     },
     {
       "canonical": "C163",
@@ -1824,7 +2210,9 @@
         "C163",
         "松子"
       ],
-      "pinyin": []
+      "pinyin": [
+        "songzi"
+      ]
     },
     {
       "canonical": "C164",
@@ -1833,7 +2221,9 @@
         "C164",
         "莲子"
       ],
-      "pinyin": []
+      "pinyin": [
+        "lianzi"
+      ]
     },
     {
       "canonical": "C165",
@@ -1842,7 +2232,9 @@
         "C165",
         "桂圆"
       ],
-      "pinyin": []
+      "pinyin": [
+        "guiyuan"
+      ]
     },
     {
       "canonical": "C166",
@@ -1863,7 +2255,9 @@
         "C167",
         "龙眼"
       ],
-      "pinyin": []
+      "pinyin": [
+        "longyan"
+      ]
     },
     {
       "canonical": "C168",
@@ -1872,7 +2266,9 @@
         "C168",
         "山竹"
       ],
-      "pinyin": []
+      "pinyin": [
+        "shanzhu"
+      ]
     },
     {
       "canonical": "C169",
@@ -1881,7 +2277,9 @@
         "C169",
         "榴莲"
       ],
-      "pinyin": []
+      "pinyin": [
+        "liulian"
+      ]
     },
     {
       "canonical": "C170",
@@ -1890,7 +2288,9 @@
         "C170",
         "菠萝"
       ],
-      "pinyin": []
+      "pinyin": [
+        "boluo"
+      ]
     },
     {
       "canonical": "C171",
@@ -1899,7 +2299,9 @@
         "C171",
         "凤梨"
       ],
-      "pinyin": []
+      "pinyin": [
+        "fengli"
+      ]
     },
     {
       "canonical": "C172",
@@ -1908,7 +2310,9 @@
         "C172",
         "椰子"
       ],
-      "pinyin": []
+      "pinyin": [
+        "yezi"
+      ]
     },
     {
       "canonical": "C173",
@@ -1917,7 +2321,9 @@
         "C173",
         "芭乐"
       ],
-      "pinyin": []
+      "pinyin": [
+        "bale"
+      ]
     },
     {
       "canonical": "C174",
@@ -1926,7 +2332,9 @@
         "C174",
         "番石榴"
       ],
-      "pinyin": []
+      "pinyin": [
+        "fanshiliu"
+      ]
     },
     {
       "canonical": "C175",
@@ -1935,7 +2343,9 @@
         "C175",
         "莲雾"
       ],
-      "pinyin": []
+      "pinyin": [
+        "lianwu"
+      ]
     },
     {
       "canonical": "C176",
@@ -1944,7 +2354,9 @@
         "C176",
         "杨桃"
       ],
-      "pinyin": []
+      "pinyin": [
+        "yangtao"
+      ]
     },
     {
       "canonical": "C177",
@@ -1953,7 +2365,9 @@
         "C177",
         "释迦果"
       ],
-      "pinyin": []
+      "pinyin": [
+        "shijiaguo"
+      ]
     },
     {
       "canonical": "C178",
@@ -1962,7 +2376,9 @@
         "C178",
         "无花果"
       ],
-      "pinyin": []
+      "pinyin": [
+        "wuhuaguo"
+      ]
     },
     {
       "canonical": "C179",
@@ -1971,7 +2387,9 @@
         "C179",
         "桑葚"
       ],
-      "pinyin": []
+      "pinyin": [
+        "sangshen"
+      ]
     },
     {
       "canonical": "C180",
@@ -1980,7 +2398,9 @@
         "C180",
         "蓝莓"
       ],
-      "pinyin": []
+      "pinyin": [
+        "lanmei"
+      ]
     },
     {
       "canonical": "C181",
@@ -1989,7 +2409,9 @@
         "C181",
         "香菇"
       ],
-      "pinyin": []
+      "pinyin": [
+        "xianggu"
+      ]
     },
     {
       "canonical": "C182",
@@ -1998,7 +2420,9 @@
         "C182",
         "平菇"
       ],
-      "pinyin": []
+      "pinyin": [
+        "pinggu"
+      ]
     },
     {
       "canonical": "C183",
@@ -2007,7 +2431,9 @@
         "C183",
         "金针菇"
       ],
-      "pinyin": []
+      "pinyin": [
+        "jinzhengu"
+      ]
     },
     {
       "canonical": "C184",
@@ -2016,7 +2442,9 @@
         "C184",
         "杏鲍菇"
       ],
-      "pinyin": []
+      "pinyin": [
+        "xingbaogu"
+      ]
     },
     {
       "canonical": "C185",
@@ -2025,7 +2453,9 @@
         "C185",
         "白灵菇"
       ],
-      "pinyin": []
+      "pinyin": [
+        "bailinggu"
+      ]
     },
     {
       "canonical": "C186",
@@ -2034,7 +2464,9 @@
         "C186",
         "茶树菇"
       ],
-      "pinyin": []
+      "pinyin": [
+        "chashugu"
+      ]
     },
     {
       "canonical": "C187",
@@ -2043,7 +2475,9 @@
         "C187",
         "猴头菇"
       ],
-      "pinyin": []
+      "pinyin": [
+        "houtougu"
+      ]
     },
     {
       "canonical": "C188",
@@ -2052,7 +2486,9 @@
         "C188",
         "竹荪"
       ],
-      "pinyin": []
+      "pinyin": [
+        "zhusun"
+      ]
     },
     {
       "canonical": "C189",
@@ -2061,7 +2497,9 @@
         "C189",
         "木耳菌"
       ],
-      "pinyin": []
+      "pinyin": [
+        "muerjun"
+      ]
     },
     {
       "canonical": "C190",
@@ -2070,7 +2508,9 @@
         "C190",
         "银耳"
       ],
-      "pinyin": []
+      "pinyin": [
+        "yiner"
+      ]
     },
     {
       "canonical": "C191",
@@ -2079,7 +2519,9 @@
         "C191",
         "松茸"
       ],
-      "pinyin": []
+      "pinyin": [
+        "songrong"
+      ]
     },
     {
       "canonical": "C192",
@@ -2088,7 +2530,9 @@
         "C192",
         "羊肚菌"
       ],
-      "pinyin": []
+      "pinyin": [
+        "yangdujun"
+      ]
     },
     {
       "canonical": "C193",
@@ -2097,7 +2541,9 @@
         "C193",
         "鸡枞菌"
       ],
-      "pinyin": []
+      "pinyin": [
+        "jicongjun"
+      ]
     },
     {
       "canonical": "C194",
@@ -2106,7 +2552,9 @@
         "C194",
         "灰树花"
       ],
-      "pinyin": []
+      "pinyin": [
+        "huishuhua"
+      ]
     },
     {
       "canonical": "C195",
@@ -2115,7 +2563,9 @@
         "C195",
         "双孢菇"
       ],
-      "pinyin": []
+      "pinyin": [
+        "shuangbaogu"
+      ]
     },
     {
       "canonical": "C196",
@@ -2124,7 +2574,9 @@
         "C196",
         "水芹"
       ],
-      "pinyin": []
+      "pinyin": [
+        "shuiqin"
+      ]
     },
     {
       "canonical": "C197",
@@ -2133,7 +2585,9 @@
         "C197",
         "莼菜"
       ],
-      "pinyin": []
+      "pinyin": [
+        "chuncai"
+      ]
     },
     {
       "canonical": "C198",
@@ -2142,7 +2596,9 @@
         "C198",
         "蒲菜"
       ],
-      "pinyin": []
+      "pinyin": [
+        "pucai"
+      ]
     },
     {
       "canonical": "C199",
@@ -2163,7 +2619,9 @@
         "C200",
         "芡实"
       ],
-      "pinyin": []
+      "pinyin": [
+        "qianshi"
+      ]
     },
     {
       "canonical": "C201",
@@ -2172,7 +2630,9 @@
         "C201",
         "桔梗"
       ],
-      "pinyin": []
+      "pinyin": [
+        "jiegeng"
+      ]
     },
     {
       "canonical": "C202",
@@ -2181,7 +2641,9 @@
         "C202",
         "麦冬"
       ],
-      "pinyin": []
+      "pinyin": [
+        "maidong"
+      ]
     },
     {
       "canonical": "C203",
@@ -2190,7 +2652,9 @@
         "C203",
         "柴胡"
       ],
-      "pinyin": []
+      "pinyin": [
+        "chaihu"
+      ]
     },
     {
       "canonical": "C204",
@@ -2199,7 +2663,9 @@
         "C204",
         "白术"
       ],
-      "pinyin": []
+      "pinyin": [
+        "baizhu"
+      ]
     },
     {
       "canonical": "C205",
@@ -2208,7 +2674,9 @@
         "C205",
         "白芍"
       ],
-      "pinyin": []
+      "pinyin": [
+        "baishao"
+      ]
     },
     {
       "canonical": "C206",
@@ -2217,7 +2685,9 @@
         "C206",
         "甘草"
       ],
-      "pinyin": []
+      "pinyin": [
+        "gancao"
+      ]
     },
     {
       "canonical": "C207",
@@ -2226,7 +2696,9 @@
         "C207",
         "苦参"
       ],
-      "pinyin": []
+      "pinyin": [
+        "kushen"
+      ]
     },
     {
       "canonical": "C208",
@@ -2235,7 +2707,9 @@
         "C208",
         "黄连"
       ],
-      "pinyin": []
+      "pinyin": [
+        "huanglian"
+      ]
     },
     {
       "canonical": "C209",
@@ -2244,7 +2718,9 @@
         "C209",
         "黄柏"
       ],
-      "pinyin": []
+      "pinyin": [
+        "huangbai"
+      ]
     },
     {
       "canonical": "C210",
@@ -2253,7 +2729,9 @@
         "C210",
         "杜仲"
       ],
-      "pinyin": []
+      "pinyin": [
+        "duzhong"
+      ]
     },
     {
       "canonical": "C211",
@@ -2262,7 +2740,9 @@
         "C211",
         "厚朴"
       ],
-      "pinyin": []
+      "pinyin": [
+        "houpo"
+      ]
     },
     {
       "canonical": "C212",
@@ -2271,7 +2751,9 @@
         "C212",
         "肉桂"
       ],
-      "pinyin": []
+      "pinyin": [
+        "rougui"
+      ]
     },
     {
       "canonical": "C213",
@@ -2280,7 +2762,9 @@
         "C213",
         "五味子"
       ],
-      "pinyin": []
+      "pinyin": [
+        "wuweizi"
+      ]
     },
     {
       "canonical": "C214",
@@ -2289,7 +2773,9 @@
         "C214",
         "决明子"
       ],
-      "pinyin": []
+      "pinyin": [
+        "juemingzi"
+      ]
     },
     {
       "canonical": "C215",
@@ -2298,7 +2784,9 @@
         "C215",
         "薏苡仁"
       ],
-      "pinyin": []
+      "pinyin": [
+        "yiyiren"
+      ]
     },
     {
       "canonical": "C216",
@@ -2307,7 +2795,9 @@
         "C216",
         "车前子"
       ],
-      "pinyin": []
+      "pinyin": [
+        "cheqianzi"
+      ]
     },
     {
       "canonical": "C217",
@@ -2316,7 +2806,9 @@
         "C217",
         "菟丝子"
       ],
-      "pinyin": []
+      "pinyin": [
+        "tusizi"
+      ]
     },
     {
       "canonical": "C218",
@@ -2325,7 +2817,9 @@
         "C218",
         "蛇床子"
       ],
-      "pinyin": []
+      "pinyin": [
+        "shechuangzi"
+      ]
     },
     {
       "canonical": "C219",
@@ -2334,7 +2828,9 @@
         "C219",
         "山茱萸"
       ],
-      "pinyin": []
+      "pinyin": [
+        "shanzhuyu"
+      ]
     },
     {
       "canonical": "C220",
@@ -2343,7 +2839,9 @@
         "C220",
         "连翘"
       ],
-      "pinyin": []
+      "pinyin": [
+        "lianqiao"
+      ]
     },
     {
       "canonical": "C221",
@@ -2352,7 +2850,9 @@
         "C221",
         "丹参"
       ],
-      "pinyin": []
+      "pinyin": [
+        "danshen"
+      ]
     },
     {
       "canonical": "C222",
@@ -2361,7 +2861,9 @@
         "C222",
         "玄参"
       ],
-      "pinyin": []
+      "pinyin": [
+        "xuancan"
+      ]
     },
     {
       "canonical": "C223",
@@ -2370,7 +2872,9 @@
         "C223",
         "生地"
       ],
-      "pinyin": []
+      "pinyin": [
+        "shengdi"
+      ]
     },
     {
       "canonical": "C224",
@@ -2379,7 +2883,9 @@
         "C224",
         "白芷"
       ],
-      "pinyin": []
+      "pinyin": [
+        "baizhi"
+      ]
     },
     {
       "canonical": "C225",
@@ -2388,7 +2894,9 @@
         "C225",
         "藿香"
       ],
-      "pinyin": []
+      "pinyin": [
+        "huoxiang"
+      ]
     },
     {
       "canonical": "C226",
@@ -2397,7 +2905,9 @@
         "C226",
         "荆芥"
       ],
-      "pinyin": []
+      "pinyin": [
+        "jingjie"
+      ]
     },
     {
       "canonical": "C227",
@@ -2406,7 +2916,9 @@
         "C227",
         "防风"
       ],
-      "pinyin": []
+      "pinyin": [
+        "fangfeng"
+      ]
     },
     {
       "canonical": "C228",
@@ -2415,7 +2927,9 @@
         "C228",
         "羌活"
       ],
-      "pinyin": []
+      "pinyin": [
+        "qianghuo"
+      ]
     },
     {
       "canonical": "C229",
@@ -2424,7 +2938,9 @@
         "C229",
         "独活"
       ],
-      "pinyin": []
+      "pinyin": [
+        "duhuo"
+      ]
     },
     {
       "canonical": "C230",
@@ -2433,7 +2949,9 @@
         "C230",
         "前胡"
       ],
-      "pinyin": []
+      "pinyin": [
+        "qianhu"
+      ]
     },
     {
       "canonical": "C231",
@@ -2442,7 +2960,9 @@
         "C231",
         "玫瑰"
       ],
-      "pinyin": []
+      "pinyin": [
+        "meigui"
+      ]
     },
     {
       "canonical": "C232",
@@ -2451,7 +2971,9 @@
         "C232",
         "月季"
       ],
-      "pinyin": []
+      "pinyin": [
+        "yueji"
+      ]
     },
     {
       "canonical": "C233",
@@ -2460,7 +2982,9 @@
         "C233",
         "牡丹"
       ],
-      "pinyin": []
+      "pinyin": [
+        "mudan"
+      ]
     },
     {
       "canonical": "C234",
@@ -2469,7 +2993,9 @@
         "C234",
         "芍药花"
       ],
-      "pinyin": []
+      "pinyin": [
+        "shaoyaohua"
+      ]
     },
     {
       "canonical": "C235",
@@ -2478,7 +3004,9 @@
         "C235",
         "菊花"
       ],
-      "pinyin": []
+      "pinyin": [
+        "juhua"
+      ]
     },
     {
       "canonical": "C236",
@@ -2487,7 +3015,9 @@
         "C236",
         "康乃馨"
       ],
-      "pinyin": []
+      "pinyin": [
+        "kangnaixin"
+      ]
     },
     {
       "canonical": "C237",
@@ -2496,7 +3026,9 @@
         "C237",
         "百合花"
       ],
-      "pinyin": []
+      "pinyin": [
+        "baihehua"
+      ]
     },
     {
       "canonical": "C238",
@@ -2505,7 +3037,9 @@
         "C238",
         "郁金香"
       ],
-      "pinyin": []
+      "pinyin": [
+        "yujinxiang"
+      ]
     },
     {
       "canonical": "C239",
@@ -2514,7 +3048,9 @@
         "C239",
         "茉莉花"
       ],
-      "pinyin": []
+      "pinyin": [
+        "molihua"
+      ]
     },
     {
       "canonical": "C240",
@@ -2523,7 +3059,9 @@
         "C240",
         "桂花"
       ],
-      "pinyin": []
+      "pinyin": [
+        "guihua"
+      ]
     },
     {
       "canonical": "C241",
@@ -2532,7 +3070,9 @@
         "C241",
         "栀子花"
       ],
-      "pinyin": []
+      "pinyin": [
+        "zhizihua"
+      ]
     },
     {
       "canonical": "C242",
@@ -2541,7 +3081,9 @@
         "C242",
         "杜鹃花"
       ],
-      "pinyin": []
+      "pinyin": [
+        "dujuanhua"
+      ]
     },
     {
       "canonical": "C243",
@@ -2550,7 +3092,9 @@
         "C243",
         "茶花"
       ],
-      "pinyin": []
+      "pinyin": [
+        "chahua"
+      ]
     },
     {
       "canonical": "C244",
@@ -2559,7 +3103,9 @@
         "C244",
         "梅花"
       ],
-      "pinyin": []
+      "pinyin": [
+        "meihua"
+      ]
     },
     {
       "canonical": "C245",
@@ -2568,7 +3114,9 @@
         "C245",
         "兰花"
       ],
-      "pinyin": []
+      "pinyin": [
+        "lanhua"
+      ]
     },
     {
       "canonical": "C246",
@@ -2577,7 +3125,9 @@
         "C246",
         "水仙花"
       ],
-      "pinyin": []
+      "pinyin": [
+        "shuixianhua"
+      ]
     },
     {
       "canonical": "C247",
@@ -2586,7 +3136,9 @@
         "C247",
         "荷花"
       ],
-      "pinyin": []
+      "pinyin": [
+        "hehua"
+      ]
     },
     {
       "canonical": "C248",
@@ -2595,7 +3147,9 @@
         "C248",
         "睡莲"
       ],
-      "pinyin": []
+      "pinyin": [
+        "shuilian"
+      ]
     },
     {
       "canonical": "C249",
@@ -2604,7 +3158,9 @@
         "C249",
         "鸢尾"
       ],
-      "pinyin": []
+      "pinyin": [
+        "yuanwei"
+      ]
     },
     {
       "canonical": "C250",
@@ -2613,7 +3169,9 @@
         "C250",
         "大丽花"
       ],
-      "pinyin": []
+      "pinyin": [
+        "dalihua"
+      ]
     },
     {
       "canonical": "C251",
@@ -2622,7 +3180,9 @@
         "C251",
         "一串红"
       ],
-      "pinyin": []
+      "pinyin": [
+        "yichuanhong"
+      ]
     },
     {
       "canonical": "C252",
@@ -2631,7 +3191,9 @@
         "C252",
         "万寿菊"
       ],
-      "pinyin": []
+      "pinyin": [
+        "wanshouju"
+      ]
     },
     {
       "canonical": "C253",
@@ -2640,7 +3202,9 @@
         "C253",
         "孔雀草"
       ],
-      "pinyin": []
+      "pinyin": [
+        "kongquecao"
+      ]
     },
     {
       "canonical": "C254",
@@ -2649,7 +3213,9 @@
         "C254",
         "三色堇"
       ],
-      "pinyin": []
+      "pinyin": [
+        "sansejin"
+      ]
     },
     {
       "canonical": "C255",
@@ -2658,7 +3224,9 @@
         "C255",
         "矮牵牛"
       ],
-      "pinyin": []
+      "pinyin": [
+        "aiqianniu"
+      ]
     },
     {
       "canonical": "C256",
@@ -2667,7 +3235,9 @@
         "C256",
         "金鱼草"
       ],
-      "pinyin": []
+      "pinyin": [
+        "jinyucao"
+      ]
     },
     {
       "canonical": "C257",
@@ -2676,7 +3246,9 @@
         "C257",
         "石竹"
       ],
-      "pinyin": []
+      "pinyin": [
+        "shizhu"
+      ]
     },
     {
       "canonical": "C258",
@@ -2685,7 +3257,9 @@
         "C258",
         "满天星"
       ],
-      "pinyin": []
+      "pinyin": [
+        "mantianxing"
+      ]
     },
     {
       "canonical": "C259",
@@ -2694,7 +3268,9 @@
         "C259",
         "葵花"
       ],
-      "pinyin": []
+      "pinyin": [
+        "kuihua"
+      ]
     },
     {
       "canonical": "C260",
@@ -2703,7 +3279,9 @@
         "C260",
         "油菜花"
       ],
-      "pinyin": []
+      "pinyin": [
+        "youcaihua"
+      ]
     },
     {
       "canonical": "C261",
@@ -2712,7 +3290,9 @@
         "C261",
         "紫菜苔"
       ],
-      "pinyin": []
+      "pinyin": [
+        "zicaitai"
+      ]
     },
     {
       "canonical": "C262",
@@ -2721,7 +3301,9 @@
         "C262",
         "红菜苔"
       ],
-      "pinyin": []
+      "pinyin": [
+        "hongcaitai"
+      ]
     },
     {
       "canonical": "C263",
@@ -2730,7 +3312,9 @@
         "C263",
         "洪山菜苔"
       ],
-      "pinyin": []
+      "pinyin": [
+        "hongshancaitai"
+      ]
     },
     {
       "canonical": "C264",
@@ -2739,7 +3323,9 @@
         "C264",
         "有机花菜"
       ],
-      "pinyin": []
+      "pinyin": [
+        "youjihuacai"
+      ]
     },
     {
       "canonical": "C265",
@@ -2748,7 +3334,9 @@
         "C265",
         "松花菜"
       ],
-      "pinyin": []
+      "pinyin": [
+        "songhuacai"
+      ]
     },
     {
       "canonical": "C266",
@@ -2757,7 +3345,9 @@
         "C266",
         "白菜花"
       ],
-      "pinyin": []
+      "pinyin": [
+        "baicaihua"
+      ]
     },
     {
       "canonical": "C267",
@@ -2766,7 +3356,9 @@
         "C267",
         "黄花菜"
       ],
-      "pinyin": []
+      "pinyin": [
+        "huanghuacai"
+      ]
     },
     {
       "canonical": "C268",
@@ -2775,7 +3367,9 @@
         "C268",
         "百合球"
       ],
-      "pinyin": []
+      "pinyin": [
+        "baiheqiu"
+      ]
     },
     {
       "canonical": "C269",
@@ -2784,7 +3378,9 @@
         "C269",
         "芦笋"
       ],
-      "pinyin": []
+      "pinyin": [
+        "lusun"
+      ]
     },
     {
       "canonical": "C270",
@@ -2793,7 +3389,9 @@
         "C270",
         "竹笋"
       ],
-      "pinyin": []
+      "pinyin": [
+        "zhusun"
+      ]
     },
     {
       "canonical": "C271",
@@ -2802,7 +3400,9 @@
         "C271",
         "荠菜"
       ],
-      "pinyin": []
+      "pinyin": [
+        "jicai"
+      ]
     },
     {
       "canonical": "C272",
@@ -2811,7 +3411,9 @@
         "C272",
         "马兰头"
       ],
-      "pinyin": []
+      "pinyin": [
+        "malantou"
+      ]
     },
     {
       "canonical": "C273",
@@ -2820,7 +3422,9 @@
         "C273",
         "艾草"
       ],
-      "pinyin": []
+      "pinyin": [
+        "aicao"
+      ]
     },
     {
       "canonical": "C274",
@@ -2829,16 +3433,24 @@
         "C274",
         "灰灰菜"
       ],
-      "pinyin": []
+      "pinyin": [
+        "huihuicai"
+      ]
     },
     {
       "canonical": "C275",
       "displayName": "苜蓿",
       "aliases": [
         "C275",
-        "苜蓿"
+        "苜蓿",
+        "内蒙古呼伦贝尔苜蓿",
+        "呼伦贝尔苜蓿"
       ],
-      "pinyin": []
+      "pinyin": [
+        "muxu",
+        "neimengguhulunbeiermuxu",
+        "hulunbeiermuxu"
+      ]
     },
     {
       "canonical": "C276",
@@ -2847,7 +3459,9 @@
         "C276",
         "豌豆尖"
       ],
-      "pinyin": []
+      "pinyin": [
+        "wandoujian"
+      ]
     },
     {
       "canonical": "C277",
@@ -2856,7 +3470,9 @@
         "C277",
         "红薯叶"
       ],
-      "pinyin": []
+      "pinyin": [
+        "hongshuye"
+      ]
     },
     {
       "canonical": "C278",
@@ -2865,7 +3481,9 @@
         "C278",
         "南瓜藤"
       ],
-      "pinyin": []
+      "pinyin": [
+        "nanguateng"
+      ]
     },
     {
       "canonical": "C279",
@@ -2874,7 +3492,9 @@
         "C279",
         "丝瓜尖"
       ],
-      "pinyin": []
+      "pinyin": [
+        "siguajian"
+      ]
     },
     {
       "canonical": "C280",
@@ -2883,7 +3503,9 @@
         "C280",
         "辣椒叶"
       ],
-      "pinyin": []
+      "pinyin": [
+        "lajiaoye"
+      ]
     },
     {
       "canonical": "C281",
@@ -2892,7 +3514,9 @@
         "C281",
         "芝麻叶"
       ],
-      "pinyin": []
+      "pinyin": [
+        "zhimaye"
+      ]
     },
     {
       "canonical": "C282",
@@ -2901,7 +3525,9 @@
         "C282",
         "花椒芽"
       ],
-      "pinyin": []
+      "pinyin": [
+        "huajiaoya"
+      ]
     },
     {
       "canonical": "C283",
@@ -2910,7 +3536,9 @@
         "C283",
         "香椿苗"
       ],
-      "pinyin": []
+      "pinyin": [
+        "xiangchunmiao"
+      ]
     },
     {
       "canonical": "C284",
@@ -2919,7 +3547,9 @@
         "C284",
         "萝卜苗"
       ],
-      "pinyin": []
+      "pinyin": [
+        "luobomiao"
+      ]
     },
     {
       "canonical": "C285",
@@ -2928,7 +3558,9 @@
         "C285",
         "黄豆芽"
       ],
-      "pinyin": []
+      "pinyin": [
+        "huangdouya"
+      ]
     },
     {
       "canonical": "C286",
@@ -2937,7 +3569,9 @@
         "C286",
         "绿豆芽"
       ],
-      "pinyin": []
+      "pinyin": [
+        "lvdouya"
+      ]
     },
     {
       "canonical": "C287",
@@ -2946,7 +3580,9 @@
         "C287",
         "黑豆芽"
       ],
-      "pinyin": []
+      "pinyin": [
+        "heidouya"
+      ]
     },
     {
       "canonical": "C288",
@@ -2955,7 +3591,9 @@
         "C288",
         "萝卜芽"
       ],
-      "pinyin": []
+      "pinyin": [
+        "luoboya"
+      ]
     },
     {
       "canonical": "C289",
@@ -2964,7 +3602,9 @@
         "C289",
         "荞麦芽"
       ],
-      "pinyin": []
+      "pinyin": [
+        "qiaomaiya"
+      ]
     },
     {
       "canonical": "C290",
@@ -2973,7 +3613,9 @@
         "C290",
         "苜蓿芽"
       ],
-      "pinyin": []
+      "pinyin": [
+        "muxuya"
+      ]
     },
     {
       "canonical": "C291",
@@ -2982,7 +3624,9 @@
         "C291",
         "豌豆苗"
       ],
-      "pinyin": []
+      "pinyin": [
+        "wandoumiao"
+      ]
     },
     {
       "canonical": "C292",
@@ -2991,7 +3635,9 @@
         "C292",
         "香椿芽"
       ],
-      "pinyin": []
+      "pinyin": [
+        "xiangchunya"
+      ]
     },
     {
       "canonical": "C293",
@@ -3000,7 +3646,9 @@
         "C293",
         "蒜黄"
       ],
-      "pinyin": []
+      "pinyin": [
+        "suanhuang"
+      ]
     },
     {
       "canonical": "C294",
@@ -3009,7 +3657,9 @@
         "C294",
         "韭黄苗"
       ],
-      "pinyin": []
+      "pinyin": [
+        "jiuhuangmiao"
+      ]
     },
     {
       "canonical": "C295",
@@ -3018,7 +3668,9 @@
         "C295",
         "姜芽"
       ],
-      "pinyin": []
+      "pinyin": [
+        "jiangya"
+      ]
     },
     {
       "canonical": "C296",
@@ -3027,7 +3679,9 @@
         "C296",
         "葱芽"
       ],
-      "pinyin": []
+      "pinyin": [
+        "congya"
+      ]
     },
     {
       "canonical": "C297",
@@ -3036,7 +3690,9 @@
         "C297",
         "彩椒"
       ],
-      "pinyin": []
+      "pinyin": [
+        "caijiao"
+      ]
     },
     {
       "canonical": "C298",
@@ -3045,7 +3701,9 @@
         "C298",
         "尖椒"
       ],
-      "pinyin": []
+      "pinyin": [
+        "jianjiao"
+      ]
     },
     {
       "canonical": "C299",
@@ -3054,7 +3712,9 @@
         "C299",
         "朝天椒"
       ],
-      "pinyin": []
+      "pinyin": [
+        "chaotianjiao"
+      ]
     },
     {
       "canonical": "C300",
@@ -3063,7 +3723,9 @@
         "C300",
         "小米椒"
       ],
-      "pinyin": []
+      "pinyin": [
+        "xiaomijiao"
+      ]
     },
     {
       "canonical": "C301",
@@ -3072,7 +3734,9 @@
         "C301",
         "藜麦"
       ],
-      "pinyin": []
+      "pinyin": [
+        "limai"
+      ]
     },
     {
       "canonical": "C302",
@@ -3081,7 +3745,9 @@
         "C302",
         "籽粒苋"
       ],
-      "pinyin": []
+      "pinyin": [
+        "zilixian"
+      ]
     },
     {
       "canonical": "C303",
@@ -3090,7 +3756,9 @@
         "C303",
         "莜麦"
       ],
-      "pinyin": []
+      "pinyin": [
+        "youmai"
+      ]
     },
     {
       "canonical": "C304",
@@ -3099,7 +3767,9 @@
         "C304",
         "黑麦"
       ],
-      "pinyin": []
+      "pinyin": [
+        "heimai"
+      ]
     },
     {
       "canonical": "C305",
@@ -3108,7 +3778,9 @@
         "C305",
         "红米"
       ],
-      "pinyin": []
+      "pinyin": [
+        "hongmi"
+      ]
     },
     {
       "canonical": "C306",
@@ -3117,7 +3789,9 @@
         "C306",
         "黑米"
       ],
-      "pinyin": []
+      "pinyin": [
+        "heimi"
+      ]
     },
     {
       "canonical": "C307",
@@ -3126,7 +3800,9 @@
         "C307",
         "紫米"
       ],
-      "pinyin": []
+      "pinyin": [
+        "zimi"
+      ]
     },
     {
       "canonical": "C308",
@@ -3135,7 +3811,9 @@
         "C308",
         "糯米稻"
       ],
-      "pinyin": []
+      "pinyin": [
+        "nuomidao"
+      ]
     },
     {
       "canonical": "C309",
@@ -3144,7 +3822,9 @@
         "C309",
         "粳稻"
       ],
-      "pinyin": []
+      "pinyin": [
+        "jingdao"
+      ]
     },
     {
       "canonical": "C310",
@@ -3153,7 +3833,9 @@
         "C310",
         "籼稻"
       ],
-      "pinyin": []
+      "pinyin": [
+        "xiandao"
+      ]
     },
     {
       "canonical": "C311",
@@ -3162,7 +3844,9 @@
         "C311",
         "旱稻"
       ],
-      "pinyin": []
+      "pinyin": [
+        "handao"
+      ]
     },
     {
       "canonical": "C312",
@@ -3171,7 +3855,9 @@
         "C312",
         "陆稻"
       ],
-      "pinyin": []
+      "pinyin": [
+        "ludao"
+      ]
     },
     {
       "canonical": "C313",
@@ -3180,7 +3866,9 @@
         "C313",
         "鹰嘴豆"
       ],
-      "pinyin": []
+      "pinyin": [
+        "yingzuidou"
+      ]
     },
     {
       "canonical": "C314",
@@ -3189,7 +3877,9 @@
         "C314",
         "小扁豆"
       ],
-      "pinyin": []
+      "pinyin": [
+        "xiaobiandou"
+      ]
     },
     {
       "canonical": "C315",
@@ -3198,7 +3888,9 @@
         "C315",
         "木豆"
       ],
-      "pinyin": []
+      "pinyin": [
+        "mudou"
+      ]
     },
     {
       "canonical": "C316",
@@ -3207,7 +3899,9 @@
         "C316",
         "饭豆"
       ],
-      "pinyin": []
+      "pinyin": [
+        "fandou"
+      ]
     },
     {
       "canonical": "C317",
@@ -3216,7 +3910,9 @@
         "C317",
         "眉豆"
       ],
-      "pinyin": []
+      "pinyin": [
+        "meidou"
+      ]
     },
     {
       "canonical": "C318",
@@ -3225,7 +3921,9 @@
         "C318",
         "龙爪豆"
       ],
-      "pinyin": []
+      "pinyin": [
+        "longzhaodou"
+      ]
     },
     {
       "canonical": "C319",
@@ -3234,7 +3932,9 @@
         "C319",
         "草豌豆"
       ],
-      "pinyin": []
+      "pinyin": [
+        "caowandou"
+      ]
     },
     {
       "canonical": "C320",
@@ -3243,7 +3943,9 @@
         "C320",
         "刀豆"
       ],
-      "pinyin": []
+      "pinyin": [
+        "daodou"
+      ]
     },
     {
       "canonical": "C321",
@@ -3252,7 +3954,9 @@
         "C321",
         "扁豆"
       ],
-      "pinyin": []
+      "pinyin": [
+        "biandou"
+      ]
     },
     {
       "canonical": "C322",
@@ -3265,7 +3969,8 @@
       ],
       "pinyin": [
         "caidou",
-        "sijidou"
+        "sijidou",
+        "yundou"
       ]
     },
     {
@@ -3275,7 +3980,9 @@
         "C323",
         "芸豆"
       ],
-      "pinyin": []
+      "pinyin": [
+        "yundou"
+      ]
     },
     {
       "canonical": "C324",
@@ -3284,7 +3991,9 @@
         "C324",
         "红芸豆"
       ],
-      "pinyin": []
+      "pinyin": [
+        "hongyundou"
+      ]
     },
     {
       "canonical": "C325",
@@ -3293,7 +4002,9 @@
         "C325",
         "白芸豆"
       ],
-      "pinyin": []
+      "pinyin": [
+        "baiyundou"
+      ]
     },
     {
       "canonical": "C326",
@@ -3302,7 +4013,9 @@
         "C326",
         "黑芸豆"
       ],
-      "pinyin": []
+      "pinyin": [
+        "heiyundou"
+      ]
     },
     {
       "canonical": "C327",
@@ -3311,7 +4024,9 @@
         "C327",
         "花芸豆"
       ],
-      "pinyin": []
+      "pinyin": [
+        "huayundou"
+      ]
     },
     {
       "canonical": "C328",
@@ -3320,7 +4035,9 @@
         "C328",
         "绿豆种"
       ],
-      "pinyin": []
+      "pinyin": [
+        "lvdouzhong"
+      ]
     },
     {
       "canonical": "C329",
@@ -3329,7 +4046,9 @@
         "C329",
         "赤小豆"
       ],
-      "pinyin": []
+      "pinyin": [
+        "chixiaodou"
+      ]
     },
     {
       "canonical": "C330",
@@ -3338,7 +4057,9 @@
         "C330",
         "赤豆"
       ],
-      "pinyin": []
+      "pinyin": [
+        "chidou"
+      ]
     },
     {
       "canonical": "C331",
@@ -3347,7 +4068,9 @@
         "C331",
         "四季豆"
       ],
-      "pinyin": []
+      "pinyin": [
+        "sijidou"
+      ]
     },
     {
       "canonical": "C332",
@@ -3356,7 +4079,9 @@
         "C332",
         "蔓生豆"
       ],
-      "pinyin": []
+      "pinyin": [
+        "manshengdou"
+      ]
     },
     {
       "canonical": "C333",
@@ -3365,7 +4090,9 @@
         "C333",
         "矮生豆"
       ],
-      "pinyin": []
+      "pinyin": [
+        "aishengdou"
+      ]
     },
     {
       "canonical": "C334",
@@ -3374,7 +4101,9 @@
         "C334",
         "红花菜豆"
       ],
-      "pinyin": []
+      "pinyin": [
+        "honghuacaidou"
+      ]
     },
     {
       "canonical": "C335",
@@ -3383,7 +4112,9 @@
         "C335",
         "龙芽豆"
       ],
-      "pinyin": []
+      "pinyin": [
+        "longyadou"
+      ]
     },
     {
       "canonical": "C336",
@@ -3392,7 +4123,9 @@
         "C336",
         "甜豌豆"
       ],
-      "pinyin": []
+      "pinyin": [
+        "tianwandou"
+      ]
     },
     {
       "canonical": "C337",
@@ -3401,7 +4134,9 @@
         "C337",
         "食荚豌豆"
       ],
-      "pinyin": []
+      "pinyin": [
+        "shijiawandou"
+      ]
     },
     {
       "canonical": "C338",
@@ -3410,7 +4145,9 @@
         "C338",
         "皱粒豌豆"
       ],
-      "pinyin": []
+      "pinyin": [
+        "zhouliwandou"
+      ]
     },
     {
       "canonical": "C339",
@@ -3419,7 +4156,9 @@
         "C339",
         "甜玉米"
       ],
-      "pinyin": []
+      "pinyin": [
+        "tianyumi"
+      ]
     },
     {
       "canonical": "C340",
@@ -3428,7 +4167,9 @@
         "C340",
         "糯玉米"
       ],
-      "pinyin": []
+      "pinyin": [
+        "nuoyumi"
+      ]
     },
     {
       "canonical": "C341",
@@ -3437,7 +4178,9 @@
         "C341",
         "黑莓"
       ],
-      "pinyin": []
+      "pinyin": [
+        "heimei"
+      ]
     },
     {
       "canonical": "C342",
@@ -3446,7 +4189,9 @@
         "C342",
         "树莓"
       ],
-      "pinyin": []
+      "pinyin": [
+        "shumei"
+      ]
     },
     {
       "canonical": "C343",
@@ -3455,7 +4200,9 @@
         "C343",
         "蔓越莓"
       ],
-      "pinyin": []
+      "pinyin": [
+        "manyuemei"
+      ]
     },
     {
       "canonical": "C344",
@@ -3464,7 +4211,9 @@
         "C344",
         "鹅莓"
       ],
-      "pinyin": []
+      "pinyin": [
+        "emei"
+      ]
     },
     {
       "canonical": "C345",
@@ -3473,7 +4222,9 @@
         "C345",
         "金桔"
       ],
-      "pinyin": []
+      "pinyin": [
+        "jinju"
+      ]
     },
     {
       "canonical": "C346",
@@ -3482,7 +4233,9 @@
         "C346",
         "砂糖橘"
       ],
-      "pinyin": []
+      "pinyin": [
+        "shatangju"
+      ]
     },
     {
       "canonical": "C347",
@@ -3491,7 +4244,9 @@
         "C347",
         "蜜橘"
       ],
-      "pinyin": []
+      "pinyin": [
+        "miju"
+      ]
     },
     {
       "canonical": "C348",
@@ -3500,7 +4255,9 @@
         "C348",
         "血橙"
       ],
-      "pinyin": []
+      "pinyin": [
+        "xuecheng"
+      ]
     },
     {
       "canonical": "C349",
@@ -3509,7 +4266,9 @@
         "C349",
         "脐橙"
       ],
-      "pinyin": []
+      "pinyin": [
+        "qicheng"
+      ]
     },
     {
       "canonical": "C350",
@@ -3518,7 +4277,9 @@
         "C350",
         "冰糖橙"
       ],
-      "pinyin": []
+      "pinyin": [
+        "bingtangcheng"
+      ]
     },
     {
       "canonical": "C351",
@@ -3527,7 +4288,9 @@
         "C351",
         "丑橘"
       ],
-      "pinyin": []
+      "pinyin": [
+        "chouju"
+      ]
     },
     {
       "canonical": "C352",
@@ -3536,7 +4299,9 @@
         "C352",
         "沃柑"
       ],
-      "pinyin": []
+      "pinyin": [
+        "wogan"
+      ]
     },
     {
       "canonical": "C353",
@@ -3545,7 +4310,9 @@
         "C353",
         "皇帝柑"
       ],
-      "pinyin": []
+      "pinyin": [
+        "huangdigan"
+      ]
     },
     {
       "canonical": "C354",
@@ -3554,7 +4321,9 @@
         "C354",
         "红心柚"
       ],
-      "pinyin": []
+      "pinyin": [
+        "hongxinyou"
+      ]
     },
     {
       "canonical": "C355",
@@ -3563,7 +4332,9 @@
         "C355",
         "葡萄柚"
       ],
-      "pinyin": []
+      "pinyin": [
+        "putaoyou"
+      ]
     },
     {
       "canonical": "C356",
@@ -3572,7 +4343,9 @@
         "C356",
         "青柠"
       ],
-      "pinyin": []
+      "pinyin": [
+        "qingning"
+      ]
     },
     {
       "canonical": "C357",
@@ -3581,7 +4354,9 @@
         "C357",
         "丑柠檬"
       ],
-      "pinyin": []
+      "pinyin": [
+        "chouningmeng"
+      ]
     },
     {
       "canonical": "C358",
@@ -3590,7 +4365,9 @@
         "C358",
         "佛手柑"
       ],
-      "pinyin": []
+      "pinyin": [
+        "foshougan"
+      ]
     },
     {
       "canonical": "C359",
@@ -3599,7 +4376,9 @@
         "C359",
         "金枣"
       ],
-      "pinyin": []
+      "pinyin": [
+        "jinzao"
+      ]
     },
     {
       "canonical": "C360",
@@ -3608,7 +4387,9 @@
         "C360",
         "酸枣"
       ],
-      "pinyin": []
+      "pinyin": [
+        "suanzao"
+      ]
     },
     {
       "canonical": "C361",
@@ -3617,7 +4398,9 @@
         "C361",
         "蜜枣"
       ],
-      "pinyin": []
+      "pinyin": [
+        "mizao"
+      ]
     },
     {
       "canonical": "C362",
@@ -3626,7 +4409,9 @@
         "C362",
         "毛樱桃"
       ],
-      "pinyin": []
+      "pinyin": [
+        "maoyingtao"
+      ]
     },
     {
       "canonical": "C363",
@@ -3635,7 +4420,9 @@
         "C363",
         "酸樱桃"
       ],
-      "pinyin": []
+      "pinyin": [
+        "suanyingtao"
+      ]
     },
     {
       "canonical": "C364",
@@ -3644,25 +4431,39 @@
         "C364",
         "甜樱桃种"
       ],
-      "pinyin": []
+      "pinyin": [
+        "tianyingtaozhong"
+      ]
     },
     {
       "canonical": "C365",
       "displayName": "大樱桃",
       "aliases": [
         "C365",
-        "大樱桃"
+        "大樱桃",
+        "山东烟台大樱桃",
+        "烟台大樱桃"
       ],
-      "pinyin": []
+      "pinyin": [
+        "dayingtao",
+        "shandongyantaidayingtao",
+        "yantaidayingtao"
+      ]
     },
     {
       "canonical": "C366",
       "displayName": "杨梅",
       "aliases": [
         "C366",
-        "杨梅"
+        "杨梅",
+        "浙江仙居杨梅",
+        "仙居杨梅"
       ],
-      "pinyin": []
+      "pinyin": [
+        "yangmei",
+        "zhejiangxianjuyangmei",
+        "xianjuyangmei"
+      ]
     },
     {
       "canonical": "C367",
@@ -3671,7 +4472,9 @@
         "C367",
         "青梅"
       ],
-      "pinyin": []
+      "pinyin": [
+        "qingmei"
+      ]
     },
     {
       "canonical": "C368",
@@ -3680,7 +4483,9 @@
         "C368",
         "乌梅"
       ],
-      "pinyin": []
+      "pinyin": [
+        "wumei"
+      ]
     },
     {
       "canonical": "C369",
@@ -3689,7 +4494,9 @@
         "C369",
         "黄梅"
       ],
-      "pinyin": []
+      "pinyin": [
+        "huangmei"
+      ]
     },
     {
       "canonical": "C370",
@@ -3698,7 +4505,9 @@
         "C370",
         "黑李"
       ],
-      "pinyin": []
+      "pinyin": [
+        "heili"
+      ]
     },
     {
       "canonical": "C371",
@@ -3707,7 +4516,9 @@
         "C371",
         "红李"
       ],
-      "pinyin": []
+      "pinyin": [
+        "hongli"
+      ]
     },
     {
       "canonical": "C372",
@@ -3716,7 +4527,9 @@
         "C372",
         "黄李"
       ],
-      "pinyin": []
+      "pinyin": [
+        "huangli"
+      ]
     },
     {
       "canonical": "C373",
@@ -3725,7 +4538,9 @@
         "C373",
         "西梅"
       ],
-      "pinyin": []
+      "pinyin": [
+        "ximei"
+      ]
     },
     {
       "canonical": "C374",
@@ -3734,7 +4549,9 @@
         "C374",
         "布朗"
       ],
-      "pinyin": []
+      "pinyin": [
+        "bulang"
+      ]
     },
     {
       "canonical": "C375",
@@ -3743,7 +4560,9 @@
         "C375",
         "油奈"
       ],
-      "pinyin": []
+      "pinyin": [
+        "younai"
+      ]
     },
     {
       "canonical": "C376",
@@ -3752,7 +4571,9 @@
         "C376",
         "寿桃"
       ],
-      "pinyin": []
+      "pinyin": [
+        "shoutao"
+      ]
     },
     {
       "canonical": "C377",
@@ -3761,7 +4582,9 @@
         "C377",
         "蟠桃王"
       ],
-      "pinyin": []
+      "pinyin": [
+        "pantaowang"
+      ]
     },
     {
       "canonical": "C378",
@@ -3770,7 +4593,9 @@
         "C378",
         "黄蟠桃"
       ],
-      "pinyin": []
+      "pinyin": [
+        "huangpantao"
+      ]
     },
     {
       "canonical": "C379",
@@ -3779,7 +4604,9 @@
         "C379",
         "油蟠桃"
       ],
-      "pinyin": []
+      "pinyin": [
+        "youpantao"
+      ]
     },
     {
       "canonical": "C380",
@@ -3788,7 +4615,9 @@
         "C380",
         "蟠桃种"
       ],
-      "pinyin": []
+      "pinyin": [
+        "pantaozhong"
+      ]
     },
     {
       "canonical": "C381",
@@ -3800,7 +4629,9 @@
         "秦椒"
       ],
       "pinyin": [
-        "huajiao"
+        "huajiao",
+        "chuanjiao",
+        "qinjiao"
       ]
     },
     {
@@ -3810,7 +4641,9 @@
         "C382",
         "八角"
       ],
-      "pinyin": []
+      "pinyin": [
+        "bajiao"
+      ]
     },
     {
       "canonical": "C383",
@@ -3819,7 +4652,9 @@
         "C383",
         "桂皮"
       ],
-      "pinyin": []
+      "pinyin": [
+        "guipi"
+      ]
     },
     {
       "canonical": "C384",
@@ -3828,7 +4663,9 @@
         "C384",
         "丁香"
       ],
-      "pinyin": []
+      "pinyin": [
+        "dingxiang"
+      ]
     },
     {
       "canonical": "C385",
@@ -3840,7 +4677,9 @@
         "黑胡椒"
       ],
       "pinyin": [
-        "hujiao"
+        "hujiao",
+        "baihujiao",
+        "heihujiao"
       ]
     },
     {
@@ -3850,7 +4689,9 @@
         "C386",
         "白胡椒"
       ],
-      "pinyin": []
+      "pinyin": [
+        "baihujiao"
+      ]
     },
     {
       "canonical": "C387",
@@ -3859,7 +4700,9 @@
         "C387",
         "肉豆蔻"
       ],
-      "pinyin": []
+      "pinyin": [
+        "roudoukou"
+      ]
     },
     {
       "canonical": "C388",
@@ -3868,7 +4711,9 @@
         "C388",
         "草果"
       ],
-      "pinyin": []
+      "pinyin": [
+        "caoguo"
+      ]
     },
     {
       "canonical": "C389",
@@ -3877,7 +4722,9 @@
         "C389",
         "砂仁"
       ],
-      "pinyin": []
+      "pinyin": [
+        "sharen"
+      ]
     },
     {
       "canonical": "C390",
@@ -3886,7 +4733,9 @@
         "C390",
         "白蔻"
       ],
-      "pinyin": []
+      "pinyin": [
+        "baikou"
+      ]
     },
     {
       "canonical": "C391",
@@ -3895,7 +4744,9 @@
         "C391",
         "孜然"
       ],
-      "pinyin": []
+      "pinyin": [
+        "ziran"
+      ]
     },
     {
       "canonical": "C392",
@@ -3904,7 +4755,9 @@
         "C392",
         "小茴香"
       ],
-      "pinyin": []
+      "pinyin": [
+        "xiaohuixiang"
+      ]
     },
     {
       "canonical": "C393",
@@ -3913,7 +4766,9 @@
         "C393",
         "大茴香"
       ],
-      "pinyin": []
+      "pinyin": [
+        "dahuixiang"
+      ]
     },
     {
       "canonical": "C394",
@@ -3922,7 +4777,9 @@
         "C394",
         "香叶"
       ],
-      "pinyin": []
+      "pinyin": [
+        "xiangye"
+      ]
     },
     {
       "canonical": "C395",
@@ -3931,7 +4788,9 @@
         "C395",
         "咖喱叶"
       ],
-      "pinyin": []
+      "pinyin": [
+        "galiye"
+      ]
     },
     {
       "canonical": "C396",
@@ -3940,7 +4799,9 @@
         "C396",
         "迷迭香"
       ],
-      "pinyin": []
+      "pinyin": [
+        "midiexiang"
+      ]
     },
     {
       "canonical": "C397",
@@ -3949,7 +4810,9 @@
         "C397",
         "百里香"
       ],
-      "pinyin": []
+      "pinyin": [
+        "bailixiang"
+      ]
     },
     {
       "canonical": "C398",
@@ -3958,7 +4821,9 @@
         "C398",
         "牛至"
       ],
-      "pinyin": []
+      "pinyin": [
+        "niuzhi"
+      ]
     },
     {
       "canonical": "C399",
@@ -3967,7 +4832,9 @@
         "C399",
         "鼠尾草"
       ],
-      "pinyin": []
+      "pinyin": [
+        "shuweicao"
+      ]
     },
     {
       "canonical": "C400",
@@ -3976,7 +4843,9 @@
         "C400",
         "番红花"
       ],
-      "pinyin": []
+      "pinyin": [
+        "fanhonghua"
+      ]
     }
   ]
 }

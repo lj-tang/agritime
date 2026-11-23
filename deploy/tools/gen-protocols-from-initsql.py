@@ -9,8 +9,9 @@
 
 规则：
   · opType 以 job_name 语义为准（原始数据的 job_type 与 job_name 大面积错位：3200 行里
-    2959 行与名称推断不一致，例如「萌芽前施肥」被标成 SPRAY、「花前打药」被标成 FERTILIZE，
-    直接采用 job_type 会让「施肥节点」被判成打药，进而让 GuidanceService 给出错误的天气建议）：
+    705 行与名称推断不一致，例如「萌芽前施肥」被标成 SPRAY、「花前打药」被标成 FERTILIZE，
+    直接采用 job_type 会让「施肥节点」被判成打药，进而让 GuidanceService 给出错误的天气建议；
+    data/init.sql 已由 fix-initsql-jobtype.py 修正，本脚本仍保留推断逻辑以防数据回退）：
       harvest     采收/收获/收割/采摘
       pesticide   打药/防治/病虫害/喷药/用药/防病/杀虫/除草
       irrigation  灌溉/浇水/排水/控水/灌水/滴灌
@@ -23,7 +24,13 @@
   · days_after_sowing → dayOffset、job_name → title、description → desc；
   · reviewStatus 一律 pending_review（原始数据未经农技复核，不得当作事实直接展示为定论）；
   · 手工 13 种（大蒜/小麦/玉米/水稻/大豆/番茄/黄瓜/辣椒/茄子/大白菜/马铃薯/萝卜/西瓜）
-    以 standardName 判定，保留原手工规程不替换。
+    以 standardName 判定，源文件是 deploy/data/manual-protocols.json（从 backend/crop-protocols.json
+    的 13 个手工规程原样抽出，保证重复生成时不被已合并的 400 规程冒充），保留原手工规程不替换；
+  · 另一份长期未被代码读取的数据 data/crop-base/crop-schedule.json（31 个「产区×作物」×
+    12~13 节点）按产区名映射到 canonical 作物后，用它替换对应作物的 SQL 节点（手工 13 种
+    仍不替换）；operationType 归一：sowing→sowing、emergence→other、fertilizer→fertilize、
+    irrigation→irrigation、pesticide→pesticide、harvest→harvest、other→other，并把产区名
+    记入 regions 字段。党参等 alias.json 里没有 canonical 的作物跳过并打印清单。
 
 用法：
   python deploy/tools/gen-protocols-from-initsql.py            # 生成并覆盖 backend/crop-protocols.json
@@ -38,28 +45,59 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 SQL_PATH = ROOT / "data" / "init.sql"
 ALIAS_PATH = ROOT / "data" / "crop-base" / "alias.json"
+SCHEDULE_PATH = ROOT / "data" / "crop-base" / "crop-schedule.json"
+MANUAL_PATH = ROOT / "deploy" / "data" / "manual-protocols.json"
 PROTOCOL_PATH = ROOT / "backend" / "crop-protocols.json"
 OUT_PATH = PROTOCOL_PATH
 
-OP_MAP = {"SPRAY": "pesticide", "FERTILIZE": "fertilize", "IRRIGATE": "irrigation", "HARVEST": "harvest"}
-ALLOWED_OPS = {"sowing", "irrigation", "fertilize", "pesticide", "harvest"}
+# crop-schedule.json 的 operationType → 产品 opType
+SCHEDULE_OP_MAP = {
+    "sowing": "sowing",
+    "emergence": "other",
+    "fertilizer": "fertilize",
+    "irrigation": "irrigation",
+    "pesticide": "pesticide",
+    "harvest": "harvest",
+    "other": "other",
+}
 
-# job_name 关键字 → 产品 opType（顺序有意义：先灌溉/控水，再采收，再打药，最后施肥；
-# 「采收前控水」这类名称同时命中灌溉与采收，控水才是真实动作）
-NAME_OP_RULES = [
-    ("irrigation", ("灌溉", "浇水", "排水", "控水", "灌水", "滴灌")),
-    ("harvest", ("采收", "收获", "收割", "采摘")),
-    ("pesticide", ("打药", "防治", "病虫害", "喷药", "用药", "防病", "杀虫", "除草")),
-    ("fertilize", ("施肥", "追肥", "补苗", "培肥", "促根", "促苗")),
-]
+# 产区示范规程的 crop 名 → alias.json 里的 canonical displayName（须存在，否则跳过并打印）
+REGION_DISPLAY = {
+    "山东金乡大蒜": "大蒜",
+    "河南新乡小麦": "小麦",
+    "黑龙江绥化玉米": "玉米",
+    "湖北荆州水稻": "水稻",
+    "山东寿光番茄": "番茄",
+    "黑龙江绥化大豆": "大豆",
+    "河北张家口大白菜": "大白菜",
+    "山东寿光黄瓜": "黄瓜",
+    "广东湛江辣椒": "辣椒",
+    "新疆石河子棉花": "棉花",
+    "云南曲靖烤烟": "烟草",
+    "广西崇左甘蔗": "甘蔗",
+    "河南南阳花生": "花生",
+    "湖北天门油菜": "油菜",
+    "陕西洛川苹果": "苹果",
+    "山东烟台大樱桃": "大樱桃",
+    "浙江仙居杨梅": "杨梅",
+    "福建平和蜜柚": "柚子",
+    "内蒙古赤峰马铃薯": "马铃薯",
+    "河北石家庄谷子": "谷子",
+    "四川成都莴笋": "莴笋",
+    "内蒙古呼伦贝尔苜蓿": "苜蓿",
+    "甘肃定西党参": "党参",  # alias.json 无党参，运行时会打印为未映射
+    "福建安溪铁观音": "茶",
+    "云南普洱大叶种茶": "茶",
+    "吉林长白山人参": "人参",
+    "黑龙江齐齐哈尔燕麦草": "燕麦",
+    "河南驻马店芝麻": "芝麻",
+    "四川宜宾早春茶": "茶",
+    "甘肃岷县当归": "当归",
+    "新疆阿勒泰饲用甜菜": "甜菜",
+}
 
-
-def infer_op(job_name: str):
-    """按农事名称推断 opType；无关键字时返回 None（调用方回退到 job_type）。"""
-    for op, keywords in NAME_OP_RULES:
-        if any(k in job_name for k in keywords):
-            return op
-    return None
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from protocol_rules import ALLOWED_OPS, NAME_OP_RULES, OP_MAP, infer_op  # noqa: E402
 
 # INSERT INTO crop_procedure (... ) VALUES ('C001','水稻','分蘖期病虫害防治','SPRAY',30,'防治稻飞虱'), ...
 ROW_RE = re.compile(
@@ -82,7 +120,7 @@ def main():
     alias = json.loads(ALIAS_PATH.read_text(encoding="utf-8"))
     display_by_canonical = {m["canonical"]: m["displayName"] for m in alias["mappings"]}
 
-    manual = json.loads(PROTOCOL_PATH.read_text(encoding="utf-8"))
+    manual = json.loads(MANUAL_PATH.read_text(encoding="utf-8"))
     manual_crops = manual["crops"]
     manual_std = set()
     manual_ids = set()
@@ -150,14 +188,72 @@ def main():
             "nodes": nodes,
         })
 
+    # ---- 合并 crop-schedule.json 的产区示范规程（非手工作物用产区节点替换 SQL 节点）----
+    cid_by_display = {disp: cid for cid, disp in display_by_canonical.items()}
+    schedule = json.loads(SCHEDULE_PATH.read_text(encoding="utf-8"))
+    region_rows = OrderedDict()
+    for r in schedule:
+        region_rows.setdefault(r["crop"], []).append(r)
+
+    schedule_targets = OrderedDict()
+    unmapped_regions = []
+    for region, rows in region_rows.items():
+        display = REGION_DISPLAY.get(region)
+        cid = cid_by_display.get(display) if display else None
+        if cid is None:
+            unmapped_regions.append(region)
+            continue
+        tgt = schedule_targets.get(cid)
+        if tgt is None:
+            schedule_targets[cid] = {"display": display, "regions": [], "rows": rows}
+        schedule_targets[cid]["regions"].append(region)
+
+    by_id = {c["cropId"]: c for c in manual_crops + generated}
+    merged_names = []
+    schedule_kept_manual = []
+    for cid, tgt in schedule_targets.items():
+        if tgt["display"] in manual_std:
+            schedule_kept_manual.append(tgt["display"])
+            continue
+        entry = by_id.get(cid)
+        if entry is None:
+            raise SystemExit(f"crop-schedule 作物 {tgt['display']} 在规程里找不到 {cid}")
+        nodes = []
+        for r in sorted(tgt["rows"], key=lambda x: int(x["daysAfterSowing"])):
+            op = SCHEDULE_OP_MAP.get(r["operationType"])
+            if op is None:
+                raise SystemExit(f"{tgt['regions'][0]} 出现未知 operationType：{r['operationType']}")
+            title = str(r["name"]).strip()
+            if not title:
+                raise SystemExit(f"{tgt['regions'][0]} 第 {r['nodeSeq']} 个节点缺 name")
+            desc = str(r.get("description") or "").strip() or f"{title}（产区示范规程，原数据未提供细节说明）"
+            nodes.append({
+                "opType": op,
+                "dayOffset": int(r["daysAfterSowing"]),
+                "title": title,
+                "desc": desc,
+            })
+        last = -1
+        for n in nodes:
+            if n["dayOffset"] <= last:
+                n["dayOffset"] = last + 1
+            last = n["dayOffset"]
+        entry["nodes"] = nodes
+        entry["source"] = (
+            "data/crop-base/crop-schedule.json 产区示范规程（" + "、".join(tgt["regions"]) + "）"
+        )
+        entry["regions"] = tgt["regions"]
+        entry["reviewStatus"] = "pending_review"
+        merged_names.append(tgt["display"])
+
     out = {
-        "version": "0.4.0",
+        "version": "0.5.0",
         "comment": (
-            "作物栽培规程表（契约①的数据载体）。opType 只能是 sowing/irrigation/fertilize/pesticide/harvest，"
+            "作物栽培规程表（契约①的数据载体）。opType 只能是 sowing/irrigation/fertilize/pesticide/harvest/other，"
             "dayOffset 相对播种日递增（0 = 播种当天），reviewStatus=pending_review 的内容须经农技复核后才算事实（铁律 8）。"
-            " ｜ V0.4.0：把「后端乙」data/init.sql 的 crop_procedure 种子数据（400 作物 × 8 节点）全量导入，"
-            "与原有 13 个人工规程合并（人工规程原样保留）；原表无播种节点，导入时统一补 dayOffset=0 的 sowing 节点；"
-            "原表 job_type 与 job_name 大面积错位，opType 以 job_name 语义为准（无关键字的 32 行回退 job_type）。"
+            " ｜ V0.5.0：data/init.sql 的 crop_procedure 种子数据（400 作物 × 8 节点）全量导入，与原有 13 个人工规程合并；"
+            "并用 data/crop-base/crop-schedule.json 的产区示范规程替换非手工作物的节点（产区名记入 regions，emergence/other 归入 other）；"
+            "原表无播种节点，导入时统一补 dayOffset=0 的 sowing 节点；原表 job_type 与 job_name 曾大面积错位（705 行），opType 以 job_name 语义为准。"
             "生成脚本：deploy/tools/gen-protocols-from-initsql.py。"
         ),
         "crops": manual_crops + generated,
@@ -188,6 +284,11 @@ def main():
     print(f"opType 来源：按 job_name 语义推断 {op_from_name} 行，无关键字回退 job_type {op_from_type} 行")
     if op_from_type:
         print("  （回退行均为管理类命名：发菌期控温、苗期间苗、遮阴、打顶、修剪、培土、搭架、割胶养护等）")
+    print(f"crop-schedule 产区规程合并 {len(merged_names)} 个作物：{'、'.join(merged_names)}")
+    if schedule_kept_manual:
+        print(f"  产区规程与手工规程重复、保留手工：{'、'.join(schedule_kept_manual)}")
+    if unmapped_regions:
+        print(f"  未映射（alias.json 无对应 canonical，跳过）：{'、'.join(unmapped_regions)}")
     if dry_run:
         print("dry-run：未写文件")
         return

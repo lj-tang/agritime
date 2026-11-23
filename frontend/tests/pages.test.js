@@ -165,7 +165,7 @@ test('速度：常见作物进本地规程库（免大模型），且带来源�
     assert.ok(nodes.length >= 6 && nodes.length <= 10, name + ' 节点数应为 6~10');
     let last = -1;
     nodes.forEach((n) => {
-      assert.ok(['sowing', 'irrigation', 'fertilize', 'pesticide', 'harvest'].includes(n.opType), name + ' opType 非法');
+      assert.ok(['sowing', 'irrigation', 'fertilize', 'pesticide', 'harvest', 'other'].includes(n.opType), name + ' opType 非法');
       assert.ok(n.dayOffset > last, name + ' dayOffset 应严格递增');
       last = n.dayOffset;
     });

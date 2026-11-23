@@ -32,6 +32,8 @@ data/support/
 node_modules/
 .DS_Store
 Thumbs.db
+__pycache__/
+*.pyc
 # 服务器本地放的 JDBC 驱动（mysql/mariadb connector，运行时下载，不入库）
 /lib/
 

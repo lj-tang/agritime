@@ -679,7 +679,7 @@ public final class ComputeStub {
 
     /** 铁律 5：opType 枚举固定，配置里出现别的值一律跳过该节点 */
     private static final Set<String> ALLOWED_OPS =
-            Set.of("sowing", "irrigation", "fertilize", "pesticide", "harvest");
+            Set.of("sowing", "irrigation", "fertilize", "pesticide", "harvest", "other");
 
     private static volatile Map<String, List<RawNode>> PROTOCOLS;
 

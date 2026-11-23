@@ -1,6 +1,6 @@
 {
-  "version": "0.4.0",
-  "comment": "作物栽培规程表（契约①的数据载体）。opType 只能是 sowing/irrigation/fertilize/pesticide/harvest，dayOffset 相对播种日递增（0 = 播种当天），reviewStatus=pending_review 的内容须经农技复核后才算事实（铁律 8）。 ｜ V0.4.0：把「后端乙」data/init.sql 的 crop_procedure 种子数据（400 作物 × 8 节点）全量导入，与原有 13 个人工规程合并（人工规程原样保留）；原表无播种节点，导入时统一补 dayOffset=0 的 sowing 节点；原表 job_type 与 job_name 大面积错位，opType 以 job_name 语义为准（无关键字的 32 行回退 job_type）。生成脚本：deploy/tools/gen-protocols-from-initsql.py。",
+  "version": "0.5.0",
+  "comment": "作物栽培规程表（契约①的数据载体）。opType 只能是 sowing/irrigation/fertilize/pesticide/harvest/other，dayOffset 相对播种日递增（0 = 播种当天），reviewStatus=pending_review 的内容须经农技复核后才算事实（铁律 8）。 ｜ V0.5.0：data/init.sql 的 crop_procedure 种子数据（400 作物 × 8 节点）全量导入，与原有 13 个人工规程合并；并用 data/crop-base/crop-schedule.json 的产区示范规程替换非手工作物的节点（产区名记入 regions，emergence/other 归入 other）；原表无播种节点，导入时统一补 dayOffset=0 的 sowing 节点；原表 job_type 与 job_name 曾大面积错位（705 行），opType 以 job_name 语义为准。生成脚本：deploy/tools/gen-protocols-from-initsql.py。",
   "crops": [
     {
       "cropId": "dry_garlic",
@@ -759,252 +759,336 @@
       "cropId": "C005",
       "name": "棉花",
       "standardName": "棉花",
-      "source": "知农时「后端乙 计算与规则层」data/init.sql crop_procedure 种子数据（400 作物 × 8 节点，导入时补 dayOffset=0 播种节点，未经农技复核）",
+      "source": "data/crop-base/crop-schedule.json 产区示范规程（新疆石河子棉花）",
       "reviewStatus": "pending_review",
       "nodes": [
         {
           "opType": "sowing",
           "dayOffset": 0,
           "title": "播种",
-          "desc": "当地适宜播期整地播种，作为规程第 0 天（原表从播种后第 20 天开始记录）"
+          "desc": "地膜覆盖适期播种"
         },
         {
-          "opType": "pesticide",
-          "dayOffset": 20,
-          "title": "苗期病虫害防治",
-          "desc": "防治蚜虫"
+          "opType": "other",
+          "dayOffset": 8,
+          "title": "出苗",
+          "desc": "放苗定苗，封堵膜孔"
+        },
+        {
+          "opType": "other",
+          "dayOffset": 35,
+          "title": "定苗",
+          "desc": "定苗去弱留壮"
         },
         {
           "opType": "fertilize",
-          "dayOffset": 40,
+          "dayOffset": 45,
           "title": "蕾期追肥",
-          "desc": "促进现蕾"
+          "desc": "蕾期追肥，稳长控旺"
+        },
+        {
+          "opType": "irrigation",
+          "dayOffset": 55,
+          "title": "蕾期灌溉",
+          "desc": "蕾期适时滴水"
         },
         {
           "opType": "pesticide",
-          "dayOffset": 60,
-          "title": "花铃期打药",
-          "desc": "防治棉铃虫"
+          "dayOffset": 65,
+          "title": "防棉铃虫",
+          "desc": "防治棉铃虫，避雨避风"
         },
         {
           "opType": "fertilize",
-          "dayOffset": 65,
-          "title": "花铃期追肥",
-          "desc": "重施花铃肥"
+          "dayOffset": 80,
+          "title": "花铃肥",
+          "desc": "花铃期重施追肥"
         },
         {
           "opType": "irrigation",
-          "dayOffset": 70,
-          "title": "花铃期灌溉",
-          "desc": "保障水分"
+          "dayOffset": 90,
+          "title": "花铃灌溉",
+          "desc": "花铃期保证水分"
+        },
+        {
+          "opType": "other",
+          "dayOffset": 100,
+          "title": "打顶",
+          "desc": "适时打顶，控制株型"
         },
         {
           "opType": "pesticide",
-          "dayOffset": 100,
-          "title": "吐絮期打药",
-          "desc": "防治后期害虫"
-        },
-        {
-          "opType": "irrigation",
           "dayOffset": 110,
-          "title": "吐絮期排水",
-          "desc": "控水促吐絮"
+          "title": "防红蜘蛛",
+          "desc": "防治红蜘蛛，避雨避风"
         },
         {
           "opType": "harvest",
-          "dayOffset": 125,
-          "title": "成熟期采收",
-          "desc": "分批采收"
+          "dayOffset": 140,
+          "title": "采收",
+          "desc": "吐絮期分批采收"
+        },
+        {
+          "opType": "other",
+          "dayOffset": 150,
+          "title": "交售",
+          "desc": "籽棉分级交售"
         }
+      ],
+      "regions": [
+        "新疆石河子棉花"
       ]
     },
     {
       "cropId": "C006",
       "name": "油菜",
       "standardName": "油菜",
-      "source": "知农时「后端乙 计算与规则层」data/init.sql crop_procedure 种子数据（400 作物 × 8 节点，导入时补 dayOffset=0 播种节点，未经农技复核）",
+      "source": "data/crop-base/crop-schedule.json 产区示范规程（湖北天门油菜）",
       "reviewStatus": "pending_review",
       "nodes": [
         {
           "opType": "sowing",
           "dayOffset": 0,
-          "title": "播种",
-          "desc": "当地适宜播期整地播种，作为规程第 0 天（原表从播种后第 20 天开始记录）"
+          "title": "育苗播种",
+          "desc": "育苗移栽，适期播种"
+        },
+        {
+          "opType": "other",
+          "dayOffset": 10,
+          "title": "出苗",
+          "desc": "苗床管理，间苗定苗"
+        },
+        {
+          "opType": "other",
+          "dayOffset": 30,
+          "title": "移栽",
+          "desc": "适龄移栽，合理密植"
         },
         {
           "opType": "fertilize",
-          "dayOffset": 20,
-          "title": "苗期追肥",
-          "desc": "促苗壮长"
-        },
-        {
-          "opType": "pesticide",
-          "dayOffset": 35,
-          "title": "苗期除草",
-          "desc": "防除杂草"
+          "dayOffset": 45,
+          "title": "提苗肥",
+          "desc": "移栽后追提苗肥"
         },
         {
           "opType": "irrigation",
-          "dayOffset": 50,
-          "title": "越冬前灌溉",
-          "desc": "浇越冬水防冻"
+          "dayOffset": 60,
+          "title": "越冬水",
+          "desc": "冬前浇越冬水，防冻保苗"
         },
         {
           "opType": "fertilize",
-          "dayOffset": 130,
-          "title": "返青期追肥",
-          "desc": "返青促发"
+          "dayOffset": 90,
+          "title": "腊肥",
+          "desc": "越冬期施腊肥，防冻增温"
         },
         {
           "opType": "pesticide",
-          "dayOffset": 145,
-          "title": "蕾苔期打药",
-          "desc": "防治菌核病"
+          "dayOffset": 120,
+          "title": "防蚜虫",
+          "desc": "防治蚜虫，避雨避风"
         },
         {
           "opType": "fertilize",
-          "dayOffset": 160,
-          "title": "花期追肥",
-          "desc": "硼肥促结实"
+          "dayOffset": 150,
+          "title": "薹肥",
+          "desc": "抽薹期追施薹肥"
         },
         {
           "opType": "irrigation",
+          "dayOffset": 165,
+          "title": "薹期灌溉",
+          "desc": "薹期适时补水"
+        },
+        {
+          "opType": "pesticide",
           "dayOffset": 180,
-          "title": "角果期排水",
-          "desc": "排水防渍"
+          "title": "防菌核病",
+          "desc": "防治菌核病，防渍害"
         },
         {
           "opType": "harvest",
+          "dayOffset": 200,
+          "title": "收获",
+          "desc": "角果黄熟期适时收获"
+        },
+        {
+          "opType": "other",
           "dayOffset": 210,
-          "title": "成熟期采收",
-          "desc": "适时收割"
+          "title": "晾晒入库",
+          "desc": "脱粒晾晒后入库"
         }
+      ],
+      "regions": [
+        "湖北天门油菜"
       ]
     },
     {
       "cropId": "C007",
       "name": "花生",
       "standardName": "花生",
-      "source": "知农时「后端乙 计算与规则层」data/init.sql crop_procedure 种子数据（400 作物 × 8 节点，导入时补 dayOffset=0 播种节点，未经农技复核）",
+      "source": "data/crop-base/crop-schedule.json 产区示范规程（河南南阳花生）",
       "reviewStatus": "pending_review",
       "nodes": [
         {
           "opType": "sowing",
           "dayOffset": 0,
           "title": "播种",
-          "desc": "当地适宜播期整地播种，作为规程第 0 天（原表从播种后第 15 天开始记录）"
+          "desc": "适墒播种，控制密度"
         },
         {
-          "opType": "pesticide",
-          "dayOffset": 15,
-          "title": "苗期除草",
-          "desc": "苗后除草剂"
+          "opType": "other",
+          "dayOffset": 7,
+          "title": "出苗",
+          "desc": "查苗补种，破土引苗"
+        },
+        {
+          "opType": "other",
+          "dayOffset": 25,
+          "title": "清棵",
+          "desc": "清棵蹲苗，促根下扎"
         },
         {
           "opType": "fertilize",
-          "dayOffset": 30,
-          "title": "初花期追肥",
-          "desc": "促花针下扎"
+          "dayOffset": 35,
+          "title": "苗期追肥",
+          "desc": "苗期追肥，促苗健壮"
         },
         {
           "opType": "irrigation",
           "dayOffset": 45,
-          "title": "开花期灌溉",
-          "desc": "保障水分"
+          "title": "花针灌溉",
+          "desc": "花针期补水，防旱"
         },
         {
-          "opType": "fertilize",
+          "opType": "other",
           "dayOffset": 55,
-          "title": "下针期追肥",
-          "desc": "钙肥促结荚"
+          "title": "培土迎针",
+          "desc": "培土迎针，利于下针"
         },
         {
           "opType": "pesticide",
           "dayOffset": 70,
-          "title": "结荚期打药",
-          "desc": "防治叶斑病"
+          "title": "防叶斑病",
+          "desc": "防治叶斑病，避雨避风"
+        },
+        {
+          "opType": "fertilize",
+          "dayOffset": 80,
+          "title": "结荚肥",
+          "desc": "结荚期补肥，防早衰"
         },
         {
           "opType": "irrigation",
-          "dayOffset": 85,
-          "title": "饱果期灌溉",
-          "desc": "促进饱果"
-        },
-        {
-          "opType": "irrigation",
-          "dayOffset": 105,
-          "title": "成熟前控水",
-          "desc": "控水促熟"
+          "dayOffset": 90,
+          "title": "结荚灌溉",
+          "desc": "结荚期保水，促荚果饱满"
         },
         {
           "opType": "harvest",
-          "dayOffset": 120,
-          "title": "成熟期采收",
-          "desc": "适时收获"
+          "dayOffset": 110,
+          "title": "收获",
+          "desc": "荚果成熟后及时收获"
+        },
+        {
+          "opType": "other",
+          "dayOffset": 125,
+          "title": "晾晒",
+          "desc": "荚果晾晒至安全水分"
+        },
+        {
+          "opType": "other",
+          "dayOffset": 130,
+          "title": "荚果入库",
+          "desc": "精选后荚果入库储藏"
         }
+      ],
+      "regions": [
+        "河南南阳花生"
       ]
     },
     {
       "cropId": "C008",
       "name": "芝麻",
       "standardName": "芝麻",
-      "source": "知农时「后端乙 计算与规则层」data/init.sql crop_procedure 种子数据（400 作物 × 8 节点，导入时补 dayOffset=0 播种节点，未经农技复核）",
+      "source": "data/crop-base/crop-schedule.json 产区示范规程（河南驻马店芝麻）",
       "reviewStatus": "pending_review",
       "nodes": [
         {
           "opType": "sowing",
           "dayOffset": 0,
           "title": "播种",
-          "desc": "当地适宜播期整地播种，作为规程第 0 天（原表从播种后第 10 天开始记录）"
+          "desc": "播种（产区示范规程，原数据未提供细节说明）"
         },
         {
-          "opType": "pesticide",
-          "dayOffset": 10,
-          "title": "苗期除草",
-          "desc": "及时间苗除草"
+          "opType": "other",
+          "dayOffset": 7,
+          "title": "出苗",
+          "desc": "出苗（产区示范规程，原数据未提供细节说明）"
+        },
+        {
+          "opType": "other",
+          "dayOffset": 15,
+          "title": "间苗",
+          "desc": "间苗（产区示范规程，原数据未提供细节说明）"
         },
         {
           "opType": "fertilize",
           "dayOffset": 25,
-          "title": "初花期追肥",
-          "desc": "促花芽分化"
+          "title": "追肥",
+          "desc": "追肥（产区示范规程，原数据未提供细节说明）"
+        },
+        {
+          "opType": "other",
+          "dayOffset": 35,
+          "title": "分枝期",
+          "desc": "分枝期（产区示范规程，原数据未提供细节说明）"
+        },
+        {
+          "opType": "irrigation",
+          "dayOffset": 45,
+          "title": "灌溉",
+          "desc": "灌溉（产区示范规程，原数据未提供细节说明）"
+        },
+        {
+          "opType": "other",
+          "dayOffset": 55,
+          "title": "初花期",
+          "desc": "初花期（产区示范规程，原数据未提供细节说明）"
         },
         {
           "opType": "pesticide",
-          "dayOffset": 40,
-          "title": "花期打药",
-          "desc": "防治蚜虫"
+          "dayOffset": 65,
+          "title": "防虫",
+          "desc": "防虫（产区示范规程，原数据未提供细节说明）"
+        },
+        {
+          "opType": "other",
+          "dayOffset": 75,
+          "title": "盛花期",
+          "desc": "盛花期（产区示范规程，原数据未提供细节说明）"
         },
         {
           "opType": "fertilize",
-          "dayOffset": 55,
-          "title": "蒴果期追肥",
-          "desc": "叶面肥促灌浆"
+          "dayOffset": 85,
+          "title": "后期追肥",
+          "desc": "后期追肥（产区示范规程，原数据未提供细节说明）"
         },
         {
-          "opType": "irrigation",
-          "dayOffset": 65,
-          "title": "蒴果期灌溉",
-          "desc": "保障水分"
-        },
-        {
-          "opType": "irrigation",
-          "dayOffset": 80,
-          "title": "成熟前排水",
-          "desc": "排水防涝"
-        },
-        {
-          "opType": "pesticide",
-          "dayOffset": 90,
-          "title": "打顶促熟",
-          "desc": "打顶促成熟一致"
+          "opType": "other",
+          "dayOffset": 95,
+          "title": "蒴果成熟",
+          "desc": "蒴果成熟（产区示范规程，原数据未提供细节说明）"
         },
         {
           "opType": "harvest",
-          "dayOffset": 100,
-          "title": "成熟期采收",
-          "desc": "分段采收"
+          "dayOffset": 110,
+          "title": "收割",
+          "desc": "收割（产区示范规程，原数据未提供细节说明）"
         }
+      ],
+      "regions": [
+        "河南驻马店芝麻"
       ]
     },
     {
@@ -1137,63 +1221,84 @@
       "cropId": "C011",
       "name": "谷子",
       "standardName": "谷子",
-      "source": "知农时「后端乙 计算与规则层」data/init.sql crop_procedure 种子数据（400 作物 × 8 节点，导入时补 dayOffset=0 播种节点，未经农技复核）",
+      "source": "data/crop-base/crop-schedule.json 产区示范规程（河北石家庄谷子）",
       "reviewStatus": "pending_review",
       "nodes": [
         {
           "opType": "sowing",
           "dayOffset": 0,
           "title": "播种",
-          "desc": "当地适宜播期整地播种，作为规程第 0 天（原表从播种后第 10 天开始记录）"
+          "desc": "适墒播种，控制播量"
         },
         {
-          "opType": "pesticide",
-          "dayOffset": 10,
-          "title": "苗期除草",
-          "desc": "及时间苗"
+          "opType": "other",
+          "dayOffset": 6,
+          "title": "出苗",
+          "desc": "查苗补种，破除板结"
+        },
+        {
+          "opType": "other",
+          "dayOffset": 20,
+          "title": "间苗",
+          "desc": "及时间苗，去弱留壮"
         },
         {
           "opType": "fertilize",
-          "dayOffset": 25,
-          "title": "拔节期追肥",
-          "desc": "促进分蘖"
+          "dayOffset": 30,
+          "title": "苗期追肥",
+          "desc": "苗期追肥，促苗生长"
         },
         {
-          "opType": "pesticide",
+          "opType": "other",
           "dayOffset": 40,
-          "title": "拔节期打药",
-          "desc": "防治粟灰螟"
-        },
-        {
-          "opType": "irrigation",
-          "dayOffset": 55,
-          "title": "孕穗期灌溉",
-          "desc": "保障孕穗水分"
-        },
-        {
-          "opType": "fertilize",
-          "dayOffset": 65,
-          "title": "抽穗期追肥",
-          "desc": "穗肥促粒重"
+          "title": "中耕",
+          "desc": "中耕除草，蹲苗壮根"
         },
         {
           "opType": "pesticide",
-          "dayOffset": 80,
-          "title": "灌浆期打药",
-          "desc": "防治穗螟"
+          "dayOffset": 50,
+          "title": "防粟灰螟",
+          "desc": "防治粟灰螟，避雨避风"
+        },
+        {
+          "opType": "fertilize",
+          "dayOffset": 60,
+          "title": "穗肥",
+          "desc": "孕穗期追施穗肥"
         },
         {
           "opType": "irrigation",
-          "dayOffset": 95,
-          "title": "成熟前排水",
-          "desc": "排水防倒伏"
+          "dayOffset": 70,
+          "title": "抽穗灌溉",
+          "desc": "抽穗期补水，防卡脖旱"
+        },
+        {
+          "opType": "pesticide",
+          "dayOffset": 85,
+          "title": "防锈病",
+          "desc": "防治锈病，避雨避风"
         },
         {
           "opType": "harvest",
+          "dayOffset": 100,
+          "title": "收获",
+          "desc": "籽粒蜡熟末期收获"
+        },
+        {
+          "opType": "other",
+          "dayOffset": 105,
+          "title": "晾晒",
+          "desc": "谷穗晾晒后脱粒"
+        },
+        {
+          "opType": "other",
           "dayOffset": 110,
-          "title": "成熟期采收",
-          "desc": "适时收获"
+          "title": "脱粒入库",
+          "desc": "脱粒清选后入库储藏"
         }
+      ],
+      "regions": [
+        "河北石家庄谷子"
       ]
     },
     {
@@ -1263,252 +1368,338 @@
       "cropId": "C014",
       "name": "甘蔗",
       "standardName": "甘蔗",
-      "source": "知农时「后端乙 计算与规则层」data/init.sql crop_procedure 种子数据（400 作物 × 8 节点，导入时补 dayOffset=0 播种节点，未经农技复核）",
+      "source": "data/crop-base/crop-schedule.json 产区示范规程（广西崇左甘蔗）",
       "reviewStatus": "pending_review",
       "nodes": [
         {
           "opType": "sowing",
           "dayOffset": 0,
-          "title": "播种",
-          "desc": "当地适宜播期整地播种，作为规程第 0 天（原表从播种后第 20 天开始记录）"
+          "title": "下种",
+          "desc": "种茎消毒后下种，覆盖地膜"
         },
         {
-          "opType": "fertilize",
-          "dayOffset": 20,
-          "title": "苗期追肥",
-          "desc": "促苗壮长"
+          "opType": "other",
+          "dayOffset": 15,
+          "title": "萌芽",
+          "desc": "检查萌芽，及时破膜"
         },
         {
-          "opType": "irrigation",
+          "opType": "other",
           "dayOffset": 40,
-          "title": "分蘖期灌溉",
-          "desc": "促进分蘖"
+          "title": "补苗",
+          "desc": "缺苗断垄及时补植"
         },
         {
           "opType": "fertilize",
           "dayOffset": 60,
-          "title": "分蘖期追肥",
-          "desc": "促蘖成茎"
+          "title": "分蘖肥",
+          "desc": "分蘖期追施氮肥"
         },
         {
-          "opType": "fertilize",
-          "dayOffset": 90,
-          "title": "拔节期追肥",
-          "desc": "重施攻茎肥"
+          "opType": "irrigation",
+          "dayOffset": 80,
+          "title": "分蘖灌溉",
+          "desc": "分蘖期适时灌溉"
         },
         {
           "opType": "pesticide",
           "dayOffset": 110,
-          "title": "拔节期打药",
-          "desc": "防治螟虫"
+          "title": "防螟虫",
+          "desc": "防治蔗螟，避雨避风"
+        },
+        {
+          "opType": "fertilize",
+          "dayOffset": 140,
+          "title": "攻茎肥",
+          "desc": "伸长期重施攻茎肥"
         },
         {
           "opType": "irrigation",
-          "dayOffset": 130,
-          "title": "拔节期灌溉",
-          "desc": "保障拔节需水"
+          "dayOffset": 170,
+          "title": "伸长期灌溉",
+          "desc": "伸长期保证水分供给"
         },
         {
-          "opType": "irrigation",
-          "dayOffset": 180,
-          "title": "成熟前控水",
-          "desc": "控水促糖分积累"
+          "opType": "other",
+          "dayOffset": 200,
+          "title": "培土",
+          "desc": "大培土防倒防涝"
+        },
+        {
+          "opType": "fertilize",
+          "dayOffset": 240,
+          "title": "壮尾肥",
+          "desc": "后期追施壮尾肥"
         },
         {
           "opType": "harvest",
-          "dayOffset": 240,
-          "title": "成熟期采收",
-          "desc": "适时砍收"
+          "dayOffset": 290,
+          "title": "收获",
+          "desc": "糖分成熟后适时砍收"
+        },
+        {
+          "opType": "other",
+          "dayOffset": 300,
+          "title": "宿根管理",
+          "desc": "宿根蔗破垄松蔸管理"
         }
+      ],
+      "regions": [
+        "广西崇左甘蔗"
       ]
     },
     {
       "cropId": "C015",
       "name": "甜菜",
       "standardName": "甜菜",
-      "source": "知农时「后端乙 计算与规则层」data/init.sql crop_procedure 种子数据（400 作物 × 8 节点，导入时补 dayOffset=0 播种节点，未经农技复核）",
+      "source": "data/crop-base/crop-schedule.json 产区示范规程（新疆阿勒泰饲用甜菜）",
       "reviewStatus": "pending_review",
       "nodes": [
         {
           "opType": "sowing",
           "dayOffset": 0,
           "title": "播种",
-          "desc": "当地适宜播期整地播种，作为规程第 0 天（原表从播种后第 15 天开始记录）"
+          "desc": "播种（产区示范规程，原数据未提供细节说明）"
         },
         {
-          "opType": "pesticide",
-          "dayOffset": 15,
-          "title": "苗期除草",
-          "desc": "防除杂草"
+          "opType": "other",
+          "dayOffset": 10,
+          "title": "出苗",
+          "desc": "出苗（产区示范规程，原数据未提供细节说明）"
+        },
+        {
+          "opType": "other",
+          "dayOffset": 20,
+          "title": "间苗",
+          "desc": "间苗（产区示范规程，原数据未提供细节说明）"
         },
         {
           "opType": "fertilize",
-          "dayOffset": 25,
-          "title": "定苗期追肥",
-          "desc": "促苗生长"
+          "dayOffset": 30,
+          "title": "追肥",
+          "desc": "追肥（产区示范规程，原数据未提供细节说明）"
         },
         {
           "opType": "irrigation",
           "dayOffset": 40,
-          "title": "叶丛期灌溉",
-          "desc": "保障叶丛生长"
+          "title": "灌溉",
+          "desc": "灌溉（产区示范规程，原数据未提供细节说明）"
+        },
+        {
+          "opType": "other",
+          "dayOffset": 55,
+          "title": "叶丛繁茂",
+          "desc": "叶丛繁茂（产区示范规程，原数据未提供细节说明）"
         },
         {
           "opType": "fertilize",
-          "dayOffset": 55,
-          "title": "块根膨大期追肥",
-          "desc": "促块根膨大"
-        },
-        {
-          "opType": "irrigation",
           "dayOffset": 70,
-          "title": "块根膨大期灌溉",
-          "desc": "保障膨大需水"
+          "title": "二次追肥",
+          "desc": "二次追肥（产区示范规程，原数据未提供细节说明）"
         },
         {
           "opType": "pesticide",
           "dayOffset": 85,
-          "title": "块根膨大期打药",
-          "desc": "防治褐斑病"
+          "title": "防虫",
+          "desc": "防虫（产区示范规程，原数据未提供细节说明）"
         },
         {
           "opType": "irrigation",
           "dayOffset": 100,
-          "title": "成熟前控水",
-          "desc": "控水促糖分"
+          "title": "块根膨大灌溉",
+          "desc": "块根膨大灌溉（产区示范规程，原数据未提供细节说明）"
+        },
+        {
+          "opType": "other",
+          "dayOffset": 120,
+          "title": "糖分积累",
+          "desc": "糖分积累（产区示范规程，原数据未提供细节说明）"
+        },
+        {
+          "opType": "fertilize",
+          "dayOffset": 140,
+          "title": "后期追肥",
+          "desc": "后期追肥（产区示范规程，原数据未提供细节说明）"
         },
         {
           "opType": "harvest",
-          "dayOffset": 120,
-          "title": "成熟期采收",
-          "desc": "适时收获"
+          "dayOffset": 160,
+          "title": "挖掘采收",
+          "desc": "挖掘采收（产区示范规程，原数据未提供细节说明）"
         }
+      ],
+      "regions": [
+        "新疆阿勒泰饲用甜菜"
       ]
     },
     {
       "cropId": "C016",
       "name": "烟草",
       "standardName": "烟草",
-      "source": "知农时「后端乙 计算与规则层」data/init.sql crop_procedure 种子数据（400 作物 × 8 节点，导入时补 dayOffset=0 播种节点，未经农技复核）",
+      "source": "data/crop-base/crop-schedule.json 产区示范规程（云南曲靖烤烟）",
       "reviewStatus": "pending_review",
       "nodes": [
         {
           "opType": "sowing",
           "dayOffset": 0,
-          "title": "播种",
-          "desc": "当地适宜播期整地播种，作为规程第 0 天（原表从播种后第 10 天开始记录）"
+          "title": "育苗播种",
+          "desc": "漂浮育苗，控温控湿"
+        },
+        {
+          "opType": "other",
+          "dayOffset": 10,
+          "title": "出苗",
+          "desc": "苗期管理，间苗定苗"
+        },
+        {
+          "opType": "other",
+          "dayOffset": 30,
+          "title": "移栽",
+          "desc": "适龄移栽，合理密植"
         },
         {
           "opType": "irrigation",
-          "dayOffset": 10,
-          "title": "缓苗期灌溉",
-          "desc": "促缓苗成活"
-        },
-        {
-          "opType": "fertilize",
-          "dayOffset": 20,
-          "title": "团棵期追肥",
-          "desc": "促团棵壮苗"
-        },
-        {
-          "opType": "pesticide",
-          "dayOffset": 30,
-          "title": "团棵期打药",
-          "desc": "防治烟蚜"
-        },
-        {
-          "opType": "fertilize",
           "dayOffset": 40,
-          "title": "旺长期追肥",
-          "desc": "重施旺长肥"
+          "title": "还苗水",
+          "desc": "移栽后浇还苗水"
         },
         {
-          "opType": "pesticide",
+          "opType": "fertilize",
           "dayOffset": 50,
-          "title": "旺长期打药",
-          "desc": "防治赤星病"
+          "title": "伸根肥",
+          "desc": "伸根期追肥，促根生长"
+        },
+        {
+          "opType": "other",
+          "dayOffset": 60,
+          "title": "中耕培土",
+          "desc": "中耕培土，促根防涝"
+        },
+        {
+          "opType": "fertilize",
+          "dayOffset": 70,
+          "title": "旺长肥",
+          "desc": "旺长期追施钾肥"
         },
         {
           "opType": "pesticide",
-          "dayOffset": 60,
-          "title": "现蕾期打顶",
-          "desc": "打顶抹杈"
+          "dayOffset": 85,
+          "title": "防烟蚜",
+          "desc": "防治烟蚜，避雨避风"
+        },
+        {
+          "opType": "other",
+          "dayOffset": 100,
+          "title": "打顶抑芽",
+          "desc": "适时打顶，抹杈抑芽"
         },
         {
           "opType": "harvest",
-          "dayOffset": 70,
-          "title": "脚叶采收",
-          "desc": "分次采叶"
+          "dayOffset": 115,
+          "title": "采烤下部叶",
+          "desc": "成熟后采收下部叶烘烤"
         },
         {
           "opType": "harvest",
-          "dayOffset": 80,
-          "title": "顶叶采收",
-          "desc": "采收完毕"
+          "dayOffset": 125,
+          "title": "采烤上部叶",
+          "desc": "成熟后采收上部叶烘烤"
+        },
+        {
+          "opType": "other",
+          "dayOffset": 130,
+          "title": "分级交售",
+          "desc": "烟叶分级初检交售"
         }
+      ],
+      "regions": [
+        "云南曲靖烤烟"
       ]
     },
     {
       "cropId": "C017",
       "name": "茶",
       "standardName": "茶",
-      "source": "知农时「后端乙 计算与规则层」data/init.sql crop_procedure 种子数据（400 作物 × 8 节点，导入时补 dayOffset=0 播种节点，未经农技复核）",
+      "source": "data/crop-base/crop-schedule.json 产区示范规程（福建安溪铁观音、云南普洱大叶种茶、四川宜宾早春茶）",
       "reviewStatus": "pending_review",
       "nodes": [
         {
           "opType": "sowing",
           "dayOffset": 0,
-          "title": "播种",
-          "desc": "当地适宜播期整地播种，作为规程第 0 天（原表从播种后第 15 天开始记录）"
+          "title": "扦插育苗",
+          "desc": "扦插育苗（产区示范规程，原数据未提供细节说明）"
         },
         {
-          "opType": "fertilize",
-          "dayOffset": 15,
-          "title": "春茶前施肥",
-          "desc": "催芽肥"
+          "opType": "other",
+          "dayOffset": 30,
+          "title": "插穗生根",
+          "desc": "插穗生根（产区示范规程，原数据未提供细节说明）"
         },
         {
-          "opType": "pesticide",
-          "dayOffset": 25,
-          "title": "春茶修剪",
-          "desc": "轻修剪整形"
-        },
-        {
-          "opType": "harvest",
-          "dayOffset": 35,
-          "title": "春茶采摘",
-          "desc": "采一芽一叶"
-        },
-        {
-          "opType": "fertilize",
+          "opType": "other",
           "dayOffset": 60,
-          "title": "夏茶前追肥",
-          "desc": "夏茶催芽肥"
-        },
-        {
-          "opType": "pesticide",
-          "dayOffset": 75,
-          "title": "夏茶病虫害防治",
-          "desc": "防治茶小绿叶蝉"
-        },
-        {
-          "opType": "harvest",
-          "dayOffset": 90,
-          "title": "夏茶采摘",
-          "desc": "采夏茶"
+          "title": "幼苗移栽",
+          "desc": "幼苗移栽（产区示范规程，原数据未提供细节说明）"
         },
         {
           "opType": "fertilize",
+          "dayOffset": 90,
+          "title": "春前基肥",
+          "desc": "春前基肥（产区示范规程，原数据未提供细节说明）"
+        },
+        {
+          "opType": "other",
           "dayOffset": 120,
-          "title": "秋茶前追肥",
-          "desc": "秋茶追肥"
+          "title": "春茶萌发",
+          "desc": "春茶萌发（产区示范规程，原数据未提供细节说明）"
         },
         {
           "opType": "harvest",
-          "dayOffset": 140,
+          "dayOffset": 135,
+          "title": "春茶采摘",
+          "desc": "春茶采摘（产区示范规程，原数据未提供细节说明）"
+        },
+        {
+          "opType": "fertilize",
+          "dayOffset": 150,
+          "title": "春后追肥",
+          "desc": "春后追肥（产区示范规程，原数据未提供细节说明）"
+        },
+        {
+          "opType": "pesticide",
+          "dayOffset": 180,
+          "title": "夏茶防虫",
+          "desc": "夏茶防虫（产区示范规程，原数据未提供细节说明）"
+        },
+        {
+          "opType": "harvest",
+          "dayOffset": 210,
+          "title": "夏茶采摘",
+          "desc": "夏茶采摘（产区示范规程，原数据未提供细节说明）"
+        },
+        {
+          "opType": "fertilize",
+          "dayOffset": 240,
+          "title": "秋前追肥",
+          "desc": "秋前追肥（产区示范规程，原数据未提供细节说明）"
+        },
+        {
+          "opType": "harvest",
+          "dayOffset": 270,
           "title": "秋茶采摘",
-          "desc": "采秋茶"
+          "desc": "秋茶采摘（产区示范规程，原数据未提供细节说明）"
+        },
+        {
+          "opType": "fertilize",
+          "dayOffset": 330,
+          "title": "冬前基肥",
+          "desc": "冬前基肥（产区示范规程，原数据未提供细节说明）"
         }
+      ],
+      "regions": [
+        "福建安溪铁观音",
+        "云南普洱大叶种茶",
+        "四川宜宾早春茶"
       ]
     },
     {
@@ -3531,126 +3722,168 @@
       "cropId": "C058",
       "name": "莴笋",
       "standardName": "莴笋",
-      "source": "知农时「后端乙 计算与规则层」data/init.sql crop_procedure 种子数据（400 作物 × 8 节点，导入时补 dayOffset=0 播种节点，未经农技复核）",
+      "source": "data/crop-base/crop-schedule.json 产区示范规程（四川成都莴笋）",
       "reviewStatus": "pending_review",
       "nodes": [
         {
           "opType": "sowing",
           "dayOffset": 0,
-          "title": "播种",
-          "desc": "当地适宜播期整地播种，作为规程第 0 天（原表从播种后第 10 天开始记录）"
+          "title": "育苗播种",
+          "desc": "育苗移栽，控温保湿"
+        },
+        {
+          "opType": "other",
+          "dayOffset": 6,
+          "title": "出苗",
+          "desc": "出苗后及时间苗"
+        },
+        {
+          "opType": "other",
+          "dayOffset": 20,
+          "title": "定植",
+          "desc": "适龄定植，合理密植"
         },
         {
           "opType": "irrigation",
-          "dayOffset": 10,
-          "title": "缓苗期灌溉",
-          "desc": "促缓苗"
-        },
-        {
-          "opType": "fertilize",
-          "dayOffset": 20,
-          "title": "幼苗期追肥",
-          "desc": "促苗生长"
-        },
-        {
-          "opType": "pesticide",
           "dayOffset": 30,
-          "title": "莲座期打药",
-          "desc": "防治霜霉病"
+          "title": "缓苗水",
+          "desc": "定植后浇缓苗水"
         },
         {
           "opType": "fertilize",
           "dayOffset": 40,
-          "title": "茎膨大期追肥",
-          "desc": "重施钾肥"
-        },
-        {
-          "opType": "irrigation",
-          "dayOffset": 50,
-          "title": "茎膨大期灌溉",
-          "desc": "保障水分"
+          "title": "莲座肥",
+          "desc": "莲座期追肥，促叶生长"
         },
         {
           "opType": "pesticide",
+          "dayOffset": 50,
+          "title": "防蚜虫",
+          "desc": "防治蚜虫，避雨避风"
+        },
+        {
+          "opType": "fertilize",
           "dayOffset": 60,
-          "title": "茎膨大期打药",
-          "desc": "防治菌核病"
+          "title": "茎膨大肥",
+          "desc": "肉质茎膨大期追施钾肥"
         },
         {
           "opType": "irrigation",
           "dayOffset": 70,
-          "title": "采收前控水",
-          "desc": "控水提质"
+          "title": "茎膨大灌溉",
+          "desc": "膨大期均匀供水，防裂茎"
+        },
+        {
+          "opType": "pesticide",
+          "dayOffset": 80,
+          "title": "防霜霉病",
+          "desc": "防治霜霉病，避雨避涝"
         },
         {
           "opType": "harvest",
-          "dayOffset": 80,
-          "title": "成熟期采收",
-          "desc": "适时采收"
+          "dayOffset": 85,
+          "title": "采收",
+          "desc": "肉质茎充分膨大后采收"
+        },
+        {
+          "opType": "other",
+          "dayOffset": 88,
+          "title": "储运",
+          "desc": "采收后预冷储运"
+        },
+        {
+          "opType": "other",
+          "dayOffset": 90,
+          "title": "清园",
+          "desc": "清园消毒，处理残株"
         }
+      ],
+      "regions": [
+        "四川成都莴笋"
       ]
     },
     {
       "cropId": "C059",
       "name": "苹果",
       "standardName": "苹果",
-      "source": "知农时「后端乙 计算与规则层」data/init.sql crop_procedure 种子数据（400 作物 × 8 节点，导入时补 dayOffset=0 播种节点，未经农技复核）",
+      "source": "data/crop-base/crop-schedule.json 产区示范规程（陕西洛川苹果）",
       "reviewStatus": "pending_review",
       "nodes": [
         {
           "opType": "sowing",
           "dayOffset": 0,
-          "title": "播种",
-          "desc": "当地适宜播期整地播种，作为规程第 0 天（原表从播种后第 15 天开始记录）"
+          "title": "定植",
+          "desc": "春季定植，栽后灌水"
         },
         {
-          "opType": "fertilize",
-          "dayOffset": 15,
-          "title": "萌芽前施肥",
-          "desc": "催芽肥"
-        },
-        {
-          "opType": "pesticide",
-          "dayOffset": 30,
-          "title": "花前打药",
-          "desc": "防治腐烂病"
+          "opType": "other",
+          "dayOffset": 20,
+          "title": "缓苗",
+          "desc": "缓苗期管理，保成活"
         },
         {
           "opType": "fertilize",
           "dayOffset": 45,
-          "title": "花后追肥",
-          "desc": "促果发育"
-        },
-        {
-          "opType": "irrigation",
-          "dayOffset": 60,
-          "title": "果实膨大期灌溉",
-          "desc": "保障水分"
+          "title": "春季追肥",
+          "desc": "萌芽前追施速效氮肥"
         },
         {
           "opType": "pesticide",
-          "dayOffset": 75,
-          "title": "果实膨大期打药",
-          "desc": "防治食心虫"
+          "dayOffset": 60,
+          "title": "防蚜虫",
+          "desc": "防治蚜虫与螨类，避雨避风"
         },
         {
           "opType": "fertilize",
-          "dayOffset": 90,
-          "title": "着色期追肥",
-          "desc": "钾肥促着色"
+          "dayOffset": 80,
+          "title": "花后肥",
+          "desc": "花后追肥，促果膨大"
         },
         {
           "opType": "irrigation",
-          "dayOffset": 105,
-          "title": "采收前控水",
-          "desc": "控水提质"
+          "dayOffset": 100,
+          "title": "膨果灌溉",
+          "desc": "膨果期适时灌溉"
+        },
+        {
+          "opType": "pesticide",
+          "dayOffset": 120,
+          "title": "防红蜘蛛",
+          "desc": "防治红蜘蛛，避高温施药"
+        },
+        {
+          "opType": "fertilize",
+          "dayOffset": 140,
+          "title": "膨果肥",
+          "desc": "追施磷钾肥，促果实着色"
+        },
+        {
+          "opType": "other",
+          "dayOffset": 160,
+          "title": "套袋",
+          "desc": "疏果后及时套袋"
+        },
+        {
+          "opType": "pesticide",
+          "dayOffset": 200,
+          "title": "防轮纹病",
+          "desc": "防治轮纹病，避雨避风"
         },
         {
           "opType": "harvest",
-          "dayOffset": 120,
-          "title": "成熟期采收",
-          "desc": "分批采收"
+          "dayOffset": 230,
+          "title": "采收",
+          "desc": "果实成熟后分批采收"
+        },
+        {
+          "opType": "other",
+          "dayOffset": 240,
+          "title": "秋施基肥",
+          "desc": "采后施基肥，恢复树势"
         }
+      ],
+      "regions": [
+        "陕西洛川苹果"
       ]
     },
     {
@@ -4224,63 +4457,84 @@
       "cropId": "C069",
       "name": "柚子",
       "standardName": "柚子",
-      "source": "知农时「后端乙 计算与规则层」data/init.sql crop_procedure 种子数据（400 作物 × 8 节点，导入时补 dayOffset=0 播种节点，未经农技复核）",
+      "source": "data/crop-base/crop-schedule.json 产区示范规程（福建平和蜜柚）",
       "reviewStatus": "pending_review",
       "nodes": [
         {
           "opType": "sowing",
           "dayOffset": 0,
-          "title": "播种",
-          "desc": "当地适宜播期整地播种，作为规程第 0 天（原表从播种后第 25 天开始记录）"
+          "title": "定植",
+          "desc": "春季定植，栽后灌水"
         },
         {
-          "opType": "fertilize",
+          "opType": "other",
           "dayOffset": 25,
-          "title": "萌芽前施肥",
-          "desc": "催芽肥"
-        },
-        {
-          "opType": "pesticide",
-          "dayOffset": 40,
-          "title": "花前打药",
-          "desc": "防治红蜘蛛"
+          "title": "缓苗",
+          "desc": "缓苗期管理，保成活"
         },
         {
           "opType": "fertilize",
-          "dayOffset": 55,
-          "title": "花后追肥",
-          "desc": "促果发育"
+          "dayOffset": 45,
+          "title": "春梢肥",
+          "desc": "春梢萌发前追肥"
+        },
+        {
+          "opType": "pesticide",
+          "dayOffset": 60,
+          "title": "防潜叶蛾",
+          "desc": "防治潜叶蛾，避雨避风"
+        },
+        {
+          "opType": "fertilize",
+          "dayOffset": 80,
+          "title": "稳果肥",
+          "desc": "稳果期追肥，减少落果"
         },
         {
           "opType": "irrigation",
-          "dayOffset": 75,
-          "title": "果实膨大期灌溉",
-          "desc": "保障水分"
+          "dayOffset": 95,
+          "title": "膨果灌溉",
+          "desc": "膨果期适时灌溉"
         },
         {
-          "opType": "pesticide",
-          "dayOffset": 90,
-          "title": "果实膨大期打药",
-          "desc": "防治潜叶蛾"
-        },
-        {
-          "opType": "fertilize",
+          "opType": "other",
           "dayOffset": 110,
-          "title": "着色期追肥",
-          "desc": "钾肥提质"
+          "title": "疏果套袋",
+          "desc": "疏果后套袋，防虫防裂"
         },
         {
-          "opType": "irrigation",
+          "opType": "fertilize",
           "dayOffset": 130,
-          "title": "采收前控水",
-          "desc": "控水促糖分"
+          "title": "壮果肥",
+          "desc": "壮果期追施磷钾肥"
+        },
+        {
+          "opType": "pesticide",
+          "dayOffset": 150,
+          "title": "防锈蜘蛛",
+          "desc": "防治锈蜘蛛，避雨避风"
         },
         {
           "opType": "harvest",
-          "dayOffset": 150,
-          "title": "成熟期采收",
-          "desc": "适时采收"
+          "dayOffset": 165,
+          "title": "采收",
+          "desc": "果实成熟后采收"
+        },
+        {
+          "opType": "fertilize",
+          "dayOffset": 175,
+          "title": "采后肥",
+          "desc": "采后追肥，恢复树势"
+        },
+        {
+          "opType": "other",
+          "dayOffset": 180,
+          "title": "清园",
+          "desc": "清园修剪，防治越冬病虫"
         }
+      ],
+      "regions": [
+        "福建平和蜜柚"
       ]
     },
     {
@@ -5232,126 +5486,168 @@
       "cropId": "C085",
       "name": "人参",
       "standardName": "人参",
-      "source": "知农时「后端乙 计算与规则层」data/init.sql crop_procedure 种子数据（400 作物 × 8 节点，导入时补 dayOffset=0 播种节点，未经农技复核）",
+      "source": "data/crop-base/crop-schedule.json 产区示范规程（吉林长白山人参）",
       "reviewStatus": "pending_review",
       "nodes": [
         {
           "opType": "sowing",
           "dayOffset": 0,
-          "title": "播种",
-          "desc": "当地适宜播期整地播种，作为规程第 0 天（原表从播种后第 30 天开始记录）"
+          "title": "催芽播种",
+          "desc": "催芽播种（产区示范规程，原数据未提供细节说明）"
         },
         {
-          "opType": "pesticide",
+          "opType": "other",
           "dayOffset": 30,
-          "title": "苗期遮阴",
-          "desc": "搭参棚遮阴"
+          "title": "出苗",
+          "desc": "出苗（产区示范规程，原数据未提供细节说明）"
+        },
+        {
+          "opType": "other",
+          "dayOffset": 60,
+          "title": "参棚遮阴",
+          "desc": "参棚遮阴（产区示范规程，原数据未提供细节说明）"
         },
         {
           "opType": "fertilize",
-          "dayOffset": 60,
-          "title": "幼苗期追肥",
-          "desc": "促苗生长"
+          "dayOffset": 90,
+          "title": "追肥",
+          "desc": "追肥（产区示范规程，原数据未提供细节说明）"
         },
         {
           "opType": "pesticide",
-          "dayOffset": 100,
-          "title": "生长期打药",
-          "desc": "防治黑斑病"
+          "dayOffset": 120,
+          "title": "病害防治",
+          "desc": "病害防治（产区示范规程，原数据未提供细节说明）"
         },
         {
           "opType": "irrigation",
           "dayOffset": 150,
-          "title": "生长期灌溉",
-          "desc": "保持土壤湿润"
+          "title": "夏季灌溉",
+          "desc": "夏季灌溉（产区示范规程，原数据未提供细节说明）"
+        },
+        {
+          "opType": "other",
+          "dayOffset": 180,
+          "title": "开花期",
+          "desc": "开花期（产区示范规程，原数据未提供细节说明）"
         },
         {
           "opType": "fertilize",
-          "dayOffset": 200,
-          "title": "根膨大期追肥",
-          "desc": "促根膨大"
+          "dayOffset": 210,
+          "title": "二次追肥",
+          "desc": "二次追肥（产区示范规程，原数据未提供细节说明）"
         },
         {
           "opType": "pesticide",
-          "dayOffset": 250,
-          "title": "根膨大期打药",
-          "desc": "防治锈腐病"
+          "dayOffset": 270,
+          "title": "秋季防病",
+          "desc": "秋季防病（产区示范规程，原数据未提供细节说明）"
         },
         {
-          "opType": "irrigation",
-          "dayOffset": 300,
-          "title": "成熟前控水",
-          "desc": "控水促熟"
+          "opType": "other",
+          "dayOffset": 330,
+          "title": "红果期",
+          "desc": "红果期（产区示范规程，原数据未提供细节说明）"
+        },
+        {
+          "opType": "fertilize",
+          "dayOffset": 420,
+          "title": "三年追肥",
+          "desc": "三年追肥（产区示范规程，原数据未提供细节说明）"
         },
         {
           "opType": "harvest",
-          "dayOffset": 360,
-          "title": "成熟期采收",
-          "desc": "适时采挖"
+          "dayOffset": 540,
+          "title": "起参采收",
+          "desc": "起参采收（产区示范规程，原数据未提供细节说明）"
         }
+      ],
+      "regions": [
+        "吉林长白山人参"
       ]
     },
     {
       "cropId": "C086",
       "name": "当归",
       "standardName": "当归",
-      "source": "知农时「后端乙 计算与规则层」data/init.sql crop_procedure 种子数据（400 作物 × 8 节点，导入时补 dayOffset=0 播种节点，未经农技复核）",
+      "source": "data/crop-base/crop-schedule.json 产区示范规程（甘肃岷县当归）",
       "reviewStatus": "pending_review",
       "nodes": [
         {
           "opType": "sowing",
           "dayOffset": 0,
           "title": "播种",
-          "desc": "当地适宜播期整地播种，作为规程第 0 天（原表从播种后第 20 天开始记录）"
+          "desc": "播种（产区示范规程，原数据未提供细节说明）"
         },
         {
-          "opType": "pesticide",
+          "opType": "other",
           "dayOffset": 20,
-          "title": "苗期除草",
-          "desc": "清除杂草"
+          "title": "出苗",
+          "desc": "出苗（产区示范规程，原数据未提供细节说明）"
+        },
+        {
+          "opType": "other",
+          "dayOffset": 35,
+          "title": "间苗",
+          "desc": "间苗（产区示范规程，原数据未提供细节说明）"
         },
         {
           "opType": "fertilize",
-          "dayOffset": 40,
-          "title": "幼苗期追肥",
-          "desc": "促苗生长"
+          "dayOffset": 50,
+          "title": "追肥",
+          "desc": "追肥（产区示范规程，原数据未提供细节说明）"
         },
         {
           "opType": "irrigation",
-          "dayOffset": 70,
-          "title": "生长期灌溉",
-          "desc": "保障水分"
-        },
-        {
-          "opType": "fertilize",
-          "dayOffset": 100,
-          "title": "旺盛期追肥",
-          "desc": "促根生长"
+          "dayOffset": 65,
+          "title": "灌溉",
+          "desc": "灌溉（产区示范规程，原数据未提供细节说明）"
         },
         {
           "opType": "pesticide",
+          "dayOffset": 80,
+          "title": "防病",
+          "desc": "防病（产区示范规程，原数据未提供细节说明）"
+        },
+        {
+          "opType": "other",
+          "dayOffset": 95,
+          "title": "抽薹期",
+          "desc": "抽薹期（产区示范规程，原数据未提供细节说明）"
+        },
+        {
+          "opType": "fertilize",
+          "dayOffset": 110,
+          "title": "二次追肥",
+          "desc": "二次追肥（产区示范规程，原数据未提供细节说明）"
+        },
+        {
+          "opType": "irrigation",
           "dayOffset": 130,
-          "title": "旺盛期打药",
-          "desc": "防治根腐病"
+          "title": "旱季灌溉",
+          "desc": "旱季灌溉（产区示范规程，原数据未提供细节说明）"
         },
         {
-          "opType": "irrigation",
-          "dayOffset": 160,
-          "title": "根膨大期灌溉",
-          "desc": "保障膨大"
+          "opType": "other",
+          "dayOffset": 150,
+          "title": "根部膨大",
+          "desc": "根部膨大（产区示范规程，原数据未提供细节说明）"
         },
         {
-          "opType": "irrigation",
-          "dayOffset": 200,
-          "title": "成熟前控水",
-          "desc": "控水促熟"
+          "opType": "pesticide",
+          "dayOffset": 175,
+          "title": "后期防病",
+          "desc": "后期防病（产区示范规程，原数据未提供细节说明）"
         },
         {
           "opType": "harvest",
-          "dayOffset": 220,
-          "title": "成熟期采收",
-          "desc": "适时采挖"
+          "dayOffset": 200,
+          "title": "挖根采收",
+          "desc": "挖根采收（产区示范规程，原数据未提供细节说明）"
         }
+      ],
+      "regions": [
+        "甘肃岷县当归"
       ]
     },
     {
@@ -5673,63 +5969,84 @@
       "cropId": "C092",
       "name": "燕麦",
       "standardName": "燕麦",
-      "source": "知农时「后端乙 计算与规则层」data/init.sql crop_procedure 种子数据（400 作物 × 8 节点，导入时补 dayOffset=0 播种节点，未经农技复核）",
+      "source": "data/crop-base/crop-schedule.json 产区示范规程（黑龙江齐齐哈尔燕麦草）",
       "reviewStatus": "pending_review",
       "nodes": [
         {
           "opType": "sowing",
           "dayOffset": 0,
           "title": "播种",
-          "desc": "当地适宜播期整地播种，作为规程第 0 天（原表从播种后第 15 天开始记录）"
+          "desc": "播种（产区示范规程，原数据未提供细节说明）"
         },
         {
-          "opType": "pesticide",
-          "dayOffset": 15,
-          "title": "苗期除草",
-          "desc": "清除杂草"
+          "opType": "other",
+          "dayOffset": 8,
+          "title": "出苗",
+          "desc": "出苗（产区示范规程，原数据未提供细节说明）"
+        },
+        {
+          "opType": "other",
+          "dayOffset": 18,
+          "title": "分蘖期",
+          "desc": "分蘖期（产区示范规程，原数据未提供细节说明）"
         },
         {
           "opType": "fertilize",
           "dayOffset": 30,
-          "title": "分蘖期追肥",
-          "desc": "促分蘖"
+          "title": "追肥",
+          "desc": "追肥（产区示范规程，原数据未提供细节说明）"
         },
         {
           "opType": "irrigation",
-          "dayOffset": 45,
-          "title": "拔节期灌溉",
-          "desc": "保障水分"
+          "dayOffset": 40,
+          "title": "拔节灌溉",
+          "desc": "拔节灌溉（产区示范规程，原数据未提供细节说明）"
+        },
+        {
+          "opType": "other",
+          "dayOffset": 50,
+          "title": "拔节期",
+          "desc": "拔节期（产区示范规程，原数据未提供细节说明）"
         },
         {
           "opType": "pesticide",
-          "dayOffset": 55,
-          "title": "拔节期打药",
-          "desc": "防治蚜虫"
+          "dayOffset": 60,
+          "title": "防虫",
+          "desc": "防虫（产区示范规程，原数据未提供细节说明）"
+        },
+        {
+          "opType": "other",
+          "dayOffset": 70,
+          "title": "抽穗期",
+          "desc": "抽穗期（产区示范规程，原数据未提供细节说明）"
         },
         {
           "opType": "fertilize",
-          "dayOffset": 65,
-          "title": "抽穗期追肥",
-          "desc": "穗肥促粒重"
+          "dayOffset": 80,
+          "title": "穗期追肥",
+          "desc": "穗期追肥（产区示范规程，原数据未提供细节说明）"
         },
         {
-          "opType": "irrigation",
-          "dayOffset": 75,
-          "title": "灌浆期灌溉",
-          "desc": "保障灌浆"
+          "opType": "other",
+          "dayOffset": 85,
+          "title": "灌浆期",
+          "desc": "灌浆期（产区示范规程，原数据未提供细节说明）"
         },
         {
           "opType": "irrigation",
           "dayOffset": 90,
-          "title": "成熟前控水",
-          "desc": "控水促熟"
+          "title": "灌浆灌溉",
+          "desc": "灌浆灌溉（产区示范规程，原数据未提供细节说明）"
         },
         {
           "opType": "harvest",
           "dayOffset": 100,
-          "title": "成熟期采收",
-          "desc": "适时收获"
+          "title": "刈割采收",
+          "desc": "刈割采收（产区示范规程，原数据未提供细节说明）"
         }
+      ],
+      "regions": [
+        "黑龙江齐齐哈尔燕麦草"
       ]
     },
     {
@@ -17202,63 +17519,84 @@
       "cropId": "C275",
       "name": "苜蓿",
       "standardName": "苜蓿",
-      "source": "知农时「后端乙 计算与规则层」data/init.sql crop_procedure 种子数据（400 作物 × 8 节点，导入时补 dayOffset=0 播种节点，未经农技复核）",
+      "source": "data/crop-base/crop-schedule.json 产区示范规程（内蒙古呼伦贝尔苜蓿）",
       "reviewStatus": "pending_review",
       "nodes": [
         {
           "opType": "sowing",
           "dayOffset": 0,
           "title": "播种",
-          "desc": "当地适宜播期整地播种，作为规程第 0 天（原表从播种后第 7 天开始记录）"
+          "desc": "播种（产区示范规程，原数据未提供细节说明）"
         },
         {
-          "opType": "pesticide",
-          "dayOffset": 7,
-          "title": "苗期除草",
-          "desc": "苗期除草"
+          "opType": "other",
+          "dayOffset": 10,
+          "title": "出苗",
+          "desc": "出苗（产区示范规程，原数据未提供细节说明）"
         },
         {
-          "opType": "fertilize",
-          "dayOffset": 15,
-          "title": "幼苗追肥",
-          "desc": "幼苗追肥"
+          "opType": "other",
+          "dayOffset": 20,
+          "title": "分枝期",
+          "desc": "分枝期（产区示范规程，原数据未提供细节说明）"
         },
         {
-          "opType": "irrigation",
-          "dayOffset": 22,
-          "title": "生长期灌溉",
-          "desc": "生长期灌溉"
-        },
-        {
-          "opType": "pesticide",
-          "dayOffset": 30,
-          "title": "生长期打药",
-          "desc": "生长期打药"
+          "opType": "other",
+          "dayOffset": 35,
+          "title": "现蕾期",
+          "desc": "现蕾期（产区示范规程，原数据未提供细节说明）"
         },
         {
           "opType": "fertilize",
-          "dayOffset": 40,
-          "title": "旺盛期追肥",
-          "desc": "旺盛期追肥"
+          "dayOffset": 45,
+          "title": "追肥",
+          "desc": "追肥（产区示范规程，原数据未提供细节说明）"
         },
         {
-          "opType": "irrigation",
+          "opType": "other",
           "dayOffset": 50,
-          "title": "旺盛期灌溉",
-          "desc": "旺盛期灌溉"
+          "title": "初花期",
+          "desc": "初花期（产区示范规程，原数据未提供细节说明）"
         },
         {
           "opType": "irrigation",
-          "dayOffset": 60,
-          "title": "采收前控水",
-          "desc": "采收前控水"
+          "dayOffset": 55,
+          "title": "花期灌溉",
+          "desc": "花期灌溉（产区示范规程，原数据未提供细节说明）"
+        },
+        {
+          "opType": "other",
+          "dayOffset": 65,
+          "title": "盛花期",
+          "desc": "盛花期（产区示范规程，原数据未提供细节说明）"
+        },
+        {
+          "opType": "pesticide",
+          "dayOffset": 75,
+          "title": "病虫害防治",
+          "desc": "病虫害防治（产区示范规程，原数据未提供细节说明）"
+        },
+        {
+          "opType": "other",
+          "dayOffset": 80,
+          "title": "结荚期",
+          "desc": "结荚期（产区示范规程，原数据未提供细节说明）"
+        },
+        {
+          "opType": "fertilize",
+          "dayOffset": 85,
+          "title": "后期追肥",
+          "desc": "后期追肥（产区示范规程，原数据未提供细节说明）"
         },
         {
           "opType": "harvest",
-          "dayOffset": 70,
-          "title": "成熟期采收",
-          "desc": "成熟期采收"
+          "dayOffset": 90,
+          "title": "刈割采收",
+          "desc": "刈割采收（产区示范规程，原数据未提供细节说明）"
         }
+      ],
+      "regions": [
+        "内蒙古呼伦贝尔苜蓿"
       ]
     },
     {
@@ -22872,126 +23210,168 @@
       "cropId": "C365",
       "name": "大樱桃",
       "standardName": "大樱桃",
-      "source": "知农时「后端乙 计算与规则层」data/init.sql crop_procedure 种子数据（400 作物 × 8 节点，导入时补 dayOffset=0 播种节点，未经农技复核）",
+      "source": "data/crop-base/crop-schedule.json 产区示范规程（山东烟台大樱桃）",
       "reviewStatus": "pending_review",
       "nodes": [
         {
           "opType": "sowing",
           "dayOffset": 0,
-          "title": "播种",
-          "desc": "当地适宜播期整地播种，作为规程第 0 天（原表从播种后第 20 天开始记录）"
+          "title": "定植",
+          "desc": "春季定植，栽后灌水"
         },
         {
-          "opType": "fertilize",
+          "opType": "other",
           "dayOffset": 20,
-          "title": "萌芽前施肥",
-          "desc": "萌芽前施肥"
+          "title": "缓苗",
+          "desc": "缓苗期管理，保成活"
         },
         {
-          "opType": "pesticide",
+          "opType": "fertilize",
           "dayOffset": 35,
-          "title": "花前打药",
-          "desc": "花前打药"
-        },
-        {
-          "opType": "fertilize",
-          "dayOffset": 50,
-          "title": "花后追肥",
-          "desc": "花后追肥"
+          "title": "萌芽肥",
+          "desc": "萌芽前追施速效肥"
         },
         {
           "opType": "irrigation",
-          "dayOffset": 65,
-          "title": "果实膨大期灌溉",
-          "desc": "果实膨大期灌溉"
+          "dayOffset": 50,
+          "title": "花前水",
+          "desc": "花前适量灌水"
+        },
+        {
+          "opType": "other",
+          "dayOffset": 60,
+          "title": "授粉",
+          "desc": "花期辅助授粉，提高坐果"
+        },
+        {
+          "opType": "fertilize",
+          "dayOffset": 70,
+          "title": "膨果肥",
+          "desc": "膨果期追施钾肥"
+        },
+        {
+          "opType": "irrigation",
+          "dayOffset": 80,
+          "title": "膨果灌溉",
+          "desc": "膨果期均匀供水，防裂果"
         },
         {
           "opType": "pesticide",
-          "dayOffset": 80,
-          "title": "果实膨大期打药",
-          "desc": "果实膨大期打药"
-        },
-        {
-          "opType": "fertilize",
-          "dayOffset": 100,
-          "title": "着色期追肥",
-          "desc": "着色期追肥"
-        },
-        {
-          "opType": "irrigation",
-          "dayOffset": 120,
-          "title": "采收前控水",
-          "desc": "采收前控水"
+          "dayOffset": 85,
+          "title": "防果蝇",
+          "desc": "防治果蝇，避雨避风"
         },
         {
           "opType": "harvest",
-          "dayOffset": 140,
-          "title": "成熟期采收",
-          "desc": "成熟期采收"
+          "dayOffset": 95,
+          "title": "采收",
+          "desc": "果实成熟后分批采收"
+        },
+        {
+          "opType": "fertilize",
+          "dayOffset": 105,
+          "title": "采后肥",
+          "desc": "采后追肥，恢复树势"
+        },
+        {
+          "opType": "other",
+          "dayOffset": 115,
+          "title": "秋施基肥",
+          "desc": "秋季施基肥，深翻改土"
+        },
+        {
+          "opType": "other",
+          "dayOffset": 120,
+          "title": "清园",
+          "desc": "落叶后清园，防治越冬病虫"
         }
+      ],
+      "regions": [
+        "山东烟台大樱桃"
       ]
     },
     {
       "cropId": "C366",
       "name": "杨梅",
       "standardName": "杨梅",
-      "source": "知农时「后端乙 计算与规则层」data/init.sql crop_procedure 种子数据（400 作物 × 8 节点，导入时补 dayOffset=0 播种节点，未经农技复核）",
+      "source": "data/crop-base/crop-schedule.json 产区示范规程（浙江仙居杨梅）",
       "reviewStatus": "pending_review",
       "nodes": [
         {
           "opType": "sowing",
           "dayOffset": 0,
-          "title": "播种",
-          "desc": "当地适宜播期整地播种，作为规程第 0 天（原表从播种后第 20 天开始记录）"
+          "title": "定植",
+          "desc": "春季定植，栽后灌水"
         },
         {
-          "opType": "fertilize",
+          "opType": "other",
           "dayOffset": 20,
-          "title": "萌芽前施肥",
-          "desc": "萌芽前施肥"
-        },
-        {
-          "opType": "pesticide",
-          "dayOffset": 35,
-          "title": "花前打药",
-          "desc": "花前打药"
+          "title": "缓苗",
+          "desc": "缓苗期管理，保成活"
         },
         {
           "opType": "fertilize",
-          "dayOffset": 50,
-          "title": "花后追肥",
-          "desc": "花后追肥"
+          "dayOffset": 40,
+          "title": "萌芽肥",
+          "desc": "春梢萌发前追肥"
         },
         {
-          "opType": "irrigation",
+          "opType": "other",
+          "dayOffset": 55,
+          "title": "疏花",
+          "desc": "疏花控产，提高品质"
+        },
+        {
+          "opType": "pesticide",
           "dayOffset": 65,
-          "title": "果实膨大期灌溉",
-          "desc": "果实膨大期灌溉"
-        },
-        {
-          "opType": "pesticide",
-          "dayOffset": 80,
-          "title": "果实膨大期打药",
-          "desc": "果实膨大期打药"
+          "title": "防卷叶蛾",
+          "desc": "防治卷叶蛾，避雨避风"
         },
         {
           "opType": "fertilize",
-          "dayOffset": 100,
-          "title": "着色期追肥",
-          "desc": "着色期追肥"
+          "dayOffset": 75,
+          "title": "壮果肥",
+          "desc": "壮果期追施钾肥"
+        },
+        {
+          "opType": "other",
+          "dayOffset": 90,
+          "title": "疏果",
+          "desc": "疏果定果，控制负载"
         },
         {
           "opType": "irrigation",
-          "dayOffset": 120,
-          "title": "采收前控水",
-          "desc": "采收前控水"
+          "dayOffset": 100,
+          "title": "膨果灌溉",
+          "desc": "膨果期适时灌溉，防旱"
+        },
+        {
+          "opType": "pesticide",
+          "dayOffset": 110,
+          "title": "防枯枝病",
+          "desc": "防治枯枝病，避雨避风"
         },
         {
           "opType": "harvest",
-          "dayOffset": 140,
-          "title": "成熟期采收",
-          "desc": "成熟期采收"
+          "dayOffset": 130,
+          "title": "采收",
+          "desc": "果实成熟后分批采收"
+        },
+        {
+          "opType": "fertilize",
+          "dayOffset": 145,
+          "title": "采后肥",
+          "desc": "采后追肥，恢复树势"
+        },
+        {
+          "opType": "other",
+          "dayOffset": 150,
+          "title": "清园",
+          "desc": "清园修剪，防治越冬病虫"
         }
+      ],
+      "regions": [
+        "浙江仙居杨梅"
       ]
     },
     {

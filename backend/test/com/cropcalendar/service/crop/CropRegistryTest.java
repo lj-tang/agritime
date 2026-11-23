@@ -21,6 +21,9 @@ public class CropRegistryTest {
         eq("番茄", CropRegistry.standardName("fanqie"), "拼音归一到番茄");
         eq("水稻", CropRegistry.standardName("rice"), "规程 id 反查成标准名");
         eq("大蒜", CropRegistry.standardName("dry_garlic"), "规程 id 反查成标准名");
+        eq("大蒜", CropRegistry.standardName("山东金乡大蒜"), "产区名别名归一到作物");
+        eq("杨梅", CropRegistry.standardName("浙江仙居杨梅"), "产区名别名归一到作物");
+        eq("大蒜", CropRegistry.standardName("shandongjinxiangdasuan"), "产区名拼音归一到作物");
 
         // ---- 2. 规程映射 ----
         eq("rice", CropRegistry.protocolIdOf("水稻"), "水稻应有规程");
