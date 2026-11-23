@@ -342,11 +342,13 @@ public class TimelineHandler implements HttpHandler {
             }
         }
         if (ref == null) {
-            for (NodeMeta m : metas) {
+            for (int i = 0; i < metas.size(); i++) {
+                NodeMeta m = metas.get(i);
                 try {
                     LocalDate d = LocalDate.parse(m.node().date());
                     if (d.isAfter(todayDate)) {
                         ref = m;
+                        refIndex = i + 1;
                         conclusionCopy = "今天不在农事节点上；下一个节点「" + m.node().title()
                                 + "」还有 " + ChronoUnit.DAYS.between(todayDate, d) + " 天（"
                                 + m.node().date() + "）";
@@ -358,6 +360,7 @@ public class TimelineHandler implements HttpHandler {
             }
             if (ref == null && !metas.isEmpty()) {
                 ref = metas.get(metas.size() - 1);
+                refIndex = metas.size();
                 conclusionCopy = "本季农事节点已全部过去（最后节点「" + ref.node().title()
                         + "」于 " + ref.node().date() + "）；如需新一季，请调整播期后重新生成";
             }
