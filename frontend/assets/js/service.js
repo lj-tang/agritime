@@ -246,6 +246,16 @@
     return STATUS_LABEL[status] || status || '待处理';
   }
 
+  /** 拼 HTML 前的转义：工单字段来自接口，不能再当纯文本直接插进 innerHTML */
+  function esc(s) {
+    return String(s == null ? '' : s)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
+
   // ---------- 详情 ----------
   function openDetail(id) {
     get(API + '/ticket?id=' + encodeURIComponent(id))
@@ -278,7 +288,7 @@
     var head = document.createElement('div');
     head.className = 'service-detail-head';
     head.innerHTML = '<div class="service-detail-subject"></div>' +
-      '<div class="service-detail-meta">' + (t.category || '') + ' · ' + (t.createdAt || '') + ' · ' +
+      '<div class="service-detail-meta">' + esc(t.category || '') + ' · ' + esc(t.createdAt || '') + ' · ' +
       '<span class="service-item-status service-status--' + (t.status || 'open') + '">'
       + statusLabel(t.status) + '</span>' +
       '<span class="service-detail-last">' + (t.lastReplyAt ? '最后回复 ' + t.lastReplyAt : '暂无回复') + '</span>' +

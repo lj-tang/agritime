@@ -155,6 +155,10 @@ git config http.lowSpeedTime 999
 | 服务账号 | Java 服务以专用账号 `agritime` 运行（不再 root）；首次搭建见 `backend/deploy/crop-calendar.service` 头部注释 |
 | 监听地址 | 后端只绑 `127.0.0.1:8080`（`server.bind.address`），公网流量只走 nginx |
 | nginx 反代 | 清理 `/etc/hosts` 里重复的 `127.0.1.1 localhost`（曾让 `localhost` 解析出两个地址，与只绑回环的后端叠加后出现偶发 502）；`proxy_pass` 统一写死 `127.0.0.1:8080`，不再依赖 `localhost` 解析 |
+| 反馈工单 500 | `data/support/tickets.json` 原先入库，部署 `git reset --hard` 会以 root 重建；服务改用 `agritime` 账号后写不进去，提交工单返回 500。已从 git 移除（加入 `.gitignore`），写入改为「临时文件 + 原子替换」，不再依赖文件属主 |
+| 匿名工单 | 匿名访客提交工单后能凭浏览器生成的 `X-Visitor-Id` 查看/回复自己的工单（此前详情接口只认登录用户，匿名用户看不到自己的咨询） |
+| 工单类别 | 服务端按白名单（种植技术/病虫害/天气农事/地块管理/其他）落库，前端详情对类别做转义，防止任意 HTML 混入 |
+| 探活接口 | `/api/health/detail` 在 nginx 上用精确匹配拦掉（此前注释写了"不暴露"但实际被 `/api/` 前缀代理出去），内部状态只允许本机直连 8080 查看 |
 | nginx 日志轮转 | `/etc/logrotate.d/nginx` 原文件是 CRLF 换行 + `endpostrotate` 拼写错误，logrotate 每天静默跳过；已修正并纳入版本库（`deploy/nginx/logrotate.d-nginx`） |
 | 遗留清理 | 删除每分钟空跑的 `/etc/cron.d/agritime-frontend`；`certbot.timer` 临时停用、ufw 443 收回（`enable-https.sh` 会自动恢复） |
 | 注册防刷 | 同一 IP 每小时最多 10 次注册尝试（识别 nginx 注入的 `X-Real-IP`）；本地直连 8080 不受限 |

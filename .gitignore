@@ -9,6 +9,9 @@ data/geo-baseline-computed.json
 backend/var/
 # 服务端以仓库根为工作目录时，运行时会写到这里（缓存、传感器、同步档案）
 /var/
+# 反馈工单数据（用户提交内容，运行时写入；曾被入库，部署 reset 会以 root 重建，
+# 服务（agritime）随后写不进去导致提交 500 —— 2026-11-23 已移出 git）
+data/support/
 
 # 运行时文件
 *.log

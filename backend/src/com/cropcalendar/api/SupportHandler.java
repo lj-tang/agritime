@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -54,6 +55,8 @@ public class SupportHandler implements HttpHandler {
 
     /** 三态固定；replied/closed 是 V4 旧值，读取时归一 */
     private static final Set<String> STATUSES = Set.of("open", "processing", "resolved");
+    /** 问题类别白名单：只存站点下拉里的值，防止任意 HTML 混进工单数据 */
+    private static final Set<String> CATEGORIES = Set.of("种植技术", "病虫害", "天气农事", "地块管理", "其他");
     private static final int DEFAULT_PAGE_SIZE = 10;
     private static final int MAX_PAGE_SIZE = 50;
 
@@ -119,7 +122,7 @@ public class SupportHandler implements HttpHandler {
         ticket.put("userId", userId);
         ticket.put("userName", userName);
         ticket.put("subject", subject);
-        ticket.put("category", category.isEmpty() ? "其他" : category);
+        ticket.put("category", CATEGORIES.contains(category) ? category : "其他");
         ticket.put("content", content);
         ticket.put("status", "open");
         ticket.put("createdAt", now);
@@ -238,7 +241,12 @@ public class SupportHandler implements HttpHandler {
         }
         boolean admin = u != null && u.isAdmin();
         boolean mine = u != null && str(t.get("userId")).equals(u.id());
-        if (!admin && !mine) {
+        // 匿名访客：凭浏览器生成的 X-Visitor-Id 认领自己的匿名工单。
+        // 不按 IP 认领 —— 校园网/公司 NAT 下同一 IP 的人很多，会互相看到工单。
+        String vid = visitorId(ex);
+        boolean anonMine = u == null && vid != null
+                && str(t.get("userId")).equals("anon_" + vid);
+        if (!admin && !mine && !anonMine) {
             HttpSupport.write(ex, 403, HttpSupport.error(403, "无权查看该工单"));
             return;
         }
@@ -277,7 +285,10 @@ public class SupportHandler implements HttpHandler {
         }
         boolean admin = u != null && u.isAdmin();
         boolean mine = u != null && str(t.get("userId")).equals(u.id());
-        if (!admin && !mine) {
+        String vid = visitorId(ex);
+        boolean anonMine = u == null && vid != null
+                && str(t.get("userId")).equals("anon_" + vid);
+        if (!admin && !mine && !anonMine) {
             HttpSupport.write(ex, 403, HttpSupport.error(403, "无权回复该工单"));
             return;
         }
@@ -532,7 +543,16 @@ public class SupportHandler implements HttpHandler {
     private void persist(Map<String, Object> s) throws IOException {
         Path p = Path.of(DATA_FILE);
         if (p.getParent() != null) Files.createDirectories(p.getParent());
-        Files.writeString(p, Json.stringify(s), StandardCharsets.UTF_8);
+        // 先写临时文件再原子替换：只要目录可写就不会因为 tickets.json 属主不对而 500。
+        // 2026-11-23 线上就是这个坑：服务切到 agritime 账号后，root 遗留的 tickets.json
+        // 写不进去，匿名/用户提交工单全部 500。
+        Path tmp = p.resolveSibling(p.getFileName() + ".tmp");
+        Files.writeString(tmp, Json.stringify(s), StandardCharsets.UTF_8);
+        try {
+            Files.move(tmp, p, StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE);
+        } catch (IOException atomicUnsupported) {
+            Files.move(tmp, p, StandardCopyOption.REPLACE_EXISTING);
+        }
     }
 
     @SuppressWarnings("unchecked")
