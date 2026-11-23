@@ -154,6 +154,7 @@ git config http.lowSpeedTime 999
 | 敏感配置 | `/etc/agritime.env` 已改为 600 |
 | 服务账号 | Java 服务以专用账号 `agritime` 运行（不再 root）；首次搭建见 `backend/deploy/crop-calendar.service` 头部注释 |
 | 监听地址 | 后端只绑 `127.0.0.1:8080`（`server.bind.address`），公网流量只走 nginx |
+| nginx 反代 | 清理 `/etc/hosts` 里重复的 `127.0.1.1 localhost`（曾让 `localhost` 解析出两个地址，与只绑回环的后端叠加后出现偶发 502）；`proxy_pass` 统一写死 `127.0.0.1:8080`，不再依赖 `localhost` 解析 |
 | nginx 日志轮转 | `/etc/logrotate.d/nginx` 原文件是 CRLF 换行 + `endpostrotate` 拼写错误，logrotate 每天静默跳过；已修正并纳入版本库（`deploy/nginx/logrotate.d-nginx`） |
 | 遗留清理 | 删除每分钟空跑的 `/etc/cron.d/agritime-frontend`；`certbot.timer` 临时停用、ufw 443 收回（`enable-https.sh` 会自动恢复） |
 | 注册防刷 | 同一 IP 每小时最多 10 次注册尝试（识别 nginx 注入的 `X-Real-IP`）；本地直连 8080 不受限 |
