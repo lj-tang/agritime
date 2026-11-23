@@ -132,7 +132,10 @@ public class TimelineHandler implements HttpHandler {
 
         // 播期可省略：用户只给作物和地点时，按适宜播期窗口自动取推荐日。
         // 前端新流程已经不传日期，老调用方仍可显式指定。
-        if (sowDate == null || sowDate.isBlank()) {
+        // 注意：范围校验只针对「用户显式传入」的日期 —— 系统推荐的播期可能在未来
+        // 几个月（如 11 月推荐水稻次年 4 月），用 30 天上限去卡它会导致默认流程全 400。
+        boolean sowDateProvided = sowDate != null && !sowDate.isBlank();
+        if (!sowDateProvided) {
             CropProperties.Props wp = CropProperties.of(CropRegistry.standardName(cropId));
             PlantingWindow.Window w = PlantingWindow.of(wp, lat, lon, AppTime.today());
             if (w == null) {
@@ -158,7 +161,7 @@ public class TimelineHandler implements HttpHandler {
         LocalDate todayDate = AppTime.today();
         LocalDate minDate = todayDate.minusYears(2);
         LocalDate maxDate = todayDate.plusDays(30);
-        if (sowLocal.isBefore(minDate) || sowLocal.isAfter(maxDate)) {
+        if (sowDateProvided && (sowLocal.isBefore(minDate) || sowLocal.isAfter(maxDate))) {
             HttpSupport.write(ex, 400, errJson("INVALID_INPUT",
                     "sowDate 只支持近两年内至未来 30 天（" + minDate + " ~ " + maxDate
                             + "），收到：" + sowDate));
