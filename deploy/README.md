@@ -167,6 +167,9 @@ git config http.lowSpeedTime 999
 | nginx 站点配置 | `/etc/nginx/sites-enabled/agritime` 由普通文件改为指向仓库 `deploy/nginx/agritime.conf` 的软链；`deploy.sh` 自动校正软链，`nginx -t` 通过后热加载，校验失败保持旧配置运行 |
 | 今日结论 | 时间线只把**当天命中**的节点作为「今日结论」；当天无节点时提示下一个节点倒计时，全部节点过去时提示调整播期 |
 | 播期校验 | `sowDate` 仅接受近两年 ~ 未来 30 天，越界返回 400 |
+| 播期窗口提示 | 时间线按请求纬度选西南 / 东北 / 西北 / 长江以南 / 华北的常规播期窗口，返回 `sowWindow`（非阻塞）：不在窗口内只提示，仍按用户填写的日期生成 |
+| 未知作物候选 | 422 时返回 `suggestions`（相似作物，最多 5 个；检索不到则回退 3 个已有规程的作物），前端渲染「你是不是想找」 |
+| 天气磁盘缓存 | 天气窗口成功后落盘 `backend/var/weather-cache.json`（TTL 同 `CACHE_TTL_SECONDS`），重启后仍可命中；内存无缓存时降级先用磁盘缓存，`dataSource=cache` 文案会标明 |
 | 限流 | API 120 次/分钟（burst 30），nginx zone 在 `/etc/nginx/nginx.conf`，仓库留档 `deploy/nginx/limit-req-zone.conf` |
 | 接口缓存 | `/api/crops` 300 秒、`/api/site-config` 60 秒，其余接口仍 `no-store` |
 | 前端请求 | `service.js` 统一 20 秒超时；GET 遇网络层失败自动重试一次（业务错误不重试） |

@@ -162,6 +162,7 @@
 
       var query = parseQuery(window.location.search);
       var degradedSource = '';
+      var unsupportedInfo = null;
 
       if (window.LocationPicker) {
         window.LocationPicker.initDisplay('timeline-map', query.lat, query.lon);
@@ -198,11 +199,20 @@
               degradedSource = 'generating';
               throw new Error('规程生成超时');
             }
+            if (res.status === 422) {
+              // 作物没有规程：把后端给的相似候选展示出来，别只报"接口异常"
+              degradedSource = 'unsupported';
+              return res.json().catch(function () { return {}; }).then(function (body) {
+                unsupportedInfo = body || {};
+                return null;
+              });
+            }
             if (!res.ok) { degradedSource = 'http'; throw new Error('接口返回 ' + res.status); }
             return res.json();
           })
           .then(function (data) {
             clearTimeout(timer);
+            if (data === null) return null;
             if (!data || typeof data !== 'object' || !Array.isArray(data.nodes)) {
               degradedSource = 'invalid';
               return null;
@@ -272,10 +282,20 @@
         var displayCropName = hit ? hit.name : query.cropName;
         document.getElementById('brand-sub').textContent = (displayCropName || '') + ' · ' + (query.sowDate || '');
         var sourceText = { realtime: '实时天气', cache: '缓存天气', unavailable: '天气未获取' }[data.dataSource] || '';
-        var degradedText = { timeout: '接口超时', http: '接口异常', invalid: '数据异常', offline: '网络异常' }[degradedSource] || '';
+        var degradedText = { timeout: '接口超时', http: '接口异常', invalid: '数据异常', offline: '网络异常', unsupported: '该作物暂不支持' }[degradedSource] || '';
         var extra = degradedSource ? ' · 本地兜底数据（' + degradedText + '）' : '';
         meta.textContent = '数据来源：' + sourceText + (data.dataTime ? ' · 数据时间 ' + new Date(data.dataTime).toLocaleString() : '') + extra;
-        meta.className = 'data-meta' + ((data.dataSource === 'realtime' && !degradedSource) ? '' : ' warn');
+        // C1：播期窗口只是提示，不打断时间线；不在常规窗口时把说明放在数据来源一行
+        var sw = data.sowWindow;
+        if (sw && sw.copy) {
+          meta.textContent += ' · ' + sw.copy;
+        }
+        // C3：作物没有规程时，展示后端给的相似候选，避免用户只看到"接口异常"
+        if (degradedSource === 'unsupported' && unsupportedInfo) {
+          var cands = (unsupportedInfo.suggestions || []).map(function (c) { return c.displayName; }).filter(Boolean);
+          meta.textContent = '暂不支持该作物品种' + (cands.length ? '；可试试：' + cands.join('、') : '') + '。可返回作物库另选一个。';
+        }
+        meta.className = 'data-meta' + ((data.dataSource === 'realtime' && !degradedSource) ? '' : ' warn') + (sw && sw.inWindow === false ? ' warn' : '');
 
         bindSowingConfirm(displayCropName);
       }
@@ -991,15 +1011,20 @@
 
       /** 后端彻底不可达时的错误态：带重试，绝不拿本地假数据冒充日历（诚实红线） */
       function showTimelineError() {
-        document.getElementById('brand-sub').textContent = '读取失败';
+        document.getElementById('brand-sub').textContent = degradedSource === 'unsupported' ? '暂不支持该作物' : '读取失败';
         var errEl = document.getElementById('timeline-error');
         if (errEl) errEl.hidden = false;
+        var cands = degradedSource === 'unsupported' && unsupportedInfo
+          ? (unsupportedInfo.suggestions || []).map(function (c) { return c.displayName; }).filter(Boolean)
+          : [];
         if (window.UiState) {
           window.UiState.error(errEl || 'timeline', {
-            text: '农事日历读取失败',
-            hint: degradedSource === 'generating'
-              ? '农事规程还在生成，稍后点下面重试。'
-              : '网络异常或服务暂时不可用，你的数据不会丢。',
+            text: degradedSource === 'unsupported' ? '暂不支持该作物品种' : '农事日历读取失败',
+            hint: degradedSource === 'unsupported'
+              ? ((cands.length ? '你是不是想找：' + cands.join('、') + '？' : '可以回作物库用「搜索」找一个已有规程的作物。'))
+              : (degradedSource === 'generating'
+                ? '农事规程还在生成，稍后点下面重试。'
+                : '网络异常或服务暂时不可用，你的数据不会丢。'),
             onRetry: function () {
               if (errEl) errEl.hidden = true;
               document.getElementById('brand-sub').textContent = '正在读取农时…';

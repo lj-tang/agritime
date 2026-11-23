@@ -38,6 +38,7 @@ POST 请求体：
     "apiVersion": "string",
     "dataSource": "realtime|cache|unavailable",
     "dataTime": "string",
+    "sowWindow": { "region": "长江以南", "months": [3, 4, 6, 7], "inWindow": true, "copy": "按长江以南常规播期（3–4、6–7 月），你填的 3 月在其内。" },
     "todayConclusion": { "nodeId": "1", "operationType": "sowing", "status": "green|yellow|red", "copy": "..." },
     "nodes": [{
       "nodeId": "1", "nodeSeq": 1, "daysAfterSowing": 0, "date": "2026-12-05",
@@ -61,8 +62,12 @@ POST 请求体：
 `pesticide`（打药/防治）、`harvest`（采收）、`other`（产区规程里的出苗、培土、搭架、
 清园、修剪等管理类农事；天气建议走通用分支）。
 
-`dataSource` 为 `cache` 时表示天气上游超时、用了缓存；`unavailable` 表示连缓存也没有，
-本次不提供天气判断（不会编造数值）。
+`dataSource` 为 `cache` 时表示天气上游超时、用了内存或磁盘缓存（`backend/var/weather-cache.json`，
+重启后仍可命中）；`unavailable` 表示连缓存也没有，本次不提供天气判断（不会编造数值）。
+
+`sowWindow` 是按播期数据与请求纬度给出的**非阻塞**提示：按纬度带选常规窗口（西南 / 东北 / 西北 /
+长江以南 / 华北），`inWindow=false` 时前端可按 warn 样式展示文案，但仍会按用户填写的日期生成。
+播期窗口若为「按作物类别推定」（`precision` 非 researched），`copy` 会追加提示。
 
 ### 生成中：HTTP 202
 
@@ -80,7 +85,24 @@ POST 请求体：
 |------|-------|------|
 | 400 | INVALID_INPUT | 缺 crop、作物名过长、日期格式错、日期超出范围、JSON 非法 |
 | 413 | INVALID_INPUT | 请求体过大 |
-| 422 | UNSUPPORTED_CROP | 尚无规程且大模型生成失败 |
+| 422 | UNSUPPORTED_CROP | 尚无规程且大模型生成失败；响应带 `requestedCrop` 与 `suggestions` |
+
+422 响应体示例（`suggestions` 最多 5 个：先用作物库检索相似名，检索不到时回退 3 个已有规程的作物）：
+
+```json
+{
+  "error": "UNSUPPORTED_CROP",
+  "message": "暂不支持该作物品种",
+  "requestedCrop": "测试作物XYZ",
+  "normalizedCrop": null,
+  "suggestions": [
+    { "canonical": "C001", "displayName": "水稻", "matchedBy": "supported" }
+  ]
+}
+```
+
+`normalizedCrop` 仅在输入被归一成另一种作物时非 null。前端可把 `suggestions[].displayName`
+渲染成「你是不是想找：…」。
 | 500 | INTERNAL_ERROR | 服务端异常 |
 
 ## 2. POST /api/recognition

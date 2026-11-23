@@ -207,12 +207,38 @@ public class TimelineHandler implements HttpHandler {
                     writeGenerating(ex);
                     return;
                 }
-                HttpSupport.write(ex, 422, errJson("UNSUPPORTED_CROP",
-                        "暂不支持该作物品种"));
+                // 未知作物时给相似候选，用户不必猜名称；仍返回 422，不擅自替换作物。
+                List<CropRegistry.Match> candidates = CropRegistry.search(cropId, 5);
+                List<String> candidateJson = new ArrayList<>();
+                for (CropRegistry.Match m : candidates) {
+                    if (m.score() > 10) continue; // 编辑距离命中的弱候选不展示
+                    candidateJson.add(Json.obj(
+                            "canonical", Json.str(m.entry().canonical()),
+                            "displayName", Json.str(m.entry().displayName()),
+                            "matchedBy", Json.str(m.matchedBy())));
+                }
+                // 没有相似候选时给几个常见作物，至少让用户知道"能查什么"
+                if (candidateJson.isEmpty()) {
+                    for (CropRegistry.Entry e : CropRegistry.all()) {
+                        if (candidateJson.size() >= 3) break;
+                        if (CropRegistry.protocolIdOf(e.displayName()) == null) continue;
+                        candidateJson.add(Json.obj(
+                                "canonical", Json.str(e.canonical()),
+                                "displayName", Json.str(e.displayName()),
+                                "matchedBy", Json.str("supported")));
+                    }
+                }
+                HttpSupport.write(ex, 422, Json.obj(
+                        "error", Json.str("UNSUPPORTED_CROP"),
+                        "message", Json.str("暂不支持该作物品种"),
+                        "requestedCrop", Json.str(cropId),
+                        "normalizedCrop", standardName != null && !standardName.equals(cropId)
+                                ? Json.str(standardName) : "null",
+                        "suggestions", Json.arr(candidateJson)));
                 return;
             }
 
-            String body = toContractJson(r, standardName, cropId, props, areaMu);
+            String body = toContractJson(r, standardName, cropId, props, areaMu, sowLocal, lat, lon);
             // 注入缓存标记（toContractJson 以 } 结尾），命中时把 false 翻成 true
             body = body.substring(0, body.length() - 1) + ",\"cached\":false}";
             synchronized (CACHE) {
@@ -232,11 +258,12 @@ public class TimelineHandler implements HttpHandler {
      * 转换成前端契约 v3 格式。
      */
     private static String toContractJson(TimelineResult r) {
-        return toContractJson(r, null, null, null, 0);
+        return toContractJson(r, null, null, null, 0, null, 0, 0);
     }
 
     private static String toContractJson(TimelineResult r, String cropName, String requestedCrop,
-                                         CropProperties.Props props, double areaMu) {
+                                         CropProperties.Props props, double areaMu,
+                                         LocalDate sowDate, double lat, double lon) {
         LocalDate todayDate = AppTime.today();
         String today = todayDate.toString();
         String dataSource = mapDataSource(r.weatherStatus());
@@ -375,8 +402,79 @@ public class TimelineHandler implements HttpHandler {
                 "dataTime", dataTime != null ? Json.str(dataTime) : "null",
                 "weatherSummary", r.weatherSummary() != null ? Json.str(r.weatherSummary()) : "null",
                 "todayConclusion", todayConclusion,
+                // C1：非阻塞播期提示——作物适生区/播期窗口与用户地块的对照，不改变生成结果
+                "sowWindow", sowWindowJson(props, sowDate, lat, lon),
                 "nodes", Json.arr(nodesJson),
                 "reminders", Json.arr(reminders));
+    }
+
+    /**
+     * 按纬度（西南看经度）挑选作物的常规播期窗口，与用户填写的播期对照。
+     * 只做提示，不拦截请求：作物在非典型区域也可能试种，页面需要说明"仍按你填的日期生成"。
+     */
+    private static String sowWindowJson(CropProperties.Props p, LocalDate sowDate, double lat, double lon) {
+        if (p == null || sowDate == null) return "null";
+        String region = "华北";
+        List<Integer> months = p.sowMonths();
+        if (lon <= 105 && lat >= 26 && lat <= 34.5 && p.hasSouthwest()) {
+            region = "西南";
+            months = p.sowMonthsSouthwest();
+        } else if (lat >= 40) {
+            if (lon >= 118 && p.hasNortheast()) {
+                region = "东北";
+                months = p.sowMonthsNortheast();
+            } else if (p.hasNorthwest()) {
+                region = "西北";
+                months = p.sowMonthsNorthwest();
+            } else if (p.hasNortheast()) {
+                region = "东北";
+                months = p.sowMonthsNortheast();
+            }
+        } else if (lat < 32 && p.hasSouthMonths()) {
+            region = "长江以南";
+            months = p.sowMonthsSouth();
+        }
+        if (months == null || months.isEmpty()) return "null";
+        boolean inWindow = months.contains(sowDate.getMonthValue());
+        String copy;
+        if (inWindow) {
+            copy = "按" + region + "常规播期（" + monthRange(months) + "），你填的 "
+                    + sowDate.getMonthValue() + " 月在其内。";
+        } else {
+            copy = "该作物在" + region + "的常规播期为 " + monthRange(months) + "；你填的 "
+                    + sowDate.getMonthValue() + " 月不在窗口内，仍会按你填的日期生成，建议核对播期。";
+        }
+        if (!"researched".equals(p.precision())) {
+            copy = copy + "（该播期窗口为按作物类别推定，供参考）";
+        }
+        if (!"长江以南".equals(region) && p.hasSouthMonths()) {
+            copy = copy + " 南方（长江以南）窗口为 " + monthRange(p.sowMonthsSouth()) + "。";
+        }
+        return Json.obj(
+                "region", Json.str(region),
+                "months", Json.arr(months.stream().map(String::valueOf).toList()),
+                "inWindow", String.valueOf(inWindow),
+                "copy", Json.str(copy));
+    }
+
+    /** 把月份列表写成"4–6 月"或"3、6–7 月"，用于中文提示。 */
+    private static String monthRange(List<Integer> months) {
+        List<Integer> sorted = new ArrayList<>(months);
+        sorted.sort(Integer::compareTo);
+        StringBuilder sb = new StringBuilder();
+        int i = 0;
+        while (i < sorted.size()) {
+            int start = sorted.get(i);
+            int end = start;
+            while (i + 1 < sorted.size() && sorted.get(i + 1) == end + 1) {
+                end = sorted.get(++i);
+            }
+            if (sb.length() > 0) sb.append("、");
+            sb.append(start);
+            if (end != start) sb.append("–").append(end);
+            i++;
+        }
+        return sb.append(" 月").toString();
     }
 
     /** T07：把作物属性带出去，前端可显示熟制与年限，也让"为什么有两季"有据可查 */

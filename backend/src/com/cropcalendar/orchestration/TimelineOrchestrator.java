@@ -46,8 +46,8 @@ public class TimelineOrchestrator {
     private static final DateTimeFormatter DATE = DateTimeFormatter.ofPattern("yyyy-MM-dd");
     private static final DateTimeFormatter TS = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
-    /** 共享线程池：只用来给上游调用做超时控制，不每次请求新建 */
-    private static final ExecutorService UPSTREAM = Executors.newFixedThreadPool(4, r -> {
+    /** 共享线程池：只用来给上游调用做超时控制，不每次请求新建。8 个线程应付演示现场的并发抓取 */
+    private static final ExecutorService UPSTREAM = Executors.newFixedThreadPool(8, r -> {
         Thread t = new Thread(r, "upstream-call");
         t.setDaemon(true);
         return t;
@@ -325,34 +325,56 @@ public class TimelineOrchestrator {
             return new WeatherFetch(cached.window(), cached.dataTime(), "缓存命中（同地点）");
         }
 
+        // 磁盘缓存：进程重启后内存缓存是空的，磁盘里可能还留着上一份真实数据
+        WeatherCacheStore.Cached disk = WeatherCacheStore.get(key);
+        if (disk != null && !disk.window().degraded() && coversDates(disk.window(), dates)) {
+            WeatherFetch fromDisk = new WeatherFetch(disk.window(), disk.dataTime(), "磁盘缓存命中（同地点）");
+            cache.put(key, fromDisk, AppConfig.cacheTtlSeconds());
+            return fromDisk;
+        }
+
         // 注意：缓存在后台任务里写入，而不是在 get() 成功之后写。
         // 这样即使本次请求已经超时放弃等待，数据随后到了照样会进缓存 ——
         // 下一次请求就能用上，缓存会自己恢复，不需要人工干预。
-        Future<WeatherFetch> f = UPSTREAM.submit(() -> {
-            WeatherWindow w = ComputeStub.fetchWindowWeather(lat, lon, dates);
-            if (w.degraded()) {
-                // 失败结果不进缓存 —— 缓存只存真实拿到过的数据。
-                // 否则一次断网会把空数据缓存 900 秒，缓存自愈的性质就被破坏了。
-                return new WeatherFetch(w, null, "上游取数失败");
+        // 上游偶发握手失败（实测 HttpConnectTimeoutException），所以失败快速重试一次；
+        // 超时不重试，避免把 5 秒的等待翻倍。
+        for (int attempt = 1; attempt <= 2; attempt++) {
+            Future<WeatherFetch> f = UPSTREAM.submit(() -> {
+                WeatherWindow w = ComputeStub.fetchWindowWeather(lat, lon, dates);
+                if (w.degraded()) {
+                    // 失败结果不进缓存 —— 缓存只存真实拿到过的数据。
+                    // 否则一次断网会把空数据缓存 900 秒，缓存自愈的性质就被破坏了。
+                    return new WeatherFetch(w, null, "上游取数失败");
+                }
+                WeatherFetch fresh = new WeatherFetch(w, AppTime.now().format(TS), "上游实时数据");
+                cache.put(key, fresh, AppConfig.cacheTtlSeconds());
+                WeatherCacheStore.put(key, w, fresh.dataTime(), AppConfig.cacheTtlSeconds());
+                return fresh;
+            });
+            try {
+                return f.get(timeout, TimeUnit.MILLISECONDS);
+
+            } catch (TimeoutException e) {
+                f.cancel(true);
+                return degradeToCache(key, "上游超时 " + timeout + "ms");
+
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                return degradeToCache(key, "上游调用被中断");
+
+            } catch (Exception e) {
+                if (attempt == 2) {
+                    return degradeToCache(key, "上游异常 " + e.getClass().getSimpleName());
+                }
+                try {
+                    Thread.sleep(300);
+                } catch (InterruptedException ie) {
+                    Thread.currentThread().interrupt();
+                    return degradeToCache(key, "上游调用被中断");
+                }
             }
-            WeatherFetch fresh = new WeatherFetch(w, AppTime.now().format(TS), "上游实时数据");
-            cache.put(key, fresh, AppConfig.cacheTtlSeconds());
-            return fresh;
-        });
-        try {
-            return f.get(timeout, TimeUnit.MILLISECONDS);
-
-        } catch (TimeoutException e) {
-            f.cancel(true);
-            return degradeToCache(key, "上游超时 " + timeout + "ms");
-
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            return degradeToCache(key, "上游调用被中断");
-
-        } catch (Exception e) {
-            return degradeToCache(key, "上游异常 " + e.getClass().getSimpleName());
         }
+        return degradeToCache(key, "上游异常");
     }
 
     private WeatherFetch degradeToCache(String key, String why) {
@@ -360,6 +382,10 @@ public class TimelineOrchestrator {
         if (cached != null) {
             // 有缓存：把上一份数据还给前端，但如实标注它的时间
             return new WeatherFetch(cached.window(), cached.dataTime(), why + "，已使用缓存数据");
+        }
+        WeatherCacheStore.Cached disk = WeatherCacheStore.get(key);
+        if (disk != null && !disk.window().degraded()) {
+            return new WeatherFetch(disk.window(), disk.dataTime(), why + "，已使用磁盘缓存数据");
         }
         // 没缓存：明说取不到，绝不编造数字
         return new WeatherFetch(
