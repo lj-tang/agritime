@@ -173,6 +173,7 @@ git config http.lowSpeedTime 999
 | 限流 | API 120 次/分钟（burst 30），nginx zone 在 `/etc/nginx/nginx.conf`，仓库留档 `deploy/nginx/limit-req-zone.conf` |
 | 接口缓存 | `/api/crops` 300 秒、`/api/site-config` 60 秒，其余接口仍 `no-store` |
 | 前端请求 | `service.js` 统一 20 秒超时；GET 遇网络层失败自动重试一次（业务错误不重试） |
+| PWA / 弱网 | 新增 `manifest.json`、`sw.js`（页面壳 network-first、静态资源 stale-while-revalidate、**不缓存 /api**）与 `pwa.js`（注册 SW + 离线/恢复提示条）；`/sw.js` 由 nginx `root /agritime/frontend/pages` 直接提供，scope 为 `/` |
 | 运维自检 | `/api/health/detail` 增加 `protocolCount` / `llmCachedCount`，`cropCount` 只是两者合计，不再单作覆盖指标 |
 | CORS | 默认同源，不再返回 `Access-Control-Allow-Origin: *`；`file://` 救生索（Origin: null）与 localhost 开发端口已内置放行，其他来源不返回 CORS 头 |
 | 注册收口 | 演示/正式环境把 `/etc/agritime.env` 里的 `AUTH_ALLOW_REGISTER` 设为 `false`（默认 `true` 只方便本地开发）。关闭后注册接口返回 403「当前未开放注册，请联系管理员」 |

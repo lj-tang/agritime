@@ -1066,6 +1066,38 @@ body[data-layout="app"] .content-pane > * {
 .toast.error { background: var(--red-soft); color: var(--red); border-color: #eec9c3; }
 .toast.info { background: var(--leaf-soft); color: var(--leaf); }
 
+/* 网络状态提示（pwa.js 注入，离线时固定显示在顶部） */
+.net-banner {
+  position: fixed;
+  left: 50%;
+  top: 14px;
+  transform: translate(-50%, -8px);
+  z-index: 320;
+  display: none;
+  max-width: min(460px, calc(100vw - 32px));
+  padding: 8px 16px;
+  font-size: calc(13px * var(--fs, 1));
+  line-height: 1.5;
+  text-align: center;
+  border-radius: 999px;
+  background: #fff6e5;
+  color: #8a4b00;
+  border: 1px solid #f0d3a8;
+  box-shadow: var(--shadow);
+  pointer-events: none;
+}
+.net-banner.show { display: block; animation: wb-net-in 0.2s ease forwards; }
+.net-banner.ok { background: var(--leaf-soft); color: var(--leaf); border-color: var(--brand-line); }
+
+@keyframes wb-net-in {
+  from { opacity: 0; transform: translate(-50%, -8px); }
+  to { opacity: 1; transform: translate(-50%, 0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .net-banner.show { animation: none; }
+}
+
 @keyframes wb-toast-in {
   from { opacity: 0; transform: translate(-50%, 16px); }
   to { opacity: 1; transform: translate(-50%, 0); }
