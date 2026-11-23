@@ -4,7 +4,7 @@ package com.cropcalendar.service.crop;
  * T02 作物名称注册表单测：别名/拼音/规程 id 归一，模糊匹配闸门。
  *
  * 这是农事日历入口的关键链路 —— 之前"农事日历卡死"就是作物名归一没接上。
- * 数据依赖 data/crop-base/alias.json（400 条）与 backend/crop-protocols.json（5 个规程）。
+ * 数据依赖 data/crop-base/alias.json（400 条）与 backend/crop-protocols.json（400 个规程）。
  */
 public class CropRegistryTest {
 
@@ -26,13 +26,13 @@ public class CropRegistryTest {
         eq("rice", CropRegistry.protocolIdOf("水稻"), "水稻应有规程");
         eq("dry_garlic", CropRegistry.protocolIdOf("大蒜"), "大蒜应有规程");
         eq("tomato", CropRegistry.protocolIdOf("番茄"), "番茄应有本地规程（V5.1 补入）");
-        check(CropRegistry.protocolIdOf("豌豆尖") == null, "豌豆尖无规程应返回 null");
+        check(CropRegistry.protocolIdOf("测试作物ZZZ") == null, "未注册作物应返回 null");
 
         // ---- 3. 一步到位：有规程优先规程 id，否则回标准名 ----
         eq("rice", CropRegistry.timelineCropId("水稻"), "有规程优先规程 id");
         eq("rice", CropRegistry.timelineCropId("rice"), "已是规程 id 直接透传");
         eq("tomato", CropRegistry.timelineCropId("西红柿"), "有规程时回规程 id");
-        eq("豌豆尖", CropRegistry.timelineCropId("豌豆尖"), "无规程回标准名");
+        eq("测试作物ZZZ", CropRegistry.timelineCropId("测试作物ZZZ"), "无规程回标准名");
 
         // ---- 4. 联想搜索：别名命中应排第一 ----
         eq("番茄", CropRegistry.search("西红柿", 5).get(0).entry().displayName(), "别名命中排第一");
