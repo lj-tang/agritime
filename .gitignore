@@ -1,5 +1,7 @@
 # 构建产物
 backend/build/
+# 本地验证用的临时编译目录（Windows 上沙箱不能写 backend/build 时用）
+.build-tmp/
 *.class
 
 # 签字工作表生成器产物（每次拉 DEM 重新生成，不入库）

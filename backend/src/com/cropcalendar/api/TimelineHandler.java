@@ -20,6 +20,8 @@ import com.sun.net.httpserver.HttpHandler;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -55,6 +57,10 @@ public class TimelineHandler implements HttpHandler {
     };
 
     private record Cached(long at, String body) {
+    }
+
+    /** 节点 + 渲染状态，供「今日结论」的回退逻辑复用 */
+    private record NodeMeta(NodeView node, String status, String certainty) {
     }
 
     @Override
@@ -138,6 +144,28 @@ public class TimelineHandler implements HttpHandler {
             sowDate = w.recommendedDate() != null ? w.recommendedDate() : w.fallbackDate();
         }
 
+        // 播期只接受契约声明的范围：近两年 ~ 未来 30 天。
+        // 不拦的话，2024 年、2030 年的日期都能查，用户会把「历史回放」当成系统失真；
+        // 同时这里给出明确提示，而不是把 LocalDate.parse 的英文堆栈透给前端。
+        LocalDate sowLocal;
+        try {
+            sowLocal = LocalDate.parse(sowDate.trim());
+        } catch (DateTimeParseException e) {
+            HttpSupport.write(ex, 400, errJson("INVALID_INPUT",
+                    "sowDate 格式应为 yyyy-MM-dd，收到：" + sowDate));
+            return;
+        }
+        LocalDate todayDate = AppTime.today();
+        LocalDate minDate = todayDate.minusYears(2);
+        LocalDate maxDate = todayDate.plusDays(30);
+        if (sowLocal.isBefore(minDate) || sowLocal.isAfter(maxDate)) {
+            HttpSupport.write(ex, 400, errJson("INVALID_INPUT",
+                    "sowDate 只支持近两年内至未来 30 天（" + minDate + " ~ " + maxDate
+                            + "），收到：" + sowDate));
+            return;
+        }
+        sowDate = sowLocal.toString();
+
         try {
             // T02：无论用户传的是「西红柿」还是「tomato」，先归一到标准名，
             // 再映射到规程 id；没有规程的作物交给下游按标准名处理。
@@ -206,12 +234,13 @@ public class TimelineHandler implements HttpHandler {
 
     private static String toContractJson(TimelineResult r, String cropName, String requestedCrop,
                                          CropProperties.Props props, double areaMu) {
-        String today = AppTime.today().toString();
+        LocalDate todayDate = AppTime.today();
+        String today = todayDate.toString();
         String dataSource = mapDataSource(r.weatherStatus());
         String dataTime = r.dataTime() != null ? r.dataTime() : null;
 
         List<String> nodesJson = new ArrayList<>();
-        String todayConclusion = "null";
+        List<NodeMeta> metas = new ArrayList<>();
         int seq = 0;
         for (NodeView n : r.nodes()) {
             seq++;
@@ -263,15 +292,53 @@ public class TimelineHandler implements HttpHandler {
                             : "[]",
                     "festivalIcon", "null");
             nodesJson.add(nodeJson);
+            metas.add(new NodeMeta(n, status, certainty));
+        }
 
-            if (n.date().equals(today) || todayConclusion.equals("null")) {
-                todayConclusion = Json.obj(
-                        "nodeId", Json.str(String.valueOf(seq)),
-                        "operationType", Json.str(n.opType()),
-                        "status", Json.str(status),
-                        "copy", Json.str(n.suggest()),
-                        "certainty", Json.str(certainty));
+        // 今日结论：只有「日期正好是今天」的节点才能说「今天该做什么」。
+        // 没有当天节点时，退到「下一个农事节点」或「本季已结束」，绝不再把
+        // 第一个（甚至几个月前/后的）节点当成今日建议。
+        String todayConclusion = "null";
+        NodeMeta ref = null;
+        String conclusionCopy = null;
+        int refIndex = 0;
+        for (int i = 0; i < metas.size(); i++) {
+            NodeMeta m = metas.get(i);
+            if (m.node().date().equals(today)) {
+                ref = m;
+                refIndex = i + 1;
+                conclusionCopy = m.node().suggest();
+                break;
             }
+        }
+        if (ref == null) {
+            for (NodeMeta m : metas) {
+                try {
+                    LocalDate d = LocalDate.parse(m.node().date());
+                    if (d.isAfter(todayDate)) {
+                        ref = m;
+                        conclusionCopy = "今天不在农事节点上；下一个节点「" + m.node().title()
+                                + "」还有 " + ChronoUnit.DAYS.between(todayDate, d) + " 天（"
+                                + m.node().date() + "）";
+                        break;
+                    }
+                } catch (Exception ignored) {
+                    // 日期异常的节点不参与「下一个节点」判断
+                }
+            }
+            if (ref == null && !metas.isEmpty()) {
+                ref = metas.get(metas.size() - 1);
+                conclusionCopy = "本季农事节点已全部过去（最后节点「" + ref.node().title()
+                        + "」于 " + ref.node().date() + "）；如需新一季，请调整播期后重新生成";
+            }
+        }
+        if (ref != null) {
+            todayConclusion = Json.obj(
+                    "nodeId", Json.str(String.valueOf(refIndex)),
+                    "operationType", Json.str(ref.node().opType()),
+                    "status", Json.str(ref.status()),
+                    "copy", Json.str(conclusionCopy != null ? conclusionCopy : ref.node().suggest()),
+                    "certainty", Json.str(ref.certainty()));
         }
 
         List<String> reminders = r.marketHints().stream().map(h -> Json.obj(

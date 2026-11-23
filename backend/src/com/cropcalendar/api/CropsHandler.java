@@ -101,6 +101,8 @@ public class CropsHandler implements HttpHandler {
                         "count", String.valueOf(c.getValue())));
             }
 
+            // 作物库只有部署才会变：允许浏览器缓存 5 分钟，避免每次进页面都重下 152KB
+            ex.getResponseHeaders().set("Cache-Control", "public, max-age=300");
             HttpSupport.write(ex, 200, Json.obj(
                     "total", String.valueOf(lib.size()),
                     "offset", String.valueOf(offset),
@@ -124,6 +126,8 @@ public class CropsHandler implements HttpHandler {
                     m.entry().pinyin()));
         }
 
+        // 搜索结果同样只随作物库变化，给 1 分钟，兼顾「刚部署完想立刻看到新作物」
+        ex.getResponseHeaders().set("Cache-Control", "public, max-age=60");
         HttpSupport.write(ex, 200, Json.obj(
                 "total", String.valueOf(items.size()),
                 "query", Json.str(keyword),

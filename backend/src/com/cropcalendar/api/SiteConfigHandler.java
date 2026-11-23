@@ -23,6 +23,8 @@ public class SiteConfigHandler implements HttpHandler {
             ex.close();
             return;
         }
+        // 站点开关只随后台设置变化：给 60 秒浏览器缓存，减少首屏的同步阻塞请求
+        ex.getResponseHeaders().set("Cache-Control", "public, max-age=60");
         HttpSupport.write(ex, 200, HttpSupport.ok(Json.obj(
                 "searchEnabled", String.valueOf(SettingsStore.searchEnabled()),
                 "llmEnabled", String.valueOf(SettingsStore.llmEnabled()))));
