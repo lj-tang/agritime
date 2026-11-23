@@ -45,12 +45,16 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  *   3. 未读计数分身份算：用户看"反馈回了我没"，管理员看"用户又追问了没"。
  *      查看详情即清当前身份的未读，回复后对方未读 +1。
  *
- * 持久化：../data/support/tickets.json，读写加锁。这里必须整份序列化原始 Map ——
+ * 持久化：var/support/tickets.json（相对后端工作目录，即 /agritime/backend/var/support），
+ * 读写加锁。运行时数据统一放 backend/var —— 该目录归服务账号所有、且每日备份覆盖。
+ * 早先放在 ../data/support 下，但 data/ 是 root 属主的种子数据目录：服务切到
+ * agritime 账号后建不了子目录，提交工单直接 500（2026-11-23 线上故障）。
+ * 这里必须整份序列化原始 Map ——
  * 早先用 ticketJson() 落盘会丢掉 userId 与未读字段，重启后用户就找不到自己的工单了。
  */
 public class SupportHandler implements HttpHandler {
 
-    private static final String DATA_FILE = "../data/support/tickets.json";
+    private static final String DATA_FILE = "var/support/tickets.json";
     private static final DateTimeFormatter FMT = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     /** 三态固定；replied/closed 是 V4 旧值，读取时归一 */
