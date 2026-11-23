@@ -309,6 +309,17 @@ public final class ComputeStub {
         return infos;
     }
 
+    /** 已接线的规程数量（人工编写 + 从 init.sql 导入的 crop-protocols.json）。 */
+    public static int protocolCount() {
+        return loadProtocols().size();
+    }
+
+    /** 进程内大模型规程缓存条数（不含规程表里已有的作物）。 */
+    public static int llmCachedCount() {
+        ensureLlmCacheLoaded();
+        return LLM_PROC_CACHE.size();
+    }
+
     /**
      * ② 天气适配器：节点前后 N 天窗口聚合
      * 【全队唯一有网络 IO 的函数】 —— Open-Meteo

@@ -457,16 +457,58 @@
     return h;
   }
 
-  function get(url) {
-    return fetch(url, { credentials: 'same-origin', headers: headers() }).then(handle);
+  // 请求超时：浏览器默认会一直挂到网络层放弃，弱网下工单页会转圈很久，
+  // 这里统一 20 秒超时；GET 遇到网络层失败（DNS/连接被掐）自动重试一次。
+  var REQUEST_TIMEOUT_MS = 20000;
+  function request(url, opts) {
+    var controller = typeof AbortController !== 'undefined' ? new AbortController() : null;
+    var timer = null;
+    if (controller) {
+      opts = opts || {};
+      opts.signal = controller.signal;
+      timer = setTimeout(function () { controller.abort(); }, REQUEST_TIMEOUT_MS);
+    }
+    return fetch(url, opts).then(function (res) {
+      if (timer) clearTimeout(timer);
+      return res;
+    }, function (err) {
+      if (timer) clearTimeout(timer);
+      throw err;
+    });
   }
+
+  function get(url) {
+    var attempt = 0;
+    function run() {
+      attempt++;
+      return request(url, { credentials: 'same-origin', headers: headers() })
+        .then(handle)
+        .catch(function (err) {
+          if (err && err.name === 'AbortError') {
+            throw new Error('请求超时（' + (REQUEST_TIMEOUT_MS / 1000) + ' 秒），请检查网络后重试');
+          }
+          // 仅对网络层失败（TypeError）重试一次，HTTP 业务错误不重试
+          if (attempt < 2 && err instanceof TypeError) {
+            return new Promise(function (resolve) { setTimeout(resolve, 400); }).then(run);
+          }
+          throw err;
+        });
+    }
+    return run();
+  }
+
   function post(url, body) {
-    return fetch(url, {
+    return request(url, {
       method: 'POST',
       credentials: 'same-origin',
       headers: headers({ 'Content-Type': 'application/json' }),
       body: JSON.stringify(body)
-    }).then(handle);
+    }).then(handle).catch(function (err) {
+      if (err && err.name === 'AbortError') {
+        throw new Error('请求超时（' + (REQUEST_TIMEOUT_MS / 1000) + ' 秒），请检查网络后重试');
+      }
+      throw err;
+    });
   }
   function handle(res) {
     return res.json().catch(function () { return {}; }).then(function (d) {

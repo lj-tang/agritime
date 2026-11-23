@@ -34,6 +34,8 @@ public class HealthHandler implements HttpHandler {
         String body;
         if (detail) {
             int cropCount = ComputeStub.listCropInfos().size();
+            int protocolCount = ComputeStub.protocolCount();
+            int llmCachedCount = ComputeStub.llmCachedCount();
             body = Json.obj(
                     "status", Json.str("ok"),
                     "service", Json.str("crop-calendar-api"),
@@ -44,6 +46,8 @@ public class HealthHandler implements HttpHandler {
                     "cacheTtlSeconds", String.valueOf(AppConfig.cacheTtlSeconds()),
                     "weatherWindowDays", String.valueOf(AppConfig.weatherWindowDays()),
                     "cropCount", String.valueOf(cropCount),
+                    "protocolCount", String.valueOf(protocolCount),
+                    "llmCachedCount", String.valueOf(llmCachedCount),
                     "llmModel", Json.str(AppConfig.llmModel()),
                     "startedAt", Json.str(STARTED_AT),
                     "now", Json.str(AppTime.now().format(TS))

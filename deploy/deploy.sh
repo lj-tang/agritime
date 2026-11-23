@@ -65,6 +65,40 @@ if [ "${SKIP_PULL:-0}" != "1" ]; then
   fi
 fi
 
+# ---------- 1.5 nginx 站点配置 ----------
+# 服务器上的 /etc/nginx/sites-enabled/agritime 必须是「指向仓库配置的软链接」，
+# 否则改了 deploy/nginx/agritime.conf 也不会生效（历史遗留：曾是普通文件，
+# 每次都要手工 sed，且内容会悄悄漂移）。这里自动校正软链并热加载；
+# 配置校验失败时保持旧配置继续运行，不把 nginx 带崩。
+NGINX_SRC="$APP_DIR/deploy/nginx/agritime.conf"
+NGINX_LINK="/etc/nginx/sites-enabled/agritime"
+NGINX_BAK=""
+if command -v nginx >/dev/null 2>&1 && [ -f "$NGINX_SRC" ] && [ -d /etc/nginx/sites-enabled ]; then
+  if [ -e "$NGINX_LINK" ] || [ -L "$NGINX_LINK" ]; then
+    if [ -L "$NGINX_LINK" ] && [ "$(readlink "$NGINX_LINK")" = "$NGINX_SRC" ]; then
+      log "nginx 配置已是软链，跳过替换"
+    else
+      NGINX_BAK="/etc/nginx/agritime.conf.bak-$(date +%s)"
+      [ -e "$NGINX_LINK" ] && cp -a "$NGINX_LINK" "$NGINX_BAK" 2>/dev/null || true
+      rm -f "$NGINX_LINK"
+      ln -s "$NGINX_SRC" "$NGINX_LINK"
+      log "已将 $NGINX_LINK 指向仓库配置"
+    fi
+    if nginx -t >/dev/null 2>&1; then
+      systemctl reload nginx && log "nginx 配置校验通过并已热加载"
+    else
+      log "警告：nginx 配置校验失败，保持当前进程配置；请检查 $NGINX_SRC"
+      nginx -t 2>&1 | head -5 >&2 || true
+      if [ -n "$NGINX_BAK" ] && [ -f "$NGINX_BAK" ]; then
+        rm -f "$NGINX_LINK" && cp -a "$NGINX_BAK" "$NGINX_LINK"
+        log "已恢复替换前的站点配置（$NGINX_BAK）"
+      fi
+    fi
+  else
+    log "跳过 nginx：未找到 $NGINX_LINK（非本仓库部署形态）"
+  fi
+fi
+
 # ---------- 2. 编译 ----------
 log "编译后端（$(find "$BACKEND_DIR/src" -name '*.java' | wc -l) 个源文件）"
 rm -rf "$BACKEND_DIR/build/classes.new"

@@ -161,5 +161,13 @@ git config http.lowSpeedTime 999
 | 探活接口 | `/api/health/detail` 在 nginx 上用精确匹配拦掉（此前注释写了"不暴露"但实际被 `/api/` 前缀代理出去），内部状态只允许本机直连 8080 查看 |
 | nginx 日志轮转 | `/etc/logrotate.d/nginx` 原文件是 CRLF 换行 + `endpostrotate` 拼写错误，logrotate 每天静默跳过；已修正并纳入版本库（`deploy/nginx/logrotate.d-nginx`） |
 | 遗留清理 | 删除每分钟空跑的 `/etc/cron.d/agritime-frontend`；`certbot.timer` 临时停用、ufw 443 收回（`enable-https.sh` 会自动恢复） |
-| 注册防刷 | 同一 IP 每小时最多 10 次注册尝试（识别 nginx 注入的 `X-Real-IP`）；本地直连 8080 不受限 |
+| 注册防刷 | 同一 IP 每小时最多 30 次注册尝试（识别 nginx 注入的 `X-Real-IP`）；本地直连 8080 不受限 |
+| 作物规程 | `data/init.sql`（400 作物 × 8 节点）经 `deploy/tools/gen-protocols-from-initsql.py` 导入 `backend/crop-protocols.json`，规程总数 13 → 400；init.sql 的 `job_type` 与 `job_name` 大面积错位，导入时按名称语义推断操作类型 |
+| nginx 站点配置 | `/etc/nginx/sites-enabled/agritime` 由普通文件改为指向仓库 `deploy/nginx/agritime.conf` 的软链；`deploy.sh` 自动校正软链，`nginx -t` 通过后热加载，校验失败保持旧配置运行 |
+| 今日结论 | 时间线只把**当天命中**的节点作为「今日结论」；当天无节点时提示下一个节点倒计时，全部节点过去时提示调整播期 |
+| 播期校验 | `sowDate` 仅接受近两年 ~ 未来 30 天，越界返回 400 |
+| 限流 | API 120 次/分钟（burst 30），nginx zone 在 `/etc/nginx/nginx.conf`，仓库留档 `deploy/nginx/limit-req-zone.conf` |
+| 接口缓存 | `/api/crops` 300 秒、`/api/site-config` 60 秒，其余接口仍 `no-store` |
+| 前端请求 | `service.js` 统一 20 秒超时；GET 遇网络层失败自动重试一次（业务错误不重试） |
+| 运维自检 | `/api/health/detail` 增加 `protocolCount` / `llmCachedCount`，`cropCount` 只是两者合计，不再单作覆盖指标 |
 | CORS | 默认同源，不再返回 `Access-Control-Allow-Origin: *`；`file://` 救生索（Origin: null）与 localhost 开发端口已内置放行，其他来源不返回 CORS 头 |

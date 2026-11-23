@@ -1,40 +1,83 @@
 # 接口文档
 
-## 1. GET /api/timeline
+## 0. 通用约定
+
+- 成功：HTTP 200，`{"code":0,"message":"ok","data":{...}}`
+- 失败：HTTP 4xx/5xx，`{"error":"INVALID_INPUT","message":"具体原因"}`（`error` 取值见各接口）
+- 请求体上限 64KB，超过返回 413 `INVALID_INPUT`
+- 动态接口默认 `Cache-Control: no-store`；`/api/crops` 为 `public, max-age=300`，`/api/site-config` 为 `public, max-age=60`
+- nginx 限流 120 次/分钟（burst 30），超限返回 429 `{"code":429,"message":"请求过于频繁，请稍后再试","data":null}`
+- `/health` 是探活接口；`/api/health/detail` 仅供服务器本机自检，公网固定 404
+
+## 1. GET /api/timeline、POST /api/timeline
 
 获取农事时间线。
 
 ### 请求参数
 
-| 参数 | 类型 | 必填 | 取值范围 | 说明 |
-|------|------|------|----------|------|
-| crop | string | 是 | dry_garlic/wheat_winter/corn_summer/rice/soybean | 作物ID |
-| sowDate | string | 是 | YYYY-MM-DD（过去2年~未来30天） | 播种日期 |
-| lat | number | 否 | -90~90 | 纬度 |
-| lon | number | 否 | -180~180 | 经度 |
-| location | string | 否 | - | 地点名称 |
+| 参数 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| crop | string | 是 | 作物名或 ID，支持俗名/拼音/常见错别字，≤20 字 |
+| sowDate | string | 否 | yyyy-MM-dd，仅支持近两年内至未来 30 天；缺省时按节气推荐播种日 |
+| lat / lon | number | 否 | 纬度/经度；缺省按 35.07,116.31（华北基准）计算规程窗口，前端应尽量传真实坐标 |
+| location | string | 否 | 地点名，仅用于展示 |
+| areaMu | number | 否 | 地块面积（亩），夹取 0~100000 |
+
+POST 请求体：
+
+```json
+{ "crop": "番茄", "sowDate": "2026-12-05", "location": { "latitude": 31.2, "longitude": 121.5 }, "areaMu": 2 }
+```
 
 ### 响应结构
 
 ```json
 {
-  "apiVersion": "string",
-  "dataSource": "string",
-  "dataTime": "string",
-  "todayConclusion": { "status": "green|yellow|red", "copy": "string" },
-  "nodes": [{ "nodeSeq": "number", "daysAfterSowing": "number", "date": "string", "operationType": "string", "name": "string", "description": "string", "status": "string", "copy": "string", "reasons": [], "rescheduleAdvice": "string", "certainty": "string", "weatherIcon": "string" }],
-  "reminders": []
+  "code": 0, "message": "ok",
+  "data": {
+    "apiVersion": "string",
+    "dataSource": "realtime|cache|unavailable",
+    "dataTime": "string",
+    "todayConclusion": { "nodeId": "1", "operationType": "sowing", "status": "green|yellow|red", "copy": "..." },
+    "nodes": [{
+      "nodeId": "1", "nodeSeq": 1, "daysAfterSowing": 0, "date": "2026-12-05",
+      "operationType": "sowing", "name": "播种育苗", "description": "...",
+      "status": "green|yellow|red|plan", "copy": "...", "reasons": [],
+      "rescheduleAdvice": "...", "certainty": "high|medium|low", "weatherIcon": "...",
+      "guidance": "...", "forecastNote": "...", "climateNormal": "...",
+      "precision": "day|season", "outlook": "...", "suitability": "...", "weatherFactors": []
+    }],
+    "reminders": []
+  }
 }
 ```
 
-### 错误码
+`todayConclusion` 只取**当天命中**的节点；当天没有节点时取下一个未来节点，文案形如
+「今天不在农事节点上；下一个节点「播种育苗」还有 12 天（2026-12-05）」；
+全部节点都已过去时文案为「本季农事节点已全部过去（最后节点「成熟收割」于 2026-07-28）；
+如需新一季，请调整播期后重新生成」。
 
-| 错误码 | 名称 | HTTP状态 |
-|--------|------|----------|
-| 40001 | PARAM_INVALID | 400 |
-| 40006 | UNSUPPORTED_CROP | 400 |
-| 50001 | INTERNAL_ERROR | 500 |
-| 50002 | WEATHER_UNAVAILABLE | 502 |
+`dataSource` 为 `cache` 时表示天气上游超时、用了缓存；`unavailable` 表示连缓存也没有，
+本次不提供天气判断（不会编造数值）。
+
+### 生成中：HTTP 202
+
+作物没有预置规程时由大模型后台生成（约 30~40 秒），首次请求返回：
+
+```json
+{ "code": "20201", "message": "规程生成中，请稍后重试", "retryAfter": 4 }
+```
+
+前端建议按 2~4 秒轮询，总等待上限约 60~75 秒。
+
+### 错误
+
+| HTTP | error | 场景 |
+|------|-------|------|
+| 400 | INVALID_INPUT | 缺 crop、作物名过长、日期格式错、日期超出范围、JSON 非法 |
+| 413 | INVALID_INPUT | 请求体过大 |
+| 422 | UNSUPPORTED_CROP | 尚无规程且大模型生成失败 |
+| 500 | INTERNAL_ERROR | 服务端异常 |
 
 ## 2. POST /api/recognition
 
@@ -299,16 +342,18 @@
 
 | 参数 | 必填 | 说明 |
 | --- | --- | --- |
-| q | 否 | 作物关键词。支持标准名、俗名、拼音、错别字；不传则返回有农事规程的作物 |
+| q | 否 | 作物关键词。支持标准名、俗名、拼音、错别字；**不传时返回全部作物**（当前 400 种，约 150KB），前端一次拉全、本地筛选 |
 
-带 `q` 时返回 Top8，`matchedBy` 说明命中方式：
+不传 `q` 时每个元素含：`cropId / name / canonical / displayName / category / categoryKey / lifespan / totalDays / window / windowAction / windowPrecision / propsSource / hasProtocol / nodeCount / aliases / pinyin`；响应头 `Cache-Control: public, max-age=300`。
+
+带 `q` 时返回 Top8（缓存 60 秒），`matchedBy` 说明命中方式：
 
 ```json
-{ "total": 1, "query": "西红柿", "standardName": "番茄",
+{ "code": 0, "message": "ok", "data": { "total": 1, "query": "西红柿", "standardName": "番茄",
   "crops": [{ "cropId": "C031", "name": "番茄", "displayName": "番茄",
-              "matchedBy": "alias", "hasProtocol": false, "nodeCount": 0,
+              "matchedBy": "alias", "hasProtocol": true, "nodeCount": 9,
               "aliases": ["C031","番茄","西红柿","洋柿子","番茄果"],
-              "pinyin": ["fanqie","xihongshi","tomato"] }] }
+              "pinyin": ["fanqie","xihongshi","tomato"] }] } }
 ```
 
 `matchedBy` 取值：`exact`（标准名）/ `alias`（别名）/ `pinyin`（拼音）/
@@ -451,9 +496,14 @@ safetyNote / scope / source）、`needHuman`（无匹配时转人工）。
 
 公开站点开关（注册开关、功能开关等）。
 
-## 26. GET /api/health/detail
+## 26. GET /api/health/detail（仅服务器本机）
 
-运维详情：缓存状态、作物数、LLM 配置等。
+运维详情：缓存状态、规程数量、LLM 配置等。**公网不暴露**（nginx 精确匹配返回 404），
+只能在服务器上 `curl http://127.0.0.1:8080/api/health/detail` 查看。
+
+关键字段：`protocolCount`（已接线的规程数）、`llmCachedCount`（大模型规程缓存条数）、
+`cropCount`（两者合计，会随运行状态变化，不要当覆盖指标）、`cacheTtlSeconds`、`upstreamTimeoutMs`、
+`llmTimeoutMs`、`llmModel`、`startedAt`。
 
 ## 27. GET /api/industry/cost
 
@@ -466,5 +516,6 @@ safetyNote / scope / source）、`needHuman`（无匹配时转人工）。
 
 - 资源命名使用名词复数
 - HTTP 方法语义化：GET 查询、POST 创建、PUT 更新、DELETE 删除
-- 错误返回统一 JSON 结构：`{ "code": "number", "message": "string", "data": "null" }`
-- 成功返回统一 JSON 结构：`{ "code": 0, "message": "SUCCESS", "data": "object|array" }`
+- 成功返回统一 JSON 结构：`{ "code": 0, "message": "ok", "data": "object|array" }`
+- 失败返回统一 JSON 结构：`{ "error": "INVALID_INPUT", "message": "string" }`（HTTP 4xx/5xx）
+- 异步生成中返回 202：`{ "code": "20201", "message": "...", "retryAfter": 4 }`
