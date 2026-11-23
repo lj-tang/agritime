@@ -53,11 +53,22 @@ TMP="$(mktemp -d "/tmp/agritime-drill-$DRILL_ID.XXXXXX")"
 TEMP_DB="agritime_drill_$DRILL_ID"
 FAIL=0
 
-cleanup() {
-  if [ -n "$DB_USER" ] && [ -n "$DB_PASS" ]; then
-    MYSQL_PWD="$DB_PASS" mysql -h127.0.0.1 -u"$DB_USER" \
-      -e "DROP DATABASE IF EXISTS \`$TEMP_DB\`" >/dev/null 2>&1 || true
+# 建临时库需要 CREATE/DROP 权限：本机 root 能走 unix socket 就用它，
+# 否则退回应用账号（若应用账号没有建库权限，演练会明确报失败）。
+MODE=root
+if ! mysql --protocol=socket -u root -e 'SELECT 1' >/dev/null 2>&1; then
+  MODE=app
+fi
+mysql_admin() {
+  if [ "$MODE" = "root" ]; then
+    mysql --protocol=socket -u root "$@"
+  else
+    MYSQL_PWD="$DB_PASS" mysql -h127.0.0.1 -u"$DB_USER" "$@"
   fi
+}
+
+cleanup() {
+  mysql_admin -e "DROP DATABASE IF EXISTS \`$TEMP_DB\`" >/dev/null 2>&1 || true
   if [ "$KEEP_TMP" = "1" ]; then
     echo "[drill] 临时目录保留：$TMP"
   else
@@ -100,28 +111,20 @@ if [ "$DATA_FILES" -lt 20 ]; then
 fi
 
 echo "[drill] 3/4 导入 MySQL 备份到临时库 $TEMP_DB"
-if [ -n "$DB_USER" ] && [ -n "$DB_PASS" ]; then
-  if MYSQL_PWD="$DB_PASS" mysql -h127.0.0.1 -u"$DB_USER" \
-       -e "CREATE DATABASE \`$TEMP_DB\` CHARACTER SET utf8mb4" 2>/dev/null; then
-    MYSQL_PWD="$DB_PASS" mysql -h127.0.0.1 -u"$DB_USER" "$TEMP_DB" < <(gzip -dc "$SQLGZ")
-    echo "  导入成功"
-    for t in userdata plot_history reminders sensors; do
-      if MYSQL_PWD="$DB_PASS" mysql -N -h127.0.0.1 -u"$DB_USER" \
-           -e "SELECT COUNT(*) FROM \`$TEMP_DB\`.\`$t\`" >/dev/null 2>&1; then
-        C="$(MYSQL_PWD="$DB_PASS" mysql -N -h127.0.0.1 -u"$DB_USER" \
-             -e "SELECT COUNT(*) FROM \`$TEMP_DB\`.\`$t\`")"
-        echo "  表 $t：$C 行"
-      else
-        echo "  表 $t：不存在" >&2
-        FAIL=1
-      fi
-    done
-  else
-    echo "  当前数据库账号没有建库权限，SQL 导入演练跳过（文件完整性已校验）" >&2
-    FAIL=1
-  fi
+if mysql_admin -e "CREATE DATABASE \`$TEMP_DB\` CHARACTER SET utf8mb4" 2>/dev/null; then
+  mysql_admin "$TEMP_DB" < <(gzip -dc "$SQLGZ")
+  echo "  导入成功"
+  for t in userdata plot_history reminders sensors; do
+    if mysql_admin -N -e "SELECT COUNT(*) FROM \`$TEMP_DB\`.\`$t\`" >/dev/null 2>&1; then
+      C="$(mysql_admin -N -e "SELECT COUNT(*) FROM \`$TEMP_DB\`.\`$t\`")"
+      echo "  表 $t：$C 行"
+    else
+      echo "  表 $t：不存在" >&2
+      FAIL=1
+    fi
+  done
 else
-  echo "  /etc/agritime.env 未配置 STORE_MYSQL_USER/PASSWORD，SQL 导入演练跳过" >&2
+  echo "  当前账号没有建库权限，SQL 导入演练跳过（文件完整性已校验）" >&2
   FAIL=1
 fi
 
