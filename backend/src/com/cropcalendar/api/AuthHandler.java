@@ -37,9 +37,11 @@ public class AuthHandler implements HttpHandler {
     /** 「是否仍在用初始密码」的结果缓存，key 带密码哈希指纹 */
     private static final Map<String, Boolean> INIT_PWD = new ConcurrentHashMap<>();
 
-    /** 注册防刷：同一 IP 每小时最多 10 次注册尝试（重名、失败也算）。
+    /** 注册防刷：同一 IP 每小时最多 30 次注册尝试（重名、失败也算）。
+     *  演示现场几十台设备可能共用一个 NAT 出口，10 次/小时会把正常注册挡掉；
+     *  30 次仍能拦住脚本刷号，又不影响一整班学生同时注册。
      *  只在请求带 X-Real-IP（nginx 注入、外部不可伪造）时生效，本地开发不受影响。 */
-    private static final int REGISTER_MAX_PER_HOUR = 10;
+    private static final int REGISTER_MAX_PER_HOUR = 30;
     private static final long REGISTER_WINDOW_MS = 3600_000L;
     private static final Map<String, long[]> REGISTER_HITS = new ConcurrentHashMap<>();
 
@@ -167,7 +169,7 @@ public class AuthHandler implements HttpHandler {
     }
 
     /**
-     * 注册防刷：同一 IP 每小时 10 次。X-Real-IP 由 nginx 覆盖写入（$remote_addr），
+     * 注册防刷：同一 IP 每小时 30 次。X-Real-IP 由 nginx 覆盖写入（$remote_addr），
      * 客户端伪造不了；请求没带该头（本地开发直连 8080）时不限流。
      * 超过 1 万条追踪记录时清掉过期条目，避免内存被海量来源 IP 撑大。
      */
