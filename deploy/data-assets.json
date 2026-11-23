@@ -1,0 +1,66 @@
+{
+  "version": 1,
+  "comment": "数据资产基线：记录没有运行时消费方、但确认要保留的数据文件及其用途。由 deploy/tools/check-data-assets.py 校验；新增未登记的数据文件会让 CI 失败，登记时请写清楚消费方或为什么保留。",
+  "entries": {
+    "data/crop-base/phenology-stage.json": {
+      "status": "contract-declared-unwired",
+      "note": "data-contract v2 声明的物候期表，后端尚未接入运行时；当前时间线用 backend/crop-protocols.json + data/crop-base/properties.json 推导生育期。保留作后续物候阶段数据源，接入时删掉本条。"
+    },
+    "data/enums/common-enums.json": {
+      "status": "validator-only",
+      "note": "作业类型/因子类型枚举，validate-contracts.js 用它交叉校验 data-contract 的枚举覆盖；运行时不读。"
+    },
+    "data/guidance/festival-rule.json": {
+      "status": "superseded",
+      "note": "旧版节日规则；后端实际读 backend/market-festivals.json（ComputeStub.readFestivals）。保留仅因 data-contract 仍声明该表，确认无外部使用后可迁移到 data/attic/。"
+    },
+    "data/guidance/operation-threshold.json": {
+      "status": "superseded",
+      "note": "作业阈值当前硬编码在 backend/src/com/cropcalendar/compute/ComputeStub.java:922-940；本文件只被契约校验引用。后续做阈值可配置化时应优先接入它。"
+    },
+    "data/guidance/status-copy.json": {
+      "status": "unwired",
+      "note": "状态文案；当前文案内联在 GuidanceService 与 TimelineHandler，文件未接入。可作为文案集中管理的数据源，接入后删掉本条。"
+    },
+    "data/region/data-quality-report.json": {
+      "status": "generated-report",
+      "note": "离线数据管线产出的数据质量报告，运行时不读，仅作数据资产留档。"
+    },
+    "data/region/dataset-provenance.json": {
+      "status": "generated-report",
+      "note": "数据集来源清单（字段/来源/更新时间），离线管线产物，运行时不读。"
+    },
+    "data/schema/crop-schedule-schema.json": {
+      "status": "validator-only",
+      "note": "契约校验用 JSON Schema；validate-contracts.js 校验表 schema 存在性与字段定义，运行时不读。"
+    },
+    "data/schema/data-quality-report-schema.json": {
+      "status": "validator-only",
+      "note": "契约校验用 JSON Schema，运行时不读。"
+    },
+    "data/schema/dataset-provenance-schema.json": {
+      "status": "validator-only",
+      "note": "契约校验用 JSON Schema，运行时不读。"
+    },
+    "data/schema/festival-rule-schema.json": {
+      "status": "validator-only",
+      "note": "契约校验用 JSON Schema，运行时不读。"
+    },
+    "data/schema/operation-threshold-schema.json": {
+      "status": "validator-only",
+      "note": "契约校验用 JSON Schema，运行时不读。"
+    },
+    "data/schema/phenology-stage-schema.json": {
+      "status": "validator-only",
+      "note": "契约校验用 JSON Schema，运行时不读。"
+    },
+    "data/schema/solar-term-farming-schema.json": {
+      "status": "validator-only",
+      "note": "契约校验用 JSON Schema，运行时不读。"
+    },
+    "data/schema/status-copy-schema.json": {
+      "status": "validator-only",
+      "note": "契约校验用 JSON Schema，运行时不读。"
+    }
+  }
+}
