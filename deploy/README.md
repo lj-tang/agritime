@@ -171,3 +171,38 @@ git config http.lowSpeedTime 999
 | 前端请求 | `service.js` 统一 20 秒超时；GET 遇网络层失败自动重试一次（业务错误不重试） |
 | 运维自检 | `/api/health/detail` 增加 `protocolCount` / `llmCachedCount`，`cropCount` 只是两者合计，不再单作覆盖指标 |
 | CORS | 默认同源，不再返回 `Access-Control-Allow-Origin: *`；`file://` 救生索（Origin: null）与 localhost 开发端口已内置放行，其他来源不返回 CORS 头 |
+
+## 十、备份恢复演练与失败告警（2026-11-23）
+
+### 每日备份失败时不再静默
+
+`deploy/backup.sh` 现在把任何未处理失败都收进 `alert_fail`：写 stderr 和 journald
+（`logger -t agritime-backup`），并在配置了机器人地址时推送一条群消息。
+可选配置文件 `/etc/agritime-backup.env`（权限 600）：
+
+```bash
+BACKUP_ALERT_WEBHOOK="https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=xxxx"
+```
+
+没有配置 webhook 时只记录日志，不影响备份退出码：
+
+```bash
+tail -f /var/log/agritime-backup.log
+journalctl -t agritime-backup -n 20
+```
+
+### 每月至少跑一次恢复演练
+
+```bash
+bash /agritime/deploy/tools/restore-drill.sh            # 最新一份备份
+bash /agritime/deploy/tools/restore-drill.sh 20261123-031701   # 指定时间戳
+bash /agritime/deploy/tools/restore-drill.sh --keep     # 保留临时目录排查
+```
+
+演练是**只读**的：把文件备份解压到 `/tmp` 临时目录，把 MySQL 备份导入临时库
+`agritime_drill_<时间戳>`，核对 `users.json`、`settings.json`、`application.properties`、
+`/etc/agritime.env`、nginx 站点配置和四张业务表行数，结束后删除临时库和目录。
+输出 `PASS` 才算备份可用；`FAIL` 会说明缺哪个文件、哪张表导入失败或账号没有建库权限。
+
+> 备份目前仍只存本机 `/root/backups`（保留 14 天）。磁盘故障或误删整机时无法恢复，
+> 下一步应加一份异地副本（华为云 OBS）并定期演练。

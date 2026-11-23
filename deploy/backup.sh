@@ -18,6 +18,10 @@
 #   17 3 * * * /agritime/deploy/backup.sh >> /var/log/agritime-backup.log 2>&1
 set -euo pipefail
 
+# 可选告警配置：在 /etc/agritime-backup.env 里设 BACKUP_ALERT_WEBHOOK=<机器人地址>
+# （企业微信/钉钉群机器人均可，按企业微信 text 消息格式发送），也可以直接 export。
+[ -f /etc/agritime-backup.env ] && . /etc/agritime-backup.env
+
 DEST="${DEST:-/root/backups}"
 KEEP="${KEEP:-14}"
 STAMP="$(date +%Y%m%d-%H%M%S)"
@@ -27,6 +31,24 @@ ENV_FILE=/etc/agritime.env
 DB_HOST=127.0.0.1
 DB_PORT=3306
 DB_NAME=agritime
+
+log() { printf '[backup] %s\n' "$*"; }
+
+# 失败时同时写 stderr、journald，并在配置了 webhook 时推一条告警；
+# 任何一步失败都保持非零退出码，cron 日志里能看出来。
+alert_fail() {
+  local msg="$*"
+  echo "[backup] 失败：$msg" >&2
+  logger -t agritime-backup "备份失败：$msg" 2>/dev/null || true
+  if [ -n "${BACKUP_ALERT_WEBHOOK:-}" ]; then
+    curl -sS -m 10 -H 'Content-Type: application/json' \
+      -d "{\"msgtype\":\"text\",\"text\":{\"content\":\"[知农时备份失败] $(hostname) $msg\"}}" \
+      "$BACKUP_ALERT_WEBHOOK" >/dev/null 2>&1 \
+      || echo "[backup] 告警 webhook 发送失败（不影响备份失败状态）" >&2
+  fi
+  exit 1
+}
+trap 'alert_fail "第 ${LINENO} 行：${BASH_COMMAND}"' ERR
 
 mkdir -p "$DEST"
 
@@ -56,20 +78,18 @@ if [ -n "${DB_USER:-}" ] && [ -n "${DB_PASS:-}" ]; then
        "$DB_NAME" 2>"$ERR_FILE" | gzip > "$SQLGZ"; then
     rm -f "$ERR_FILE"
   else
-    echo "[backup] MySQL 导出失败：" >&2
     sed 's/^/[backup]   /' "$ERR_FILE" >&2
     rm -f "$SQLGZ" "$ERR_FILE"
-    exit 1
+    alert_fail "MySQL 导出失败"
   fi
   # 空导出绝不能替换掉昨天的好备份
   if [ ! -s "$SQLGZ" ]; then
-    echo "[backup] MySQL 导出为空，放弃本次备份" >&2
     rm -f "$SQLGZ"
-    exit 1
+    alert_fail "MySQL 导出为空，放弃本次备份"
   fi
   gzip -t "$SQLGZ"
 else
-  echo "[backup] 未配置 STORE_MYSQL_USER/PASSWORD，跳过 MySQL 导出（文件备份已生成）"
+  log "未配置 STORE_MYSQL_USER/PASSWORD，跳过 MySQL 导出（文件备份已生成）"
 fi
 
 git -C /agritime rev-parse HEAD > "$DEST/agritime-$STAMP.rev"
@@ -79,6 +99,10 @@ find "$DEST" -maxdepth 1 -name 'agritime-*.tar.gz'  -mtime +"$KEEP" -delete
 find "$DEST" -maxdepth 1 -name 'agritime-*.mysql.gz' -mtime +"$KEEP" -delete
 find "$DEST" -maxdepth 1 -name 'agritime-*.rev'      -mtime +"$KEEP" -delete
 
-printf '[backup] %s %s (%s) + %s (%s)\n' \
-  "$(date '+%F %T')" "$TARBALL" "$(du -h "$TARBALL" | cut -f1)" \
-  "$SQLGZ" "$(du -h "$SQLGZ" | cut -f1)"
+if [ -f "$SQLGZ" ]; then
+  log "$(date '+%F %T') 完成：$TARBALL ($(du -h "$TARBALL" | cut -f1)) + $SQLGZ ($(du -h "$SQLGZ" | cut -f1))"
+  logger -t agritime-backup "备份成功：$TARBALL + $SQLGZ" 2>/dev/null || true
+else
+  log "$(date '+%F %T') 完成：$TARBALL ($(du -h "$TARBALL" | cut -f1))，未包含 MySQL 导出"
+  logger -t agritime-backup "备份成功（无 MySQL 导出）：$TARBALL" 2>/dev/null || true
+fi
