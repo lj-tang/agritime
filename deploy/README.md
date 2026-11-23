@@ -171,6 +171,8 @@ git config http.lowSpeedTime 999
 | 前端请求 | `service.js` 统一 20 秒超时；GET 遇网络层失败自动重试一次（业务错误不重试） |
 | 运维自检 | `/api/health/detail` 增加 `protocolCount` / `llmCachedCount`，`cropCount` 只是两者合计，不再单作覆盖指标 |
 | CORS | 默认同源，不再返回 `Access-Control-Allow-Origin: *`；`file://` 救生索（Origin: null）与 localhost 开发端口已内置放行，其他来源不返回 CORS 头 |
+| 注册收口 | 演示/正式环境把 `/etc/agritime.env` 里的 `AUTH_ALLOW_REGISTER` 设为 `false`（默认 `true` 只方便本地开发）。关闭后注册接口返回 403「当前未开放注册，请联系管理员」 |
+| 演示重置 | `deploy/tools/reset-demo-data.sh`：备份后删除除超管外的演示账号、对应的地块/提醒/传感器/用户数据与工单，服务重启后回到干净状态 |
 
 ## 十、备份恢复演练与失败告警（2026-11-23）
 
@@ -209,3 +211,48 @@ bash /agritime/deploy/tools/restore-drill.sh --keep     # 保留临时目录排�
 
 > 备份目前仍只存本机 `/root/backups`（保留 14 天）。磁盘故障或误删整机时无法恢复，
 > 下一步应加一份异地副本（华为云 OBS）并定期演练。
+
+## 十一、演示前收口（2026-11-23）
+
+比赛/演示前按顺序做一遍，回到「只有超管、没有试验账号和陈旧数据」的状态。
+
+### 1. 关闭注册
+
+```bash
+grep -q '^AUTH_ALLOW_REGISTER=' /etc/agritime.env \
+  && sed -i 's/^AUTH_ALLOW_REGISTER=.*/AUTH_ALLOW_REGISTER=false/' /etc/agritime.env \
+  || echo 'AUTH_ALLOW_REGISTER=false' >> /etc/agritime.env
+systemctl restart crop-calendar.service
+curl -s -o /dev/null -w '%{http_code}\n' -X POST http://127.0.0.1:8080/api/auth/register \
+  -H 'Content-Type: application/json' -d '{"username":"demo_probe","password":"DemoProbe123"}'
+# 期望 403（当前未开放注册，请联系管理员）
+```
+
+需要现场演示注册流程时再把这一行改回 `true` 并重启。
+
+### 2. 清空演示数据
+
+```bash
+bash /agritime/deploy/tools/reset-demo-data.sh --dry-run   # 先看会删哪些账号/行/文件
+bash /agritime/deploy/tools/reset-demo-data.sh --yes       # 备份后执行
+bash /agritime/deploy/tools/reset-demo-data.sh --yes --keep nonghu01   # 保留某个演示号
+```
+
+脚本先备份到 `/root/backups/demo-reset-<时间戳>.tar.gz`（含 `backend/var`），再停服、
+删账号、清 `userdata/plot-history/reminders/sensors` 文件与 MySQL 对应行、清空工单，
+最后重启并等 `/health` 恢复 200。回滚命令脚本结束时会打印。
+
+### 3. 不用再预热 LLM 规程
+
+`backend/crop-protocols.json` 已覆盖 400 种作物（13 份人工 + 387 份导入），常规作物
+首次打开时间线直接读本地规程，不再等 LLM 生成。只有库里没有的作物名才会走 LLM
+（约 4 秒，失败返回 422「暂不支持该作物品种」）。
+
+### 4. 演示前自检
+
+```bash
+curl -s -o /dev/null -w 'home %{http_code}\n' http://115.175.44.27/
+curl -s -o /dev/null -w 'health %{http_code}\n' http://115.175.44.27/health
+curl -s -o /dev/null -w 'crops %{http_code}\n' http://115.175.44.27/api/crops
+# 后台用 super_admin 登录，确认 /api/admin/stats 里 users 只剩超管
+```
