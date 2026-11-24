@@ -17,13 +17,13 @@ function Invoke-Step([string]$Name, [scriptblock]$Block) {
     }
 }
 
-Invoke-Step "1/5 后端编译" {
+Invoke-Step "1/6 后端编译" {
     New-Item -ItemType Directory -Force -Path "backend\build\classes" | Out-Null
     $src = Get-ChildItem backend\src -Recurse -Filter *.java | ForEach-Object { $_.FullName }
     javac -encoding UTF-8 -d backend\build\classes $src
 }
 
-Invoke-Step "2/5 后端回归测试" {
+Invoke-Step "2/6 后端回归测试" {
     # Windows 上直接跑 Java，逻辑与 backend/test/run.sh 一致
     $out = "backend\build\test-classes"
     New-Item -ItemType Directory -Force -Path $out | Out-Null
@@ -38,16 +38,24 @@ Invoke-Step "2/5 后端回归测试" {
     }
 }
 
-Invoke-Step "3/5 前端页面测试" {
+Invoke-Step "3/6 前端页面测试" {
     node frontend/tests/pages.test.js
 }
 
-Invoke-Step "4/5 契约校验" {
+Invoke-Step "4/6 契约校验" {
     node shared/constants/validate-contracts.js
 }
 
-Invoke-Step "5/5 数据资产接线检查" {
+Invoke-Step "5/6 数据资产接线检查" {
     python deploy/tools/check-data-assets.py
+}
+
+if ($env:SKIP_E2E -eq "1") {
+    Write-Host "SKIP_E2E=1，跳过浏览器测试"
+} else {
+    Invoke-Step "6/6 浏览器冒烟测试" {
+        node frontend/tests/e2e/run.js
+    }
 }
 
 Write-Host "全部通过。"

@@ -27,5 +27,10 @@ jobs:
         with:
           python-version: '3.12'
 
-      - name: 全量测试（编译 + 回归 + 前端 + 契约 + 数据资产）
+      - name: 安装浏览器测试依赖
+        run: |
+          npm ci
+          npx playwright install --with-deps chromium
+
+      - name: 全量测试（编译 + 回归 + 前端 + 契约 + 数据资产 + 浏览器冒烟）
         run: bash deploy/tools/test-all.sh

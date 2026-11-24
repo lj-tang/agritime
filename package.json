@@ -1,0 +1,12 @@
+{
+  "name": "agritime",
+  "version": "1.0.0",
+  "private": true,
+  "description": "知农时 · 农事日历（浏览器端 E2E 冒烟测试）",
+  "scripts": {
+    "test:e2e": "node frontend/tests/e2e/run.js"
+  },
+  "devDependencies": {
+    "playwright": "1.64.1"
+  }
+}
