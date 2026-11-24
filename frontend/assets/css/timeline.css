@@ -589,3 +589,30 @@
   .area-bar { gap: 8px; padding: 9px 12px; }
   .area-hint { width: 100%; }
 }
+
+/* ===== P0 体验优化：Hero 副行 / 四段式节点卡（2026-11-24） ===== */
+
+.conclusion-sub {
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+  margin-top: 6px;
+  font-size: calc(13px * var(--fs, 1));
+  color: var(--muted);
+}
+.conclusion-status-label {
+  display: inline-flex; align-items: center;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: var(--brand-soft);
+  color: var(--brand);
+  font-weight: 600;
+}
+.conclusion-updated { line-height: 1.4; }
+
+.tl-sec-label {
+  display: block;
+  margin: 10px 0 3px;
+  font-size: calc(11.5px * var(--fs, 1));
+  letter-spacing: 0.06em;
+  color: var(--muted);
+}
+.tl-card .tl-sec-label:first-of-type { margin-top: 6px; }

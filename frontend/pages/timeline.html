@@ -40,6 +40,11 @@
 
       <div class="conclusion" id="conclusion"></div>
       <div class="data-meta" id="data-meta"></div>
+      <!-- P0·Hero 副行：一句话状态 + 数据更新时间，不用读完整段 meta -->
+      <div class="conclusion-sub" id="conclusion-sub" hidden>
+        <span class="conclusion-status-label" id="conclusion-status-label"></span>
+        <span class="conclusion-updated" id="conclusion-updated"></span>
+      </div>
 
       <div class="sowing-actions">
         <button type="button" class="sowing-btn" id="sowing-confirm">确认已播种</button>
@@ -297,6 +302,20 @@
         }
         meta.className = 'data-meta' + ((data.dataSource === 'realtime' && !degradedSource) ? '' : ' warn') + (sw && sw.inWindow === false ? ' warn' : '');
 
+        // P0·Hero 副行：状态一句话 + 数据更新时间
+        var subEl = document.getElementById('conclusion-sub');
+        var statusLabelEl = document.getElementById('conclusion-status-label');
+        var updatedEl = document.getElementById('conclusion-updated');
+        if (subEl) {
+          var copyText = tc.copy || '';
+          var labelText = '今日农事';
+          if (copyText.indexOf('全部过去') >= 0) labelText = '本季收尾';
+          else if (copyText.indexOf('不在农事节点') >= 0 || copyText.indexOf('还有') >= 0) labelText = '下一步农事';
+          statusLabelEl.textContent = labelText;
+          updatedEl.textContent = data.dataTime ? '数据更新于 ' + new Date(data.dataTime).toLocaleString() : '';
+          subEl.hidden = false;
+        }
+
         bindSowingConfirm(displayCropName);
       }
 
@@ -459,12 +478,22 @@
 
         card.appendChild(action);
 
+        // P0·四段式节点卡：做什么 / 天气是否允许 / 备选时间 / 为什么这样做
+        var secWhat = document.createElement('span');
+        secWhat.className = 'tl-sec-label';
+        secWhat.textContent = '做什么';
+        card.appendChild(secWhat);
+
         var decision = document.createElement('div');
         decision.className = 'tl-decision';
         decision.textContent = node.copy || '';
         card.appendChild(decision);
 
         if (node.rescheduleAdvice) {
+          var secAlt = document.createElement('span');
+          secAlt.className = 'tl-sec-label';
+          secAlt.textContent = '备选时间';
+          card.appendChild(secAlt);
           var advice = document.createElement('div');
           advice.className = 'tl-advice';
           advice.textContent = '↳ ' + node.rescheduleAdvice;
@@ -480,6 +509,11 @@
           card.appendChild(termNote);
         }
 
+        // P0·四段式节点卡：天气是否允许
+        var secWeather = document.createElement('span');
+        secWeather.className = 'tl-sec-label';
+        secWeather.textContent = '天气是否允许';
+        card.appendChild(secWeather);
         renderWeather(card, node);
 
         // T04：未来第 5 天起标注天气为预报值
@@ -530,6 +564,11 @@
 
         var detail = document.createElement('div');
         detail.className = 'tl-detail';
+        // P0·四段式节点卡：为什么这样做
+        var secWhy = document.createElement('span');
+        secWhy.className = 'tl-sec-label';
+        secWhy.textContent = '为什么这样做';
+        detail.appendChild(secWhy);
         var desc = document.createElement('p');
         desc.textContent = node.description || '';
         detail.appendChild(desc);

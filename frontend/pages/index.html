@@ -64,6 +64,19 @@
       </div>
     </header>
 
+    <!-- P0·首访三步引导：一眼看懂这页能做什么，点过关闭就不再打扰 -->
+    <section class="onboard" id="onboard" role="region" aria-label="使用引导" hidden>
+      <div class="onboard-head">
+        <span class="onboard-title">三步，得到一季农事安排</span>
+        <button type="button" class="onboard-close" id="onboard-close" aria-label="关闭引导">×</button>
+      </div>
+      <ol class="onboard-steps">
+        <li><span class="onboard-step-n">1</span><span><b>选作物</b>：输入、点「常用」，或拍照识别</span></li>
+        <li><span class="onboard-step-n">2</span><span><b>定地点</b>：留空自动定位，或点「省/市」手动选</span></li>
+        <li><span class="onboard-step-n">3</span><span><b>生成日历</b>：播期自动推算，也可手动改</span></li>
+      </ol>
+    </section>
+
     <div class="weather-bg-layer" id="weather-bg-layer" aria-hidden="true"></div>
     <div class="weather-card" id="weather-card" data-weather="default" data-season="auto" hidden>
       <span class="weather-loc" id="weather-loc">--</span>
@@ -85,6 +98,13 @@
       <div class="term-ruler" id="term-ruler" role="img" aria-label="二十四节气刻度"></div>
       <p class="term-tip" id="term-tip" hidden></p>
     </section>
+
+    <!-- P0·回访一步接上：上次查过什么，点一下就回填，不用重输 -->
+    <div class="continue-card" id="continue-card" hidden>
+      <span class="continue-title">继续上次</span>
+      <button type="button" class="continue-btn" id="continue-btn"></button>
+      <button type="button" class="continue-clear" id="continue-clear" aria-label="清除历史记录">清空</button>
+    </div>
 
     <form class="card" id="timeline-form" novalidate>
       <div class="field" id="field-crop">
@@ -135,6 +155,8 @@
                 <span class="sow-metric-value" id="sow-harvest-value">待推算</span>
               </div>
             </div>
+            <!-- P0·播期窗口直接亮在表单里，不用等点开节气推荐才看到 -->
+            <p class="sow-window-hint" id="sow-window-hint" hidden></p>
             <!-- 只在"本地种不熟"这类结论场景出现，平时不占位 -->
             <span class="sow-auto-main" id="sow-auto-main" hidden></span>
             <span class="sow-auto-sub" id="sow-auto-sub"></span>
@@ -174,6 +196,14 @@
         <label for="location">所在地</label>
         <input id="location" name="location" type="text" autocomplete="off" placeholder="留空则按当前定位自动填入" />
         <button type="button" class="map-picker-btn" id="map-picker-btn" aria-label="地图标点"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg></button>
+        <!-- P0·省/市选择器：不想给定位权限，也能一步说清地点 -->
+        <button type="button" class="region-pick-btn" id="region-pick-btn" aria-label="从省市选择" aria-haspopup="true" aria-expanded="false" aria-controls="region-picker">省/市</button>
+        <div class="region-picker" id="region-picker" hidden>
+          <select id="region-prov" aria-label="省份"></select>
+          <select id="region-city" aria-label="城市"></select>
+          <button type="button" class="region-ok" id="region-ok">确定</button>
+          <button type="button" class="region-cancel" id="region-cancel">取消</button>
+        </div>
         <div class="error" id="error-location">请输入所在地</div>
       </div>
 
@@ -799,6 +829,7 @@
         var h = (info && info.harvest) || {};
         // 手动指定日期的偏离提示要拿它做对比，先存下来
         window.__sowWindow = w || null;
+        showSowWindowHint(w);
         if (!w) {
           var only = info && info.sowDate ? fmtMD(info.sowDate) : '';
           setMetric('window', '适宜播期', only || '待推算', !only);
@@ -1480,6 +1511,118 @@
 
       document.getElementById('photo-btn').addEventListener('click', function () { openPhoto('capture'); });
       document.getElementById('upload-btn').addEventListener('click', function () { openPhoto('upload'); });
+
+      /* ===== P0 体验优化（纯增量，不动既有逻辑） ===== */
+
+      // 播期窗口直接亮在表单里：比藏在节气推荐里显眼
+      function showSowWindowHint(w) {
+        var el = document.getElementById('sow-window-hint');
+        if (!el) return;
+        if (!w || !w.start || !w.end) { el.hidden = true; el.textContent = ''; return; }
+        var verb = (w.action || '').indexOf('定植') >= 0 ? '定植' : (w.action === '接种' ? '接种' : '播种');
+        var base = '按本地气候，' + verb + '窗口约 ' + fmtRange(w.start, w.end);
+        if (w.latest) base += '，最晚 ' + fmtMD(w.latest);
+        if (w.precision && w.precision !== 'researched') base += '（按作物类别推定，供参考）';
+        el.textContent = base;
+        el.hidden = false;
+      }
+
+      // 省/市选择器：懒加载数据，选完直接写地点输入框与坐标
+      (function () {
+        var btn = document.getElementById('region-pick-btn');
+        var panel = document.getElementById('region-picker');
+        var prov = document.getElementById('region-prov');
+        var city = document.getElementById('region-city');
+        if (!btn || !panel || !prov || !city) return;
+        var REGION_DATA = null;
+
+        function fillProvs() {
+          prov.innerHTML = '';
+          (REGION_DATA.provinces || []).forEach(function (p) {
+            var o = document.createElement('option');
+            o.value = p.n; o.textContent = p.n;
+            prov.appendChild(o);
+          });
+          fillCities();
+        }
+        function fillCities() {
+          city.innerHTML = '';
+          var cur = (REGION_DATA.provinces || []).filter(function (p) { return p.n === prov.value; })[0];
+          (cur && cur.cities || []).forEach(function (c) {
+            var o = document.createElement('option');
+            o.value = c.n + '|' + c.lat + '|' + c.lon; o.textContent = c.n;
+            city.appendChild(o);
+          });
+        }
+        function openPanel() {
+          if (REGION_DATA) { panel.hidden = false; btn.setAttribute('aria-expanded', 'true'); return; }
+          btn.disabled = true;
+          fetch('../assets/js/region-data.json').then(function (r) { return r.json(); }).then(function (d) {
+            REGION_DATA = d;
+            fillProvs();
+            panel.hidden = false;
+            btn.setAttribute('aria-expanded', 'true');
+          }).catch(function () {
+            showToast('地区数据加载失败，请用地图标点或留空自动定位', 'error');
+          }).then(function () { btn.disabled = false; });
+        }
+        function closePanel() {
+          panel.hidden = true;
+          btn.setAttribute('aria-expanded', 'false');
+        }
+        btn.addEventListener('click', function () {
+          if (panel.hidden) openPanel(); else closePanel();
+        });
+        prov.addEventListener('change', fillCities);
+        document.getElementById('region-ok').addEventListener('click', function () {
+          var parts = city.value.split('|');
+          if (parts.length < 3) { closePanel(); return; }
+          var label = prov.value + ' ' + parts[0];
+          locationInput.value = label;
+          window.__resolvedLL = { lat: parseFloat(parts[1]), lon: parseFloat(parts[2]), title: label };
+          window.__markerLatLon = null;
+          closePanel();
+          showToast('已选择：' + label, 'info');
+        });
+        document.getElementById('region-cancel').addEventListener('click', closePanel);
+      })();
+
+      // 首访三步引导：关闭后写 localStorage，不再打扰
+      (function () {
+        var KEY = 'agritime.onboard.done.v1';
+        var el = document.getElementById('onboard');
+        if (!el) return;
+        var done = false;
+        try { done = localStorage.getItem(KEY) === '1'; } catch (e) {}
+        if (done) return;
+        el.hidden = false;
+        document.getElementById('onboard-close').addEventListener('click', function () {
+          el.hidden = true;
+          try { localStorage.setItem(KEY, '1'); } catch (e) {}
+        });
+      })();
+
+      // 回访一步接上：回填上次查询，用户只需再点生成
+      (function () {
+        var el = document.getElementById('continue-card');
+        var btn = document.getElementById('continue-btn');
+        if (!el || !window.HistoryStore) return;
+        var last = window.HistoryStore.list()[0];
+        if (!last || (!last.cropName && !last.sowDate && !last.location)) return;
+        btn.textContent = [last.cropName, last.sowDate, last.location].filter(Boolean).join(' · ');
+        el.hidden = false;
+        btn.addEventListener('click', function () {
+          if (last.cropName) cropInput.value = last.cropName;
+          if (last.location) locationInput.value = last.location;
+          if (last.sowDate) { syncSelectsFromDate(last.sowDate); composeDate(); }
+          window.__resolvedLL = null;
+          showToast('已填入上次查询，点「生成农事日历」即可', 'info');
+        });
+        document.getElementById('continue-clear').addEventListener('click', function () {
+          window.HistoryStore.clear();
+          el.hidden = true;
+        });
+      })();
 
       function renderHistory() {
         if (!window.HistoryStore) { historyBox.classList.add('hidden'); return; }

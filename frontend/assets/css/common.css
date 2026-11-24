@@ -2305,3 +2305,108 @@ body.split-active .home-pane-back { display: inline-flex; align-items: center; }
   .theme-grid { gap: 7px; }
   .theme-thumb { height: 34px; }
 }
+
+/* ===== P0 体验优化：首页引导 / 继续上次 / 播期窗口 / 省市区选择（2026-11-24） ===== */
+
+.onboard {
+  max-width: 640px;
+  margin: 0 auto 14px;
+  padding: 14px 16px;
+  border: 1px solid var(--brand-line, #b9e3c6);
+  border-radius: var(--radius);
+  background: var(--brand-soft);
+  color: var(--ink);
+}
+.onboard-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+.onboard-title { font-weight: 700; font-size: calc(15px * var(--fs, 1)); }
+.onboard-close {
+  width: 32px; height: 32px;
+  border: 0; border-radius: var(--radius-xs);
+  background: transparent; color: var(--muted);
+  font-size: calc(20px * var(--fs, 1)); line-height: 1; cursor: pointer;
+}
+.onboard-close:hover { background: rgba(0, 0, 0, 0.06); color: var(--ink); }
+.onboard-steps { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px 16px; font-size: calc(14px * var(--fs, 1)); }
+.onboard-steps li { display: flex; align-items: flex-start; gap: 8px; min-width: 180px; flex: 1 1 180px; }
+.onboard-step-n {
+  flex: 0 0 auto; width: 22px; height: 22px; margin-top: 1px;
+  border-radius: 50%; background: var(--brand); color: #fff;
+  display: inline-flex; align-items: center; justify-content: center;
+  font-size: calc(12px * var(--fs, 1)); font-weight: 700;
+}
+
+.continue-card {
+  max-width: 640px;
+  margin: 0 auto 14px;
+  padding: 10px 14px;
+  border: 1px dashed var(--line);
+  border-radius: var(--radius);
+  background: var(--surface);
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+}
+.continue-title { font-size: calc(13px * var(--fs, 1)); color: var(--muted); flex: 0 0 auto; }
+.continue-btn {
+  flex: 1 1 auto; min-width: 180px;
+  border: 0; border-radius: var(--radius-xs);
+  background: var(--brand-soft); color: var(--brand);
+  padding: 8px 12px; font-size: calc(14px * var(--fs, 1)); cursor: pointer; text-align: left;
+}
+.continue-btn:hover { background: var(--brand); color: #fff; }
+.continue-clear {
+  border: 0; background: transparent; color: var(--muted);
+  font-size: calc(13px * var(--fs, 1)); cursor: pointer; padding: 8px 6px;
+}
+.continue-clear:hover { color: var(--red); }
+
+.sow-window-hint {
+  margin: 8px 0 0;
+  padding: 8px 12px;
+  border-radius: var(--radius-xs);
+  background: var(--brand-soft);
+  color: var(--brand);
+  font-size: calc(13.5px * var(--fs, 1));
+  line-height: 1.5;
+}
+
+.region-pick-btn {
+  min-height: 40px;
+  padding: 0 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-xs);
+  background: var(--surface);
+  color: var(--ink-soft);
+  font-size: calc(13px * var(--fs, 1)); cursor: pointer;
+}
+.region-pick-btn:hover, .region-pick-btn[aria-expanded="true"] { border-color: var(--brand); color: var(--brand); }
+.region-picker {
+  display: flex; flex-wrap: wrap; gap: 6px;
+  margin-top: 6px; padding: 10px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+}
+.region-picker select {
+  flex: 1 1 120px;
+  min-height: 40px;
+  padding: 0 10px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-xs);
+  background: var(--surface);
+  color: var(--ink);
+  font-size: calc(14px * var(--fs, 1));
+}
+.region-ok, .region-cancel {
+  min-height: 40px; min-width: 56px;
+  padding: 0 14px;
+  border-radius: var(--radius-xs);
+  font-size: calc(14px * var(--fs, 1)); cursor: pointer;
+}
+.region-ok { border: 0; background: var(--brand); color: #fff; }
+.region-ok:hover { filter: brightness(1.05); }
+.region-cancel { border: 1px solid var(--line); background: var(--surface); color: var(--ink-soft); }
+.region-cancel:hover { background: var(--bg); }
+
+@media (max-width: 767px) {
+  .onboard-steps li { min-width: 100%; }
+  .onboard { padding: 12px; }
+}
