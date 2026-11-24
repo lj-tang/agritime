@@ -331,18 +331,9 @@
     } else {
       resultBox.innerHTML = '<div class="recommend-loading">正在综合节气、气候与市场数据…</div>';
     }
-    var controller = typeof AbortController !== 'undefined' ? new AbortController() : null;
-    var timer = setTimeout(function () { if (controller) controller.abort(); }, 20000);
-
-    fetch(API + '?' + params.join('&'), { method: 'GET', signal: controller ? controller.signal : undefined })
-      .then(function (res) {
-        clearTimeout(timer);
-        if (!res.ok) throw new Error('HTTP ' + res.status);
-        return res.json();
-      })
+    window.Api.get(API + '?' + params.join('&'))
       .then(function (data) { render(data, plot); })
       .catch(function (err) {
-        clearTimeout(timer);
         var msg = err && err.name === 'AbortError' ? '请求超时，请稍后重试' : '获取推荐失败：' + (err.message || '网络异常');
         // 错误态给重试：一键重新拉取，用户不用重新填月份和地点
         if (window.UiState) {

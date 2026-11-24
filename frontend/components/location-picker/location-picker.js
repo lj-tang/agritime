@@ -176,34 +176,28 @@
    * 能返回到「省市区 + 最近道路」的中文地名，key 也不会落到浏览器里。
    */
   function reverseGeocode(lat, lon, cb) {
-    var controller = typeof AbortController !== 'undefined' ? new AbortController() : null;
-    var timer = setTimeout(function () { if (controller) controller.abort(); }, 6000);
     var url = GEO_API + '?lat=' + encodeURIComponent(lat) + '&lon=' + encodeURIComponent(lon);
-    fetch(url, { signal: controller ? controller.signal : undefined })
-      .then(function (r) { clearTimeout(timer); if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+    window.Api.json(url, { timeout: 6000 })
       .then(function (res) {
         var d = res && res.data;
         cb(d && d.displayName ? d : null);
       })
-      .catch(function () { clearTimeout(timer); cb(null); });
+      .catch(function () { cb(null); });
   }
 
   /** 地点搜索同样走后端，Nominatim 在国内不可达 */
   function searchGeocode(query, cb) {
-    var controller = typeof AbortController !== 'undefined' ? new AbortController() : null;
-    var timer = setTimeout(function () { if (controller) controller.abort(); }, 8000);
     var center = mapInstance ? mapInstance.getCenter() : null;
     // 地图中心是 GCJ02，换回 WGS84 再传，让后端按「离我最近」排序
     var w = center ? gcj02ToWgs84(center.lat, center.lng) : null;
     var url = GEO_SEARCH + '?q=' + encodeURIComponent(query)
       + (w ? '&lat=' + w.lat.toFixed(6) + '&lon=' + w.lon.toFixed(6) : '');
-    fetch(url, { signal: controller ? controller.signal : undefined })
-      .then(function (r) { clearTimeout(timer); if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+    window.Api.json(url, { timeout: 8000 })
       .then(function (res) {
         var items = res && res.data && res.data.items;
         cb(Array.isArray(items) ? items : []);
       })
-      .catch(function () { clearTimeout(timer); cb(null); });
+      .catch(function () { cb(null); });
   }
 
   function getCurrentLocation() {
@@ -693,15 +687,7 @@
       areaSqm: Math.round(sqm),
       areaMu: Math.round(sqm / M_PER_MU * 10) / 10
     };
-    var controller = typeof AbortController !== 'undefined' ? new AbortController() : null;
-    var timer = setTimeout(function () { if (controller) controller.abort(); }, 20000);
-    fetch(GEO_SUITABILITY, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ polygon: ring }),
-      signal: controller ? controller.signal : undefined
-    })
-      .then(function (r) { clearTimeout(timer); if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+    window.Api.post(GEO_SUITABILITY, { polygon: ring }, { timeout: 20000 })
       .then(function (res) {
         var d = res && res.data;
         if (!d) { cb(fallback); return; }
@@ -713,7 +699,7 @@
           samples: d.samples || []
         });
       })
-      .catch(function () { clearTimeout(timer); cb(fallback); });
+      .catch(function () { cb(fallback); });
   }
 
   function confirmDraw() {

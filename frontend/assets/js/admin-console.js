@@ -24,7 +24,7 @@
   // ---------------- 通用 ----------------
 
   function get(url) {
-    return fetch(url).then(handle);
+    return window.Api.request(url).then(handle);
   }
 
   function send(url, method, body) {
@@ -33,7 +33,7 @@
       opts.headers['Content-Type'] = 'application/json';
       opts.body = typeof body === 'string' ? body : JSON.stringify(body);
     }
-    return fetch(url, opts).then(handle);
+    return window.Api.request(url, opts).then(handle);
   }
 
   function handle(res) {

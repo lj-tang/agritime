@@ -414,11 +414,11 @@
   // ---------------- 工具 ----------------
 
   function get(url) {
-    return fetch(url, { credentials: 'same-origin' }).then(handle);
+    return window.Api.request(url, { credentials: 'same-origin' }).then(handle);
   }
 
   function post(url, body) {
-    return fetch(url, {
+    return window.Api.request(url, {
       method: 'POST',
       credentials: 'same-origin',
       headers: { 'Content-Type': 'application/json' },

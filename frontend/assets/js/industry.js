@@ -77,10 +77,7 @@
   /** 地名 → 坐标：与首页同一个地理接口，别在渔业里再维护一套城市表。 */
   function geocode(text) {
     var url = '/api/geo/search?q=' + encodeURIComponent(text);
-    var controller = new AbortController();
-    var timer = setTimeout(function () { controller.abort(); }, 6000);
-    return fetch(url, { signal: controller.signal })
-      .then(function (r) { clearTimeout(timer); return r.ok ? r.json() : null; })
+    return window.Api.json(url, { timeout: 6000 })
       .then(function (body) {
         var items = (body && body.data && body.data.items) || [];
         if (!items.length) return null;
@@ -88,7 +85,7 @@
         if (!(lat >= -90 && lat <= 90) || !(lon >= -180 && lon <= 180)) return null;
         return [lat, lon];
       })
-      .catch(function () { clearTimeout(timer); return null; });
+      .catch(function () { return null; });
   }
 
   /** 我的地块 → 下拉：鱼塘排前面，水稻田次之，其余也能选（有的塘口登记成了耕地）。 */

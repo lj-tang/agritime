@@ -103,11 +103,28 @@
     /**
      * 请求版本号：切换筛选/快速重复查询时，只认最后一次请求的响应，
      * 旧响应回来直接丢弃（pageState + requestVersion 防旧覆盖）。
+     * 按容器各自计数：两个面板并存时，A 的慢响应不该被 B 的新请求误作废。
      */
-    guard: function () {
-      UiState.__seq = (UiState.__seq || 0) + 1;
-      var id = UiState.__seq;
-      return { current: function () { return UiState.__seq === id; } };
+    guard: function (box) {
+      var key;
+      if (typeof box === 'string') {
+        key = box;
+      } else if (box && typeof box === 'object') {
+        if (!box.__uiStateKey) {
+          UiState.__keySeq = (UiState.__keySeq || 0) + 1;
+          box.__uiStateKey = 'ui-box-' + UiState.__keySeq;
+        }
+        key = box.__uiStateKey;
+      } else {
+        key = 'default';
+      }
+      UiState.__seqByKey = UiState.__seqByKey || {};
+      var seq = (UiState.__seqByKey[key] || 0) + 1;
+      UiState.__seqByKey[key] = seq;
+      return {
+        current: function () { return UiState.__seqByKey[key] === seq; },
+        invalidate: function () { UiState.__seqByKey[key] = seq + 1; }
+      };
     },
 
     /**
@@ -124,7 +141,7 @@
       var o = opts || {};
       var el = resolve(box);
       if (!el || typeof o.load !== 'function') return null;
-      var g = UiState.guard();
+      var g = UiState.guard(el);
       function attempt() {
         UiState.loading(el, o.loadingText || '正在加载…');
         Promise.resolve().then(function () { return o.load(); }).then(function (data) {
@@ -133,7 +150,8 @@
             el.hidden = false;
             UiState.empty(el, {
               icon: o.emptyIcon,
-              text: o.emptyText || '暂无数据',
+              text: o.emptyText || '这里还没有内容',
+              hint: o.emptyHint || '点下面的按钮开始添加，或直接换个条件看看。',
               actionText: o.emptyActionText,
               onAction: o.onEmptyAction
             });

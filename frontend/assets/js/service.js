@@ -430,90 +430,25 @@
   }
 
   // ---------- 工具 ----------
-  /**
-   * 匿名访客 ID：同一出口 IP 下（校园网、公司 NAT）大家共用一个公网 IP，
-   * 只按 IP 认人会让互不相识的用户看到彼此的工单。这里给每个浏览器一个 ID，
-   * 随请求头带上，后端优先用它区分匿名身份。
-   */
-  var VISITOR_KEY = 'agritime.visitorId';
-  function visitorId() {
-    try {
-      var v = localStorage.getItem(VISITOR_KEY);
-      if (v && /^[A-Za-z0-9_-]{8,64}$/.test(v)) return v;
-      var buf = new Uint8Array(16);
-      (window.crypto || window.msCrypto).getRandomValues(buf);
-      v = Array.prototype.map.call(buf, function (b) { return ('0' + b.toString(16)).slice(-2); }).join('');
-      localStorage.setItem(VISITOR_KEY, v);
-      return v;
-    } catch (e) {
-      return '';
-    }
-  }
-
-  function headers(extra) {
-    var h = extra || {};
-    var vid = visitorId();
-    if (vid) h['X-Visitor-Id'] = vid;
-    return h;
-  }
-
-  // 请求超时：浏览器默认会一直挂到网络层放弃，弱网下工单页会转圈很久，
-  // 这里统一 20 秒超时；GET 遇到网络层失败（DNS/连接被掐）自动重试一次。
-  var REQUEST_TIMEOUT_MS = 20000;
-  function request(url, opts) {
-    var controller = typeof AbortController !== 'undefined' ? new AbortController() : null;
-    var timer = null;
-    if (controller) {
-      opts = opts || {};
-      opts.signal = controller.signal;
-      timer = setTimeout(function () { controller.abort(); }, REQUEST_TIMEOUT_MS);
-    }
-    return fetch(url, opts).then(function (res) {
-      if (timer) clearTimeout(timer);
-      return res;
-    }, function (err) {
-      if (timer) clearTimeout(timer);
-      throw err;
-    });
-  }
+  // 超时、GET 网络失败重试一次、匿名访客 X-Visitor-Id 全部收口在 api.js。
+  // 这里只保留本模块的错误提示口径，不再各写一套 fetch/AbortController。
+  var REQUEST_TIMEOUT_MS = window.Api ? window.Api.TIMEOUT_MS : 20000;
 
   function get(url) {
-    var attempt = 0;
-    function run() {
-      attempt++;
-      return request(url, { credentials: 'same-origin', headers: headers() })
-        .then(handle)
-        .catch(function (err) {
-          if (err && err.name === 'AbortError') {
-            throw new Error('请求超时（' + (REQUEST_TIMEOUT_MS / 1000) + ' 秒），请检查网络后重试');
-          }
-          // 仅对网络层失败（TypeError）重试一次，HTTP 业务错误不重试
-          if (attempt < 2 && err instanceof TypeError) {
-            return new Promise(function (resolve) { setTimeout(resolve, 400); }).then(run);
-          }
-          throw err;
-        });
-    }
-    return run();
-  }
-
-  function post(url, body) {
-    return request(url, {
-      method: 'POST',
-      credentials: 'same-origin',
-      headers: headers({ 'Content-Type': 'application/json' }),
-      body: JSON.stringify(body)
-    }).then(handle).catch(function (err) {
+    return window.Api.get(url, { timeout: REQUEST_TIMEOUT_MS }).catch(function (err) {
       if (err && err.name === 'AbortError') {
         throw new Error('请求超时（' + (REQUEST_TIMEOUT_MS / 1000) + ' 秒），请检查网络后重试');
       }
       throw err;
     });
   }
-  function handle(res) {
-    return res.json().catch(function () { return {}; }).then(function (d) {
-      if (d.code !== 0) throw new Error(d.message || ('HTTP ' + res.status));
-      return d;
+
+  function post(url, body) {
+    return window.Api.post(url, body, { timeout: REQUEST_TIMEOUT_MS }).catch(function (err) {
+      if (err && err.name === 'AbortError') {
+        throw new Error('请求超时（' + (REQUEST_TIMEOUT_MS / 1000) + ' 秒），请检查网络后重试');
+      }
+      throw err;
     });
   }
 

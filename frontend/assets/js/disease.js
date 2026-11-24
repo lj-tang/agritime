@@ -115,18 +115,10 @@
     }
 
     showLoading();
-    var controller = typeof AbortController !== 'undefined' ? new AbortController() : null;
-    var timer = setTimeout(function () { if (controller) controller.abort(); }, 20000);
 
-    fetch(url, { method: 'GET', signal: controller ? controller.signal : undefined })
-      .then(function (res) {
-        clearTimeout(timer);
-        if (!res.ok) throw new Error('HTTP ' + res.status);
-        return res.json();
-      })
+    window.Api.get(url)
       .then(function (data) { render(data); })
       .catch(function (err) {
-        clearTimeout(timer);
         var msg = err && err.name === 'AbortError' ? '查询超时' : '查询失败：' + (err.message || '网络异常');
         // 错误态给重试：重新提交同一份描述，用户不用重填
         if (window.UiState) {

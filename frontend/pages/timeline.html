@@ -98,6 +98,7 @@
   <script src="../assets/js/theme.js"></script>
   <script src="../assets/js/theme-decor.js"></script>
   <script src="../assets/js/icons.js"></script>
+  <script src="../assets/js/api.js"></script>
   <script src="../assets/js/ui-state.js"></script>
   <script src="../assets/js/crop-map.js"></script>
   <script src="../assets/js/my-crops-store.js"></script>
@@ -183,12 +184,13 @@
         // 每次拉取都从「无降级」开始：否则上一次失败标记会污染下一次成功结果
         degradedSource = '';
         function attempt() {
-          var controller = new AbortController();
-          var timer = setTimeout(function () { controller.abort(); }, CONFIG.TIMELINE_TIMEOUT_MS);
-          return fetch(buildTimelineUrl(query), { method: 'GET', signal: controller.signal })
+          // 超时 / 网络重试 / 访客身份统一由 api.js 处理；这里只负责 202 轮询与 422 候选。
+          return window.Api.request(buildTimelineUrl(query), {
+            method: 'GET',
+            timeout: CONFIG.TIMELINE_TIMEOUT_MS
+          })
           .then(function (res) {
             if (res.status === 202) {
-              clearTimeout(timer);
               var elapsed = Date.now() - startedAt;
               if (elapsed < MAX_WAIT_MS) {
                 tries++;
@@ -216,7 +218,6 @@
             return res.json();
           })
           .then(function (data) {
-            clearTimeout(timer);
             if (data === null) return null;
             if (!data || typeof data !== 'object' || !Array.isArray(data.nodes)) {
               degradedSource = 'invalid';
@@ -225,7 +226,6 @@
             return data;
           })
           .catch(function (err) {
-            clearTimeout(timer);
             if (!degradedSource) {
               degradedSource = (err && err.name === 'AbortError') ? 'timeout' : 'offline';
             }

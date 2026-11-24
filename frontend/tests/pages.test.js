@@ -9,6 +9,8 @@ const read = (p) => fs.readFileSync(p, 'utf8');
 
 const indexHtml = read(path.join(PAGES, 'index.html'));
 const timelineHtml = read(path.join(PAGES, 'timeline.html'));
+const apiJs = read(path.resolve(__dirname, '..', 'assets', 'js', 'api.js'));
+const uiStateJs = read(path.resolve(__dirname, '..', 'assets', 'js', 'ui-state.js'));
 const photoJs = read(path.join(PAGES, 'photo-capture.js'));
 const commonCss = read(path.join(CSS, 'common.css'));
 const timelineCss = read(path.join(CSS, 'timeline.css'));
@@ -124,7 +126,7 @@ test('流程对齐：位置以 lat/lon 标量传参', () => {
 test('流程对齐：20s 超时常量与降级标识', () => {
   assert.match(timelineHtml, /TIMELINE_TIMEOUT_MS/);
   assert.ok(timelineHtml.includes('20000'));
-  assert.match(timelineHtml, /AbortController/);
+  assert.ok(apiJs.includes('AbortController'), '超时由统一请求层实现');
   assert.match(timelineHtml, /setTimeout/);
   assert.ok(timelineHtml.includes('本地兜底数据'));
 });
@@ -1305,9 +1307,8 @@ test('修复：匿名工单身份不可伪造，且同 IP 不串号', () => {
   assert.ok(h.includes('X-Visitor-Id'), '应支持浏览器访客 ID');
   assert.ok(!/fwd\.split\(","\)\[0\]/.test(h), '不能再取 XFF 第一段（客户端可伪造）');
   assert.ok(h.includes('parts[parts.length - 1]'), '应取 XFF 最后一段');
-  const svc = read(path.resolve(__dirname, '..', 'assets', 'js', 'service.js'));
-  assert.ok(svc.includes('agritime.visitorId'), '前端应生成并持久化访客 ID');
-  assert.ok(svc.includes("'X-Visitor-Id'"), '请求应带访客 ID');
+  assert.ok(apiJs.includes('agritime.visitorId'), '前端应生成并持久化访客 ID');
+  assert.ok(apiJs.includes("'X-Visitor-Id'"), '请求应带访客 ID');
 });
 
 test('修复：一年多熟第二季接在第一季之后，不重叠', () => {
@@ -3164,4 +3165,100 @@ test('V6.10 file:// 直开兜底：双击 index.html 不能是「哑巴页面」
   assert.ok(ds.includes('/__ping'), 'dev-server 应提供 __ping 探活');
   assert.ok(/__ping[\s\S]{0,200}Access-Control-Allow-Origin/.test(ds),
     '__ping 必须带 CORS 头，file:// 是跨源请求');
+});
+
+// ---------------- 统一请求层与四态请求版本号 ----------------
+function browserSandbox(fetchImpl) {
+  const vm = require('node:vm');
+  const store = { 'agritime.visitorId': 'visitor1234567890' };
+  const sandbox = {
+    window: { fetch: fetchImpl },
+    localStorage: {
+      getItem: (k) => (k in store ? store[k] : null),
+      setItem: (k, v) => { store[k] = String(v); }
+    },
+    crypto: { getRandomValues: (buf) => { for (let i = 0; i < buf.length; i++) buf[i] = i + 1; return buf; } },
+    Headers: undefined,
+    AbortController: globalThis.AbortController,
+    setTimeout,
+    clearTimeout,
+    console
+  };
+  sandbox.window.window = sandbox.window;
+  return vm.createContext(sandbox);
+}
+
+test('统一请求层：GET 网络失败重试一次并注入访客 ID', async () => {
+  const vm = require('node:vm');
+  const calls = [];
+  let n = 0;
+  const fetchImpl = (url, opts) => {
+    calls.push({ url, opts });
+    if (n++ === 0) return Promise.reject(new TypeError('network down'));
+    return Promise.resolve({
+      ok: true, status: 200,
+      json: () => Promise.resolve({ code: 0, data: { ok: 1 } })
+    });
+  };
+  const ctx = browserSandbox(fetchImpl);
+  vm.runInContext(apiJs, ctx);
+  const body = await ctx.window.Api.get('/api/crops');
+  assert.deepStrictEqual(body, { code: 0, data: { ok: 1 } });
+  assert.strictEqual(calls.length, 2, '网络失败应重试一次');
+  assert.strictEqual(calls[0].opts.headers['X-Visitor-Id'], 'visitor1234567890');
+  assert.strictEqual(calls[0].opts.method, 'GET');
+});
+
+test('统一请求层：超时保留 AbortError 且给出中文提示，业务错误不重试', async () => {
+  const vm = require('node:vm');
+  let calls = 0;
+  const fetchImpl = (url, opts) => {
+    calls++;
+    return new Promise((resolve, reject) => {
+      opts.signal.addEventListener('abort', () => {
+        const e = new Error('aborted');
+        e.name = 'AbortError';
+        reject(e);
+      });
+    });
+  };
+  const ctx = browserSandbox(fetchImpl);
+  vm.runInContext(apiJs, ctx);
+  await assert.rejects(ctx.window.Api.get('/api/timeline', { timeout: 15 }), (err) => {
+    assert.strictEqual(err.name, 'AbortError');
+    assert.match(err.message, /超时/);
+    return true;
+  });
+  assert.strictEqual(calls, 1, '超时不应重试');
+});
+
+test('四态请求版本号按容器隔离，跨面板不再互相作废', () => {
+  const vm = require('node:vm');
+  const sandbox = {
+    window: {},
+    document: { getElementById: (id) => ({ id }) },
+    console
+  };
+  const ctx = vm.createContext(sandbox);
+  vm.runInContext(uiStateJs, ctx);
+  ctx.UiState = ctx.window.UiState;
+  const a1 = ctx.UiState.guard('boxA');
+  const b1 = ctx.UiState.guard('boxB');
+  assert.strictEqual(a1.current(), true);
+  assert.strictEqual(b1.current(), true);
+  const a2 = ctx.UiState.guard('boxA');
+  assert.strictEqual(a1.current(), false, '同容器新请求应作废旧请求');
+  assert.strictEqual(a2.current(), true);
+  assert.strictEqual(b1.current(), true, '另一容器的请求不受影响');
+  assert.ok(!uiStateJs.includes("'暂无数据'"), '空态文案不应再用「暂无数据」');
+});
+
+test('统一请求层：兼容无 code 包装的裸数据接口', async () => {
+  const vm = require('node:vm');
+  const raw = { month: 6, total: 8, items: [] };
+  const ctx = browserSandbox(() => Promise.resolve({
+    ok: true, status: 200, json: () => Promise.resolve(raw)
+  }));
+  vm.runInContext(apiJs, ctx);
+  assert.deepStrictEqual(await ctx.window.Api.get('/api/recommend?month=6'), raw);
 });

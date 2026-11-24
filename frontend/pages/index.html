@@ -644,6 +644,7 @@
   <script src="../assets/js/weather-visual.js"></script>
   <script src="../assets/js/time-period.js"></script>
   <script src="../assets/js/my-crops-store.js"></script>
+  <script src="../assets/js/api.js"></script>
   <script src="../assets/js/ui-state.js"></script>
   <script src="../assets/js/theme.js"></script>
   <script src="../assets/js/theme-decor.js"></script>
@@ -2068,10 +2069,7 @@
           runSowCheck(cropName, location, sowDate, termInfo);
           return;
         }
-        var controller = new AbortController();
-        var timer = setTimeout(function () { controller.abort(); }, 6000);
-        fetch('/api/geo/landuse?lat=' + ll.lat + '&lon=' + ll.lon, { signal: controller.signal })
-          .then(function (r) { clearTimeout(timer); return r.ok ? r.json() : null; })
+        window.Api.json('/api/geo/landuse?lat=' + ll.lat + '&lon=' + ll.lon, { timeout: 6000 })
           .then(function (b) {
             var d = (b && b.data) || {};
             var level = d.level || (d.known && d.urban ? 'core' : 'rural');
@@ -2087,7 +2085,6 @@
             runSowCheck(cropName, location, sowDate, termInfo);
           })
           .catch(function () {
-            clearTimeout(timer);
             window.__urbanEdge = null;
             renderUrbanEdge();
             runSowCheck(cropName, location, sowDate, termInfo);
