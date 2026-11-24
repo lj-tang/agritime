@@ -357,27 +357,25 @@
     var q = protocolQ ? protocolQ.value.trim() : '';
     var url = API + '/protocols?status=' + encodeURIComponent(status) + '&limit=300'
       + (q ? '&q=' + encodeURIComponent(q) : '');
-    get(url)
-      .then(function (d) {
+    // 一站式四态 + 请求版本号：快速切换筛选时旧响应自动丢弃
+    window.UiState.run(protocolEmpty, {
+      loadingText: '正在读取规程…',
+      load: function () { return get(url); },
+      isEmpty: function (d) { var data = d.data || {}; return !(data.items || []).length; },
+      emptyText: q ? '没有匹配「' + q + '」的规程' : '这个状态下没有规程',
+      render: function (d) {
         var data = d.data || {};
         var items = data.items || [];
         protocolCount.textContent = '待复核 ' + (data.countPending || 0)
           + ' · 已通过 ' + (data.countReviewed || 0)
           + ' · 已驳回 ' + (data.countRejected || 0)
           + ' · 共 ' + (data.countAll || 0) + ' 套';
-        protocolBody.innerHTML = '';
-        if (!items.length) {
-          showEmpty(protocolEmpty, q ? '没有匹配「' + q + '」的规程' : '这个状态下没有规程');
-          return;
-        }
         protocolEmpty.hidden = true;
-        items.forEach(function (p) { protocolBody.appendChild(protocolRow(p)); });
-      })
-      .catch(function () {
-        protocolCount.textContent = '';
         protocolBody.innerHTML = '';
-        showError(protocolEmpty, '规程列表加载失败', loadProtocols);
-      });
+        items.forEach(function (p) { protocolBody.appendChild(protocolRow(p)); });
+      },
+      errorText: '规程列表加载失败'
+    });
   }
 
   function protocolRow(p) {

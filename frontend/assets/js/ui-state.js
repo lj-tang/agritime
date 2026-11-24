@@ -98,7 +98,64 @@
       el.insertBefore(bar, el.firstChild);
       return bar;
     },
-    clear: clear
+    clear: clear,
+
+    /**
+     * 请求版本号：切换筛选/快速重复查询时，只认最后一次请求的响应，
+     * 旧响应回来直接丢弃（pageState + requestVersion 防旧覆盖）。
+     */
+    guard: function () {
+      UiState.__seq = (UiState.__seq || 0) + 1;
+      var id = UiState.__seq;
+      return { current: function () { return UiState.__seq === id; } };
+    },
+
+    /**
+     * 一站式四态：加载 → load() → 空 / 渲染 / 错误（自动带重试）。
+     * opts: {
+     *   loadingText, load,                       // load 返回 Promise<data>
+     *   isEmpty(data)->bool, emptyText, emptyActionText, onEmptyAction,
+     *   render(data),                            // 有数据时渲染（容器已清空）
+     *   errorText, errorHint, retryText
+     * }
+     * 返回 guard，可中途 invalidate 掉本次请求。
+     */
+    run: function (box, opts) {
+      var o = opts || {};
+      var el = resolve(box);
+      if (!el || typeof o.load !== 'function') return null;
+      var g = UiState.guard();
+      function attempt() {
+        UiState.loading(el, o.loadingText || '正在加载…');
+        Promise.resolve().then(function () { return o.load(); }).then(function (data) {
+          if (!g.current()) return; // 旧请求的响应，丢弃
+          if (o.isEmpty && o.isEmpty(data)) {
+            el.hidden = false;
+            UiState.empty(el, {
+              icon: o.emptyIcon,
+              text: o.emptyText || '暂无数据',
+              actionText: o.emptyActionText,
+              onAction: o.onEmptyAction
+            });
+          } else if (typeof o.render === 'function') {
+            UiState.clear(el);
+            o.render(data);
+          }
+        }).catch(function () {
+          if (!g.current()) return;
+          el.hidden = false;
+          UiState.error(el, {
+            icon: o.errorIcon,
+            text: o.errorText || '加载失败',
+            hint: o.errorHint || '网络恢复后点下面重新加载。',
+            retryText: o.retryText || '重新加载',
+            onRetry: attempt
+          });
+        });
+      }
+      attempt();
+      return g;
+    }
   };
 
   /**
