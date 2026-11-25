@@ -1,0 +1,16 @@
+{
+  "version": "1.0.0",
+  "comment": "明日农活外发配置（15天冲刺 F01）。渠道优先级 sms→serviceAccount→localMock；前两条没有真实通道凭据时自动降级到 localMock 留痕，绝不假装已发到手机。短信网关/服务号 webhook 只从环境变量取（DISPATCH_SMS_URL / DISPATCH_SERVICE_URL），不写进仓库。",
+  "defaultSendHour": 18,
+  "maxMessageChars": 70,
+  "channels": ["sms", "serviceAccount", "localMock"],
+  "priority": ["sms", "serviceAccount", "localMock"],
+  "templates": {
+    "action": "明日{date}{plot}：{task}。{weatherNote}{toolNote}",
+    "caution": "明日{date}{plot}：{task}不宜，建议挪到{newDate}。{reason}"
+  },
+  "compression": {
+    "comment": "超过 70 字时按此顺序裁剪，先去掉工具与天气补充，再压缩日期与地块，最后截断任务但保留句号；模板里的必填信息（日期/任务/不宜建议）不丢。",
+    "dropOrder": ["toolNote", "weatherNote", "plot", "reason", "task"]
+  }
+}

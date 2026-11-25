@@ -135,3 +135,26 @@
 }
 
 .disease-human-btn { margin: 10px auto 0; display: block; }
+
+/* F02：诊断后排进日历的结果条 */
+.disease-plan-btn {
+  margin-top: 12px;
+  width: 100%;
+  white-space: normal;
+  line-height: 1.5;
+}
+.disease-plan-result {
+  margin-top: 10px;
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  background: rgba(232, 244, 236, 0.75);
+  border: 1px solid rgba(120, 168, 138, 0.35);
+  font-size: calc(12px * var(--fs, 1));
+  line-height: 1.7;
+  color: #2f5e42;
+}
+.disease-plan-result--err {
+  background: rgba(253, 236, 234, 0.8);
+  border-color: rgba(200, 110, 100, 0.35);
+  color: #9b4238;
+}

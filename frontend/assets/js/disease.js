@@ -256,6 +256,15 @@
 
     card.appendChild(section('下次预防', m.prevention));
 
+    // F02：诊断后一键排进日历 —— 按安全间隔后移采收日。
+    // 只调接口、把结果摆出来；不改时间线 DOM（那是 W03/W05 页面的事）。
+    var planBtn = document.createElement('button');
+    planBtn.type = 'button';
+    planBtn.className = 'btn btn-ghost disease-plan-btn';
+    planBtn.textContent = '排进日历（算打药日与采收后移）';
+    planBtn.addEventListener('click', function () { planIntoCalendar(m, planBtn); });
+    card.appendChild(planBtn);
+
     if (m.scope || m.source) {
       var src = document.createElement('p');
       src.className = 'disease-source';
@@ -290,6 +299,60 @@
     btn.textContent = '把这段描述转给反馈';
     btn.addEventListener('click', function () { goHuman(desc); });
     resultBox.appendChild(btn);
+  }
+
+  /**
+   * F02：把选中的病害排进日历。
+   * 取首页已填的作物/播期/坐标（没有就用默认值），调 /api/disease/plan，
+   * 把打药日、安全间隔、采收后移摆出来。接口不返回药名剂量，这里也不展示。
+   */
+  function planIntoCalendar(m, btn) {
+    var old = btn.textContent;
+    btn.textContent = '正在排期…';
+    btn.disabled = true;
+    var prev = btn.parentNode.querySelector('.disease-plan-result');
+    if (prev) prev.remove();
+
+    function val(id) {
+      var el = document.getElementById(id);
+      return el ? (el.value || '') : '';
+    }
+    var crop = val('crop') || val('disease-crop') || m.name;
+    var sowDate = val('sowingDate');
+    var lat = parseFloat(val('lat') || val('plot-lat')) || 35.07;
+    var lon = parseFloat(val('lon') || val('plot-lon')) || 116.31;
+    var body = { diseaseId: m.id, crop: crop, lat: lat, lon: lon };
+    if (sowDate) body.sowDate = sowDate;
+
+    // Api.post 直接返回解析后的响应体（内部已统一超时/错误文案），不要再 resp.json()
+    window.Api.post('/api/disease/plan', body).then(function (data) {
+      var box = document.createElement('div');
+      box.className = 'disease-plan-result';
+      var spray = data.sprayNode || {};
+      var interval = data.safetyInterval || {};
+      var shift = data.harvestShift;
+      var parts = [
+        '打药：' + (spray.date || '待定') + (spray.reason ? '（' + spray.reason + '）' : ''),
+        '安全间隔：' + (interval.days != null ? interval.days + ' 天' : '未知')
+          + '，最早可采收 ' + (interval.earliestHarvestDate || '待定')
+      ];
+      if (shift && shift.newDate) {
+        parts.push('采收由 ' + shift.originalDate + ' 后移到 ' + shift.newDate + '（+' + shift.days + ' 天）');
+      } else {
+        parts.push('当前日历没有需要后移的采收节点');
+      }
+      if (data.notice) parts.push(data.notice);
+      box.textContent = parts.join(' · ');
+      btn.parentNode.insertBefore(box, btn.nextSibling);
+    }).catch(function (err) {
+      var box = document.createElement('div');
+      box.className = 'disease-plan-result disease-plan-result--err';
+      box.textContent = '排期失败：' + (err && err.message ? err.message : '服务暂不可用') + '，请稍后重试';
+      btn.parentNode.insertBefore(box, btn.nextSibling);
+    }).finally(function () {
+      btn.textContent = old;
+      btn.disabled = false;
+    });
   }
 
   function goHuman(desc) {

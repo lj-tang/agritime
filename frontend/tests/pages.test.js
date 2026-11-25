@@ -3262,3 +3262,43 @@ test('统一请求层：兼容无 code 包装的裸数据接口', async () => {
   vm.runInContext(apiJs, ctx);
   assert.deepStrictEqual(await ctx.window.Api.get('/api/recommend?month=6'), raw);
 });
+
+// ---------------- F01/F02 闭环接线 ----------------
+
+test('F02 病害→打药→安全间隔→采收后移：规则、接口、前端入口齐全', () => {
+  const root = path.resolve(__dirname, '..', '..');
+  const rules = JSON.parse(read(path.join(root, 'data', 'disease', 'spray-rules.json')));
+  assert.ok(rules.rules.length >= 5, '打药规则至少覆盖 5 种常见病害');
+  assert.ok(rules.rules.every((r) => r.safetyIntervalDays > 0), '每条规则都要有安全间隔天数');
+  assert.ok(rules.rules.every((r) => r.agentCategory && !r.agentCategory.match(/\d+%|毫升|克\/亩/)),
+    '只给药剂类别，不给剂量');
+  const handler = read(path.join(root, 'backend', 'src', 'com', 'cropcalendar', 'api', 'DiseaseHandler.java'));
+  assert.match(handler, /endsWith\("\/plan"\)/, 'DiseaseHandler 分发 /plan 子路由');
+  assert.match(handler, /spray-rules\.json/, '加载打药规则');
+  const planner = read(path.join(root, 'backend', 'src', 'com', 'cropcalendar', 'service', 'disease', 'SprayPlanner.java'));
+  assert.match(planner, /safetyIntervalDays|safetyDays/, '计算安全间隔');
+  assert.match(planner, /shiftHarvests/, '后移采收节点');
+  const diseaseJs = read(path.resolve(__dirname, '..', 'assets', 'js', 'disease.js'));
+  assert.match(diseaseJs, /api\/disease\/plan/, '病害卡片能调排期接口');
+  assert.match(diseaseJs, /disease-plan-result/, '排期结果有展示区');
+});
+
+test('F01 明日农活外发：配置、五个接口、渠道降级、诚实留痕', () => {
+  const root = path.resolve(__dirname, '..', '..');
+  const cfg = JSON.parse(read(path.join(root, 'data', 'dispatch', 'config.json')));
+  assert.strictEqual(cfg.channels[cfg.channels.length - 1], 'localMock', '最后一档必须是本地留痕兜底');
+  assert.ok(cfg.maxMessageChars <= 70, '单条不超过 70 字');
+  assert.match(cfg.templates.action, /\{date\}/);
+  assert.match(cfg.templates.caution, /\{newDate\}/);
+  const handler = read(path.join(root, 'backend', 'src', 'com', 'cropcalendar', 'api', 'DispatchHandler.java'));
+  for (const p of ['/config', '/preview', '/send-now', '/logs']) {
+    assert.ok(handler.includes('"' + p + '"'), '缺少接口 ' + p);
+  }
+  assert.match(handler, /DISPATCH_SMS_URL/, '短信网关只从环境变量取');
+  assert.match(handler, /未真正发到手机/, '降级时诚实说明没真发');
+  const planner = read(path.join(root, 'backend', 'src', 'com', 'cropcalendar', 'service', 'dispatch', 'DispatchPlanner.java'));
+  assert.match(planner, /cautionsOnly/, '只收不宜时不发普通任务');
+  assert.match(planner, /dropOrder/, '超长按序压缩');
+  const server = read(path.join(root, 'backend', 'src', 'com', 'cropcalendar', 'Server.java'));
+  assert.match(server, /createContext\("\/api\/dispatch"/, '路由已注册');
+});

@@ -1,5 +1,11 @@
 package com.cropcalendar.api;
 
+import com.cropcalendar.compute.ComputeStub;
+import com.cropcalendar.service.disease.SprayPlanner;
+import com.cropcalendar.service.disease.SprayPlanner.DayWeather;
+import com.cropcalendar.service.disease.SprayPlanner.HarvestShift;
+import com.cropcalendar.service.disease.SprayPlanner.SprayDay;
+import com.cropcalendar.util.AppTime;
 import com.cropcalendar.util.Json;
 import com.cropcalendar.util.JsonParser;
 import com.sun.net.httpserver.HttpExchange;
@@ -9,6 +15,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -37,6 +44,13 @@ public class DiseaseHandler implements HttpHandler {
         if ("OPTIONS".equalsIgnoreCase(ex.getRequestMethod())) {
             ex.sendResponseHeaders(204, -1);
             ex.close();
+            return;
+        }
+
+        // F02：诊断后把打药排进日历、并按安全间隔后移采收。
+        // 与 detect（文字/图片 → 候选病害）是两条独立链路，用子路径区分。
+        if (ex.getRequestURI().getPath().endsWith("/plan")) {
+            handlePlan(ex);
             return;
         }
 
@@ -170,6 +184,238 @@ public class DiseaseHandler implements HttpHandler {
                         : null),
                 "total", String.valueOf(items.size()),
                 "matches", Json.arr(items)));
+    }
+
+    // ====================================================================
+    // F02 · 病害 → 打药 → 安全间隔 → 采收后移
+    // POST /api/disease/plan
+    //   {diseaseId, crop, sowDate, lat, lon, diagnosisDate?}
+    // 也可以 GET（curl 冒烟）：?diseaseId=&crop=&sowDate=&lat=&lon=
+    // ====================================================================
+
+    private static final String SPRAY_RULES_PATH = "../data/disease/spray-rules.json";
+    private static volatile Map<String, Object> SPRAY_RULES;
+
+    private void handlePlan(HttpExchange ex) throws IOException {
+        if (!"POST".equalsIgnoreCase(ex.getRequestMethod())
+                && !"GET".equalsIgnoreCase(ex.getRequestMethod())) {
+            HttpSupport.write(ex, 405, HttpSupport.error(405, "plan 只支持 POST / GET"));
+            return;
+        }
+
+        String diseaseId, crop, sowDate, diagnosisDate;
+        double lat, lon;
+        List<String> harvestDates;
+
+        Map<String, Object> body = "POST".equalsIgnoreCase(ex.getRequestMethod())
+                ? HttpSupport.jsonBody(ex) : null;
+        if ("POST".equalsIgnoreCase(ex.getRequestMethod()) && body == null) {
+            HttpSupport.write(ex, 400, HttpSupport.error(400, "请求体必须是 JSON 对象"));
+            return;
+        }
+        if (body != null) {
+            diseaseId = str(body.get("diseaseId"));
+            crop = HttpSupport.field(body, "crop");
+            sowDate = HttpSupport.field(body, "sowDate");
+            diagnosisDate = HttpSupport.field(body, "diagnosisDate");
+            lat = HttpSupport.parseDouble(str(body.get("lat")), 35.07);
+            lon = HttpSupport.parseDouble(str(body.get("lon")), 116.31);
+            harvestDates = strList(body.get("harvestDates"));
+        } else {
+            Map<String, String> q = HttpSupport.query(ex.getRequestURI().getRawQuery());
+            diseaseId = HttpSupport.trimToNull(q.get("diseaseId"));
+            crop = HttpSupport.trimToNull(q.get("crop"));
+            sowDate = HttpSupport.trimToNull(q.get("sowDate"));
+            diagnosisDate = HttpSupport.trimToNull(q.get("diagnosisDate"));
+            lat = HttpSupport.parseDouble(q.get("lat"), 35.07);
+            lon = HttpSupport.parseDouble(q.get("lon"), 116.31);
+            harvestDates = List.of();
+        }
+
+        if (diseaseId == null || diseaseId.isBlank() || crop == null || crop.isBlank()) {
+            HttpSupport.write(ex, 400, HttpSupport.error(400, "缺少必填参数 diseaseId / crop"));
+            return;
+        }
+
+        Map<String, Object> disease = findDisease(diseaseId);
+        if (disease == null) {
+            HttpSupport.write(ex, 404, HttpSupport.error(404,
+                    "病害库中找不到 " + diseaseId + "；先用 /api/disease/detect 拿到病害 id"));
+            return;
+        }
+
+        Map<String, Object> rules;
+        try {
+            rules = sprayRules();
+        } catch (Exception e) {
+            HttpSupport.write(ex, 500, HttpSupport.error(500, "打药规则读取失败：" + e.getMessage()));
+            return;
+        }
+
+        String code = str(disease.get("id"));
+        Map<String, Object> rule = findRule(rules, code);
+        // 规则表没有该病害时，回落病害库的 safetyInterval；仍没有就用默认阈值，
+        // 并在返回里写清间隔期来源，不拿编造的数字当好数据。
+        int safetyDays = rule != null && rule.get("safetyIntervalDays") != null
+                ? (int) Math.round(num(rule.get("safetyIntervalDays")))
+                : (disease.get("safetyInterval") == null ? 14
+                   : (int) Math.round(num(disease.get("safetyInterval"))));
+        String safetySource = rule != null && rule.get("safetyIntervalDays") != null
+                ? "spray-rules"
+                : (disease.get("safetyInterval") == null ? "保守默认（该病害未标间隔期）" : "病害库");
+        String agentCategory = rule != null && rule.get("agentCategory") != null
+                ? str(rule.get("agentCategory")) : "登记用于该病害的药剂类别";
+        double rainMax = 2, windMax = 4;
+        double tempLo = 15, tempHi = 28;
+        if (rule != null && rule.get("bestWeather") instanceof Map<?, ?> bw) {
+            if (bw.get("rainMaxMm") != null) rainMax = num(bw.get("rainMaxMm"));
+            if (bw.get("windMaxMs") != null) windMax = num(bw.get("windMaxMs"));
+            if (bw.get("tempRangeC") instanceof List<?> tr && tr.size() >= 2) {
+                tempLo = num(tr.get(0));
+                tempHi = num(tr.get(1));
+            }
+        }
+        String label = rule != null && rule.get("label") != null
+                ? str(rule.get("label")) : str(disease.get("name"));
+        String notice = rules.get("notice") == null
+                ? "仅提供药剂类别；不提供药名、剂量和复配方案"
+                : str(rules.get("notice"));
+
+        // ---- 扫描诊断后 5 天天气，打分选最佳打药日 ----
+        List<String> scanDates = SprayPlanner.nextDays(diagnosisDate, 5);
+        List<DayWeather> days = new ArrayList<>();
+        try {
+            ComputeStub.WeatherWindow win = ComputeStub.fetchWindowWeather(lat, lon, scanDates);
+            for (String d : scanDates) {
+                ComputeStub.WeatherWindow.Daily w = win.byDate().get(d);
+                if (w == null) {
+                    days.add(new DayWeather(d, null, null, null));
+                } else {
+                    days.add(new DayWeather(d, w.rainMm(), w.windMs(), (w.minTempC() + w.maxTempC()) / 2.0));
+                }
+            }
+        } catch (Exception e) {
+            // 天气取不到不能让整条闭环断掉：全部记为缺测，由 SprayPlanner 给"临近再看预报"的降级口径
+            for (String d : scanDates) days.add(new DayWeather(d, null, null, null));
+        }
+        SprayDay spray = SprayPlanner.pickSprayDay(days, rainMax, windMax, tempLo, tempHi);
+
+        // ---- 收采收节点：优先用调用方传来的（与当前日历完全一致），否则从时间线取 ----
+        List<String> harvests = harvestDates;
+        if (harvests == null || harvests.isEmpty()) {
+            harvests = harvestDatesFromTimeline(crop, sowDate, lat, lon);
+        }
+        String earliest = SprayPlanner.earliestHarvest(spray.date(), safetyDays);
+        List<HarvestShift> shifts = SprayPlanner.shiftHarvests(harvests, earliest);
+
+        // ---- 组装返回（不出现任何具体药名/剂量）----
+        String sprayNode = Json.obj(
+                "date", Json.str(spray.date()),
+                "title", Json.str("打药：" + label),
+                "agentCategory", Json.str(agentCategory),
+                "reason", Json.str(spray.reason()),
+                "weatherBased", Json.bool(!spray.noWeather()));
+        String interval = Json.obj(
+                "days", Json.num(safetyDays),
+                "source", Json.str(safetySource),
+                "earliestHarvestDate", Json.str(earliest));
+        List<String> shiftJson = new ArrayList<>();
+        for (HarvestShift s : shifts) {
+            shiftJson.add(Json.obj("originalDate", Json.str(s.originalDate()),
+                    "newDate", Json.str(s.newDate()), "days", Json.num(s.days())));
+        }
+        String primary = shifts.isEmpty() ? "null" : shiftJson.get(0);
+        HttpSupport.write(ex, 200, Json.obj(
+                "diseaseId", Json.str(code),
+                "diseaseName", Json.str(str(disease.get("name"))),
+                "crop", Json.str(crop),
+                "sprayNode", sprayNode,
+                "scanDates", Json.arr(scanDates.stream().map(Json::str).toList()),
+                "weatherDegraded", Json.bool(spray.noWeather()),
+                "safetyInterval", interval,
+                "harvestShift", primary,
+                "harvestShifts", Json.arr(shiftJson),
+                "harvestChecked", Json.num(harvests.size()),
+                "notice", Json.str(notice)));
+    }
+
+    /** 从时间线里取所有 harvest 节点的日期；失败返回空列表，由上层明确标注未检查。 */
+    private static List<String> harvestDatesFromTimeline(String crop, String sowDate, double lat, double lon) {
+        if (sowDate == null || sowDate.isBlank()) return List.of();
+        try {
+            String cropId = com.cropcalendar.service.crop.CropRegistry.timelineCropId(crop);
+            com.cropcalendar.orchestration.TimelineOrchestrator.TimelineResult r =
+                    new com.cropcalendar.orchestration.TimelineOrchestrator().build(cropId, sowDate, lat, lon);
+            List<String> out = new ArrayList<>();
+            for (var n : r.nodes()) {
+                if ("harvest".equalsIgnoreCase(n.opType()) && n.date() != null) out.add(n.date());
+            }
+            return out;
+        } catch (Exception e) {
+            System.err.println("[disease/plan] 时间线采收节点读取失败：" + e.getMessage());
+            return List.of();
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private static Map<String, Object> findDisease(String id) {
+        try {
+            List<Map<String, Object>> lib = library();
+            for (Map<String, Object> d : lib) {
+                if (id.equalsIgnoreCase(str(d.get("id"))) || id.equals(str(d.get("name")))) return d;
+            }
+        } catch (Exception ignored) {
+        }
+        return null;
+    }
+
+    @SuppressWarnings("unchecked")
+    private static Map<String, Object> sprayRules() throws IOException {
+        Map<String, Object> cached = SPRAY_RULES;
+        if (cached != null) return cached;
+        synchronized (DiseaseHandler.class) {
+            if (SPRAY_RULES != null) return SPRAY_RULES;
+            String text = Files.readString(Path.of(SPRAY_RULES_PATH), StandardCharsets.UTF_8);
+            Object root = JsonParser.parse(text);
+            if (!(root instanceof Map<?, ?> m)) throw new IOException("打药规则结构不对");
+            Map<String, Object> rules = (Map<String, Object>) m;
+            SPRAY_RULES = rules;
+            System.out.println("[disease] 打药规则已加载");
+            return rules;
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private static Map<String, Object> findRule(Map<String, Object> rules, String diseaseCode) {
+        if (!(rules.get("rules") instanceof List<?> list)) return null;
+        for (Object o : list) {
+            if (o instanceof Map<?, ?> rm
+                    && diseaseCode.equalsIgnoreCase(str(rm.get("diseaseCode")))) {
+                return (Map<String, Object>) rm;
+            }
+        }
+        return null;
+    }
+
+    private static List<String> strList(Object v) {
+        List<String> out = new ArrayList<>();
+        if (v instanceof List<?> l) {
+            for (Object o : l) {
+                String s = str(o);
+                if (!s.isBlank()) out.add(s);
+            }
+        }
+        return out;
+    }
+
+    private static double num(Object o) {
+        if (o instanceof Number n) return n.doubleValue();
+        if (o == null) return 0;
+        try {
+            return Double.parseDouble(str(o));
+        } catch (Exception e) {
+            return 0;
+        }
     }
 
     private Double parseRatio(String raw) {

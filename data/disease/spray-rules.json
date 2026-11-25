@@ -1,0 +1,68 @@
+{
+  "version": "1.0.0",
+  "comment": "打药排期规则（15天冲刺 F02）。只给药剂类别与安全间隔期，不给药名、剂量、复配方案。bestWeather 是选打药日的打分阈值：雨≤rainMaxMm +40，风≤windMaxMs +20，日均温在 tempRangeC 内 +40。safetyIntervalDays 优先取本表，未列时回落 data/disease/library.json 的 safetyInterval。",
+  "notice": "仅提供药剂类别；不提供药名、剂量和复配方案。实际用药请按当地植保部门登记与产品标签执行。",
+  "default": {
+    "rainMaxMm": 2,
+    "windMaxMs": 4,
+    "tempRangeC": [15, 28]
+  },
+  "rules": [
+    {
+      "diseaseCode": "rice_blast",
+      "label": "稻瘟病",
+      "agentCategory": "登记用于稻瘟病的药剂类别",
+      "safetyIntervalDays": 14,
+      "bestWeather": { "rainMaxMm": 2, "windMaxMs": 4, "tempRangeC": [15, 28] }
+    },
+    {
+      "diseaseCode": "wheat_stripe_rust",
+      "label": "小麦条锈病",
+      "agentCategory": "登记用于小麦锈病的药剂类别",
+      "safetyIntervalDays": 21,
+      "bestWeather": { "rainMaxMm": 2, "windMaxMs": 4, "tempRangeC": [10, 25] }
+    },
+    {
+      "diseaseCode": "wheat_scab",
+      "label": "小麦赤霉病",
+      "agentCategory": "登记用于小麦赤霉病的药剂类别",
+      "safetyIntervalDays": 21,
+      "bestWeather": { "rainMaxMm": 2, "windMaxMs": 4, "tempRangeC": [15, 25] }
+    },
+    {
+      "diseaseCode": "tomato_late_blight",
+      "label": "番茄晚疫病",
+      "agentCategory": "登记用于番茄晚疫病的药剂类别",
+      "safetyIntervalDays": 7,
+      "bestWeather": { "rainMaxMm": 2, "windMaxMs": 4, "tempRangeC": [10, 25] }
+    },
+    {
+      "diseaseCode": "tomato_early_blight",
+      "label": "番茄早疫病",
+      "agentCategory": "登记用于番茄早疫病的药剂类别",
+      "safetyIntervalDays": 7,
+      "bestWeather": { "rainMaxMm": 2, "windMaxMs": 4, "tempRangeC": [15, 28] }
+    },
+    {
+      "diseaseCode": "garlic_white_rot",
+      "label": "大蒜白腐病",
+      "agentCategory": "登记用于大蒜白腐病的药剂类别",
+      "safetyIntervalDays": 14,
+      "bestWeather": { "rainMaxMm": 2, "windMaxMs": 4, "tempRangeC": [10, 22] }
+    },
+    {
+      "diseaseCode": "cotton_aphid",
+      "label": "棉蚜",
+      "agentCategory": "登记用于棉花蚜虫的药剂类别",
+      "safetyIntervalDays": 14,
+      "bestWeather": { "rainMaxMm": 2, "windMaxMs": 3, "tempRangeC": [15, 30] }
+    },
+    {
+      "diseaseCode": "corn_leaf_blight",
+      "label": "玉米大斑病",
+      "agentCategory": "登记用于玉米大斑病的药剂类别",
+      "safetyIntervalDays": 14,
+      "bestWeather": { "rainMaxMm": 2, "windMaxMs": 4, "tempRangeC": [15, 28] }
+    }
+  ]
+}

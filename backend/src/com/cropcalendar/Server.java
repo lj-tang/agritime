@@ -5,6 +5,7 @@ import com.cropcalendar.api.AuthHandler;
 import com.cropcalendar.api.ChartHandler;
 import com.cropcalendar.api.CropsHandler;
 import com.cropcalendar.api.DiseaseHandler;
+import com.cropcalendar.api.DispatchHandler;
 import com.cropcalendar.api.GeoHandler;
 import com.cropcalendar.api.WeatherHandler;
 import com.cropcalendar.api.HealthHandler;
@@ -83,6 +84,7 @@ public class Server {
         server.createContext("/api/sow-check", new SowCheckHandler());
         server.createContext("/api/sensor", new SensorHandler());
         server.createContext("/api/reminders", new ReminderHandler());
+        server.createContext("/api/dispatch", new DispatchHandler());
         server.setExecutor(Executors.newFixedThreadPool(8));
 
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
